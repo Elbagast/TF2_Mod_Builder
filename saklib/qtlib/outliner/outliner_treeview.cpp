@@ -1,6 +1,6 @@
 #include "outliner_treeview.h"
 #include "outliner_model.h"
-//#include "outliner_item.h"
+
 #include <QHeaderView>
 #include <QMenu>
 
@@ -44,21 +44,7 @@ void Saklib::Qtlib::Outliner_Treeview::slot_customContextMenuRequested(QPoint co
     {
         // Send a request for a context menu at this index, the model will determine behaviour.
         model->custom_context_menu(this, index, viewport()->mapToGlobal(pos));
-
-        // if menu requested on an item
-        if(index.isValid())
-        {
-            // Get the custom context menu for the selected item
-
-        }
-        // else not requested on an item (clicking away from any items)
-        else
-        {
-            // Get the custom context menu for the root item (which is not visible)
-            //model->root_item()->custom_context_menu(this, model, viewport()->mapToGlobal(pos));
-        }
     }
-
 }
 
 

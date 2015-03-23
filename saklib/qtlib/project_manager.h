@@ -26,6 +26,8 @@ namespace Saklib
         The bit that binds Element management with extended features like Widgets and keeps them all in sync
 
         What we want is an API that Commands can use to easily set data and have dependent views update.
+
+        ...Alternatively this has a simple API that uses Commands inside it...which way around?...
         */
 
         class Project_Manager

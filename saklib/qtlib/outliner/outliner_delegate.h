@@ -10,9 +10,9 @@ namespace Saklib
     {
         /*
         Outliner_Delegate
-        ======================================
-        Delegate class for Outliner_Model which provides the ability to use specific editors. It forwards
-        functions to Proxy_Interface which have virtual implementations.
+        ====================================================================================================
+        Delegate class for Outliner_Model which provides the ability to use specific editors. At the moment
+        it only allows editing on Element names via a QLineEdit widget.
          */
 
         class Outliner_Delegate :

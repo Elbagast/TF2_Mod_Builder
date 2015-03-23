@@ -7,6 +7,7 @@
 #include "../qstring_operations.h"
 
 #include <QMenu>
+#include <QAbstractItemView>
 
 // Special 6
 //============================================================
@@ -458,7 +459,13 @@ void Saklib::Qtlib::Outliner_Model::custom_context_menu(QAbstractItemView*const 
         QMenu menu{};
         menu.addAction(menu_title.c_str())->setEnabled(false);
         menu.addSeparator();
-        menu.addAction("Rename");
+
+        auto rename_action = menu.addAction("Rename");
+
+        // connect the action to a lambda that calls edit in the view
+        QObject::connect(rename_action, &QAction::triggered,
+                         [view, &index](){ view->edit(index); });
+
         menu.addAction("Edit"); // open the editor of this Element
         menu.exec(position);
     }

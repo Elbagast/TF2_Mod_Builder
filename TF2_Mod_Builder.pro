@@ -36,7 +36,6 @@ SOURCES += main.cpp\
     saklib/qtlib/outliner/outliner_treeview.cpp \
     saklib/qtlib/outliner/outliner_delegate.cpp \
     saklib/qtlib/editor_bool.cpp \
-    saklib/qtlib/project_window.cpp \
     saklib/qtlib/element_widget_manager.cpp \
     saklib/qtlib/project_manager.cpp \
     saklib/proxyid.cpp \
@@ -72,7 +71,6 @@ HEADERS  += \
     saklib/type_traits_int.h \
     saklib/type_traits_string.h \
     saklib/types.h \
-    saklib/qtlib/all_qt_operations.h \
     saklib/qtlib/element_widget.h \
     saklib/qtlib/windowtitle.h \
     saklib/qtlib/project_widget.h \
@@ -83,9 +81,7 @@ HEADERS  += \
     saklib/qtlib/qvariant_operations.h \
     saklib/type_traits_path.h \
     saklib/qtlib/editor_bool.h \
-    saklib/qtlib/project_window.h \
     saklib/qtlib/element_widget_manager.h \
-    saklib/boost_path.h \
     saklib/qtlib/project_manager.h \
     saklib/qtlib/attribute_editor.h \
     saklib/proxyid.h \
@@ -94,8 +90,7 @@ HEADERS  += \
 
 FORMS    += \
     saklib/qtlib/consoledialog.ui \
-    saklib/qtlib/project_main_window.ui \
-    saklib/qtlib/project_window.ui
+    saklib/qtlib/project_main_window.ui
 
 OTHER_FILES += \
     dev_notes.txt

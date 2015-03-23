@@ -1,13 +1,5 @@
 #ifndef OUTLINER_TREEVIEW_H
 #define OUTLINER_TREEVIEW_H
-/*
-Outliner_Treeview
-======================================
-Class derived from QTreeView for use with Outliner_Model which provides the capability
-to act on custom context menus for Outliner_Item classes. There is also some custom
-behaviour for adding items, and there may be more in the future - it depends what has
-to be done here.
-*/
 
 #include <QTreeView>
 #include <memory>
@@ -16,6 +8,13 @@ namespace Saklib
 {
     namespace Qtlib
     {
+        /*
+        Outliner_Treeview
+        ====================================================================================================
+        Class derived from QTreeView for use with Outliner_Model which provides the capability to request a
+        custom context menu for a QModelIndex when the model for it is an Outliner_Model. It also has some
+        default settings that need to be reapplied whenever the model is updated (annoying).
+        */
 
         class Outliner_Treeview :
                 public QTreeView
