@@ -43,7 +43,7 @@ namespace Saklib
             QVariant data(QModelIndex const& index, int role) const override;
             // Get the header data for a given section and orientation
             //QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
-            // The number of rows (children) the Outliner_Item at a given QModelIndex has.
+            // The number of rows (children) the item at a given QModelIndex has.
             int rowCount(QModelIndex const& parent = QModelIndex()) const override;
             // Always returns 1
             int columnCount(QModelIndex const& parent = QModelIndex()) const override;

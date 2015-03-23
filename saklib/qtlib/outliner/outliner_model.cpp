@@ -26,8 +26,8 @@ Saklib::Qtlib::Outliner_Model::~Outliner_Model() = default;
 // Get the flags for a given QModelIndex.
 Qt::ItemFlags Saklib::Qtlib::Outliner_Model::flags(QModelIndex const& index) const
 {
-    // if index is valid, and the id inside is not 0
-    if (index.isValid())// && index.internalId() != invalid_proxyid())
+    // if index is valid
+    if (index.isValid())
     {
         // Make a proxy out of the id
         ProxyID indexid{ProxyID::unpack(index.internalId())};
@@ -55,7 +55,6 @@ QVariant Saklib::Qtlib::Outliner_Model::data(QModelIndex const& index, int role)
 {
     // if index is valid
     if (index.isValid()
-        //&& index.internalId() != invalid_proxyid()
         && role == Qt::DisplayRole
         && index.column() == 0)
     {
@@ -116,7 +115,7 @@ int Saklib::Qtlib::Outliner_Model::rowCount(QModelIndex const& index) const
         return 0;
     }
 }
-// The number of columns (children) the Outliner_Item at a given QModelIndex has,
+// The number of columns (children) the item at a given QModelIndex has,
 // but this just returns 1 as there is only one column.
 int Saklib::Qtlib::Outliner_Model::columnCount(QModelIndex const& /*parent*/) const
 {
@@ -221,7 +220,7 @@ QModelIndex Saklib::Qtlib::Outliner_Model::index(int row, int column, QModelInde
     // else it's an Element
     else if (parentid.is_element())
     {
-        // Then this index represents an AttributeID
+        // Then this index represents an ElementID
 
         // get the item by row in parent
         AttributeID index_attributeid{mr_project_manager.outliner_child_at_row(parentid.elementid(), row)};
@@ -236,7 +235,7 @@ QModelIndex Saklib::Qtlib::Outliner_Model::index(int row, int column, QModelInde
     // else it's an Attribute
     else if (parentid.is_attribute())
     {
-        // Then this index represents an ElementID
+        // Then this index represents an AttributeID
 
         // get the item by row in parent
         ElementID index_elementid{mr_project_manager.outliner_child_at_row(parentid.attributeid(), row)};

@@ -14,10 +14,10 @@ namespace Saklib
     /*
     Command_History
     ====================================================================================================
-    Queue-like container that manages a history of comammds and supports undo/redo functionality on the
+    Queue-like container that manages a history of commands and supports undo/redo functionality on the
     Command objects.
 
-    Position in the history is tracked with an iterator that points to position the next last commdand
+    Position in the history is tracked with an iterator that points to position the next last command
     that was executed (consequently also the next command that undo will be called on).
     */
     class Command_History
