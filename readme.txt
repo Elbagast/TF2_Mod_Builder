@@ -84,7 +84,7 @@ I haven't figured out a good way of supplying configurable constraints to Attrib
 it just seems to be a bit of a mess right now...
 
 Want things along the lines of a float between 0.0 and 1.0, but also complicated things like
-ElementID that can only be Elments of given type(s), or string that can only be Attribute
+ElementID that can only be Elements of given type(s), or string that can only be Attribute
 names from another Element (this one applies to shader proxies).
 ***
 
