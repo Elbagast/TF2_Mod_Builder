@@ -6,6 +6,7 @@
 #include "elementid.h"
 #include "attributeid.h"
 #include "attribute_type.h"
+#include "element_manager.h"
 
 namespace Saklib
 {
@@ -29,22 +30,21 @@ namespace Saklib
 
         // Special 6
         //============================================================
-        Command_Attribute(AttributeID const& attributeid) :
+        Command_Attribute(Element_Manager& manager, AttributeID attributeid) :
             Command(),
+            mr_manager(manager),
             m_attributeid(attributeid),
-            mp_attribute(m_attributeid.attribute_type_cast<stored_type>())
+            mp_attribute(attribute_type_cast<stored_type>(mr_manager.attribute(m_attributeid)))
         {
+            assert(mr_manager.is_valid(m_attributeid));
             assert(mp_attribute != nullptr);
         }
-        Command_Attribute(ElementID const& elementid, String const& attribute_name) :
-            Command_Attribute(AttributeID(elementid, attribute_name))
-        {}
         ~Command_Attribute() override = default;
 
     protected:
         // Interface
         //============================================================
-        attribute_type* attribute() const
+        attribute_type*const attribute() const
         { 
             return mp_attribute;
         }
@@ -54,6 +54,7 @@ namespace Saklib
         void v_execute() override = 0;
         void v_unexecute() override = 0;
     private:
+        Element_Manager& mr_manager;
         AttributeID m_attributeid;
         attribute_type* mp_attribute;  // lifetime dependent on that of m_attributeid
     };
@@ -71,13 +72,10 @@ namespace Saklib
         public Command_Attribute<T>
     {
     public:
-        Command_Attribute_Set(AttributeID const& attributeid, stored_type const& new_value) :
-            Command_Attribute<T>(attributeid),
+        Command_Attribute_Set(Element_Manager& manager, AttributeID attributeid, stored_type const& new_value) :
+            Command_Attribute<T>(manager, attributeid),
             m_old_value(attribute()->get()),
             m_new_value(new_value)
-        {}
-        Command_Attribute_Set(ElementID const& elementid, String const& attribute_name, stored_type const& new_value) :
-            Command_Attribute_Set(AttributeID(elementid, attribute_name), new_value)
         {}
         ~Command_Attribute_Set() override = default;
 
@@ -109,13 +107,10 @@ namespace Saklib
         public Command_Attribute<Vector<T>>
     {
     public:
-        Command_Attribute_Set(AttributeID const& attributeid, stored_type const& new_value) :
-            Command_Attribute<Vector<T>>(attributeid),
+        Command_Attribute_Set(Element_Manager& manager, AttributeID attributeid, stored_type const& new_value) :
+            Command_Attribute<Vector<T>>(manager, attributeid),
             m_old_value(attribute()->vector()),
             m_new_value(new_value)
-        {}
-        Command_Attribute_Set(ElementID const& elementid, String const& attribute_name, stored_type const& new_value) :
-            Command_Attribute_Set(AttributeID(elementid, attribute_name), new_value)
         {}
         ~Command_Attribute_Set() override = default;
 

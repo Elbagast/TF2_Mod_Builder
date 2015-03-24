@@ -12,9 +12,8 @@
 
 // Special 6
 //============================================================
-Saklib::Qtlib::Element_Widget::Element_Widget(Command_History& command_history, Project_Manager& project_manager, ElementID elementid):
+Saklib::Qtlib::Element_Widget::Element_Widget(Project_Manager& project_manager, ElementID elementid):
     QWidget(nullptr),
-    mr_command_history(command_history),
     mr_project_manager(project_manager),
     m_elementid(elementid),
 
@@ -82,11 +81,11 @@ Saklib::Qtlib::Element_Widget::Element_Widget(Command_History& command_history, 
             //Uptr<Attribute_Editor> editor{new Attribute_Editor_Dummy()};
 
             // going to need an AttributeID
-            Uptr<Attribute_Editor> editor{make_Attribute_Editor(mr_command_history, project_manager, attributeid)};
+            Uptr<Attribute_Editor> editor{make_Attribute_Editor(project_manager, attributeid)};
 
 
             //if (attribute->type_enum() == Type_Enum::Bool)
-            //    editor.reset(new Editor_Bool(Saklib::attribute_type_cast<Bool>(attribute.get()), m_command_history, this));
+            //    editor.reset(new Editor_Bool(Saklib::attribute_type_cast<Bool>(attribute.get()), this));
             //else
             //    editor.reset(new QLabel("DUMMY", this));
 

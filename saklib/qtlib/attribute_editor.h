@@ -1,17 +1,17 @@
 #ifndef ATTRIBUTE_EDITOR_H
 #define ATTRIBUTE_EDITOR_H
 
-#include "../types.h"
 #include "../attributeid.h"
 #include <QWidget>
 
+class QLabel;
+
 namespace Saklib
 {
-    class Command_History;
-    class Project_Manager;
-
     namespace Qtlib
     {
+        class Project_Manager;
+
         class Attribute_Editor :
                 public QWidget
         {
@@ -19,16 +19,17 @@ namespace Saklib
         public:
             // Special 6
             //============================================================
-            explicit Attribute_Editor(QWidget* parent = nullptr):
-                QWidget(parent)
-            {}
-            ~Attribute_Editor() override = default;
+            Attribute_Editor(Project_Manager& project_manager, AttributeID attributeid, QWidget* parent = nullptr);
+            ~Attribute_Editor() override;
 
-        public:
-            void refresh_data() { v_refresh_data(); }
+            void refresh_data()                 { v_refresh_data(); }
+            AttributeID attributeid() const     { return m_attributeid; }
 
         protected:
             virtual void v_refresh_data() = 0;
+
+            Project_Manager& mr_project_manager;
+            AttributeID m_attributeid;
         };
 
         class Attribute_Editor_Dummy :
@@ -38,20 +39,16 @@ namespace Saklib
         public:
             // Special 6
             //============================================================
-            explicit Attribute_Editor_Dummy(QWidget* parent = nullptr):
-                Attribute_Editor(parent)
-            {}
-            ~Attribute_Editor_Dummy() override = default;
-
+            Attribute_Editor_Dummy(Project_Manager& project_manager, AttributeID attributeid, QWidget* parent = nullptr);
+            ~Attribute_Editor_Dummy() override;
         protected:
             void v_refresh_data() override {}
+        private:
+            Uptr<QLabel> m_label;
         };
 
         // Function with a typeswitch
-        inline Uptr<Attribute_Editor> make_Attribute_Editor(Command_History& command_history, Project_Manager& project_manager, AttributeID attributeid)
-        {
-            return Uptr<Attribute_Editor>(new Attribute_Editor_Dummy());
-        }
+        Uptr<Attribute_Editor> make_Attribute_Editor(Project_Manager& project_manager, AttributeID attributeid);
 
     } // namespace Qtlib
 } // namespace Saklib

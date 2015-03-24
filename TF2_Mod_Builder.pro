@@ -35,12 +35,17 @@ SOURCES += main.cpp\
     saklib/qtlib/project_widget.cpp \
     saklib/qtlib/outliner/outliner_treeview.cpp \
     saklib/qtlib/outliner/outliner_delegate.cpp \
-    saklib/qtlib/editor_bool.cpp \
     saklib/qtlib/element_widget_manager.cpp \
     saklib/qtlib/project_manager.cpp \
     saklib/proxyid.cpp \
     saklib/qtlib/outliner/outliner_model.cpp \
-    saklib/interal_element_definitions.cpp
+    saklib/interal_element_definitions.cpp \
+    saklib/qtlib/quptr.cpp \
+    saklib/qtlib/attribute_editor_bool.cpp \
+    saklib/qtlib/attribute_editor.cpp \
+    saklib/qtlib/attribute_editor_int.cpp \
+    saklib/qtlib/temp_disconnect.cpp \
+    saklib/qtlib/attribute_editor_double.cpp
 
 HEADERS  += \
     saklib/all_attributes.h \
@@ -80,13 +85,17 @@ HEADERS  += \
     saklib/qtlib/qstring_operations.h \
     saklib/qtlib/qvariant_operations.h \
     saklib/type_traits_path.h \
-    saklib/qtlib/editor_bool.h \
     saklib/qtlib/element_widget_manager.h \
     saklib/qtlib/project_manager.h \
     saklib/qtlib/attribute_editor.h \
     saklib/proxyid.h \
     saklib/qtlib/outliner/outliner_model.h \
-    saklib/interal_element_definitions.h
+    saklib/interal_element_definitions.h \
+    saklib/qtlib/quptr.h \
+    saklib/qtlib/attribute_editor_bool.h \
+    saklib/qtlib/attribute_editor_int.h \
+    saklib/qtlib/temp_disconnect.h \
+    saklib/qtlib/attribute_editor_double.h
 
 FORMS    += \
     saklib/qtlib/consoledialog.ui \

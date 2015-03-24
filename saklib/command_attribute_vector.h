@@ -5,7 +5,7 @@
 #include "command.h"
 #include "elementid.h"
 #include "attributeid.h"
-#include <vector>
+#include "element_manager.h"
 
 namespace Saklib
 {
@@ -32,16 +32,15 @@ namespace Saklib
         using value_type_traits = typename attribute_type::value_type_traits;
                
 
-        Command_Attribute_Vector(AttributeID&& attributeid) :
+        Command_Attribute_Vector(Element_Manager& manager, AttributeID attributeid) :
             Command(),
-            m_attributeid(std::forward<AttributeID>(attributeid)),
-            mp_attribute(m_attributeid.attribute_type_cast<stored_type>())
+            mr_manager(manager),
+            m_attributeid(attributeid),
+            mp_attribute(attribute_type_cast<stored_type>(mr_manager.attribute(m_attributeid)))
         {
+            assert(mr_manager.is_valid(m_attributeid));
             assert(mp_attribute != nullptr);
         }
-        Command_Attribute_Vector(ElementID const& elementid, String const& attribute_name, stored_type&& new_value) :
-            Command_Attribute_Vector(AttributeID(elementid, attribute_name), std::forward<stored_type>(new_value))
-        {}
         ~Command_Attribute_Vector() override = default;
 
     protected:
@@ -53,6 +52,7 @@ namespace Saklib
         void v_execute() override = 0;
         void v_unexecute() override = 0;
     private:
+        Element_Manager& mr_manager;
         AttributeID m_attributeid;
         attribute_type* mp_attribute;  // lifetime dependent on that of m_attributeid
     };
@@ -71,14 +71,11 @@ namespace Saklib
         public Command_Attribute_Vector<T>
     {
     public:
-        Command_Attribute_Vector_Set_Value_At(AttributeID&& attributeid, size_type index, value_type new_value) :
-            Command_Attribute_Vector<T>(std::forward<AttributeID>(attributeid)),
+        Command_Attribute_Vector_Set_Value_At(Element_Manager& manager, AttributeID attributeid, size_type index, value_type new_value) :
+            Command_Attribute_Vector<T>(manager, attributeid),
             m_index(index),
             m_old_value(attribute()->vector().at(index)),
             m_new_value(std::move(new_value))
-        {}
-        Command_Attribute_Vector_Set_Value_At(ElementID const& elementid, String const& attribute_name, size_type index, value_type new_value) :
-            Command_Attribute_Vector_Set_Value_At(AttributeID(elementid, attribute_name), index, new_value)
         {}
         ~Command_Attribute_Vector_Set_Value_At() override = default;
 
@@ -112,13 +109,10 @@ namespace Saklib
         public Command_Attribute_Vector<T>
     {
     public:
-        Command_Attribute_Vector_Set_Back(AttributeID&& attributeid, value_type new_value) :
-            Command_Attribute_Vector<T>(std::forward<AttributeID>(attributeid)),
+        Command_Attribute_Vector_Set_Back(Element_Manager& manager, AttributeID attributeid, value_type new_value) :
+            Command_Attribute_Vector<T>(manager, attributeid),
             m_old_value(attribute()->vector().at(index)),
             m_new_value(std::move(new_value))
-        {}
-        Command_Attribute_Vector_Set_Back(ElementID const& elementid, String const& attribute_name, value_type new_value) :
-            Command_Attribute_Vector_Set_Back(AttributeID(elementid, attribute_name), new_value)
         {}
         ~Command_Attribute_Vector_Set_Back() override = default;
 
@@ -150,13 +144,10 @@ namespace Saklib
         public Command_Attribute_Vector<T>
     {
     public:
-        Command_Attribute_Vector_Set_Front(AttributeID&& attributeid, value_type new_value) :
-            Command_Attribute_Vector<T>(std::forward<AttributeID>(attributeid)),
+        Command_Attribute_Vector_Set_Front(Element_Manager& manager, AttributeID attributeid, value_type new_value) :
+            Command_Attribute_Vector<T>(manager, attributeid),
             m_old_value(attribute()->vector().at(index)),
             m_new_value(std::move(new_value))
-        {}
-        Command_Attribute_Vector_Set_Front(ElementID const& elementid, String const& attribute_name, value_type new_value) :
-            Command_Attribute_Vector_Set_Front(AttributeID(elementid, attribute_name), new_value)
         {}
         ~Command_Attribute_Vector_Set_Front() override = default;
 
@@ -185,12 +176,9 @@ namespace Saklib
         public Command_Attribute_Vector<T>
     {
     public:
-        Command_Attribute_Vector_Push_Back(AttributeID&& attributeid, value_type new_value) :
-            Command_Attribute_Vector<T>(std::forward<AttributeID>(attributeid)),
+        Command_Attribute_Vector_Push_Back(Element_Manager& manager, AttributeID attributeid, value_type new_value) :
+            Command_Attribute_Vector<T>(manager, attributeid),
             m_new_value(std::move(new_value))
-        {}
-        Command_Attribute_Vector_Push_Back(ElementID const& elementid, String const& attribute_name, value_type new_value) :
-            Command_Attribute_Vector_Push_Back(AttributeID(elementid, attribute_name), new_value)
         {}
         ~Command_Attribute_Vector_Push_Back() override = default;
 
@@ -218,12 +206,9 @@ namespace Saklib
         public Command_Attribute_Vector<T>
     {
     public:
-        Command_Attribute_Vector_Push_Front(AttributeID&& attributeid, value_type new_value) :
-            Command_Attribute_Vector<T>(std::forward<AttributeID>(attributeid)),
+        Command_Attribute_Vector_Push_Front(Element_Manager& manager, AttributeID attributeid, value_type new_value) :
+            Command_Attribute_Vector<T>(manager, attributeid),
             m_new_value(std::move(new_value))
-        {}
-        Command_Attribute_Vector_Push_Front(ElementID const& elementid, String const& attribute_name, value_type new_value) :
-            Command_Attribute_Vector_Push_Front(AttributeID(elementid, attribute_name), new_value)
         {}
         ~Command_Attribute_Vector_Push_Front() override = default;
 
@@ -252,11 +237,8 @@ namespace Saklib
     {
     public:
         Command_Attribute_Vector_Pop_Back(AttributeID&& attributeid) :
-            Command_Attribute_Vector<T>(std::forward<AttributeID>(attributeid)),
+            Command_Attribute_Vector<T>(manager, attributeid),
             m_old_back_value(attribute()->vector().back())
-        {}
-        Command_Attribute_Vector_Pop_Back(ElementID const& elementid, String const& attribute_name) :
-            Command_Attribute_Vector_Pop_Back(AttributeID(elementid, attribute_name))
         {}
         ~Command_Attribute_Vector_Pop_Back() override = default;
 
@@ -284,11 +266,8 @@ namespace Saklib
     {
     public:
         Command_Attribute_Vector_Pop_Front(AttributeID&& attributeid) :
-            Command_Attribute_Vector<T>(std::forward<AttributeID>(attributeid)),
+            Command_Attribute_Vector<T>(manager, attributeid),
             m_old_front_value(attribute()->vector().front())
-        {}
-        Command_Attribute_Vector_Pop_Front(ElementID const& elementid, String const& attribute_name) :
-            Command_Attribute_Vector_Pop_Front(AttributeID(elementid, attribute_name))
         {}
         ~Command_Attribute_Vector_Pop_Front() override = default;
 
@@ -317,11 +296,8 @@ namespace Saklib
     {
     public:
         Command_Attribute_Vector_Clear(AttributeID&& attributeid) :
-            Command_Attribute_Vector<T>(std::forward<AttributeID>(attributeid)),
+            Command_Attribute_Vector<T>(manager, attributeid),
             m_vector_contents() // default empty vector
-        {}
-        Command_Attribute_Vector_Clear(ElementID const& elementid, String const& attribute_name) :
-            Command_Attribute_Vector_Clear(AttributeID(elementid, attribute_name))
         {}
         ~Command_Attribute_Vector_Clear() override = default;
 

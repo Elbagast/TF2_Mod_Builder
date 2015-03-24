@@ -1,6 +1,5 @@
 #include "element_widget_manager.h"
 #include "project_manager.h"
-//#include "../command_history.h"
 #include "element_widget.h"
 
 
@@ -20,7 +19,7 @@ Saklib::Qtlib::Element_Widget_Manager::~Element_Widget_Manager()
 // Build a new Element_Widget for a given ElementID and return it
 // This function forwards all these arguments to the Element_Widget constructor as only
 // they will need to do anything with them.
-Saklib::Qtlib::Element_Widget*const Saklib::Qtlib::Element_Widget_Manager::make_widget(Command_History& command_history, Project_Manager& project_manager, ElementID elementid)
+Saklib::Qtlib::Element_Widget*const Saklib::Qtlib::Element_Widget_Manager::make_widget(Project_Manager& project_manager, ElementID elementid)
 {
     // Check the validity of the ElementID
     if (project_manager.is_valid(elementid))
@@ -33,7 +32,7 @@ Saklib::Qtlib::Element_Widget*const Saklib::Qtlib::Element_Widget_Manager::make_
         // Otherwise make a new widget and return it
 
         // Need to figure out Element_Widget first.
-        auto result = m_map.emplace(elementid, std::make_unique<Element_Widget>(command_history, project_manager, elementid));
+        auto result = m_map.emplace(elementid, std::make_unique<Element_Widget>(project_manager, elementid));
 
         // if the emplace succeeded, return the resulting widget
         if (result.second)
@@ -108,6 +107,6 @@ Saklib::Vector_ElementID Saklib::Qtlib::Element_Widget_Manager::all_elementids()
 void Saklib::Qtlib::Element_Widget_Manager::nullify_all_parents()
 {
     for (auto& value : m_map)
-        value.second->setParent(nullptr); // stuff has been deleted by the time we've gotten here...
+        value.second->setParent(nullptr);
 }
 

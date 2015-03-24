@@ -1,7 +1,6 @@
 #include "outliner_model.h"
 
 #include "../project_manager.h"
-//#include "../../command_history.h"
 
 #include "../qvariant_operations.h"
 #include "../qstring_operations.h"
@@ -11,9 +10,8 @@
 
 // Special 6
 //============================================================
-Saklib::Qtlib::Outliner_Model::Outliner_Model(Command_History& command_history, Project_Manager& project_manager, QObject* parent):
+Saklib::Qtlib::Outliner_Model::Outliner_Model(Project_Manager& project_manager, QObject* parent):
     QAbstractItemModel(parent),
-    mr_command_history(command_history),
     mr_project_manager(project_manager)
 {}
 Saklib::Qtlib::Outliner_Model::~Outliner_Model() = default;
@@ -437,16 +435,16 @@ void Saklib::Qtlib::Outliner_Model::custom_context_menu(QAbstractItemView*const 
         assert(index.internalId() == ProxyID::pack(indexid));
     }
 
-    // Now test indexid, which may or may not be valid.
+    // start the context menu
+    QMenu menu{};
+    // now fill it dependent on what this index represents
 
     // if the indexid is root
     if (!indexid.is_valid())
     {
         // then do the general context menu
-        QMenu menu{};
         menu.addAction("Root Context Menu")->setEnabled(false);
         menu.addSeparator();
-        menu.exec(position);
     }
     // else it's an Element
     else if (indexid.is_element())
@@ -454,33 +452,45 @@ void Saklib::Qtlib::Outliner_Model::custom_context_menu(QAbstractItemView*const 
         auto index_elementid = indexid.elementid();
         auto menu_title = mr_project_manager.element_name(index_elementid);
 
-        // then do the general context menu
-        QMenu menu{};
         menu.addAction(menu_title.c_str())->setEnabled(false);
         menu.addSeparator();
 
+        // Rename this Element
         auto rename_action = menu.addAction("Rename");
-
         // connect the action to a lambda that calls edit in the view
         QObject::connect(rename_action, &QAction::triggered,
                          [view, &index](){ view->edit(index); });
 
-        menu.addAction("Edit"); // open the editor of this Element
-        menu.exec(position);
+        // Open the editor widget for this Element
+        auto edit_action = menu.addAction("Edit");
+        QObject::connect(edit_action, &QAction::triggered,
+                         [this, index_elementid](){ emit this->signal_editorRequestedFor(index_elementid); });
+
     }
     // else it's an Attribute
     else if (indexid.is_attribute())
     {
         auto index_attributeid = indexid.attributeid();
-        auto menu_title = mr_project_manager.attribute_name(index_attributeid);
+        auto index_elementid = index_attributeid.elementid();
 
-        // then do the general context menu
-        QMenu menu{};
+        auto menu_title = mr_project_manager.element_name(index_elementid)
+                          + " : "
+                          + mr_project_manager.attribute_name(index_attributeid);
+
         menu.addAction(menu_title.c_str())->setEnabled(false);
         menu.addSeparator();
-        menu.addAction("Edit"); // open the editor of the parent Element
-        menu.exec(position);
+
+        // Open the editor widget for the Attribute's Element
+        auto edit_action = menu.addAction("Edit");
+        QObject::connect(edit_action, &QAction::triggered,
+                         [this, index_elementid](){ emit this->signal_editorRequestedFor(index_elementid); });
+
+    }
+    else
+    {
+        menu.addAction("Bad context menu request.")->setEnabled(false);
     }
 
+    menu.exec(position);
     // Assembling the context menu is going to need some thought.
 }

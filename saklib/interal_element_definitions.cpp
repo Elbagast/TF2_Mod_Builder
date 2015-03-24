@@ -11,6 +11,8 @@ Saklib::Element_Definition Saklib::internal_definition_of_Project()
         make_shared_Attribute_Definition("Filepath", Type_Enum::Path),
         make_shared_Attribute_Definition("TestBool", Type_Enum::Bool),
         make_shared_Attribute_Definition("TestInt", Type_Enum::Int),
+        make_shared_Attribute_Definition("TestDouble", Type_Enum::Double),
+        make_shared_Attribute_Definition("TestString", Type_Enum::String),
         make_shared_Attribute_Definition("TestElement", Type_Enum::ElementID),
         make_shared_Attribute_Definition("Files", Type_Enum::Vector_ElementID),
         make_shared_Attribute_Definition("Textures", Type_Enum::Vector_ElementID),

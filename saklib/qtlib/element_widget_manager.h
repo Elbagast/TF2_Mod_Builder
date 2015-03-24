@@ -9,9 +9,6 @@
 
 namespace Saklib
 {
-    class Command_History;
-
-
     namespace Qtlib
     {
         class Project_Manager;
@@ -25,6 +22,9 @@ namespace Saklib
         Element_Widgets which do.
 
         This is really a class that you build in its final place.
+
+        Since widgets exist at the behest of the gui and get parented/reparented by other widgets this might
+        be better off with a different ownership strategy...
         */
         class Element_Widget_Manager // public QTabWidget?
         {
@@ -47,7 +47,7 @@ namespace Saklib
             // Build a new Element_Widget for a given ElementID and return it.
             // This function forwards all these arguments to the Element_Widget constructor as only
             // they will need to do anything with them.
-            Element_Widget*const make_widget(Command_History& command_history, Project_Manager& project_manager, ElementID elementid);
+            Element_Widget*const make_widget(Project_Manager& project_manager, ElementID elementid);
             // Destory the Element_Widget associated with this ElementID
             void destroy_widget(ElementID elementid);
 

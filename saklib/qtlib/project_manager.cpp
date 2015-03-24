@@ -4,10 +4,12 @@
 
 // Special 6
 //============================================================
-Saklib::Qtlib::Project_Manager::Project_Manager(Command_History& command_history):
+Saklib::Qtlib::Project_Manager::Project_Manager(Project_Widget* widget):
+    m_command_history(),
     m_data_manager(),
     m_widget_manager(),
-    m_outliner_model(new Outliner_Model(command_history, *this))
+    m_outliner_model(new Outliner_Model(*this)),
+    mp_widget(widget)
 {}
 Saklib::Qtlib::Project_Manager::~Project_Manager() = default;
 
@@ -17,12 +19,12 @@ Saklib::Qtlib::Project_Manager::~Project_Manager() = default;
 // Lifetime
 //------------------------------------------------------------
 // Make a new Element and return all info about it
-Saklib::ElementID Saklib::Qtlib::Project_Manager::make_element(Command_History& command_history, String const& type)
+Saklib::ElementID Saklib::Qtlib::Project_Manager::make_element(String const& type)
 {
     // make an element
     ElementID newid = m_data_manager.make_element(type);
     // make a widget
-    Element_Widget* new_widget = m_widget_manager.make_widget(command_history, *this, newid);
+    m_widget_manager.make_widget(*this, newid);
 
     return newid;
 }
@@ -57,7 +59,6 @@ bool Saklib::Qtlib::Project_Manager::is_valid(ProxyID proxyid) const
 
 // Data Access
 //------------------------------------------------------------
-//Element& element(ElementID elementid);
 Saklib::Element const& Saklib::Qtlib::Project_Manager::element(ElementID elementid) const
 {
     return m_data_manager.element(elementid);
@@ -75,10 +76,6 @@ Saklib::AttributeID Saklib::Qtlib::Project_Manager::element_parent(ElementID ele
 {
      return m_data_manager.parent(elementid);
 }
-
-//Saklib::Attribute *const Saklib::Qtlib::Project_Manager::attribute(AttributeID attributeid) const;
-//Saklib::Attribute *const Saklib::Qtlib::Project_Manager::attribute(ElementID elementid, size_type attribute_index) const;
-//Saklib::Attribute *const Saklib::Qtlib::Project_Manager::attribute(ElementID elementid, String const& attribute_name) const;
 
 Saklib::Attribute const*const Saklib::Qtlib::Project_Manager::attribute(AttributeID attributeid) const
 {
@@ -290,14 +287,94 @@ int Saklib::Qtlib::Project_Manager::outliner_row_in_parent(AttributeID attribute
 
 // Data Setters
 //============================================================
-// You must only set data though these in order to keep everything in sync
+// You must only set data though these in order to keep everything in sync. These setters will issue
+// appropriate commands as necessary and return true if a change was actually made to data.
 
-void Saklib::Qtlib::Project_Manager::set_element_name(ElementID elementid, String const& value)
+bool Saklib::Qtlib::Project_Manager::set_element_name(ElementID elementid, String const& value)
 {
-    m_data_manager.element(elementid).set_name(value);
-    update_widget(elementid);
-    update_model(elementid);
+    if(is_valid(elementid)
+       && this->element_name(elementid) != value)
+    {
+        // maintaining unique names goes here
+
+        m_data_manager.element(elementid).set_name(value);
+        update_widget(elementid);
+        update_model(elementid);
+        return true;
+    }
+    else
+    {
+        return false;
+    }
 }
+
+// Command History
+//============================================================
+// Provide limited access to the underlying history
+//Command_History const& command_history() const;
+
+// Will calling undo do anything?
+bool Saklib::Qtlib::Project_Manager::can_undo() const
+{
+    return m_command_history.can_undo();
+}
+
+// Will calling redo do anything?
+bool Saklib::Qtlib::Project_Manager::can_redo() const
+{
+    return m_command_history.can_redo();
+}
+
+// How many times can undo() be called()?
+Saklib::size_type Saklib::Qtlib::Project_Manager::undo_count() const
+{
+    return m_command_history.undo_count();
+}
+
+// How many times can redo() be called()?
+Saklib::size_type Saklib::Qtlib::Project_Manager::redo_count() const
+{
+    return m_command_history.redo_count();
+}
+
+// Call unexecute() in the current command and step back one in the history.
+void Saklib::Qtlib::Project_Manager::undo()
+{
+    m_command_history.undo();
+}
+
+// Step forward one in the history and call execute() on that command.
+void Saklib::Qtlib::Project_Manager::redo()
+{
+    m_command_history.redo();
+}
+
+// Clear all stored commands.
+void Saklib::Qtlib::Project_Manager::clear_history()
+{
+    m_command_history.clear();
+}
+
+// Widget
+//============================================================
+// this communicates with the widget to tell it when things in it need to change, like when
+// an editor is requested....hmmm
+
+Saklib::Qtlib::Project_Widget*const Saklib::Qtlib::Project_Manager::widget() const
+{
+    return mp_widget;
+}
+
+void Saklib::Qtlib::Project_Manager::set_widget(Project_Widget* widget)
+{
+    mp_widget = widget;
+}
+
+bool Saklib::Qtlib::Project_Manager::has_widget() const
+{
+    return mp_widget != nullptr;
+}
+
 
 // Internal
 //============================================================

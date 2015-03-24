@@ -3,7 +3,7 @@
 
 #include "../types.h"
 #include "../command.h"
-//#include "../command_history.h"
+#include "../command_history.h"
 #include "../elementid.h"
 #include "../attributeid.h"
 #include "../proxyid.h"
@@ -15,19 +15,20 @@
 
 namespace Saklib
 {
-    class Command_History; // passed in and connected to components that need it.
 
     namespace Qtlib
     {
         class Outliner_Model;
+        class Project_Widget;
         /*
         Project_Manager
         ====================================================================================================
         The bit that binds Element management with extended features like Widgets and keeps them all in sync
 
-        What we want is an API that Commands can use to easily set data and have dependent views update.
+        Commands are managed inside this class.
 
-        ...Alternatively this has a simple API that uses Commands inside it...which way around?...
+        Should this actually be the widget class rather than talk to it? - I guess this'll depend on what
+        happens when we start messing with switching editors to focus on different Elements...
         */
 
         class Project_Manager
@@ -35,7 +36,7 @@ namespace Saklib
         public:
             // Special 6
             //============================================================
-            explicit Project_Manager(Command_History& command_history);
+            explicit Project_Manager(Project_Widget* widget = nullptr);
             ~Project_Manager();
 
             // NO COPYING
@@ -48,7 +49,7 @@ namespace Saklib
             // Lifetime
             //------------------------------------------------------------
             // Make a new Element and return all info about it
-            ElementID make_element(Command_History& command_history, String const& type);
+            ElementID make_element(String const& type);
             // Destory an Element and everything associated with it
             void destroy_element(ElementID elementid);
 
@@ -60,18 +61,13 @@ namespace Saklib
             bool is_valid(AttributeID attributeid) const;
             bool is_valid(ProxyID proxyid) const;
 
-            // Data Access
+            // Data Access - read only
             //------------------------------------------------------------
-            //Element& element(ElementID elementid);
-            Element const& element(ElementID elementid) const;
+            Element const& element(ElementID elementid) const; // return a pointer?
 
             String const& element_name(ElementID elementid) const;
             String const& element_type(ElementID elementid) const;
             AttributeID element_parent(ElementID elementid) const;
-
-            //Attribute *const attribute(AttributeID attributeid) const;
-            //Attribute *const attribute(ElementID elementid, size_type attribute_index) const;
-            //Attribute *const attribute(ElementID elementid, String const& attribute_name) const;
 
             Attribute const*const attribute(AttributeID attributeid) const;
             Attribute const*const attribute(ElementID elementid, size_type attribute_index) const;
@@ -81,23 +77,6 @@ namespace Saklib
             Type_Enum attribute_type_enum(AttributeID attributeid) const;
             String attribute_type_string(AttributeID attributeid) const;
 
-            /*
-            template <typename T>
-            Attribute_Type<T> *const attribute_type_cast(AttributeID attributeid) const
-            {
-                return Saklib::attribute_type_cast<T>(attribute(attributeid));
-            }
-            template <typename T>
-            Attribute_Type<T> *const attribute_type_cast(ElementID elementid, size_type attribute_index) const
-            {
-                return Saklib::attribute_type_cast<T>(attribute(elementid, attribute_index));
-            }
-            template <typename T>
-            Attribute_Type<T> *const attribute_type_cast(ElementID elementid, String const& attribute_name) const
-            {
-                return Saklib::attribute_type_cast<T>(attribute(elementid, attribute_name));
-            }
-            */
             template <typename T>
             Attribute_Type<T> const*const attribute_type_cast(AttributeID attributeid) const
             {
@@ -114,24 +93,6 @@ namespace Saklib
                 return Saklib::attribute_type_cast<T>(attribute(elementid, attribute_name));
             }
 
-
-            /*
-            template <Type_Enum TE>
-            Attribute_Type<TypeHolder_st<TE>> *const attribute_enum_cast(AttributeID attributeid) const
-            {
-                return Saklib::attribute_enum_cast<TE>(attribute(attributeid));
-            }
-            template <Type_Enum TE>
-            Attribute_Type<TypeHolder_st<TE>> *const attribute_enum_cast(ElementID elementid, size_type attribute_index) const
-            {
-                return Saklib::attribute_enum_cast<TE>(attribute(elementid, attribute_index));
-            }
-            template <Type_Enum TE>
-            Attribute_Type<TypeHolder_st<TE>> *const attribute_enum_cast(ElementID elementid, String const& attribute_name) const
-            {
-                return Saklib::attribute_enum_cast<TE>(attribute(elementid, attribute_name));
-            }
-            */
             template <Type_Enum TE>
             Attribute_Type<TypeHolder_st<TE>> const*const attribute_enum_cast(AttributeID attributeid) const
             {
@@ -187,33 +148,67 @@ namespace Saklib
             int outliner_row_in_parent(ElementID elementid) const;
             int outliner_row_in_parent(AttributeID attributeid) const;
 
-            // Data Setters
+            // Data Setters - the only part with write access
             //============================================================
-            // You must only set data though these in order to keep everything in sync
+            // You must only set data though these in order to keep everything in sync. These setters will issue
+            // appropriate commands as necessary and return true if a change was actually made to data.
 
-            void set_element_name(ElementID elementid, String const& value);
+            bool set_element_name(ElementID elementid, String const& value);
 
             template <typename T>
-            void set_attribute_type(AttributeID attributeid, T const& value)
+            bool set_attribute_type(AttributeID attributeid, T const& value)
             {
-                if(attributeid.is_valid())
+                if(attributeid.is_valid()
+                   && this->attribute_type_cast<T>(attributeid)->get() != value)
                 {
                     m_data_manager.element(attributeid.elementid()).attribute_type_cast<T>(attributeid.index())->set(value);
                     update_widget(attributeid);
                     update_model(attributeid);
+                    return true;
+                }
+                else
+                {
+                    return false;
                 }
             }
 
             template <Type_Enum TE>
-            void set_attribute_enum(AttributeID attributeid, TypeHolder_st<TE> const& value)
+            bool set_attribute_enum(AttributeID attributeid, TypeHolder_st<TE> const& value)
             {
-                if(attributeid.is_valid())
-                {
-                    m_data_manager.element(attributeid.elementid()).attribute_enum_cast<TE>(attributeid.index())->set(value);
-                    update_widget(attributeid);
-                    update_model(attributeid);
-                }
+                return set_attribute_type<TypeHolder_st<TE> >(attributeid, value);
             }
+
+            // Command History
+            //============================================================
+            // Provide limited access to the underlying history
+            //Command_History const& command_history() const;
+
+            // Will calling undo do anything?
+            bool can_undo() const;
+            // Will calling redo do anything?
+            bool can_redo() const;
+
+            // How many times can undo() be called()?
+            size_type undo_count() const;
+            // How many times can redo() be called()?
+            size_type redo_count() const;
+
+            // Call unexecute() in the current command and step back one in the history.
+            void undo();
+            // Step forward one in the history and call execute() on that command.
+            void redo();
+
+            // Clear all stored commands.
+            void clear_history();
+
+            // Widget
+            //============================================================
+            // this communicates with the widget to tell it when things in it need to change, like when
+            // an editor is requested....hmmm
+
+            Project_Widget*const widget() const;
+            void set_widget(Project_Widget* widget);
+            bool has_widget() const;
 
 
         private:
@@ -227,9 +222,11 @@ namespace Saklib
 
             // Data Members
             //============================================================
+            Command_History m_command_history;          // editing history
             Element_Manager m_data_manager;             // actual data
             Element_Widget_Manager m_widget_manager;    // widgets that the user edits data through
-            Uptr<Outliner_Model> m_outliner_model;                  // model that references data via Proxy objects
+            Uptr<Outliner_Model> m_outliner_model;      // model that references data via Proxy objects
+            Project_Widget* mp_widget;                  // widget to inform of data changes directly
         };
     } // namespace Qtlib
 } // namespace Saklib

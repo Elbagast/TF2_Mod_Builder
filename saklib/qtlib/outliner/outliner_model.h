@@ -11,8 +11,6 @@ class QAbstractItemView;
 
 namespace Saklib
 {
-    class Command_History;
-
     namespace Qtlib
     {
         class Project_Manager;
@@ -30,7 +28,7 @@ namespace Saklib
         public:
             // Special 6
             //============================================================
-            Outliner_Model(Command_History& command_history, Project_Manager& project_manager, QObject* parent = nullptr);
+            explicit Outliner_Model(Project_Manager& project_manager, QObject* parent = nullptr);
             ~Outliner_Model() override;
 
             // Virtual Overrides
@@ -97,14 +95,13 @@ namespace Saklib
             void custom_context_menu(QAbstractItemView*const view, QModelIndex const& index, QPoint position);
 
         signals:
-            //void signal_editorRequestedFor(ElementID elementid);
+            void signal_editorRequestedFor(ElementID elementid);
             //void signal_unsavedEdits(bool state);
 
 
         private:
             // Data Members
             //============================================================
-            Command_History& mr_command_history;
             Project_Manager& mr_project_manager;
         };
 

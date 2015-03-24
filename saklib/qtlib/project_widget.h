@@ -4,7 +4,6 @@
 #include "../types.h"
 #include "../elementid.h"
 #include "../element_manager.h"
-#include "../command_history.h"
 #include "element_widget.h"
 #include "project_manager.h"
 
@@ -58,13 +57,13 @@ namespace Saklib
             //void reload();
 
             // Open an Element_Widget for this Element
-            void open_editor(ElementID const& elementid);
+            void open_editor(ElementID elementid);
 
         signals:
             void signal_unsavedEdits(bool state) const;
 
         public slots:
-            //void slot_editorRequestedFor(ElementID elementid);
+            void slot_editorRequestedFor(ElementID elementid);
             //void slot_unsavedEdits(bool state) const;
 
         private:
@@ -73,7 +72,6 @@ namespace Saklib
 
             //data
             Project_Main_Window* mp_main_window;
-            Command_History m_command_history;
             Project_Manager m_project_manager;
             ElementID m_root_elementid;
             AttributeID m_root_filepath; // ref to filepath storage
@@ -84,7 +82,6 @@ namespace Saklib
             // Widgets
             Uptr<Outliner_Treeview> m_outliner; // Element outliner (No direct attribute access)
             Uptr<QScrollArea> m_scroll_area; // area that will contain m_editor
-            //Uptr<Element_Widget> m_editor;  // widget to the currently open Element
 
             Uptr<QHBoxLayout> m_layout;
 
@@ -92,7 +89,7 @@ namespace Saklib
             //============================================================
             // Make an ElementID with the supplied manager by registering the Element type the first time
             // this is run
-            static ElementID make_Project(Command_History& command_history, Project_Manager& project_manager);
+            static ElementID make_Project(Project_Manager& project_manager);
         };
 
     } // namespace Qtlib
