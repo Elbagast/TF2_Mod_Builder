@@ -59,12 +59,17 @@ namespace Saklib
             // Open an Element_Widget for this Element
             void open_editor(ElementID elementid);
 
+            void undo() { m_project_manager.undo(); }
+            void redo() { m_project_manager.redo(); }
+
         signals:
             void signal_unsavedEdits(bool state) const;
+            void signal_update_undo_actions(size_type undo_count, size_type redo_count) const;
 
         public slots:
             void slot_editorRequestedFor(ElementID elementid);
             //void slot_unsavedEdits(bool state) const;
+            void update_undo_actions(size_type undo_count, size_type redo_count) const;
 
         private:
             // Data Members

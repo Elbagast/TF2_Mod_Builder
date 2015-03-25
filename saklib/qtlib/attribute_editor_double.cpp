@@ -62,6 +62,6 @@ void Saklib::Qtlib::Attribute_Editor_Double::v_refresh_data()
 
 void Saklib::Qtlib::Attribute_Editor_Double::slot_valueChanged(double value)
 {
-    mr_project_manager.set_attribute_type<Double>(m_attributeid, value);
+    mr_project_manager.command_set_attribute_value_type<Double>(m_attributeid, value);
 }
 

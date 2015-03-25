@@ -4,6 +4,7 @@
 #include "../types.h"
 #include "../command.h"
 #include "../command_history.h"
+#include "../command_attribute.h"
 #include "../elementid.h"
 #include "../attributeid.h"
 #include "../proxyid.h"
@@ -20,6 +21,10 @@ namespace Saklib
     {
         class Outliner_Model;
         class Project_Widget;
+
+        class PMC_Element_Set_Name;
+        template <typename T>
+        class PMC_Attribute_Set_Value;
         /*
         Project_Manager
         ====================================================================================================
@@ -150,20 +155,43 @@ namespace Saklib
 
             // Data Setters - the only part with write access
             //============================================================
-            // You must only set data though these in order to keep everything in sync. These setters will issue
-            // appropriate commands as necessary and return true if a change was actually made to data.
+            // These functions set the data without question, and tell the model and widget to update.
 
-            bool set_element_name(ElementID elementid, String const& value);
+            void set_element_name(ElementID elementid, String const& value);
 
             template <typename T>
-            bool set_attribute_type(AttributeID attributeid, T const& value)
+            void set_attribute_value_type(AttributeID attributeid, T const& value)
             {
+                assert(attributeid.is_valid());
+                assert(this->attribute_type_enum(attributeid) == Type_Traits<T>::type_enum());
+                assert(this->attribute_type_cast<T>(attributeid)->get() != value);
+                m_data_manager.element(attributeid.elementid()).attribute_type_cast<T>(attributeid.index())->set(value);
+                update_widget(attributeid);
+                update_model(attributeid);
+            }
+
+            template <Type_Enum TE>
+            void set_attribute_value_enum(AttributeID attributeid, TypeHolder_st<TE> const& value)
+            {
+                set_attribute_value_type<TypeHolder_st<TE> >(attributeid, value);
+            }
+
+            // Commands - indirect write access
+            //============================================================
+            // To support undoing edits use these functions to edit data from the outliner/widgets.
+
+            bool command_set_element_name(ElementID elementid, String const& value);
+
+            template <typename T>
+            bool command_set_attribute_value_type(AttributeID attributeid, T const& value)
+            {
+                // if conditions are right to issue a command
                 if(attributeid.is_valid()
+                   && this->attribute_type_enum(attributeid) == Type_Traits<T>::type_enum()
                    && this->attribute_type_cast<T>(attributeid)->get() != value)
                 {
-                    m_data_manager.element(attributeid.elementid()).attribute_type_cast<T>(attributeid.index())->set(value);
-                    update_widget(attributeid);
-                    update_model(attributeid);
+                    // do it. The command should call the update_... function(s) when it is executed/unexecuted
+                    m_command_history.emplace_execute<PMC_Attribute_Set_Value<T>>(*this, attributeid, value);
                     return true;
                 }
                 else
@@ -173,9 +201,9 @@ namespace Saklib
             }
 
             template <Type_Enum TE>
-            bool set_attribute_enum(AttributeID attributeid, TypeHolder_st<TE> const& value)
+            bool command_set_attribute_value_enum(AttributeID attributeid, TypeHolder_st<TE> const& value)
             {
-                return set_attribute_type<TypeHolder_st<TE> >(attributeid, value);
+                return command_set_attribute_value_type<TypeHolder_st<TE> >(attributeid, value);
             }
 
             // Command History
@@ -200,6 +228,10 @@ namespace Saklib
 
             // Clear all stored commands.
             void clear_history();
+
+            // Call whenever commands are issued or called
+            void command_history_changed();
+
 
             // Widget
             //============================================================
@@ -228,6 +260,87 @@ namespace Saklib
             Uptr<Outliner_Model> m_outliner_model;      // model that references data via Proxy objects
             Project_Widget* mp_widget;                  // widget to inform of data changes directly
         };
+
+
+        /*
+        PMC_Element_Set_Name
+        ====================================================================================================
+        Project_Manager Commands need to be in this header to avoid a circular dependency with the template.
+        */
+        class PMC_Element_Set_Name:
+                public Command
+        {
+        public:
+            PMC_Element_Set_Name(Project_Manager& project_mananger, ElementID elementid, String const& name):
+                Command(),
+                mr_project_mananger(project_mananger),
+                m_elementid(elementid),
+                m_old_name(mr_project_mananger.element_name(elementid)),
+                m_new_name(name)
+            {
+                assert(mr_project_mananger.is_valid(elementid));
+            }
+            ~PMC_Element_Set_Name() override = default;
+
+        protected:
+            void v_execute() override
+            {
+                mr_project_mananger.set_element_name(m_elementid, m_new_name);
+                mr_project_mananger.command_history_changed();
+            }
+            void v_unexecute() override
+            {
+                mr_project_mananger.set_element_name(m_elementid, m_old_name);
+                mr_project_mananger.command_history_changed();
+            }
+        private:
+            Project_Manager& mr_project_mananger;
+            ElementID m_elementid;
+            String m_old_name;
+            String m_new_name;
+        };
+
+        /*
+        PMC_Attribute_Set_Value<T>
+        ====================================================================================================
+        Project_Manager Commands need to be in this header to avoid a circular dependency with the template.
+        */
+        template <typename T>
+        class PMC_Attribute_Set_Value:
+                public Command
+        {
+        public:
+            PMC_Attribute_Set_Value(Project_Manager& project_mananger, AttributeID attributeid, T const& value):
+                Command(),
+                mr_project_mananger(project_mananger),
+                m_attributeid(attributeid),
+                m_old_value(mr_project_mananger.attribute_type_cast<T>(attributeid)->get()),
+                m_new_value(value)
+            {
+                assert(mr_project_mananger.is_valid(attributeid));
+            }
+            ~PMC_Attribute_Set_Value() override = default;
+
+        protected:
+            void v_execute() override
+            {
+                mr_project_mananger.set_attribute_value_type<T>(m_attributeid, m_new_value);
+                mr_project_mananger.command_history_changed();
+            }
+            void v_unexecute() override
+            {
+                mr_project_mananger.set_attribute_value_type<T>(m_attributeid, m_old_value);
+                mr_project_mananger.command_history_changed();
+            }
+        private:
+            Project_Manager& mr_project_mananger;
+            AttributeID m_attributeid;
+            T m_old_value;
+            T m_new_value;
+        };
+
+
+
     } // namespace Qtlib
 } // namespace Saklib
 #endif // PROJECT_MANAGER_H

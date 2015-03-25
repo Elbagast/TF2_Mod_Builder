@@ -1,6 +1,7 @@
 #include "project_manager.h"
 #include "element_widget.h"
 #include "outliner/outliner_model.h"
+#include "project_widget.h"
 
 // Special 6
 //============================================================
@@ -290,16 +291,30 @@ int Saklib::Qtlib::Project_Manager::outliner_row_in_parent(AttributeID attribute
 // You must only set data though these in order to keep everything in sync. These setters will issue
 // appropriate commands as necessary and return true if a change was actually made to data.
 
-bool Saklib::Qtlib::Project_Manager::set_element_name(ElementID elementid, String const& value)
+void Saklib::Qtlib::Project_Manager::set_element_name(ElementID elementid, String const& value)
 {
-    if(is_valid(elementid)
+    assert(is_valid(elementid));
+    // maintaining unique names should have been done before getting here
+
+    m_data_manager.element(elementid).set_name(value);
+    update_widget(elementid);
+    update_model(elementid);
+}
+
+// Commands - indirect write access
+//============================================================
+// To support undoing edits use these functions to edit data from the outliner/widgets.
+
+bool Saklib::Qtlib::Project_Manager::command_set_element_name(ElementID elementid, String const& value)
+{
+    // if conditions are right to issue a command
+    if(elementid.is_valid()
+       && this->is_valid(elementid)
        && this->element_name(elementid) != value)
     {
-        // maintaining unique names goes here
-
-        m_data_manager.element(elementid).set_name(value);
-        update_widget(elementid);
-        update_model(elementid);
+        // do it. The command should call the update_... function(s) when it is executed/unexecuted
+        m_command_history.emplace_execute<PMC_Element_Set_Name>(*this, elementid, value);
+        command_history_changed();
         return true;
     }
     else
@@ -353,6 +368,15 @@ void Saklib::Qtlib::Project_Manager::redo()
 void Saklib::Qtlib::Project_Manager::clear_history()
 {
     m_command_history.clear();
+}
+
+// Call whenever commands are issued or called
+void Saklib::Qtlib::Project_Manager::command_history_changed()
+{
+    if (mp_widget != nullptr)
+    {
+        mp_widget->update_undo_actions(m_command_history.undo_count(), m_command_history.redo_count());
+    }
 }
 
 // Widget

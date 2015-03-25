@@ -5,6 +5,7 @@
 #include "attribute_editor_bool.h"
 #include "attribute_editor_int.h"
 #include "attribute_editor_double.h"
+#include "attribute_editor_string.h"
 
 #include <QLabel>
 
@@ -40,8 +41,8 @@ Saklib::Uptr<Saklib::Qtlib::Attribute_Editor> Saklib::Qtlib::make_Attribute_Edit
     case Type_Enum::Bool:            return Uptr<Attribute_Editor>(new Attribute_Editor_Bool(project_manager, attributeid));
     case Type_Enum::Int:             return Uptr<Attribute_Editor>(new Attribute_Editor_Int(project_manager, attributeid));
     case Type_Enum::Double:          return Uptr<Attribute_Editor>(new Attribute_Editor_Double(project_manager, attributeid));
-    //case Type_Enum::String:          return Uptr<Attribute_Editor>(new Attribute_Editor_Bool(project_manager, attributeid));
-    //case Type_Enum::Path:            return Uptr<Attribute_Editor>(new Attribute_Editor_String(project_manager, attributeid));
+    case Type_Enum::String:          return Uptr<Attribute_Editor>(new Attribute_Editor_String(project_manager, attributeid));
+    //case Type_Enum::Path:            return Uptr<Attribute_Editor>(new Attribute_Editor_Path(project_manager, attributeid));
     //case Type_Enum::ElementID:       return Uptr<Attribute_Editor>(new Attribute_Editor_ElementID(project_manager, attributeid));
 
     //case Type_Enum::Vector_Bool:      return Uptr<Attribute_Editor>(new Attribute_Editor_Vector_Bool(project_manager, attributeid));

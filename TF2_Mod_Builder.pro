@@ -45,7 +45,8 @@ SOURCES += main.cpp\
     saklib/qtlib/attribute_editor.cpp \
     saklib/qtlib/attribute_editor_int.cpp \
     saklib/qtlib/temp_disconnect.cpp \
-    saklib/qtlib/attribute_editor_double.cpp
+    saklib/qtlib/attribute_editor_double.cpp \
+    saklib/qtlib/attribute_editor_string.cpp
 
 HEADERS  += \
     saklib/all_attributes.h \
@@ -95,7 +96,8 @@ HEADERS  += \
     saklib/qtlib/attribute_editor_bool.h \
     saklib/qtlib/attribute_editor_int.h \
     saklib/qtlib/temp_disconnect.h \
-    saklib/qtlib/attribute_editor_double.h
+    saklib/qtlib/attribute_editor_double.h \
+    saklib/qtlib/attribute_editor_string.h
 
 FORMS    += \
     saklib/qtlib/consoledialog.ui \

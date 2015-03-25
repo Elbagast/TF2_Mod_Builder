@@ -40,7 +40,9 @@
      <string>Edit</string>
     </property>
     <addaction name="actionUndo"/>
+    <addaction name="actionUndoCount"/>
     <addaction name="actionRedo"/>
+    <addaction name="actionRedoCount"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
@@ -79,6 +81,16 @@
   <action name="actionRedo">
    <property name="text">
     <string>Redo</string>
+   </property>
+  </action>
+  <action name="actionUndoCount">
+   <property name="text">
+    <string>UndoCount</string>
+   </property>
+  </action>
+  <action name="actionRedoCount">
+   <property name="text">
+    <string>RedoCount</string>
    </property>
   </action>
  </widget>

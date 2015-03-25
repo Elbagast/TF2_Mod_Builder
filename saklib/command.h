@@ -29,7 +29,7 @@ namespace Saklib
         void execute()
         { 
             // only act if the command wasn't already exectued
-            if (m_state != State::Executed)
+            if (can_execute())
             {
                 m_state = State::Executed;
                 v_execute();
@@ -38,7 +38,7 @@ namespace Saklib
         void unexecute()
         { 
             // only act if there if the command was already executed
-            if (m_state == State::Executed)
+            if (can_unexecute())
             {
                 m_state = State::Unexecuted;
                 v_unexecute();

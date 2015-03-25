@@ -58,6 +58,6 @@ void Saklib::Qtlib::Attribute_Editor_Int::v_refresh_data()
 
 void Saklib::Qtlib::Attribute_Editor_Int::slot_valueChanged(int value)
 {
-    mr_project_manager.set_attribute_type<Int>(m_attributeid, value);
+    mr_project_manager.command_set_attribute_value_type<Int>(m_attributeid, value);
 }
 

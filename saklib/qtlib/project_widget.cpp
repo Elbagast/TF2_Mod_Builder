@@ -110,7 +110,7 @@ Saklib::Path const& Saklib::Qtlib::Project_Widget::filepath() const
 }
 void Saklib::Qtlib::Project_Widget::set_filepath(Path const& filepath)
 {
-    m_project_manager.set_attribute_type<Path>(m_root_filepath, filepath);
+    m_project_manager.set_attribute_value_type<Path>(m_root_filepath, filepath);
     m_project_manager.set_element_name(m_root_elementid, Saklib::to_String(filepath.filename()));
     // if there is an editor for this element, update its name label
 }
@@ -172,3 +172,8 @@ void Saklib::Qtlib::Project_Widget::slot_unsavedEdits(bool state) const
     emit signal_unsavedEdits(state);
 }
 */
+
+void Saklib::Qtlib::Project_Widget::update_undo_actions(size_type undo_count, size_type redo_count) const
+{
+    emit signal_update_undo_actions(undo_count, redo_count);
+}

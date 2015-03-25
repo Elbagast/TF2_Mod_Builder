@@ -37,6 +37,11 @@ Saklib::Qtlib::Project_Main_Window::Project_Main_Window(QWidget *parent) :
     QObject::connect(m_ui->actionSave_Project_As, &QAction::triggered, this, &Project_Main_Window::actionSlot_Save_Project_As);
     QObject::connect(m_ui->actionExit, &QAction::triggered, this, &Project_Main_Window::actionSlot_Exit);
 
+    // Edit
+    //====================
+    QObject::connect(m_ui->actionUndo, &QAction::triggered, this, &Project_Main_Window::actionSlot_Undo);
+    QObject::connect(m_ui->actionRedo, &QAction::triggered, this, &Project_Main_Window::actionSlot_Redo);
+
     // Make a new project in m_project_widget, updating the window title when doing so
     new_project();
     // Alternatively open a supplied filepath?
@@ -140,6 +145,18 @@ bool Saklib::Qtlib::Project_Main_Window::actionSlot_Exit()
     return QMainWindow::close();
 }
 
+// Edit
+//====================
+void Saklib::Qtlib::Project_Main_Window::actionSlot_Undo()
+{
+    m_project_widget->undo();
+}
+
+void Saklib::Qtlib::Project_Main_Window::actionSlot_Redo()
+{
+    m_project_widget->redo();
+}
+
 
 // Other Slots
 //============================================================
@@ -147,6 +164,11 @@ bool Saklib::Qtlib::Project_Main_Window::actionSlot_Exit()
 void Saklib::Qtlib::Project_Main_Window::slot_unsavedEdits(bool state)
 {
     m_window_title.set_unsaved_edits(state);
+}
+void Saklib::Qtlib::Project_Main_Window::slot_update_undo_actions(size_type undo_count, size_type redo_count)
+{
+    m_ui->actionUndoCount->setText(to_QString(undo_count));
+    m_ui->actionRedoCount->setText(to_QString(redo_count));
 }
 
 // Virtuals
@@ -183,6 +205,8 @@ void Saklib::Qtlib::Project_Main_Window::new_project()
     setCentralWidget(m_project_widget.get());
     QObject::connect(m_project_widget.get(), &Project_Widget::signal_unsavedEdits,
                      this, &Project_Main_Window::slot_unsavedEdits);
+    QObject::connect(m_project_widget.get(), &Project_Widget::signal_update_undo_actions,
+                     this, &Project_Main_Window::slot_update_undo_actions);
 
     // Update the window title with the new file path and editing state
     m_window_title.set_variable_title(to_QString(m_project_widget->filepath()));
@@ -198,6 +222,8 @@ void Saklib::Qtlib::Project_Main_Window::open_project(Path const& filepath)   //
 
     QObject::connect(m_project_widget.get(), &Project_Widget::signal_unsavedEdits,
                      this, &Project_Main_Window::slot_unsavedEdits);
+    QObject::connect(m_project_widget.get(), &Project_Widget::signal_update_undo_actions,
+                     this, &Project_Main_Window::slot_update_undo_actions);
 
     // Update the window title with the new file path and editing state
     m_window_title.set_variable_title(to_QString(m_project_widget->filepath()));

@@ -36,5 +36,5 @@ void Saklib::Qtlib::Attribute_Editor_Bool::v_refresh_data()
 
 void Saklib::Qtlib::Attribute_Editor_Bool::slot_clicked()
 {
-    mr_project_manager.set_attribute_type<Bool>(m_attributeid, m_checkbox->isChecked());
+    mr_project_manager.command_set_attribute_value_type<Bool>(m_attributeid, m_checkbox->isChecked());
 }

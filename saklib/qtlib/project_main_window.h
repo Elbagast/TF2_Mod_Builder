@@ -56,11 +56,16 @@ namespace Saklib
             //--------------------
             bool actionSlot_Exit();
 
+            // Edit
+            //====================
+            void actionSlot_Undo();
+            void actionSlot_Redo();
 
             // Other Slots
             //============================================================
             // If something edits data, call this.
             void slot_unsavedEdits(bool);
+            void slot_update_undo_actions(size_type undo_count, size_type redo_count);
 
         protected:
             // Virtuals
