@@ -97,6 +97,9 @@ namespace Saklib
             // Allow a view to request an editor for a given index
             void request_editor(QModelIndex const& index);
 
+            // Forward this request to the Project_Manager
+            void request_editor(ElementID elementid);
+
         signals:
             void signal_editorRequestedFor(ElementID elementid);
             //void signal_unsavedEdits(bool state);

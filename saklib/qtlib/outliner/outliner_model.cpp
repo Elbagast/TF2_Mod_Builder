@@ -517,15 +517,23 @@ void Saklib::Qtlib::Outliner_Model::request_editor(QModelIndex const& index)
     // else it's an Element
     else if (indexid.is_element())
     {
-        emit signal_editorRequestedFor(indexid.elementid());
+        request_editor(indexid.elementid());
+        //emit signal_editorRequestedFor(indexid.elementid());
     }
     // else it's an Attribute
     else if (indexid.is_attribute())
     {
-        emit signal_editorRequestedFor(indexid.elementid()); // Do we want a signal for attributes and focusing on them?
+        request_editor(indexid.elementid());
+        //emit signal_editorRequestedFor(indexid.elementid()); // Do we want a signal for attributes and focusing on them?
     }
     else
     {
         // nothing
     }
+}
+
+// Forward this request to the Project_Manager
+void Saklib::Qtlib::Outliner_Model::request_editor(ElementID elementid)
+{
+    mr_project_manager.request_editor(elementid);
 }

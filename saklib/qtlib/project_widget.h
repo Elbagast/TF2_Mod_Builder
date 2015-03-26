@@ -17,7 +17,6 @@ namespace Saklib
 {
     namespace Qtlib
     {
-        class Project_Main_Window;
         class Outliner_Model;
         class Outliner_Delegate;
         class Outliner_Treeview;
@@ -26,13 +25,8 @@ namespace Saklib
         Project_Widget
         ====================================================================================================
         This widget is the root widget of an entire project and forms the central widget of the window
-        class that holds it.
-        - an Element_Manager
-        - a root ElementID
-        - means to generate new Elements in the manager
-        - An outliner to view the overall structure
-        - An Editor of some kind for given Elements
-            - e.g. singular or tab widget (start singular)
+        class that holds it. When something happens that needs to update the window (e.g. enable/disable
+        menu actions) it emits signals that will already have been connected as appropriate.
         */
         class Project_Widget:
                 public QWidget
@@ -43,7 +37,7 @@ namespace Saklib
 
             // Special 6
             //============================================================
-            explicit Project_Widget(Path const& filePath, Project_Main_Window* parent = nullptr);
+            explicit Project_Widget(Path const& filePath);
             ~Project_Widget() override;
 
             // Interface
@@ -63,7 +57,7 @@ namespace Saklib
             void redo() { m_project_manager.redo(); }
             void clear_history() { m_project_manager.clear_history(); }
         signals:
-            void signal_unsavedEdits(bool state) const;
+            void signal_unsaved_edits(bool state) const;
             void signal_update_undo_actions(size_type undo_count, size_type redo_count) const;
 
         public slots:
@@ -76,7 +70,6 @@ namespace Saklib
             //============================================================
 
             //data
-            Project_Main_Window* mp_main_window;
             Project_Manager m_project_manager;
             ElementID m_root_elementid;
             AttributeID m_root_filepath; // ref to filepath storage

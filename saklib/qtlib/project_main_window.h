@@ -1,12 +1,6 @@
 #ifndef PROJECT_MAIN_WINDOW_H
 #define PROJECT_MAIN_WINDOW_H
-/*
-Project_Main_Window
-============================================================
-QMainWindow subclass which forms the basis of the application. It manages a project (one
-for now) although it may be started without a project.
 
-*/
 #include "../types.h"
 
 #include <QMainWindow>
@@ -25,6 +19,16 @@ namespace Saklib
     {
         class Project_Widget;
 
+        /*
+        Project_Main_Window
+        ====================================================================================================
+        QMainWindow subclass which forms the basis of the application. It manages a project (one for now)
+        and opens an empty project if a file is not supplied on construction.
+
+        This class implements the menu and connects it to the active project as necessary, it doesn't have
+        anything to do with the actual data.
+
+        */
         class Project_Main_Window :
                 public QMainWindow
         {
@@ -65,7 +69,7 @@ namespace Saklib
             // Other Slots
             //============================================================
             // If something edits data, call this.
-            void slot_unsavedEdits(bool);
+            void slot_unsaved_edits(bool state);
             void slot_update_undo_actions(size_type undo_count, size_type redo_count);
 
         protected:

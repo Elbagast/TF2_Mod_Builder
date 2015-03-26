@@ -243,6 +243,8 @@ namespace Saklib
             void set_widget(Project_Widget* widget);
             bool has_widget() const;
 
+            void request_editor(ElementID elementid);
+
 
         private:
             // Internal

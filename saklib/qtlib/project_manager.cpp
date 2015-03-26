@@ -403,6 +403,13 @@ bool Saklib::Qtlib::Project_Manager::has_widget() const
     return mp_widget != nullptr;
 }
 
+void Saklib::Qtlib::Project_Manager::request_editor(ElementID elementid)
+{
+    if (mp_widget != nullptr)
+    {
+        mp_widget->slot_editorRequestedFor(elementid);
+    }
+}
 
 // Internal
 //============================================================

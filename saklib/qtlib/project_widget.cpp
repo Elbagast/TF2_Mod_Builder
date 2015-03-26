@@ -37,9 +37,8 @@ Saklib::ElementID Saklib::Qtlib::Project_Widget::make_Project(Project_Manager& p
 
 // Special 6
 //============================================================
-Saklib::Qtlib::Project_Widget::Project_Widget(Path const& filepath, Project_Main_Window* parent) :
+Saklib::Qtlib::Project_Widget::Project_Widget(Path const& filepath) :
     QWidget(nullptr),
-    mp_main_window{parent},
     m_project_manager{this},
     m_root_elementid{make_Project(m_project_manager)},
     m_root_filepath{m_project_manager.attributeid(m_root_elementid, "Filepath")},
@@ -54,8 +53,6 @@ Saklib::Qtlib::Project_Widget::Project_Widget(Path const& filepath, Project_Main
 
     m_layout(new QHBoxLayout(this))
 {
-    assert(mp_main_window != nullptr);
-
     // Store the filename in this attribute
     set_filepath(filepath);
 
@@ -120,7 +117,7 @@ void Saklib::Qtlib::Project_Widget::save() const
     //emit signal_toConsole("Project_Widget::save()");
 
     //serialiseProjectToFile(m_project, m_filepath);
-    emit signal_unsavedEdits(false);
+    emit signal_unsaved_edits(false);
 }
 void Saklib::Qtlib::Project_Widget::save_as(Path const& filepath)
 {

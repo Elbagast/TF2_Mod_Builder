@@ -28,7 +28,6 @@ Saklib::Qtlib::Element_Widget::Element_Widget(Project_Manager& project_manager, 
 {
     // Really shouldn't have got here with an invalid ID
     assert(mr_project_manager.is_valid(elementid));
-    // Now that we're passed this, mr_element should be valid, so just use that to get to the Element.
 
     // Configure the labels
 
@@ -78,20 +77,9 @@ Saklib::Qtlib::Element_Widget::Element_Widget(Project_Manager& project_manager, 
 
 
             // make and add editors
-            //Uptr<Attribute_Editor> editor{new Attribute_Editor_Dummy()};
-
-            // going to need an AttributeID
             Uptr<Attribute_Editor> editor{make_Attribute_Editor(project_manager, attributeid)};
 
-
-            //if (attribute->type_enum() == Type_Enum::Bool)
-            //    editor.reset(new Editor_Bool(Saklib::attribute_type_cast<Bool>(attribute.get()), this));
-            //else
-            //    editor.reset(new QLabel("DUMMY", this));
-
-            //auto editor = Uptr<QWidget>(new QLabel("DUMMY", this)); //what does an editor need...is it going to issue its own commands???
-            // Set sizing
-            //editor->setSizePolicy( QSizePolicy::Minimum, QSizePolicy::Minimum );
+            editor->setSizePolicy( QSizePolicy::Minimum, QSizePolicy::Minimum );
             // Add it to the grid
             m_layout->addWidget(editor.get(), grid_row, 2);
             // Store it

@@ -85,11 +85,17 @@
    </property>
   </action>
   <action name="actionUndoCount">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="text">
     <string>UndoCount</string>
    </property>
   </action>
   <action name="actionRedoCount">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="text">
     <string>RedoCount</string>
    </property>

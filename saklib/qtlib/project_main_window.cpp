@@ -65,7 +65,9 @@ Saklib::Qtlib::Project_Main_Window::~Project_Main_Window() = default;
 bool Saklib::Qtlib::Project_Main_Window::actionSlot_New_Project()
 {
     // if there's a project ask to save it and stop if the user cancels out
-    if (m_project_widget && has_unsaved_edits() && !ask_to_save())
+    if (m_project_widget
+        && has_unsaved_edits()
+        && !ask_to_save() )
         return false;
 
     new_project();
@@ -76,8 +78,7 @@ bool Saklib::Qtlib::Project_Main_Window::actionSlot_Open_Project()
     // if there's a project ask to save it and stop if the user cancels out
     if (m_project_widget
         && has_unsaved_edits()
-        && !ask_to_save()
-        )
+        && !ask_to_save() )
         return false;
 
     // get a fileName that may exist
@@ -167,7 +168,7 @@ void Saklib::Qtlib::Project_Main_Window::actionSlot_Clear_History()
 // Other Slots
 //============================================================
 // If something edits data, call this.
-void Saklib::Qtlib::Project_Main_Window::slot_unsavedEdits(bool state)
+void Saklib::Qtlib::Project_Main_Window::slot_unsaved_edits(bool state)
 {
     m_window_title.set_unsaved_edits(state);
 }
@@ -176,15 +177,23 @@ void Saklib::Qtlib::Project_Main_Window::slot_update_undo_actions(size_type undo
     m_ui->actionUndoCount->setText(to_QString(undo_count));
     m_ui->actionRedoCount->setText(to_QString(redo_count));
 
+    // enable or disable Undo
     if (undo_count == 0)
         m_ui->actionUndo->setEnabled(false);
     else
         m_ui->actionUndo->setEnabled(true);
 
+    // enable or disable Redo
     if (redo_count == 0)
         m_ui->actionRedo->setEnabled(false);
     else
         m_ui->actionRedo->setEnabled(true);
+
+    // enable or disable Clear History
+    if (undo_count == 0 && redo_count == 0)
+        m_ui->actionClear_History->setEnabled(false);
+    else
+        m_ui->actionClear_History->setEnabled(true);
 }
 
 // Virtuals
@@ -194,7 +203,6 @@ void Saklib::Qtlib::Project_Main_Window::closeEvent(QCloseEvent *event)
 {
     // if any of these are true then we can saftely exit and will
     if (!m_project_widget                    // no widget so nothing in it to save
-    //    || !m_project_widget->getProject()   // have a widget but no project data so nothing to save
         || !has_unsaved_edits()               // there is data but it's saved already so just exit
         || ask_to_save()                    // ask the user if we can exit via the save dialog
         )
@@ -214,13 +222,11 @@ void Saklib::Qtlib::Project_Main_Window::new_project()
 {
     String project_name = s_new_name_front + std::to_string(++s_new_count);
 
-    // temp testing
-    //Saklib::ModObjectId id = 0;
-    m_project_widget.reset(new Project_Widget(Saklib::to_Path(project_name), this));
+    m_project_widget = std::make_unique<Project_Widget>(Saklib::to_Path(project_name));
 
     setCentralWidget(m_project_widget.get());
-    QObject::connect(m_project_widget.get(), &Project_Widget::signal_unsavedEdits,
-                     this, &Project_Main_Window::slot_unsavedEdits);
+    QObject::connect(m_project_widget.get(), &Project_Widget::signal_unsaved_edits,
+                     this, &Project_Main_Window::slot_unsaved_edits);
     QObject::connect(m_project_widget.get(), &Project_Widget::signal_update_undo_actions,
                      this, &Project_Main_Window::slot_update_undo_actions);
 
@@ -232,13 +238,13 @@ void Saklib::Qtlib::Project_Main_Window::new_project()
 void Saklib::Qtlib::Project_Main_Window::open_project(Path const& filepath)   // currently a clone of newProject
 {
     // Make a completely new widget using this file path - potentially want to change this?
-    m_project_widget.reset(new Project_Widget(filepath,this));
+    m_project_widget = std::make_unique<Project_Widget>(filepath);
 
     // Make it into the central widget
     setCentralWidget(m_project_widget.get());
 
-    QObject::connect(m_project_widget.get(), &Project_Widget::signal_unsavedEdits,
-                     this, &Project_Main_Window::slot_unsavedEdits);
+    QObject::connect(m_project_widget.get(), &Project_Widget::signal_unsaved_edits,
+                     this, &Project_Main_Window::slot_unsaved_edits);
     QObject::connect(m_project_widget.get(), &Project_Widget::signal_update_undo_actions,
                      this, &Project_Main_Window::slot_update_undo_actions);
 
