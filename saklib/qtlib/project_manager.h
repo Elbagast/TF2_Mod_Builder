@@ -164,8 +164,8 @@ namespace Saklib
             {
                 assert(attributeid.is_valid());
                 assert(this->attribute_type_enum(attributeid) == Type_Traits<T>::type_enum());
-                assert(this->attribute_type_cast<T>(attributeid)->get() != value);
-                m_data_manager.element(attributeid.elementid()).attribute_type_cast<T>(attributeid.index())->set(value);
+                assert(this->attribute_type_cast<T>(attributeid)->value() != value);
+                m_data_manager.element(attributeid.elementid()).attribute_type_cast<T>(attributeid.index())->set_value(value);
                 update_widget(attributeid);
                 update_model(attributeid);
             }
@@ -180,18 +180,19 @@ namespace Saklib
             //============================================================
             // To support undoing edits use these functions to edit data from the outliner/widgets.
 
-            bool command_set_element_name(ElementID elementid, String const& value);
+            bool undoable_set_element_name(ElementID elementid, String const& value);
 
             template <typename T>
-            bool command_set_attribute_value_type(AttributeID attributeid, T const& value)
+            bool undoable_set_attribute_value_type(AttributeID attributeid, T const& value)
             {
                 // if conditions are right to issue a command
                 if(attributeid.is_valid()
                    && this->attribute_type_enum(attributeid) == Type_Traits<T>::type_enum()
-                   && this->attribute_type_cast<T>(attributeid)->get() != value)
+                   && this->attribute_type_cast<T>(attributeid)->value() != value)
                 {
                     // do it. The command should call the update_... function(s) when it is executed/unexecuted
                     m_command_history.emplace_execute<PMC_Attribute_Set_Value<T>>(*this, attributeid, value);
+                    command_history_changed();
                     return true;
                 }
                 else
@@ -201,9 +202,9 @@ namespace Saklib
             }
 
             template <Type_Enum TE>
-            bool command_set_attribute_value_enum(AttributeID attributeid, TypeHolder_st<TE> const& value)
+            bool undoable_set_attribute_value_enum(AttributeID attributeid, TypeHolder_st<TE> const& value)
             {
-                return command_set_attribute_value_type<TypeHolder_st<TE> >(attributeid, value);
+                return undoable_set_attribute_value_type<TypeHolder_st<TE> >(attributeid, value);
             }
 
             // Command History
@@ -286,12 +287,10 @@ namespace Saklib
             void v_execute() override
             {
                 mr_project_mananger.set_element_name(m_elementid, m_new_name);
-                mr_project_mananger.command_history_changed();
             }
             void v_unexecute() override
             {
                 mr_project_mananger.set_element_name(m_elementid, m_old_name);
-                mr_project_mananger.command_history_changed();
             }
         private:
             Project_Manager& mr_project_mananger;
@@ -314,7 +313,7 @@ namespace Saklib
                 Command(),
                 mr_project_mananger(project_mananger),
                 m_attributeid(attributeid),
-                m_old_value(mr_project_mananger.attribute_type_cast<T>(attributeid)->get()),
+                m_old_value(mr_project_mananger.attribute_type_cast<T>(attributeid)->value()),
                 m_new_value(value)
             {
                 assert(mr_project_mananger.is_valid(attributeid));
@@ -325,12 +324,10 @@ namespace Saklib
             void v_execute() override
             {
                 mr_project_mananger.set_attribute_value_type<T>(m_attributeid, m_new_value);
-                mr_project_mananger.command_history_changed();
             }
             void v_unexecute() override
             {
                 mr_project_mananger.set_attribute_value_type<T>(m_attributeid, m_old_value);
-                mr_project_mananger.command_history_changed();
             }
         private:
             Project_Manager& mr_project_mananger;

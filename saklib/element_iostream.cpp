@@ -12,19 +12,19 @@ std::ostream& Saklib::operator<<(std::ostream& stream, Element const& element)
         switch (attribute->type_enum())
         {
         case Type_Enum::Bool:
-            stream << attribute_enum_cast<Type_Enum::Bool>(attribute.get())->get();
+            stream << attribute_enum_cast<Type_Enum::Bool>(attribute.get())->value();
             break;
         case Type_Enum::Int:
-            stream << attribute_enum_cast<Type_Enum::Int>(attribute.get())->get();
+            stream << attribute_enum_cast<Type_Enum::Int>(attribute.get())->value();
             break;
         case Type_Enum::Double:
-            stream << attribute_enum_cast<Type_Enum::Double>(attribute.get())->get();
+            stream << attribute_enum_cast<Type_Enum::Double>(attribute.get())->value();
             break;
         case Type_Enum::String:
-            stream << attribute_enum_cast<Type_Enum::String>(attribute.get())->get();
+            stream << attribute_enum_cast<Type_Enum::String>(attribute.get())->value();
             break;
         case Type_Enum::ElementID:
-            stream << attribute_enum_cast<Type_Enum::ElementID>(attribute.get())->get();
+            stream << attribute_enum_cast<Type_Enum::ElementID>(attribute.get())->value();
             break;
 
         case Type_Enum::Vector_Bool:
@@ -106,19 +106,19 @@ std::ostream& Saklib::serialise_Attribute_as_key_values(std::ostream& stream, At
     switch (attribute->type_enum())
     {
     case Type_Enum::Bool:
-        stream << "\"" << attribute_enum_cast<Type_Enum::Bool>(attribute)->get() << "\"";
+        stream << "\"" << attribute_enum_cast<Type_Enum::Bool>(attribute)->value() << "\"";
         break;
     case Type_Enum::Int:
-        stream << "\"" << attribute_enum_cast<Type_Enum::Int>(attribute)->get() << "\"";
+        stream << "\"" << attribute_enum_cast<Type_Enum::Int>(attribute)->value() << "\"";
         break;
     case Type_Enum::Double:
-        stream << "\"" << attribute_enum_cast<Type_Enum::Double>(attribute)->get() << "\"";
+        stream << "\"" << attribute_enum_cast<Type_Enum::Double>(attribute)->value() << "\"";
         break;
     case Type_Enum::String:
-        stream << "\"" << attribute_enum_cast<Type_Enum::String>(attribute)->get() << "\"";
+        stream << "\"" << attribute_enum_cast<Type_Enum::String>(attribute)->value() << "\"";
         break;
     case Type_Enum::ElementID:
-        stream << "\"" << attribute_enum_cast<Type_Enum::ElementID>(attribute)->get().value() << "\"";
+        stream << "\"" << attribute_enum_cast<Type_Enum::ElementID>(attribute)->value().value() << "\"";
         break;
 
     case Type_Enum::Vector_Bool:

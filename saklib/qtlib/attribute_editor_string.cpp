@@ -14,11 +14,10 @@ Saklib::Qtlib::Attribute_Editor_String::Attribute_Editor_String(Project_Manager&
     m_line_edit(new QLineEdit(this)),
     m_layout(new QHBoxLayout)
 {
-    m_line_edit->setText(to_QString(mr_project_manager.attribute_type_cast<String>(m_attributeid)->get()));
+    m_line_edit->setText(to_QString(mr_project_manager.attribute_type_cast<String>(m_attributeid)->value()));
 
-    // Connect the signal for when the user edits the text to the editor
-    QObject::connect(m_line_edit.get(), &QLineEdit::textEdited,
-                     this, &Attribute_Editor_String::slot_valueChanged);
+    QObject::connect(m_line_edit.get(), &QLineEdit::editingFinished,
+                     this, &Attribute_Editor_String::slot_editingFinished);
 
     m_layout->addWidget(m_line_edit.get());
     m_layout->setSpacing(0);
@@ -31,14 +30,15 @@ Saklib::Qtlib::Attribute_Editor_String::~Attribute_Editor_String() = default;
 
 void Saklib::Qtlib::Attribute_Editor_String::v_refresh_data()
 {
-    QString const data_value = to_QString(mr_project_manager.attribute_type_cast<String>(m_attributeid)->get());
+    QString const data_value = to_QString(mr_project_manager.attribute_type_cast<String>(m_attributeid)->value());
     if (m_line_edit->text() != data_value)
     {
         m_line_edit->setText(data_value);
     }
 }
 
-void Saklib::Qtlib::Attribute_Editor_String::slot_valueChanged(QString const& value)
+// Slot used to capture the signal editingFinished() from the QLineEdit
+void Saklib::Qtlib::Attribute_Editor_String::slot_editingFinished()
 {
-    mr_project_manager.command_set_attribute_value_type<String>(m_attributeid, to_String(value));
+    mr_project_manager.undoable_set_attribute_value_type<String>(m_attributeid, to_String(m_line_edit->text()));
 }

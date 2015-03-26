@@ -28,8 +28,8 @@ namespace Saklib
             void v_refresh_data() override;
 
         private slots:
-            // Slot used to capture the signal value_changed() from the QSpinBox
-            void slot_valueChanged(int value);
+            // Slot used to capture the signal editingFinished() from the QSpinBox
+            void slot_editingFinished();
 
         private:
             // Data Members

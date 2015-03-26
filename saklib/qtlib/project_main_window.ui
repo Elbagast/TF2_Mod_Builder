@@ -43,6 +43,7 @@
     <addaction name="actionUndoCount"/>
     <addaction name="actionRedo"/>
     <addaction name="actionRedoCount"/>
+    <addaction name="actionClear_History"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
@@ -91,6 +92,11 @@
   <action name="actionRedoCount">
    <property name="text">
     <string>RedoCount</string>
+   </property>
+  </action>
+  <action name="actionClear_History">
+   <property name="text">
+    <string>Clear History</string>
    </property>
   </action>
  </widget>

@@ -61,7 +61,7 @@ namespace Saklib
 
             void undo() { m_project_manager.undo(); }
             void redo() { m_project_manager.redo(); }
-
+            void clear_history() { m_project_manager.clear_history(); }
         signals:
             void signal_unsavedEdits(bool state) const;
             void signal_update_undo_actions(size_type undo_count, size_type redo_count) const;

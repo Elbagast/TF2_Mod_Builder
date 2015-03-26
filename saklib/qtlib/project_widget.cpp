@@ -106,7 +106,7 @@ Saklib::Path const& Saklib::Qtlib::Project_Widget::filepath() const
 {
     //emit signal_toConsole("Project_Widget::filepath()");
 
-    return m_project_manager.attribute_type_cast<Path>(m_root_filepath)->get();
+    return m_project_manager.attribute_type_cast<Path>(m_root_filepath)->value();
 }
 void Saklib::Qtlib::Project_Widget::set_filepath(Path const& filepath)
 {

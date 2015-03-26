@@ -11,7 +11,8 @@ Saklib::Qtlib::Project_Manager::Project_Manager(Project_Widget* widget):
     m_widget_manager(),
     m_outliner_model(new Outliner_Model(*this)),
     mp_widget(widget)
-{}
+{
+}
 Saklib::Qtlib::Project_Manager::~Project_Manager() = default;
 
 // Interface
@@ -176,7 +177,7 @@ Saklib::Vector_ElementID Saklib::Qtlib::Project_Manager::outliner_children(Attri
     if (type == Type_Enum::ElementID)
     {
         // Get the ElementID held
-        ElementID held_elementid = attribute_enum_cast<Type_Enum::ElementID>(attributeid)->get();
+        ElementID held_elementid = attribute_enum_cast<Type_Enum::ElementID>(attributeid)->value();
         if (held_elementid.is_valid())
         {
             results.push_back(held_elementid);
@@ -305,7 +306,7 @@ void Saklib::Qtlib::Project_Manager::set_element_name(ElementID elementid, Strin
 //============================================================
 // To support undoing edits use these functions to edit data from the outliner/widgets.
 
-bool Saklib::Qtlib::Project_Manager::command_set_element_name(ElementID elementid, String const& value)
+bool Saklib::Qtlib::Project_Manager::undoable_set_element_name(ElementID elementid, String const& value)
 {
     // if conditions are right to issue a command
     if(elementid.is_valid()
@@ -356,18 +357,21 @@ Saklib::size_type Saklib::Qtlib::Project_Manager::redo_count() const
 void Saklib::Qtlib::Project_Manager::undo()
 {
     m_command_history.undo();
+    command_history_changed();
 }
 
 // Step forward one in the history and call execute() on that command.
 void Saklib::Qtlib::Project_Manager::redo()
 {
     m_command_history.redo();
+    command_history_changed();
 }
 
 // Clear all stored commands.
 void Saklib::Qtlib::Project_Manager::clear_history()
 {
     m_command_history.clear();
+    command_history_changed();
 }
 
 // Call whenever commands are issued or called

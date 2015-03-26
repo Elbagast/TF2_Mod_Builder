@@ -1,7 +1,6 @@
 #include "attribute_editor_int.h"
 
 #include "project_manager.h"
-#include "temp_disconnect.h"
 #include "qstring_operations.h"
 
 #include <numeric>
@@ -19,14 +18,13 @@ Saklib::Qtlib::Attribute_Editor_Int::Attribute_Editor_Int(Project_Manager& proje
     m_label(new QLabel(this)),
     m_layout(new QHBoxLayout)
 {
-    m_spinbox->setValue(mr_project_manager.attribute_type_cast<Int>(m_attributeid)->get());
+    m_spinbox->setValue(mr_project_manager.attribute_type_cast<Int>(m_attributeid)->value());
 
     m_spinbox->setMinimum(std::numeric_limits<Int>::min());
     m_spinbox->setMaximum(std::numeric_limits<Int>::max());
 
-    // must specify template to disambiguate the overloaded valueChanged signal
-    QObject::connect<void(QSpinBox::*)(int), void(Attribute_Editor_Int::*)(int)>(m_spinbox.get(), &QSpinBox::valueChanged,
-                     this, &Attribute_Editor_Int::slot_valueChanged);
+    QObject::connect(m_spinbox.get(), &QSpinBox::editingFinished,
+                     this, &Attribute_Editor_Int::slot_editingFinished);
 
     QString label_text{"Min: "};
     label_text.append(to_QString(m_spinbox->minimum()));
@@ -47,17 +45,15 @@ Saklib::Qtlib::Attribute_Editor_Int::~Attribute_Editor_Int() = default;
 
 void Saklib::Qtlib::Attribute_Editor_Int::v_refresh_data()
 {
-    auto const data_value = mr_project_manager.attribute_type_cast<Int>(m_attributeid)->get();
+    auto const data_value = mr_project_manager.attribute_type_cast<Int>(m_attributeid)->value();
     if (m_spinbox->value() != data_value)
     {
-        auto td = make_Temp_Disconnect<void(QSpinBox::*)(int), void(Attribute_Editor_Int::*)(int)>(m_spinbox.get(), &QSpinBox::valueChanged,
-                    this, &Attribute_Editor_Int::slot_valueChanged);
         m_spinbox->setValue(data_value);
     }
 }
 
-void Saklib::Qtlib::Attribute_Editor_Int::slot_valueChanged(int value)
+// Slot used to capture the signal editingFinished() from the QSpinBox
+void Saklib::Qtlib::Attribute_Editor_Int::slot_editingFinished()
 {
-    mr_project_manager.command_set_attribute_value_type<Int>(m_attributeid, value);
+    mr_project_manager.undoable_set_attribute_value_type<Int>(m_attributeid, m_spinbox->value());
 }
-

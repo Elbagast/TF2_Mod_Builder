@@ -46,7 +46,8 @@ SOURCES += main.cpp\
     saklib/qtlib/attribute_editor_int.cpp \
     saklib/qtlib/temp_disconnect.cpp \
     saklib/qtlib/attribute_editor_double.cpp \
-    saklib/qtlib/attribute_editor_string.cpp
+    saklib/qtlib/attribute_editor_string.cpp \
+    saklib/command_element.cpp
 
 HEADERS  += \
     saklib/all_attributes.h \
@@ -57,7 +58,6 @@ HEADERS  += \
     saklib/attribute_definition_type.h \
     saklib/attribute_type.h \
     saklib/attributeid.h \
-    saklib/attributeid_type.h \
     saklib/command.h \
     saklib/command_attribute.h \
     saklib/command_attribute_vector.h \
@@ -97,7 +97,8 @@ HEADERS  += \
     saklib/qtlib/attribute_editor_int.h \
     saklib/qtlib/temp_disconnect.h \
     saklib/qtlib/attribute_editor_double.h \
-    saklib/qtlib/attribute_editor_string.h
+    saklib/qtlib/attribute_editor_string.h \
+    saklib/command_element.h
 
 FORMS    += \
     saklib/qtlib/consoledialog.ui \

@@ -94,7 +94,7 @@ namespace Saklib
 		{
 			Attribute_Type<T>* typed_attribute = attributeid.attribute_type_cast<T>();
 			if (typed_attribute != nullptr              // the cast succeeded, i.e. a typematch,
-				&& typed_attribute->get() != value      // ane this wouldn't be a pointless edit,
+				&& typed_attribute->value() != value      // ane this wouldn't be a pointless edit,
 				&& typed_attribute->can_set_to(value))  // and it can be set to this value
 			{
 				return true; // could test if the command executed properly...
@@ -108,7 +108,7 @@ namespace Saklib
         {
             Attribute_Type<T>* typed_attribute = attributeid.attribute_type_cast<T>();
             if (typed_attribute != nullptr              // the cast succeeded, i.e. a typematch,
-                && typed_attribute->get() != value      // ane this wouldn't be a pointless edit,
+                && typed_attribute->value() != value      // ane this wouldn't be a pointless edit,
                 //&& typed_attribute->can_set_to(value)  // and it can be set to this value
 				)
             {

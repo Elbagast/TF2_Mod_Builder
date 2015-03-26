@@ -41,6 +41,7 @@ Saklib::Qtlib::Project_Main_Window::Project_Main_Window(QWidget *parent) :
     //====================
     QObject::connect(m_ui->actionUndo, &QAction::triggered, this, &Project_Main_Window::actionSlot_Undo);
     QObject::connect(m_ui->actionRedo, &QAction::triggered, this, &Project_Main_Window::actionSlot_Redo);
+    QObject::connect(m_ui->actionClear_History, &QAction::triggered, this, &Project_Main_Window::actionSlot_Clear_History);
 
     // Make a new project in m_project_widget, updating the window title when doing so
     new_project();
@@ -157,6 +158,11 @@ void Saklib::Qtlib::Project_Main_Window::actionSlot_Redo()
     m_project_widget->redo();
 }
 
+void Saklib::Qtlib::Project_Main_Window::actionSlot_Clear_History()
+{
+    m_project_widget->clear_history();
+}
+
 
 // Other Slots
 //============================================================
@@ -169,6 +175,16 @@ void Saklib::Qtlib::Project_Main_Window::slot_update_undo_actions(size_type undo
 {
     m_ui->actionUndoCount->setText(to_QString(undo_count));
     m_ui->actionRedoCount->setText(to_QString(redo_count));
+
+    if (undo_count == 0)
+        m_ui->actionUndo->setEnabled(false);
+    else
+        m_ui->actionUndo->setEnabled(true);
+
+    if (redo_count == 0)
+        m_ui->actionRedo->setEnabled(false);
+    else
+        m_ui->actionRedo->setEnabled(true);
 }
 
 // Virtuals
@@ -210,6 +226,7 @@ void Saklib::Qtlib::Project_Main_Window::new_project()
 
     // Update the window title with the new file path and editing state
     m_window_title.set_variable_title(to_QString(m_project_widget->filepath()));
+    slot_update_undo_actions(0,0);
 }
 // Opens a project and loads the data found in the file.
 void Saklib::Qtlib::Project_Main_Window::open_project(Path const& filepath)   // currently a clone of newProject
@@ -227,6 +244,7 @@ void Saklib::Qtlib::Project_Main_Window::open_project(Path const& filepath)   //
 
     // Update the window title with the new file path and editing state
     m_window_title.set_variable_title(to_QString(m_project_widget->filepath()));
+    slot_update_undo_actions(0,0);
 }
 void Saklib::Qtlib::Project_Main_Window::open_project(QString const& filePath)
 {

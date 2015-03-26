@@ -134,7 +134,7 @@ bool Saklib::Qtlib::Outliner_Model::setData(QModelIndex const& index, QVariant c
             // EDIT THE DATA
 
             // make a command to edit the name...
-            mr_project_manager.set_element_name(index_id.elementid(), to_String(value));
+            mr_project_manager.undoable_set_element_name(index_id.elementid(), to_String(value));
 
             //Works! but going to want to reorganise updating data in views...
 
@@ -397,7 +397,7 @@ void Saklib::Qtlib::Outliner_Model::update_children(AttributeID attributeid)
     auto type = mr_project_manager.attribute_type_enum(attributeid);
     if (type == Type_Enum::ElementID)
     {
-        auto child_elementid = mr_project_manager.attribute_enum_cast<Type_Enum::ElementID>(attributeid)->get();
+        auto child_elementid = mr_project_manager.attribute_enum_cast<Type_Enum::ElementID>(attributeid)->value();
         if (child_elementid.is_valid())
         {
             auto child_index = make_index_of(child_elementid);
@@ -493,4 +493,39 @@ void Saklib::Qtlib::Outliner_Model::custom_context_menu(QAbstractItemView*const 
 
     menu.exec(position);
     // Assembling the context menu is going to need some thought.
+}
+
+// Allow a view to request an editor for a given index
+void Saklib::Qtlib::Outliner_Model::request_editor(QModelIndex const& index)
+{
+    // indexid will be the id in the index but starts invalid
+    ProxyID indexid{};
+
+    // if the index is valid then get the id from it
+    if (index.isValid())
+    {
+        // indexid is the id in the index
+        indexid = ProxyID::unpack(index.internalId());
+        assert(index.internalId() == ProxyID::pack(indexid));
+    }
+
+    // if the indexid is root
+    if (!indexid.is_valid())
+    {
+        // nothing
+    }
+    // else it's an Element
+    else if (indexid.is_element())
+    {
+        emit signal_editorRequestedFor(indexid.elementid());
+    }
+    // else it's an Attribute
+    else if (indexid.is_attribute())
+    {
+        emit signal_editorRequestedFor(indexid.elementid()); // Do we want a signal for attributes and focusing on them?
+    }
+    else
+    {
+        // nothing
+    }
 }

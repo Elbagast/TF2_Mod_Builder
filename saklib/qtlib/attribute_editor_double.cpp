@@ -19,7 +19,7 @@ Saklib::Qtlib::Attribute_Editor_Double::Attribute_Editor_Double(Project_Manager&
     m_label(new QLabel(this)),
     m_layout(new QHBoxLayout)
 {
-    m_spinbox->setValue(mr_project_manager.attribute_type_cast<Double>(m_attributeid)->get());
+    m_spinbox->setValue(mr_project_manager.attribute_type_cast<Double>(m_attributeid)->value());
 
     // ok this gets a bit weird with numeric limits, because they're mad
     m_spinbox->setMinimum(std::numeric_limits<Double>::min());
@@ -34,9 +34,8 @@ Saklib::Qtlib::Attribute_Editor_Double::Attribute_Editor_Double(Project_Manager&
     label_text.append(to_QString(m_spinbox->maximum()));
     m_label->setText(label_text);
 
-    // must specify template to disambiguate the overloaded valueChanged signal
-    QObject::connect<void(QDoubleSpinBox::*)(double), void(Attribute_Editor_Double::*)(double)>(m_spinbox.get(), &QDoubleSpinBox::valueChanged,
-                     this, &Attribute_Editor_Double::slot_valueChanged);
+    QObject::connect(m_spinbox.get(), &QSpinBox::editingFinished,
+                     this, &Attribute_Editor_Double::slot_editingFinished);
 
     m_layout->addWidget(m_spinbox.get());
     m_layout->setStretch(0,1);
@@ -51,17 +50,15 @@ Saklib::Qtlib::Attribute_Editor_Double::~Attribute_Editor_Double() = default;
 
 void Saklib::Qtlib::Attribute_Editor_Double::v_refresh_data()
 {
-    auto const data_value = mr_project_manager.attribute_type_cast<Double>(m_attributeid)->get();
+    auto const data_value = mr_project_manager.attribute_type_cast<Double>(m_attributeid)->value();
     if (m_spinbox->value() != data_value)
     {
-        auto td = make_Temp_Disconnect<void(QDoubleSpinBox::*)(double), void(Attribute_Editor_Double::*)(double)>(m_spinbox.get(), &QDoubleSpinBox::valueChanged,
-                    this, &Attribute_Editor_Double::slot_valueChanged);
         m_spinbox->setValue(data_value);
     }
 }
 
-void Saklib::Qtlib::Attribute_Editor_Double::slot_valueChanged(double value)
+// Slot used to capture the signal editingFinished() from the QSpinBox
+void Saklib::Qtlib::Attribute_Editor_Double::slot_editingFinished()
 {
-    mr_project_manager.command_set_attribute_value_type<Double>(m_attributeid, value);
+    mr_project_manager.undoable_set_attribute_value_type<Double>(m_attributeid, m_spinbox->value());
 }
-

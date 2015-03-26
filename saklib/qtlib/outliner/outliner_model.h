@@ -94,6 +94,9 @@ namespace Saklib
             // Request for a context menu by view at index and position
             void custom_context_menu(QAbstractItemView*const view, QModelIndex const& index, QPoint position);
 
+            // Allow a view to request an editor for a given index
+            void request_editor(QModelIndex const& index);
+
         signals:
             void signal_editorRequestedFor(ElementID elementid);
             //void signal_unsavedEdits(bool state);

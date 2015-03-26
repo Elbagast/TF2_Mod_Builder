@@ -10,7 +10,7 @@ Saklib::Qtlib::Attribute_Editor_Bool::Attribute_Editor_Bool(Project_Manager& pro
     m_checkbox(new QCheckBox(this)),
     m_layout(new QHBoxLayout)
 {
-    m_checkbox->setChecked(mr_project_manager.attribute_type_cast<Bool>(m_attributeid)->get());
+    m_checkbox->setChecked(mr_project_manager.attribute_type_cast<Bool>(m_attributeid)->value());
 
     QObject::connect(m_checkbox.get(), &QCheckBox::clicked,
                      this, &Attribute_Editor_Bool::slot_clicked);
@@ -26,7 +26,7 @@ Saklib::Qtlib::Attribute_Editor_Bool::~Attribute_Editor_Bool() = default;
 
 void Saklib::Qtlib::Attribute_Editor_Bool::v_refresh_data()
 {
-    auto const data_value = mr_project_manager.attribute_type_cast<Bool>(m_attributeid)->get();
+    auto const data_value = mr_project_manager.attribute_type_cast<Bool>(m_attributeid)->value();
     if (m_checkbox->isChecked() != data_value)
     {
         // block signals?
@@ -36,5 +36,5 @@ void Saklib::Qtlib::Attribute_Editor_Bool::v_refresh_data()
 
 void Saklib::Qtlib::Attribute_Editor_Bool::slot_clicked()
 {
-    mr_project_manager.command_set_attribute_value_type<Bool>(m_attributeid, m_checkbox->isChecked());
+    mr_project_manager.undoable_set_attribute_value_type<Bool>(m_attributeid, m_checkbox->isChecked());
 }

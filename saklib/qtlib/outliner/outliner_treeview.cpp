@@ -3,6 +3,7 @@
 
 #include <QHeaderView>
 #include <QMenu>
+#include <QMouseEvent>
 
 // Special 6
 //============================================================
@@ -59,6 +60,24 @@ void Saklib::Qtlib::Outliner_Treeview::rowsInserted(QModelIndex const& parent, i
     // Must do this after so that the expand button appears properly when it's new.
     QTreeView::rowsInserted(parent, start, end);
 }
+
+// To add opening edtitors on double-click
+void Saklib::Qtlib::Outliner_Treeview::mouseDoubleClickEvent(QMouseEvent* mouse_event)
+{
+    if (mouse_event->button() == Qt::LeftButton)
+    {
+        // Cast to the assumed correct model type
+        auto model = dynamic_cast<Outliner_Model*const>(this->model());
+
+        // if the cast worked (sanity check)
+        if (model)
+        {
+            // Send a request for an editor at this index, the model will determine behaviour.
+            model->request_editor(this->currentIndex());
+        }
+    }
+}
+
 
 // Convenience
 //============================================================

@@ -60,6 +60,7 @@ namespace Saklib
             //====================
             void actionSlot_Undo();
             void actionSlot_Redo();
+            void actionSlot_Clear_History();
 
             // Other Slots
             //============================================================

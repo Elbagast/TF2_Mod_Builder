@@ -27,8 +27,8 @@ namespace Saklib
             void v_refresh_data() override;
 
         private slots:
-            // Slot used to capture the signal value_changed() from the QLineEdit
-            void slot_valueChanged(QString const& value);
+            // Slot used to capture the signal editingFinished() from the QLineEdit
+            void slot_editingFinished();
 
         private:
             // Data Members

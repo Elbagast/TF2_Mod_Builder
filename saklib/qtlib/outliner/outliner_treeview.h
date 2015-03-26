@@ -41,6 +41,9 @@ namespace Saklib
             // Added behaviour when adding rows
             void rowsInserted(QModelIndex const& parent, int start, int end) override;
 
+            // To add opening edtitors on double-click
+            void mouseDoubleClickEvent(QMouseEvent* mouse_event) override;
+
         private:
             // Convenience
             //============================================================

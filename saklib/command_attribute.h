@@ -68,25 +68,25 @@ namespace Saklib
 
     */
     template <typename T>
-    class Command_Attribute_Set:
+    class Command_Attribute_Set_Value:
         public Command_Attribute<T>
     {
     public:
-        Command_Attribute_Set(Element_Manager& manager, AttributeID attributeid, stored_type const& new_value) :
+        Command_Attribute_Set_Value(Element_Manager& manager, AttributeID attributeid, stored_type const& new_value) :
             Command_Attribute<T>(manager, attributeid),
-            m_old_value(attribute()->get()),
+            m_old_value(attribute()->value()),
             m_new_value(new_value)
         {}
-        ~Command_Attribute_Set() override = default;
+        ~Command_Attribute_Set_Value() override = default;
 
     protected:
         void v_execute() override
         {
-            attribute()->set(m_new_value);
+            attribute()->set_value(m_new_value);
         }
         void v_unexecute() override
         {
-            attribute()->set(m_old_value);
+            attribute()->set_value(m_old_value);
         }
 
     private:
@@ -103,16 +103,16 @@ namespace Saklib
 
     */
     template <typename T>
-    class Command_Attribute_Set<Vector<T>> :
+    class Command_Attribute_Set_Value<Vector<T>> :
         public Command_Attribute<Vector<T>>
     {
     public:
-        Command_Attribute_Set(Element_Manager& manager, AttributeID attributeid, stored_type const& new_value) :
+        Command_Attribute_Set_Value(Element_Manager& manager, AttributeID attributeid, stored_type const& new_value) :
             Command_Attribute<Vector<T>>(manager, attributeid),
             m_old_value(attribute()->vector()),
             m_new_value(new_value)
         {}
-        ~Command_Attribute_Set() override = default;
+        ~Command_Attribute_Set_Value() override = default;
 
     protected:
         void v_execute() override
