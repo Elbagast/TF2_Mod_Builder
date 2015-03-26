@@ -1,6 +1,6 @@
 #include "element_widget.h"
 
-#include "project_manager.h"
+#include "project_widget.h"
 #include "attribute_editor.h"
 #include "../element.h"
 #include "../all_attributes.h"
@@ -12,9 +12,9 @@
 
 // Special 6
 //============================================================
-Saklib::Qtlib::Element_Widget::Element_Widget(Project_Manager& project_manager, ElementID elementid):
+Saklib::Qtlib::Element_Widget::Element_Widget(Project_Widget*const project_widget, ElementID elementid):
     QWidget(nullptr),
-    mr_project_manager(project_manager),
+    mp_project_widget(project_widget),
     m_elementid(elementid),
 
     m_element_name_label(),
@@ -27,15 +27,15 @@ Saklib::Qtlib::Element_Widget::Element_Widget(Project_Manager& project_manager, 
     m_layout(new QGridLayout)
 {
     // Really shouldn't have got here with an invalid ID
-    assert(mr_project_manager.is_valid(elementid));
+    assert(mp_project_widget->is_valid(elementid));
 
     // Configure the labels
 
     // If the name is editable this type will get changed.
-    m_element_name_label.reset(new QLabel(mr_project_manager.element(m_elementid).name().c_str()));
+    m_element_name_label.reset(new QLabel(mp_project_widget->element(m_elementid).name().c_str()));
     //m_element_name_label->setSizePolicy( QSizePolicy::Expanding, QSizePolicy::Minimum );
 
-    m_element_type_label.reset(new QLabel(mr_project_manager.element(m_elementid).type().c_str()));
+    m_element_type_label.reset(new QLabel(mp_project_widget->element(m_elementid).type().c_str()));
     //m_element_type_label->setSizePolicy( QSizePolicy::Expanding, QSizePolicy::Minimum );
 
 
@@ -48,7 +48,7 @@ Saklib::Qtlib::Element_Widget::Element_Widget(Project_Manager& project_manager, 
 
     {
         // scope to expire this reference
-        Vector<Uptr<Attribute>> const& attributes = mr_project_manager.element(m_elementid).attributes();
+        Vector<Uptr<Attribute>> const& attributes = mp_project_widget->element(m_elementid).attributes();
         for (size_type attribute_index = 0, end = attributes.size(); attribute_index != end; ++attribute_index)
         {
             // The Attribute we're working with
@@ -77,7 +77,7 @@ Saklib::Qtlib::Element_Widget::Element_Widget(Project_Manager& project_manager, 
 
 
             // make and add editors
-            Uptr<Attribute_Editor> editor{make_Attribute_Editor(project_manager, attributeid)};
+            Uptr<Attribute_Editor> editor{make_Attribute_Editor(mp_project_widget, attributeid)};
 
             editor->setSizePolicy( QSizePolicy::Minimum, QSizePolicy::Minimum );
             // Add it to the grid
@@ -109,7 +109,7 @@ Saklib::Qtlib::Element_Widget::~Element_Widget()
 // Update the data displayed by this widget and its children
 void Saklib::Qtlib::Element_Widget::refresh_data()
 {
-    m_element_name_label->setText(mr_project_manager.element(m_elementid).name().c_str());
+    m_element_name_label->setText(mp_project_widget->element(m_elementid).name().c_str());
     for (auto& attribute_editor : m_attribute_editors)
         attribute_editor->refresh_data();
 }

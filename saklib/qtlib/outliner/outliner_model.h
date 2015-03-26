@@ -13,7 +13,7 @@ namespace Saklib
 {
     namespace Qtlib
     {
-        class Project_Manager;
+        class Project_Widget;
         /*
         Outliner_Model
         ====================================================================================================
@@ -28,7 +28,7 @@ namespace Saklib
         public:
             // Special 6
             //============================================================
-            explicit Outliner_Model(Project_Manager& project_manager, QObject* parent = nullptr);
+            explicit Outliner_Model(Project_Widget* project_widget, QObject* parent = nullptr);
             ~Outliner_Model() override;
 
             // Virtual Overrides
@@ -87,10 +87,6 @@ namespace Saklib
             void update_children(ElementID elementid);
             void update_children(AttributeID attributeid);
 
-            // call QAbstractItemView->edit on this item
-            //void call_edit_in_view(QAbstractItemView* view, Outliner_Item* item);
-            //void call_edit_in_view(QAbstractItemView* view, QModelIndex const& index);
-
             // Request for a context menu by view at index and position
             void custom_context_menu(QAbstractItemView*const view, QModelIndex const& index, QPoint position);
 
@@ -100,15 +96,10 @@ namespace Saklib
             // Forward this request to the Project_Manager
             void request_editor(ElementID elementid);
 
-        signals:
-            void signal_editorRequestedFor(ElementID elementid);
-            //void signal_unsavedEdits(bool state);
-
-
         private:
             // Data Members
             //============================================================
-            Project_Manager& mr_project_manager;
+            Project_Widget*const mp_project_widget;
         };
 
     } // namespace Qtlib

@@ -1,6 +1,6 @@
 #include "attribute_editor_int.h"
 
-#include "project_manager.h"
+#include "project_widget.h"
 #include "qstring_operations.h"
 
 #include <numeric>
@@ -12,13 +12,13 @@
 
 // Special 6
 //============================================================
-Saklib::Qtlib::Attribute_Editor_Int::Attribute_Editor_Int(Project_Manager& project_manager, AttributeID attributeid, QWidget* parent):
-    Attribute_Editor(project_manager, attributeid, parent),
+Saklib::Qtlib::Attribute_Editor_Int::Attribute_Editor_Int(Project_Widget*const project_widget, AttributeID attributeid, QWidget* parent):
+    Attribute_Editor(project_widget, attributeid, parent),
     m_spinbox(new QSpinBox(this)),
     m_label(new QLabel(this)),
     m_layout(new QHBoxLayout)
 {
-    m_spinbox->setValue(mr_project_manager.attribute_type_cast<Int>(m_attributeid)->value());
+    m_spinbox->setValue(this->project_widget()->attribute_type_cast<Int>(this->attributeid())->value());
 
     m_spinbox->setMinimum(std::numeric_limits<Int>::min());
     m_spinbox->setMaximum(std::numeric_limits<Int>::max());
@@ -45,7 +45,7 @@ Saklib::Qtlib::Attribute_Editor_Int::~Attribute_Editor_Int() = default;
 
 void Saklib::Qtlib::Attribute_Editor_Int::v_refresh_data()
 {
-    auto const data_value = mr_project_manager.attribute_type_cast<Int>(m_attributeid)->value();
+    auto const data_value = this->project_widget()->attribute_type_cast<Int>(this->attributeid())->value();
     if (m_spinbox->value() != data_value)
     {
         m_spinbox->setValue(data_value);
@@ -55,5 +55,5 @@ void Saklib::Qtlib::Attribute_Editor_Int::v_refresh_data()
 // Slot used to capture the signal editingFinished() from the QSpinBox
 void Saklib::Qtlib::Attribute_Editor_Int::slot_editingFinished()
 {
-    mr_project_manager.undoable_set_attribute_value_type<Int>(m_attributeid, m_spinbox->value());
+    this->project_widget()->undoable_set_attribute_value_type<Int>(this->attributeid(), m_spinbox->value());
 }

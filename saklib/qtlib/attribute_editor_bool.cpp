@@ -1,16 +1,16 @@
 #include "attribute_editor_bool.h"
-#include "project_manager.h"
+#include "project_widget.h"
 #include <QCheckBox>
 #include <QHBoxLayout>
 
 // Special 6
 //============================================================
-Saklib::Qtlib::Attribute_Editor_Bool::Attribute_Editor_Bool(Project_Manager& project_manager, AttributeID attributeid, QWidget* parent):
-    Attribute_Editor(project_manager, attributeid, parent),
+Saklib::Qtlib::Attribute_Editor_Bool::Attribute_Editor_Bool(Project_Widget*const project_widget, AttributeID attributeid, QWidget* parent):
+    Attribute_Editor(project_widget, attributeid, parent),
     m_checkbox(new QCheckBox(this)),
     m_layout(new QHBoxLayout)
 {
-    m_checkbox->setChecked(mr_project_manager.attribute_type_cast<Bool>(m_attributeid)->value());
+    m_checkbox->setChecked(this->project_widget()->attribute_type_cast<Bool>(this->attributeid())->value());
 
     QObject::connect(m_checkbox.get(), &QCheckBox::clicked,
                      this, &Attribute_Editor_Bool::slot_clicked);
@@ -26,7 +26,7 @@ Saklib::Qtlib::Attribute_Editor_Bool::~Attribute_Editor_Bool() = default;
 
 void Saklib::Qtlib::Attribute_Editor_Bool::v_refresh_data()
 {
-    auto const data_value = mr_project_manager.attribute_type_cast<Bool>(m_attributeid)->value();
+    auto const data_value = this->project_widget()->attribute_type_cast<Bool>(this->attributeid())->value();
     if (m_checkbox->isChecked() != data_value)
     {
         // block signals?
@@ -36,5 +36,5 @@ void Saklib::Qtlib::Attribute_Editor_Bool::v_refresh_data()
 
 void Saklib::Qtlib::Attribute_Editor_Bool::slot_clicked()
 {
-    mr_project_manager.undoable_set_attribute_value_type<Bool>(m_attributeid, m_checkbox->isChecked());
+    this->project_widget()->undoable_set_attribute_value_type<Bool>(this->attributeid(), m_checkbox->isChecked());
 }

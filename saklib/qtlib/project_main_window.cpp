@@ -100,8 +100,8 @@ bool Saklib::Qtlib::Project_Main_Window::actionSlot_Save_Project()
     if (m_project_widget)// && m_project_widget->getProject())
     {
         // if the project name starts with "new_", call saveAs
-        if(m_project_widget->filepath().empty()
-           || to_QString(m_project_widget->filepath()).startsWith(s_new_name_front.c_str())
+        if(m_project_widget->project_filepath().empty()
+           || to_QString(m_project_widget->project_filepath()).startsWith(s_new_name_front.c_str())
            )
         {
             return actionSlot_Save_Project_As();
@@ -231,7 +231,7 @@ void Saklib::Qtlib::Project_Main_Window::new_project()
                      this, &Project_Main_Window::slot_update_undo_actions);
 
     // Update the window title with the new file path and editing state
-    m_window_title.set_variable_title(to_QString(m_project_widget->filepath()));
+    m_window_title.set_variable_title(to_QString(m_project_widget->project_filepath()));
     slot_update_undo_actions(0,0);
 }
 // Opens a project and loads the data found in the file.
@@ -249,7 +249,7 @@ void Saklib::Qtlib::Project_Main_Window::open_project(Path const& filepath)   //
                      this, &Project_Main_Window::slot_update_undo_actions);
 
     // Update the window title with the new file path and editing state
-    m_window_title.set_variable_title(to_QString(m_project_widget->filepath()));
+    m_window_title.set_variable_title(to_QString(m_project_widget->project_filepath()));
     slot_update_undo_actions(0,0);
 }
 void Saklib::Qtlib::Project_Main_Window::open_project(QString const& filePath)

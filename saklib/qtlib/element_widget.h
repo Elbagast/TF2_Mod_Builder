@@ -3,6 +3,7 @@
 
 #include "../types.h"
 #include "../elementid.h"
+#include "../attribute_type.h"
 #include <QWidget>
 
 class QLabel;
@@ -16,7 +17,7 @@ namespace Saklib
     namespace Qtlib
     {
         class Attribute_Editor;
-        class Project_Manager;
+        class Project_Widget;
         /*
         Element_Widget
         ====================================================================================================
@@ -29,7 +30,7 @@ namespace Saklib
         public:
             // Special 6
             //============================================================
-            Element_Widget(Project_Manager& project_manager, ElementID elementid);
+            Element_Widget(Project_Widget*const project_widget, ElementID elementid);
             ~Element_Widget() override;
 
             // NO COPYING
@@ -53,7 +54,7 @@ namespace Saklib
         private:
             // Data Members
             //============================================================
-            Project_Manager& mr_project_manager; // Commands reference this so that data is updated properly
+            Project_Widget*const mp_project_widget; // Commands reference this so that data is updated properly
             ElementID const m_elementid;         // Reference to the Element being edited
 
             // Widgets

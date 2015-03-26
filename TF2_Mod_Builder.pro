@@ -32,11 +32,8 @@ SOURCES += main.cpp\
     saklib/qtlib/windowtitle.cpp \
     saklib/all_attributes.cpp \
     saklib/qtlib/project_main_window.cpp \
-    saklib/qtlib/project_widget.cpp \
     saklib/qtlib/outliner/outliner_treeview.cpp \
     saklib/qtlib/outliner/outliner_delegate.cpp \
-    saklib/qtlib/element_widget_manager.cpp \
-    saklib/qtlib/project_manager.cpp \
     saklib/proxyid.cpp \
     saklib/qtlib/outliner/outliner_model.cpp \
     saklib/interal_element_definitions.cpp \
@@ -47,7 +44,8 @@ SOURCES += main.cpp\
     saklib/qtlib/temp_disconnect.cpp \
     saklib/qtlib/attribute_editor_double.cpp \
     saklib/qtlib/attribute_editor_string.cpp \
-    saklib/command_element.cpp
+    saklib/command_element.cpp \
+    saklib/qtlib/project_widget.cpp
 
 HEADERS  += \
     saklib/all_attributes.h \
@@ -79,15 +77,12 @@ HEADERS  += \
     saklib/types.h \
     saklib/qtlib/element_widget.h \
     saklib/qtlib/windowtitle.h \
-    saklib/qtlib/project_widget.h \
     saklib/qtlib/project_main_window.h \
     saklib/qtlib/outliner/outliner_treeview.h \
     saklib/qtlib/outliner/outliner_delegate.h \
     saklib/qtlib/qstring_operations.h \
     saklib/qtlib/qvariant_operations.h \
     saklib/type_traits_path.h \
-    saklib/qtlib/element_widget_manager.h \
-    saklib/qtlib/project_manager.h \
     saklib/qtlib/attribute_editor.h \
     saklib/proxyid.h \
     saklib/qtlib/outliner/outliner_model.h \
@@ -98,7 +93,8 @@ HEADERS  += \
     saklib/qtlib/temp_disconnect.h \
     saklib/qtlib/attribute_editor_double.h \
     saklib/qtlib/attribute_editor_string.h \
-    saklib/command_element.h
+    saklib/command_element.h \
+    saklib/qtlib/project_widget.h
 
 FORMS    += \
     saklib/qtlib/consoledialog.ui \

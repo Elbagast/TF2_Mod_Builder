@@ -34,8 +34,8 @@ QWidget* Saklib::Qtlib::Outliner_Delegate::createEditor(QWidget* parent, QStyleO
     // else it's an Element
     else if (indexid.is_element())
     {
-        auto editor = std::make_unique<QLineEdit>(parent);
-        return editor.release();
+        //auto editor = std::make_unique<QLineEdit>(parent);
+        return std::make_unique<QLineEdit>(parent).release();
     }
     // else it's an Attribute
     else if (indexid.is_attribute())

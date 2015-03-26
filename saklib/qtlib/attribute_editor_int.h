@@ -10,8 +10,6 @@ class QHBoxLayout;
 
 namespace Saklib
 {
-    class Project_Manager;
-
     namespace Qtlib
     {
         class Attribute_Editor_Int :
@@ -21,7 +19,7 @@ namespace Saklib
         public:
             // Special 6
             //============================================================
-            Attribute_Editor_Int(Project_Manager& project_manager, AttributeID attributeid, QWidget* parent = nullptr);
+            Attribute_Editor_Int(Project_Widget*const project_widget, AttributeID attributeid, QWidget* parent = nullptr);
             ~Attribute_Editor_Int() override;
 
         protected:
