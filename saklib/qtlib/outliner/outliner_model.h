@@ -87,6 +87,10 @@ namespace Saklib
             void update_children(ElementID elementid);
             void update_children(AttributeID attributeid);
 
+            // Add or remove rows from Attributes
+            void add_row(AttributeID attributeid, int row);
+            void remove_row(AttributeID attributeid, int row);
+
             // Request for a context menu by view at index and position
             void custom_context_menu(QAbstractItemView*const view, QModelIndex const& index, QPoint position);
 

@@ -1,6 +1,7 @@
 #include "attribute_editor_elementid.h"
 #include "project_widget.h"
 #include "qstring_operations.h"
+#include "select_element_type_dialog.h"
 
 #include <QHBoxLayout>
 #include <QLabel>
@@ -12,10 +13,14 @@ Saklib::Qtlib::Attribute_Editor_ElementID::Attribute_Editor_ElementID(Project_Wi
     Attribute_Editor(project_widget, attributeid, parent),
     m_elementid(this->project_widget()->attribute_type_cast<ElementID>(this->attributeid())->value()),
     m_layout(std::make_unique<QHBoxLayout>()),
-    m_button(std::make_unique<QPushButton>(this->button_text())),
-    m_name_label(std::make_unique<QLabel>(this->name_label_text())),
-    m_type_label(std::make_unique<QLabel>(this->type_label_text()))
+    m_button(std::make_unique<QPushButton>(button_text())),
+    m_name_label(std::make_unique<QLabel>(name_label_text())),
+    m_type_label(std::make_unique<QLabel>(type_label_text()))
 {
+    // If the ElementID is a valid value, make sure it's valid in the project_widget
+    if (m_elementid.is_valid())
+        assert(this->project_widget()->is_valid(m_elementid));
+
     QObject::connect(m_button.get(), &QPushButton::clicked,
                      this, &Attribute_Editor_ElementID::slot_clicked);
 
@@ -51,7 +56,18 @@ void Saklib::Qtlib::Attribute_Editor_ElementID::slot_clicked()
     }
     else
     {
-        // this would mean it wants you to replace the element...
+        // Get a list of types of Element that we can use
+        auto element_types = Element::get_registered_types();
+
+        // Make a dialog that asks the user to select one, floating above the project widget
+        Select_Element_Type_Dialog dialog{element_types, this->project_widget()};
+
+        // if the user selects one, make an Element of that type and assign it to the attribute
+        if (dialog.exec() == QDialog::Accepted && !dialog.selected_element_type().empty())
+        {
+            ElementID new_element = project_widget()->make_element(dialog.selected_element_type());
+            this->project_widget()->undoable_set_attribute_value_type<ElementID>(this->attributeid(), new_element);
+        }
     }
 }
 

@@ -378,6 +378,7 @@ void Saklib::Qtlib::Outliner_Model::update_item(ElementID elementid)
 }
 void Saklib::Qtlib::Outliner_Model::update_item(AttributeID attributeid)
 {
+    // This just updates the text in this index...
     auto index = make_index_of(attributeid);
     emit QAbstractItemModel::dataChanged(index, index);
 }
@@ -403,7 +404,7 @@ void Saklib::Qtlib::Outliner_Model::update_children(AttributeID attributeid)
         if (child_elementid.is_valid())
         {
             auto child_index = make_index_of(child_elementid);
-            assert(child_index.isValid());
+            //assert(child_index.isValid());
             // Emit a signal to tell attatched views that the data has changed at this index
             emit QAbstractItemModel::dataChanged(child_index, child_index);
         }
@@ -422,6 +423,22 @@ void Saklib::Qtlib::Outliner_Model::update_children(AttributeID attributeid)
         }
     }
 }
+
+// Add or remove rows from Attributes
+void Saklib::Qtlib::Outliner_Model::add_row(AttributeID attributeid, int row)
+{
+    auto index = make_index_of(attributeid);
+    this->beginInsertRows(index, row, row);
+    this->endInsertRows();
+}
+
+void Saklib::Qtlib::Outliner_Model::remove_row(AttributeID attributeid, int row)
+{
+    auto index = make_index_of(attributeid);
+    this->beginRemoveRows(index, row, row);
+    this->endRemoveRows();
+}
+
 
 // Request for a context menu by view at index and position
 void Saklib::Qtlib::Outliner_Model::custom_context_menu(QAbstractItemView*const view, QModelIndex const& index, QPoint position)

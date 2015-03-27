@@ -384,6 +384,33 @@ void Saklib::Qtlib::Project_Widget::set_attribute_value_type(AttributeID attribu
 
     update_widget(attributeid);
     update_model(attributeid);
+
+    // need to do the following...
+
+    // if the ElementID changed from invalid to valid,
+    if (!old_value.is_valid() && value.is_valid())
+    {
+        // tell the model that row 0 was added as a child of attributeid
+        m_outliner_model->add_row(attributeid, 0);
+        //m_outliner->setExpanded(m_outliner_model->make_index_of(value), true);
+        //m_outliner->setExpanded(m_outliner_model->make_index_of(attributeid.elementid()), true);
+    }
+    // else if the ElementID changed from valid to invalid,
+    else if (old_value.is_valid() && !value.is_valid())
+    {
+        // tell the model that row 0 was removed as a child of attributeid
+        m_outliner_model->remove_row(attributeid, 0);
+        //m_outliner->setExpanded(m_outliner_model->make_index_of(attributeid.elementid()), true);
+    }
+    else
+    {
+        // tell the model to update the children of attributeid
+        m_outliner_model->update_children(attributeid);
+    }
+
+    //m_outliner_model->update_children(attributeid); // doesn't work...
+
+    //m_outliner_model->update_all(); // using this shows everything is there
     emit signal_unsaved_edits(true);
 }
 
