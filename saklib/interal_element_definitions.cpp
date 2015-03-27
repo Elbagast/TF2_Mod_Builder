@@ -14,6 +14,7 @@ Saklib::Element_Definition Saklib::internal_definition_of_Project()
         make_shared_Attribute_Definition("TestDouble", Type_Enum::Double),
         make_shared_Attribute_Definition("TestString", Type_Enum::String),
         make_shared_Attribute_Definition("TestElement", Type_Enum::ElementID),
+        make_shared_Attribute_Definition("TestElement2", Type_Enum::ElementID),
         make_shared_Attribute_Definition("Files", Type_Enum::Vector_ElementID),
         make_shared_Attribute_Definition("Textures", Type_Enum::Vector_ElementID),
         make_shared_Attribute_Definition("Other", Type_Enum::Vector_ElementID)
