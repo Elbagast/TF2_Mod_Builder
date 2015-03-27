@@ -66,6 +66,10 @@ Saklib::Qtlib::Project_Widget::Project_Widget(Path const& filepath, QWidget* par
     // TESTING LINES
     m_element_manager.make_element("File");
     m_element_manager.make_element("SingleInt");
+    auto test_child =  this->make_element("SingleInt");
+    auto parent_attribute = this->attributeid(m_project_elementid, "TestElement");
+    set_attribute_value_type(parent_attribute, test_child);
+
 
 
     // Does this need to be a signal?
@@ -361,6 +365,25 @@ void Saklib::Qtlib::Project_Widget::set_element_name(ElementID elementid, String
     m_element_manager.element(elementid).set_name(value);
     update_widget(elementid);
     update_model(elementid);
+    emit signal_unsaved_edits(true);
+}
+
+template <>
+void Saklib::Qtlib::Project_Widget::set_attribute_value_type(AttributeID attributeid, ElementID  const& value)
+{
+    assert(attributeid.is_valid());
+    assert(this->attribute_type_enum(attributeid) == Type_Traits<ElementID>::type_enum());
+    //assert(this->attribute_type_cast<ElementID>(attributeid)->value() != value);
+
+    ElementID old_value = m_element_manager.element(attributeid.elementid()).attribute_type_cast<ElementID>(attributeid.index())->value();
+
+    m_element_manager.element(attributeid.elementid()).attribute_type_cast<ElementID>(attributeid.index())->set_value(value);
+
+    m_element_manager.set_parent(old_value, invalid_attributeid());
+    m_element_manager.set_parent(value, attributeid);
+
+    update_widget(attributeid);
+    update_model(attributeid);
     emit signal_unsaved_edits(true);
 }
 

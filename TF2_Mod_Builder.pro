@@ -45,7 +45,8 @@ SOURCES += main.cpp\
     saklib/qtlib/attribute_editor_double.cpp \
     saklib/qtlib/attribute_editor_string.cpp \
     saklib/command_element.cpp \
-    saklib/qtlib/project_widget.cpp
+    saklib/qtlib/project_widget.cpp \
+    saklib/qtlib/attribute_editor_elementid.cpp
 
 HEADERS  += \
     saklib/all_attributes.h \
@@ -94,7 +95,8 @@ HEADERS  += \
     saklib/qtlib/attribute_editor_double.h \
     saklib/qtlib/attribute_editor_string.h \
     saklib/command_element.h \
-    saklib/qtlib/project_widget.h
+    saklib/qtlib/project_widget.h \
+    saklib/qtlib/attribute_editor_elementid.h
 
 FORMS    += \
     saklib/qtlib/consoledialog.ui \

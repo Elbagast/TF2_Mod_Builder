@@ -161,6 +161,9 @@ namespace Saklib
                 emit signal_unsaved_edits(true);
             }
 
+            template <>
+            void set_attribute_value_type(AttributeID attributeid, ElementID const& value);
+
             template <Type_Enum TE>
             void set_attribute_value_enum(AttributeID attributeid, TypeHolder_st<TE> const& value)
             {
