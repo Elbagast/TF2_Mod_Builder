@@ -117,11 +117,11 @@ namespace Saklib
     protected:
         void v_execute() override
         {
-            attribute()->vector() = m_new_value;
+            attribute()->set_vector(m_new_value);
         }
         void v_unexecute() override
         {
-            attribute()->vector() = m_old_value;
+            attribute()->set_vector(m_old_value);
         }
 
     private:

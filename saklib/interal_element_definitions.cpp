@@ -15,9 +15,13 @@ Saklib::Element_Definition Saklib::internal_definition_of_Project()
         make_shared_Attribute_Definition("TestString", Type_Enum::String),
         make_shared_Attribute_Definition("TestElement", Type_Enum::ElementID),
         make_shared_Attribute_Definition("TestElement2", Type_Enum::ElementID),
-        make_shared_Attribute_Definition("Files", Type_Enum::Vector_ElementID),
-        make_shared_Attribute_Definition("Textures", Type_Enum::Vector_ElementID),
-        make_shared_Attribute_Definition("Other", Type_Enum::Vector_ElementID)
+
+        make_shared_Attribute_Definition("TestVectorBool", Type_Enum::Vector_Bool),
+        make_shared_Attribute_Definition("TestVectorInt", Type_Enum::Vector_Int),
+        make_shared_Attribute_Definition("TestVectorDouble", Type_Enum::Vector_Double),
+        make_shared_Attribute_Definition("TestVectorString", Type_Enum::Vector_String),
+        make_shared_Attribute_Definition("TestVectorPath", Type_Enum::Vector_Path),
+        make_shared_Attribute_Definition("TestVectorElementID", Type_Enum::Vector_ElementID),
     });
 }
 

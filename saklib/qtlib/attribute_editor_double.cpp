@@ -59,5 +59,5 @@ void Saklib::Qtlib::Attribute_Editor_Double::v_refresh_data()
 // Slot used to capture the signal editingFinished() from the QSpinBox
 void Saklib::Qtlib::Attribute_Editor_Double::slot_editingFinished()
 {
-    this->project_widget()->undoable_set_attribute_value_type<Double>(this->attributeid(), m_spinbox->value());
+    this->project_widget()->undoable_attribute_set_value<Double>(this->attributeid(), m_spinbox->value());
 }

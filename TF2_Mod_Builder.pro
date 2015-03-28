@@ -47,7 +47,9 @@ SOURCES += main.cpp\
     saklib/command_element.cpp \
     saklib/qtlib/project_widget.cpp \
     saklib/qtlib/attribute_editor_elementid.cpp \
-    saklib/qtlib/select_element_type_dialog.cpp
+    saklib/qtlib/select_element_type_dialog.cpp \
+    saklib/qtlib/attribute_editor_vector_elementid.cpp \
+    saklib/qtlib/attribute_editor_vector.cpp
 
 HEADERS  += \
     saklib/all_attributes.h \
@@ -98,7 +100,9 @@ HEADERS  += \
     saklib/command_element.h \
     saklib/qtlib/project_widget.h \
     saklib/qtlib/attribute_editor_elementid.h \
-    saklib/qtlib/select_element_type_dialog.h
+    saklib/qtlib/select_element_type_dialog.h \
+    saklib/qtlib/attribute_editor_vector_elementid.h \
+    saklib/qtlib/attribute_editor_vector.h
 
 FORMS    += \
     saklib/qtlib/consoledialog.ui \

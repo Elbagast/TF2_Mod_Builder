@@ -77,6 +77,10 @@ namespace Saklib
             Type_Enum attribute_type_enum(AttributeID attributeid) const;
             String attribute_type_string(AttributeID attributeid) const;
 
+            // if the attribute is a vector, return it's size, otherwise 0
+            size_type attribute_vector_size(AttributeID attributeid) const;
+            bool attribute_vector_empty(AttributeID attributeid) const;
+
             template <typename T>
             Attribute_Type<T> const*const attribute_type_cast(AttributeID attributeid) const
             {
@@ -91,22 +95,6 @@ namespace Saklib
             Attribute_Type<T> const*const attribute_type_cast(ElementID elementid, String const& attribute_name) const
             {
                 return Saklib::attribute_type_cast<T>(attribute(elementid, attribute_name));
-            }
-
-            template <Type_Enum TE>
-            Attribute_Type<TypeHolder_st<TE>> const*const attribute_enum_cast(AttributeID attributeid) const
-            {
-                return Saklib::attribute_enum_cast<TE>(attribute(attributeid));
-            }
-            template <Type_Enum TE>
-            Attribute_Type<TypeHolder_st<TE>> const*const attribute_enum_cast(ElementID elementid, size_type attribute_index) const
-            {
-                return Saklib::attribute_enum_cast<TE>(attribute(elementid, attribute_index));
-            }
-            template <Type_Enum TE>
-            Attribute_Type<TypeHolder_st<TE>> const*const attribute_enum_cast(ElementID elementid, String const& attribute_name) const
-            {
-                return Saklib::attribute_enum_cast<TE>(attribute(elementid, attribute_name));
             }
 
             // Convert ID Types
@@ -147,37 +135,98 @@ namespace Saklib
             //------------------------------------------------------------
             // These functions set the data without question, and tell the model and widget to update.
 
-            void set_element_name(ElementID elementid, String const& value);
+            void element_set_name(ElementID elementid, String const& value);
 
             template <typename T>
-            void set_attribute_value_type(AttributeID attributeid, T const& value)
+            void attribute_set_value(AttributeID attributeid, T const& value)
             {
-                assert(attributeid.is_valid());
-                assert(this->attribute_type_enum(attributeid) == Type_Traits<T>::type_enum());
-                assert(this->attribute_type_cast<T>(attributeid)->value() != value);
-                m_element_manager.element(attributeid.elementid()).attribute_type_cast<T>(attributeid.index())->set_value(value);
-                update_widget(attributeid);
-                update_model(attributeid);
-                emit signal_unsaved_edits(true);
+                // god dammit have to specificy the template right now, but it works
+                attribute_function<T, decltype(&Attribute_Type<T>::set_value), T>(attributeid, &Attribute_Type<T>::set_value, value);
             }
-
             template <>
-            void set_attribute_value_type(AttributeID attributeid, ElementID const& value);
+            void attribute_set_value<ElementID>(AttributeID attributeid, ElementID const& value);
 
-            template <Type_Enum TE>
-            void set_attribute_value_enum(AttributeID attributeid, TypeHolder_st<TE> const& value)
+
+            // vector functions....all of them.........
+
+            template <typename T>
+            void attribute_vector_clear(AttributeID attributeid)
             {
-                set_attribute_value_type<TypeHolder_st<TE> >(attributeid, value);
+                attribute_function<T, decltype(&Attribute_Type<Vector<T>>::clear)>(attributeid, &Attribute_Type<Vector<T>>::clear);
             }
+            template <>
+            void attribute_vector_clear<ElementID>(AttributeID attributeid);
+
+            template <typename T>
+            void attribute_vector_swap_at(AttributeID attributeid, size_type index, size_type other_index)
+            {
+                attribute_function<T, decltype(&Attribute_Type<Vector<T>>::swap_at), size_type, size_type>(attributeid, &Attribute_Type<Vector<T>>::swap_at, index, other_index);
+            }
+            template <>
+            void attribute_vector_swap_at<ElementID>(AttributeID attributeid, size_type index, size_type other_index);
+
+            template <typename T>
+            void attribute_vector_set_at(AttributeID attributeid, size_type index, T const& value)
+            {
+                attribute_function<T, decltype(&Attribute_Type<Vector<T>>::set_at), size_type, T>(attributeid, &Attribute_Type<Vector<T>>::set_at, index, value);
+            }
+            template <>
+            void attribute_vector_set_at<ElementID>(AttributeID attributeid, size_type index, ElementID const& value);
+
+            template <typename T>
+            void attribute_vector_set_front(AttributeID attributeid, T const& value)
+            {
+                attribute_function<T, decltype(&Attribute_Type<Vector<T>>::set_front), T>(attributeid, &Attribute_Type<Vector<T>>::set_front);
+            }
+            template <>
+            void attribute_vector_set_front<ElementID>(AttributeID attributeid, ElementID const& value);
+
+            template <typename T>
+            void attribute_vector_set_back(AttributeID attributeid, T const& value)
+            {
+                attribute_function<T, decltype(&Attribute_Type<Vector<T>>::set_back), T>(attributeid, &Attribute_Type<Vector<T>>::set_back, value);
+            }
+            template <>
+            void attribute_vector_set_back<ElementID>(AttributeID attributeid, ElementID const& value);
+
+            template <typename T>
+            void attribute_vector_push_front(AttributeID attributeid, T const& value)
+            {
+                attribute_function<T, decltype(&Attribute_Type<Vector<T>>::push_front), T>(attributeid, &Attribute_Type<Vector<T>>::push_front, value);
+            }
+            template <>
+            void attribute_vector_push_front<ElementID>(AttributeID attributeid, ElementID const& value);
+
+            template <typename T>
+            void attribute_vector_push_back(AttributeID attributeid, T const& value)
+            {
+                attribute_function<T, decltype(&Attribute_Type<Vector<T>>::push_back), T>(attributeid, &Attribute_Type<Vector<T>>::push_back, value);
+            }
+            void attribute_vector_push_back(AttributeID attributeid, ElementID const& value);
+
+            template <typename T>
+            void attribute_vector_pop_back(AttributeID attributeid)
+            {
+                attribute_function<T, decltype(&Attribute_Type<Vector<T>>::pop_back)>(attributeid, &Attribute_Type<Vector<T>>::pop_back);
+            }
+            void attribute_vector_pop_back_ElementID(AttributeID attributeid);
+
+            template <typename T>
+            void attribute_vector_pop_front(AttributeID attributeid)
+            {
+                attribute_function<T, decltype(&Attribute_Type<Vector<T>>::pop_front)>(attributeid, &Attribute_Type<Vector<T>>::pop_front);
+            }
+            template <>
+            void attribute_vector_pop_front<ElementID>(AttributeID attributeid);
 
             // Commands - indirect write access
             //------------------------------------------------------------
             // To support undoing edits use these functions to edit data from the outliner/widgets.
 
-            bool undoable_set_element_name(ElementID elementid, String const& value);
+            bool undoable_element_set_name(ElementID elementid, String const& value);
 
             template <typename T>
-            bool undoable_set_attribute_value_type(AttributeID attributeid, T const& value)
+            bool undoable_attribute_set_value(AttributeID attributeid, T const& value)
             {
                 // if conditions are right to issue a command
                 if(attributeid.is_valid()
@@ -195,10 +244,25 @@ namespace Saklib
                 }
             }
 
-            template <Type_Enum TE>
-            bool undoable_set_attribute_value_enum(AttributeID attributeid, TypeHolder_st<TE> const& value)
+
+
+
+            template <typename T>
+            bool undoable_attribute_vector_push_back(AttributeID attributeid, T const& value)
             {
-                return undoable_set_attribute_value_type<TypeHolder_st<TE> >(attributeid, value);
+                // if conditions are right to issue a command
+                if(attributeid.is_valid()
+                   && this->attribute_type_enum(attributeid) == Type_Traits<Vector<T>>::type_enum() )
+                {
+                    // do it. The command should call the update_... function(s) when it is executed/unexecuted
+                    m_command_history.emplace_execute<PWC_Attribute_Vector_Push_Back<T>>(this, attributeid, value);
+                    command_history_changed();
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
             }
 
             // Command History
@@ -261,6 +325,40 @@ namespace Saklib
         private:
             // Internal
             //============================================================
+
+            // make sure an operation will work
+            template <typename T>
+            void verify_attribute(AttributeID attributeid)
+            {
+                assert(attributeid.is_valid());
+                assert(this->attribute_type_enum(attributeid) == Type_Traits<T>::type_enum());
+                //assert(this->attribute_type_cast<T>(attributeid)->value() != value);
+            }
+
+            /*
+            template <typename T, typename Func>
+            void attribute_function(AttributeID attributeid, Func member_function)
+            {
+                verify_attribute<T>(attributeid);
+                m_element_manager.element(attributeid.elementid()).attribute_type_cast<T>(attributeid.index())->(*member_function)();
+                update_widget(attributeid);
+                update_model(attributeid);
+                emit signal_unsaved_edits(true);
+            }
+            */
+            template <typename T, typename Func, typename... Args>
+            void attribute_function(AttributeID attributeid, Func member_function, Args... args)
+            {
+                verify_attribute<T>(attributeid);
+                (m_element_manager.element(attributeid.elementid()).attribute_type_cast<T>(attributeid.index())->*member_function)(std::forward<Args>(args)...);
+                //m_element_manager.element(attributeid.elementid()).attribute_type_cast<T>(attributeid.index())->(member_function)(std::forward<Args>(args)...);
+                update_widget(attributeid);
+                update_model(attributeid);
+                emit signal_unsaved_edits(true);
+            }
+
+
+
             void update_representations(ElementID elementid);
             void update_representations(AttributeID attributeid);
 
@@ -327,11 +425,11 @@ namespace Saklib
         protected:
             void v_execute() override
             {
-                mp_project_widget->set_element_name(m_elementid, m_new_name);
+                mp_project_widget->element_set_name(m_elementid, m_new_name);
             }
             void v_unexecute() override
             {
-                mp_project_widget->set_element_name(m_elementid, m_old_name);
+                mp_project_widget->element_set_name(m_elementid, m_old_name);
             }
         private:
             Project_Widget*const mp_project_widget;
@@ -365,16 +463,54 @@ namespace Saklib
         protected:
             void v_execute() override
             {
-                mp_project_widget->set_attribute_value_type<T>(m_attributeid, m_new_value);
+                mp_project_widget->attribute_set_value<T>(m_attributeid, m_new_value);
             }
             void v_unexecute() override
             {
-                mp_project_widget->set_attribute_value_type<T>(m_attributeid, m_old_value);
+                mp_project_widget->attribute_set_value<T>(m_attributeid, m_old_value);
             }
         private:
             Project_Widget*const mp_project_widget;
             AttributeID m_attributeid;
             T m_old_value;
+            T m_new_value;
+        };
+
+
+
+        /*
+        PWC_Attribute_Set_Value<T>
+        ====================================================================================================
+        Project_Widget Commands need to be in this header to avoid a circular dependency with the template.
+        */
+        template <typename T>
+        class PWC_Attribute_Vector_Push_Back:
+                public Command
+        {
+        public:
+            PWC_Attribute_Vector_Push_Back(Project_Widget*const project_widget, AttributeID attributeid, T const& value):
+                Command(),
+                mp_project_widget(project_widget),
+                m_attributeid(attributeid),
+                m_new_value(value)
+            {
+                assert(mp_project_widget);
+                assert(mp_project_widget->is_valid(attributeid));
+            }
+            ~PWC_Attribute_Vector_Push_Back() override = default;
+
+        protected:
+            void v_execute() override
+            {
+                mp_project_widget->attribute_vector_push_back(m_attributeid, m_new_value);
+            }
+            void v_unexecute() override
+            {
+                mp_project_widget->attribute_vector_pop_back_ElementID(m_attributeid);
+            }
+        private:
+            Project_Widget*const mp_project_widget;
+            AttributeID m_attributeid;
             T m_new_value;
         };
 

@@ -122,34 +122,48 @@ namespace Saklib
         // Vector Interface
         //============================================================
         // TESTING TEMP
-        stored_type& vector()
+        //stored_type& vector()                                   { return m_vector; }
+        stored_type const& vector() const                       { return m_vector; }
+        void set_vector(stored_type const& vector_value)        { m_vector = vector_value; }
+
+        bool empty() const                                      { return m_vector.empty(); }
+        size_type size() const                                  { return m_vector.size(); }
+        void clear()                                            { m_vector.clear(); }
+
+        value_type const& at(size_type index) const             { return m_vector.at(index); }
+        value_type const& front() const                         { return m_vector.front(); }
+        value_type const& back() const                          { return m_vector.back(); }
+
+        void set_at(size_type index, value_type const& value)   { m_vector.at(index) = value; }
+        void set_front(value_type const& value)                 { m_vector.front() = value; }
+        void set_back(value_type const& value)                  { m_vector.back() = value; }
+
+        void swap_at(size_type index, size_type other_index)    { std::swap(m_vector.at(index), m_vector.at(other_index)); }
+
+        void push_front(value_type const& value)                { m_vector.push_front(value); }
+        void push_back(value_type const& value)                 { m_vector.push_back(value); }
+        void pop_front()                                        { m_vector.pop_front(); }
+        void pop_back()                                         { m_vector.pop_back(); }
+
+        // add value before index, such that index will point to the value added afterwards
+        void insert_at(size_type index, value_type const& value)
         {
-            return m_vector;
-        }
-        stored_type const& vector() const
-        {
-            return m_vector;
-        }
-        void set_vector(stored_type const& vector_value)
-        {
-            m_vector = vector_value;
+            auto index_iterator = std::advance(m_vector.begin(), index);
+            m_vector.insert(index_iterator, value);
         }
 
-        // Seriously how am I going to apply constraints to some of these operations...should I just let the user decide?
-        bool empty() const;
-        size_type size() const;
-        void clear();
-
-        value_type const& at(size_type index) const;
-        value_type const& front() const;
-        value_type const& back() const;
+        void remove_at(size_type index)
+        {
+            auto index_iterator = std::advance(m_vector.begin(), index);
+            m_vector.remove(index_iterator, value);
+        }
 
     protected:
         // Virtuals
         //============================================================
-        String const& v_name() const override final  { return mr_name; }
-        Type_Enum v_type_enum() const override final      { return stored_type_traits::type_enum(); }
-        String v_type_string() const override final  { return stored_type_traits::type_string(); }
+        String const& v_name() const override final     { return mr_name; }
+        Type_Enum v_type_enum() const override final    { return stored_type_traits::type_enum(); }
+        String v_type_string() const override final     { return stored_type_traits::type_string(); }
 
         //bool v_is_constrained() const override final      { return mp_constraint != nullptr; }
 

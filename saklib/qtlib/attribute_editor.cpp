@@ -8,6 +8,8 @@
 #include "attribute_editor_string.h"
 #include "attribute_editor_elementid.h"
 
+#include "attribute_editor_vector_elementid.h"
+
 #include <QLabel>
 #include <QHBoxLayout>
 
@@ -59,7 +61,7 @@ Saklib::Uptr<Saklib::Qtlib::Attribute_Editor> Saklib::Qtlib::make_Attribute_Edit
     //case Type_Enum::Vector_Double:    return Uptr<Attribute_Editor>(new Attribute_Editor_Vector_Double(project_widget, attributeid));
     //case Type_Enum::Vector_String:    return Uptr<Attribute_Editor>(new Attribute_Editor_Vector_String(project_widget, attributeid));
     //case Type_Enum::Vector_Path:      return Uptr<Attribute_Editor>(new Attribute_Editor_Vector_Path(project_widget, attributeid));
-    //case Type_Enum::Vector_ElementID: return Uptr<Attribute_Editor>(new Attribute_Editor_Vector_ElementID(project_widget, attributeid));
+    case Type_Enum::Vector_ElementID: return Uptr<Attribute_Editor>(new Attribute_Editor_Vector_ElementID(project_widget, attributeid));
 
     //default:                         assert(false); return Uptr<Attribute_Editor>(nullptr);
     default:                        return Uptr<Attribute_Editor>(new Attribute_Editor_Dummy(project_widget, attributeid));

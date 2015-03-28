@@ -136,7 +136,7 @@ bool Saklib::Qtlib::Outliner_Model::setData(QModelIndex const& index, QVariant c
             // EDIT THE DATA
 
             // make a command to edit the name...
-            mp_project_widget->undoable_set_element_name(index_id.elementid(), to_String(value));
+            mp_project_widget->undoable_element_set_name(index_id.elementid(), to_String(value));
 
             //Works! but going to want to reorganise updating data in views...
 
@@ -400,7 +400,7 @@ void Saklib::Qtlib::Outliner_Model::update_children(AttributeID attributeid)
     auto type = mp_project_widget->attribute_type_enum(attributeid);
     if (type == Type_Enum::ElementID)
     {
-        auto child_elementid = mp_project_widget->attribute_enum_cast<Type_Enum::ElementID>(attributeid)->value();
+        auto child_elementid = mp_project_widget->attribute_type_cast<ElementID>(attributeid)->value();
         if (child_elementid.is_valid())
         {
             auto child_index = make_index_of(child_elementid);
@@ -411,7 +411,7 @@ void Saklib::Qtlib::Outliner_Model::update_children(AttributeID attributeid)
     }
     else if (type == Type_Enum::Vector_ElementID)
     {
-        auto const& children = mp_project_widget->attribute_enum_cast<Type_Enum::Vector_ElementID>(attributeid)->vector();
+        auto const& children = mp_project_widget->attribute_type_cast<Vector_ElementID>(attributeid)->vector();
 
         if (!children.empty())
         {

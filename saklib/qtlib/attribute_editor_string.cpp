@@ -40,5 +40,5 @@ void Saklib::Qtlib::Attribute_Editor_String::v_refresh_data()
 // Slot used to capture the signal editingFinished() from the QLineEdit
 void Saklib::Qtlib::Attribute_Editor_String::slot_editingFinished()
 {
-    this->project_widget()->undoable_set_attribute_value_type<String>(this->attributeid(), to_String(m_line_edit->text()));
+    this->project_widget()->undoable_attribute_set_value<String>(this->attributeid(), to_String(m_line_edit->text()));
 }

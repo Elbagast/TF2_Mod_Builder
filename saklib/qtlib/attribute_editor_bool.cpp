@@ -36,5 +36,5 @@ void Saklib::Qtlib::Attribute_Editor_Bool::v_refresh_data()
 
 void Saklib::Qtlib::Attribute_Editor_Bool::slot_clicked()
 {
-    this->project_widget()->undoable_set_attribute_value_type<Bool>(this->attributeid(), m_checkbox->isChecked());
+    this->project_widget()->undoable_attribute_set_value<Bool>(this->attributeid(), m_checkbox->isChecked());
 }

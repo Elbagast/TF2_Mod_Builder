@@ -55,5 +55,5 @@ void Saklib::Qtlib::Attribute_Editor_Int::v_refresh_data()
 // Slot used to capture the signal editingFinished() from the QSpinBox
 void Saklib::Qtlib::Attribute_Editor_Int::slot_editingFinished()
 {
-    this->project_widget()->undoable_set_attribute_value_type<Int>(this->attributeid(), m_spinbox->value());
+    this->project_widget()->undoable_attribute_set_value<Int>(this->attributeid(), m_spinbox->value());
 }
