@@ -244,7 +244,23 @@ namespace Saklib
                 }
             }
 
-
+            template <typename T>
+            bool undoable_attribute_vector_set_value_at(AttributeID attributeid, size_type index, T const& value)
+            {
+                if(attributeid.is_valid()
+                   && this->attribute_type_enum(attributeid) == Type_Traits<Vector<T>>::type_enum()
+                   && this->attribute_type_cast<Vector<T>>(attributeid)->at(index) != value)
+                {
+                    // do it. The command should call the update_... function(s) when it is executed/unexecuted
+                    m_command_history.emplace_execute<PWC_Attribute_Vector_Set_Value_At<T>>(this, attributeid, index, value);
+                    command_history_changed();
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
 
 
             template <typename T>
@@ -479,7 +495,7 @@ namespace Saklib
 
 
         /*
-        PWC_Attribute_Set_Value<T>
+        PWC_Attribute_Vector_Push_Back<T>
         ====================================================================================================
         Project_Widget Commands need to be in this header to avoid a circular dependency with the template.
         */
@@ -512,6 +528,47 @@ namespace Saklib
             Project_Widget*const mp_project_widget;
             AttributeID m_attributeid;
             T m_new_value;
+        };
+
+
+        /*
+        PWC_Attribute_Vector_Set_Value_At<T>
+        ====================================================================================================
+        Project_Widget Commands need to be in this header to avoid a circular dependency with the template.
+        */
+        template <typename T>
+        class PWC_Attribute_Vector_Set_Value_At:
+                public Command
+        {
+        public:
+            PWC_Attribute_Vector_Set_Value_At(Project_Widget*const project_widget, AttributeID attributeid, size_type index, T const& value):
+                Command(),
+                mp_project_widget(project_widget),
+                m_attributeid(attributeid),
+                m_index(index),
+                m_new_value(value),
+                m_old_value(mp_project_widget->attribute_type_cast<Vector<T>>(attributeid)->at(index))
+            {
+                assert(mp_project_widget);
+                assert(mp_project_widget->is_valid(attributeid));
+            }
+            ~PWC_Attribute_Vector_Set_Value_At() override = default;
+
+        protected:
+            void v_execute() override
+            {
+                //mp_project_widget->attribute_vector_set_at(m_attributeid, m_index, m_new_value);
+            }
+            void v_unexecute() override
+            {
+                //mp_project_widget->attribute_vector_set_at(m_attributeid, m_index, m_old_value);
+            }
+        private:
+            Project_Widget*const mp_project_widget;
+            AttributeID m_attributeid;
+            size_type m_index;
+            T m_new_value;
+            T m_old_value;
         };
 
 
