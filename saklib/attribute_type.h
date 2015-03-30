@@ -140,9 +140,7 @@ namespace Saklib
 
         void swap_at(size_type index, size_type other_index)    { std::swap(m_vector.at(index), m_vector.at(other_index)); }
 
-        void push_front(value_type const& value)                { m_vector.push_front(value); }
         void push_back(value_type const& value)                 { m_vector.push_back(value); }
-        void pop_front()                                        { m_vector.pop_front(); }
         void pop_back()                                         { m_vector.pop_back(); }
 
         // add value before index, such that index will point to the value added afterwards

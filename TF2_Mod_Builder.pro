@@ -45,11 +45,15 @@ SOURCES += main.cpp\
     saklib/qtlib/attribute_editor_double.cpp \
     saklib/qtlib/attribute_editor_string.cpp \
     saklib/command_element.cpp \
-    saklib/qtlib/project_widget.cpp \
     saklib/qtlib/attribute_editor_elementid.cpp \
     saklib/qtlib/select_element_type_dialog.cpp \
     saklib/qtlib/attribute_editor_vector_elementid.cpp \
-    saklib/qtlib/attribute_editor_vector.cpp
+    saklib/qtlib/attribute_editor_vector.cpp \
+    saklib/qtlib/project_widget_declaration.cpp \
+    saklib/qtlib/attribute_editor_vector_int.cpp \
+    saklib/qtlib/attribute_editor_vector_bool.cpp \
+    saklib/qtlib/attribute_editor_vector_double.cpp \
+    saklib/qtlib/attribute_editor_vector_string.cpp
 
 HEADERS  += \
     saklib/all_attributes.h \
@@ -102,7 +106,15 @@ HEADERS  += \
     saklib/qtlib/attribute_editor_elementid.h \
     saklib/qtlib/select_element_type_dialog.h \
     saklib/qtlib/attribute_editor_vector_elementid.h \
-    saklib/qtlib/attribute_editor_vector.h
+    saklib/qtlib/attribute_editor_vector.h \
+    saklib/qtlib/project_widget_commands.h \
+    saklib/qtlib/project_widget_declaration.h \
+    saklib/qtlib/project_widget_templates.h \
+    saklib/qtlib/project_widget_inlines.h \
+    saklib/qtlib/attribute_editor_vector_int.h \
+    saklib/qtlib/attribute_editor_vector_bool.h \
+    saklib/qtlib/attribute_editor_vector_double.h \
+    saklib/qtlib/attribute_editor_vector_string.h
 
 FORMS    += \
     saklib/qtlib/consoledialog.ui \

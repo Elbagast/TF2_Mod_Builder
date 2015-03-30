@@ -20,6 +20,7 @@ namespace Saklib
             // Special 6
             //============================================================
             Attribute_Editor_Int(Project_Widget*const project_widget, AttributeID attributeid, QWidget* parent = nullptr);
+            Attribute_Editor_Int(Project_Widget*const project_widget, AttributeID attributeid, size_type vector_index, QWidget* parent = nullptr);
             ~Attribute_Editor_Int() override;
 
         protected:
@@ -30,6 +31,8 @@ namespace Saklib
             void slot_editingFinished();
 
         private:
+            void shared_construction();
+
             // Data Members
             //============================================================
             Uptr<QSpinBox> m_spinbox;

@@ -30,11 +30,11 @@ namespace Saklib
             void v_refresh_data() override;
 
             // make an appropriately typed component widget
-            virtual Uptr<Attribute_Editor_Vector_Component> make_component_widget(size_type index) const = 0;
+            virtual Uptr<Attribute_Editor> make_component_widget(size_type index) const = 0;
 
             // actions from the buttons/context menu...use the virtual functions to implement them?
-        private slots:
-            void slot_append();
+        protected slots:
+            virtual void slot_append() = 0;
 
         private:
             // Data Members
@@ -42,7 +42,7 @@ namespace Saklib
             Uptr<QPushButton> m_append_button; // button that append the end that
             Uptr<QVBoxLayout> m_layout; // the layout that must be refilled from scratch if things are added...
 
-            Vector<Uptr<Attribute_Editor_Vector_Component>> m_vector_widgets;
+            Vector<Uptr<Attribute_Editor>> m_vector_widgets;
         };
 
         class Attribute_Editor_Vector_Component:
@@ -62,10 +62,27 @@ namespace Saklib
             size_type index() const { return m_index; }
 
         private:
+
             // Data Members
             //============================================================
             size_type m_index;
         };
+
+
+        template <typename T>
+        class Attribute_Editor_Vector_Type:
+                public Attribute_Editor_Vector
+        {
+        public:
+            Attribute_Editor_Vector_Type(Project_Widget*const project_widget, AttributeID attributeid, QWidget* parent = nullptr):
+                Attribute_Editor_Vector(project_widget, attributeid, parent)
+            {}
+            ~Attribute_Editor_Vector_Type() override = default;
+        protected:
+            Uptr<Attribute_Editor> make_component_widget(size_type index) const override;
+            void slot_append() override;
+        };
+
 
     } // namespace Qtlib
 } // namespace Saklib

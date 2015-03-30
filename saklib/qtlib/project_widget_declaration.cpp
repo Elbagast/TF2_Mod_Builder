@@ -138,25 +138,69 @@ bool Saklib::Qtlib::Project_Widget::is_valid(ProxyID proxyid) const
     return m_element_manager.is_valid(proxyid.elementid());
 }
 
-// Data Access
+// Elements
 //------------------------------------------------------------
+Saklib::Element& Saklib::Qtlib::Project_Widget::element(ElementID elementid)
+{
+    return m_element_manager.element(elementid);
+}
+
 Saklib::Element const& Saklib::Qtlib::Project_Widget::element(ElementID elementid) const
 {
     return m_element_manager.element(elementid);
+}
+
+Saklib::String const& Saklib::Qtlib::Project_Widget::element_type(ElementID elementid) const
+{
+    return m_element_manager.element(elementid).type();
 }
 
 Saklib::String const& Saklib::Qtlib::Project_Widget::element_name(ElementID elementid) const
 {
     return m_element_manager.element(elementid).name();
 }
-Saklib::String const& Saklib::Qtlib::Project_Widget::element_type(ElementID elementid) const
+
+void Saklib::Qtlib::Project_Widget::element_set_name(ElementID elementid, String const& value)
 {
-    return m_element_manager.element(elementid).type();
+    assert(is_valid(elementid));
+    // maintaining unique names should have been done before getting here
+
+    m_element_manager.element(elementid).set_name(value);
+    update_widget(elementid);
+    update_model(elementid);
+    emit signal_unsaved_edits(true);
 }
+
 Saklib::AttributeID Saklib::Qtlib::Project_Widget::element_parent(ElementID elementid) const
 {
      return m_element_manager.parent(elementid);
 }
+
+void Saklib::Qtlib::Project_Widget::element_set_parent(ElementID elementid, AttributeID attributeid)
+{
+    m_element_manager.set_parent(elementid, attributeid);
+}
+
+// Attributes
+//------------------------------------------------------------
+Saklib::AttributeID Saklib::Qtlib::Project_Widget::attributeid(ElementID elementid, String const& attribute_name) const
+{
+    return m_element_manager.attributeid(elementid, attribute_name);
+}
+
+Saklib::Attribute *const Saklib::Qtlib::Project_Widget::attribute(AttributeID attributeid)
+{
+    return m_element_manager.attribute(attributeid);
+}
+Saklib::Attribute *const Saklib::Qtlib::Project_Widget::attribute(ElementID elementid, size_type attribute_index)
+{
+    return m_element_manager.attribute(elementid, attribute_index);
+}
+Saklib::Attribute *const Saklib::Qtlib::Project_Widget::attribute(ElementID elementid, String const& attribute_name)
+{
+    return m_element_manager.attribute(elementid, attribute_name);
+}
+
 
 Saklib::Attribute const*const Saklib::Qtlib::Project_Widget::attribute(AttributeID attributeid) const
 {
@@ -184,6 +228,64 @@ Saklib::String Saklib::Qtlib::Project_Widget::attribute_type_string(AttributeID 
     return m_element_manager.attribute(attributeid)->type_string();
 }
 
+
+
+// Attribute_Type<T>
+//------------------------------------------------------------
+// These functions set the data without question, and tell the model and widget to update.
+
+void Saklib::Qtlib::Project_Widget::attribute_set_value(AttributeID attributeid, ElementID value)
+{
+    assert(attributeid.is_valid());
+    assert(this->attribute_type_enum(attributeid) == Type_Traits<ElementID>::type_enum());
+    //assert(this->attribute_type_cast<ElementID>(attributeid)->value() != value);
+
+    ElementID old_value = m_element_manager.element(attributeid.elementid()).attribute_type_cast<ElementID>(attributeid.index())->value();
+
+    m_element_manager.element(attributeid.elementid()).attribute_type_cast<ElementID>(attributeid.index())->set_value(value);
+
+    m_element_manager.set_parent(old_value, invalid_attributeid());
+    m_element_manager.set_parent(value, attributeid);
+
+    update_widget(attributeid);
+    //update_model(attributeid);
+
+    // need to do the following...
+
+    // if the ElementID changed from invalid to valid,
+    if (!old_value.is_valid() && value.is_valid())
+    {
+        // tell the model that row 0 was added as a child of attributeid
+        m_outliner_model->add_row(attributeid, 0);
+        //m_outliner->setExpanded(m_outliner_model->make_index_of(value), true);
+        //m_outliner->setExpanded(m_outliner_model->make_index_of(attributeid.elementid()), true);
+    }
+    // else if the ElementID changed from valid to invalid,
+    else if (old_value.is_valid() && !value.is_valid())
+    {
+        // tell the model that row 0 was removed as a child of attributeid
+        m_outliner_model->remove_row(attributeid, 0);
+        //m_outliner->setExpanded(m_outliner_model->make_index_of(attributeid.elementid()), true);
+    }
+    else
+    {
+        // tell the model to update the children of attributeid
+        m_outliner_model->update_children(attributeid);
+    }
+
+    //m_outliner_model->update_children(attributeid); // doesn't work...
+
+    //m_outliner_model->update_all(); // using this shows everything is there
+    emit signal_unsaved_edits(true);
+}
+
+
+// Attribute_Type<Vector<T>> Type-Anonymous Functions
+//------------------------------------------------------------
+// We do not need to know the underlying type to call these functions, but this must figure
+// it out and act appropriately.
+
+
 // if the attribute is a vector, return it's size, otherwise 0
 Saklib::size_type Saklib::Qtlib::Project_Widget::attribute_vector_size(AttributeID attributeid) const
 {
@@ -200,11 +302,122 @@ Saklib::size_type Saklib::Qtlib::Project_Widget::attribute_vector_size(Attribute
     }
 }
 
-// Convert ID Types
-//------------------------------------------------------------
-Saklib::AttributeID Saklib::Qtlib::Project_Widget::attributeid(ElementID elementid, String const& attribute_name) const
+// if the attribute is a vector, return it's size, otherwise 0
+bool Saklib::Qtlib::Project_Widget::attribute_vector_empty(AttributeID attributeid) const
 {
-    return m_element_manager.attributeid(elementid, attribute_name);
+    auto attribute_type = attribute_type_enum(attributeid);
+    switch(attribute_type)
+    {
+    case Type_Enum::Vector_Bool:        return attribute_type_cast<Vector_Bool>(attributeid)->empty();
+    case Type_Enum::Vector_Int:         return attribute_type_cast<Vector_Int>(attributeid)->empty();
+    case Type_Enum::Vector_Double:      return attribute_type_cast<Vector_Double>(attributeid)->empty();
+    case Type_Enum::Vector_String:      return attribute_type_cast<Vector_String>(attributeid)->empty();
+    case Type_Enum::Vector_Path:        return attribute_type_cast<Vector_Path>(attributeid)->empty();
+    case Type_Enum::Vector_ElementID:   return attribute_type_cast<Vector_ElementID>(attributeid)->empty();
+    default: return false;
+    }
+}
+
+
+void Saklib::Qtlib::Project_Widget::attribute_vector_clear(AttributeID attributeid)
+{
+    auto type = attribute(attributeid)->type_enum();
+    switch(type)
+    {
+    case Type_Enum::Vector_Bool:        internal_attribute_vector_clear<Bool>(attributeid); break;
+    case Type_Enum::Vector_Int:         internal_attribute_vector_clear<Int>(attributeid); break;
+    case Type_Enum::Vector_Double:      internal_attribute_vector_clear<Double>(attributeid); break;
+    case Type_Enum::Vector_String:      internal_attribute_vector_clear<String>(attributeid); break;
+    case Type_Enum::Vector_Path:        internal_attribute_vector_clear<Vector_Path>(attributeid); break;
+    case Type_Enum::Vector_ElementID:   internal_attribute_vector_clear<ElementID>(attributeid); break;
+    default: assert(false); // called on the wrong type
+    }
+}
+
+void Saklib::Qtlib::Project_Widget::attribute_vector_pop_back(AttributeID attributeid)
+{
+    auto type = attribute(attributeid)->type_enum();
+    switch(type)
+    {
+    case Type_Enum::Vector_Bool:        internal_attribute_vector_pop_back<Bool>(attributeid); break;
+    case Type_Enum::Vector_Int:         internal_attribute_vector_pop_back<Int>(attributeid); break;
+    case Type_Enum::Vector_Double:      internal_attribute_vector_pop_back<Double>(attributeid); break;
+    case Type_Enum::Vector_String:      internal_attribute_vector_pop_back<String>(attributeid); break;
+    case Type_Enum::Vector_Path:        internal_attribute_vector_pop_back<Path>(attributeid); break;
+    case Type_Enum::Vector_ElementID:   internal_attribute_vector_pop_back<ElementID>(attributeid); break;
+    default: assert(false); // called on the wrong type
+    }
+}
+void Saklib::Qtlib::Project_Widget::attribute_vector_swap_at(AttributeID attributeid, size_type index, size_type other_index)
+{
+    auto type = attribute(attributeid)->type_enum();
+    switch(type)
+    {
+    case Type_Enum::Vector_Bool:        internal_attribute_vector_swap_at<Bool>(attributeid, index, other_index); break;
+    case Type_Enum::Vector_Int:         internal_attribute_vector_swap_at<Int>(attributeid, index, other_index); break;
+    case Type_Enum::Vector_Double:      internal_attribute_vector_swap_at<Double>(attributeid, index, other_index); break;
+    case Type_Enum::Vector_String:      internal_attribute_vector_swap_at<String>(attributeid, index, other_index); break;
+    case Type_Enum::Vector_Path:        internal_attribute_vector_swap_at<Path>(attributeid, index, other_index); break;
+    case Type_Enum::Vector_ElementID:   internal_attribute_vector_swap_at<ElementID>(attributeid, index, other_index); break;
+    default: assert(false); // called on the wrong type
+    }
+}
+
+// Attribute_Type<Vector<T>> Type Dependent Vector Functions
+//------------------------------------------------------------
+// We must know the type to use these ones, and they should be called without specifying the
+// explicitly so that the ElementID overload can be used (specialisation for it doesn't work).
+
+
+void Saklib::Qtlib::Project_Widget::attribute_vector_set_at(AttributeID attributeid, size_type index, ElementID value)
+{
+    assert(0);
+    verify_attribute<Vector_ElementID>(attributeid);
+
+    update_widget(attributeid); // with index for vectors?
+    update_model(attributeid);
+
+    emit signal_unsaved_edits(true);
+}
+
+void Saklib::Qtlib::Project_Widget::attribute_vector_set_front(AttributeID attributeid, ElementID value)
+{
+    assert(0);
+    verify_attribute<Vector_ElementID>(attributeid);
+
+    update_widget(attributeid); // with index for vectors?
+    update_model(attributeid);
+
+    emit signal_unsaved_edits(true);
+}
+
+void Saklib::Qtlib::Project_Widget::attribute_vector_set_back(AttributeID attributeid, ElementID value)
+{
+    assert(0);
+    verify_attribute<Vector_ElementID>(attributeid);
+
+    update_widget(attributeid); // with index for vectors?
+    update_model(attributeid);
+
+    emit signal_unsaved_edits(true);
+}
+
+void Saklib::Qtlib::Project_Widget::attribute_vector_push_back(AttributeID attributeid, ElementID value)
+{
+    verify_attribute<Vector_ElementID>(attributeid);
+
+    auto attribute = this->attribute_type_cast<Vector_ElementID>(attributeid);
+
+    auto old_size = attribute->size();
+
+    attribute->push_back(value);
+    m_element_manager.set_parent(value, attributeid);
+
+    update_widget(attributeid);
+    update_model(attributeid);
+
+    m_outliner_model->add_row(attributeid, old_size);
+    emit signal_unsaved_edits(true);
 }
 
 
@@ -368,105 +581,25 @@ int Saklib::Qtlib::Project_Widget::outliner_row_in_parent(AttributeID attributei
     return 0;
 }
 
+
+
+
+
+
 // Data Setters
 //------------------------------------------------------------
 // You must only set data though these in order to keep everything in sync. These setters will issue
 // appropriate commands as necessary and return true if a change was actually made to data.
 
-void Saklib::Qtlib::Project_Widget::element_set_name(ElementID elementid, String const& value)
-{
-    assert(is_valid(elementid));
-    // maintaining unique names should have been done before getting here
-
-    m_element_manager.element(elementid).set_name(value);
-    update_widget(elementid);
-    update_model(elementid);
-    emit signal_unsaved_edits(true);
-}
-
-template <>
-void Saklib::Qtlib::Project_Widget::attribute_set_value(AttributeID attributeid, ElementID  const& value)
-{
-    assert(attributeid.is_valid());
-    assert(this->attribute_type_enum(attributeid) == Type_Traits<ElementID>::type_enum());
-    //assert(this->attribute_type_cast<ElementID>(attributeid)->value() != value);
-
-    ElementID old_value = m_element_manager.element(attributeid.elementid()).attribute_type_cast<ElementID>(attributeid.index())->value();
-
-    m_element_manager.element(attributeid.elementid()).attribute_type_cast<ElementID>(attributeid.index())->set_value(value);
-
-    m_element_manager.set_parent(old_value, invalid_attributeid());
-    m_element_manager.set_parent(value, attributeid);
-
-    update_widget(attributeid);
-    //update_model(attributeid);
-
-    // need to do the following...
-
-    // if the ElementID changed from invalid to valid,
-    if (!old_value.is_valid() && value.is_valid())
-    {
-        // tell the model that row 0 was added as a child of attributeid
-        m_outliner_model->add_row(attributeid, 0);
-        //m_outliner->setExpanded(m_outliner_model->make_index_of(value), true);
-        //m_outliner->setExpanded(m_outliner_model->make_index_of(attributeid.elementid()), true);
-    }
-    // else if the ElementID changed from valid to invalid,
-    else if (old_value.is_valid() && !value.is_valid())
-    {
-        // tell the model that row 0 was removed as a child of attributeid
-        m_outliner_model->remove_row(attributeid, 0);
-        //m_outliner->setExpanded(m_outliner_model->make_index_of(attributeid.elementid()), true);
-    }
-    else
-    {
-        // tell the model to update the children of attributeid
-        m_outliner_model->update_children(attributeid);
-    }
-
-    //m_outliner_model->update_children(attributeid); // doesn't work...
-
-    //m_outliner_model->update_all(); // using this shows everything is there
-    emit signal_unsaved_edits(true);
-}
 
 
-void Saklib::Qtlib::Project_Widget::attribute_vector_push_back(AttributeID attributeid, ElementID const& value)
-{
-    verify_attribute<ElementID>(attributeid);
 
-    auto attribute =  m_element_manager.element(attributeid.elementid()).attribute_type_cast<Vector_ElementID>(attributeid.index());
+// Type Anonymous Vector Write Functions
+//------------------------------------------------------------
+// We do not need to know the underlying type to call these functions, but this must figure
+// it out and act appropriately.
 
-    auto old_size = attribute->size();
 
-    attribute->push_back(value);
-    m_element_manager.set_parent(value, attributeid);
-
-    update_widget(attributeid);
-    update_model(attributeid);
-
-    m_outliner_model->add_row(attributeid, old_size);
-    emit signal_unsaved_edits(true);
-}
-
-void Saklib::Qtlib::Project_Widget::attribute_vector_pop_back_ElementID(AttributeID attributeid)
-{
-    verify_attribute<ElementID>(attributeid);
-
-    auto attribute =  m_element_manager.element(attributeid.elementid()).attribute_type_cast<Vector_ElementID>(attributeid.index());
-
-    auto removed_value = attribute->back();
-    auto old_size = attribute->size();
-
-    attribute->pop_back();
-    m_element_manager.set_parent(removed_value, invalid_attributeid());
-
-    update_widget(attributeid);
-    update_model(attributeid);
-
-    m_outliner_model->remove_row(attributeid, old_size - 1);
-    emit signal_unsaved_edits(true);
-}
 
 // Commands - indirect write access
 //------------------------------------------------------------
@@ -489,6 +622,10 @@ bool Saklib::Qtlib::Project_Widget::undoable_element_set_name(ElementID elementi
         return false;
     }
 }
+
+
+
+
 
 // Command History
 //------------------------------------------------------------
@@ -612,7 +749,7 @@ void Saklib::Qtlib::Project_Widget::update_widget(ElementID elementid)
 }
 void Saklib::Qtlib::Project_Widget::update_widget(AttributeID attributeid)
 {
-    // if the AttributeID is valid and editor is valid and is for a this AttributeID's ElementID
+    // if the AttributeID is valid and editor is valid and is for this AttributeID's ElementID
     if (m_element_manager.is_valid(attributeid)
         && m_editor
         && m_editor->elementid() == attributeid.elementid())
@@ -628,4 +765,42 @@ void Saklib::Qtlib::Project_Widget::update_model(ElementID elementid)
 void Saklib::Qtlib::Project_Widget::update_model(AttributeID attributeid)
 {
     m_outliner_model->update_item(attributeid);
+}
+
+
+// Type Dependent Vector Write Functions
+//------------------------------------------------------------
+// The public and non-typed functions call these internal templated ones based on the
+// Attribute type.
+
+template <>
+void Saklib::Qtlib::Project_Widget::internal_attribute_vector_clear<Saklib::ElementID>(AttributeID attributeid)
+{
+    verify_attribute<Vector_ElementID>(attributeid);
+
+    auto attribute = this->attribute_type_cast<Vector_ElementID>(attributeid);
+    auto old_size = attribute->size();
+
+
+    emit signal_unsaved_edits(true);
+}
+
+template <>
+void Saklib::Qtlib::Project_Widget::internal_attribute_vector_pop_back<Saklib::ElementID>(AttributeID attributeid)
+{
+    verify_attribute<Vector_ElementID>(attributeid);
+
+    auto attribute = this->attribute_type_cast<Vector_ElementID>(attributeid);
+
+    auto removed_value = attribute->back();
+    auto old_size = attribute->size();
+
+    attribute->pop_back();
+    m_element_manager.set_parent(removed_value, invalid_attributeid());
+
+    update_widget(attributeid);
+    update_model(attributeid);
+
+    m_outliner_model->remove_row(attributeid, old_size - 1); // do we want this call? how does the model handle it?
+    emit signal_unsaved_edits(true);
 }

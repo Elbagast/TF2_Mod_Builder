@@ -1,5 +1,5 @@
-#ifndef ATTRIBUTE_EDITOR_VECTOR_ELEMENTID_H
-#define ATTRIBUTE_EDITOR_VECTOR_ELEMENTID_H
+#ifndef ATTRIBUTE_EDITOR_VECTOR_STRING_H
+#define ATTRIBUTE_EDITOR_VECTOR_STRING_H
 
 #include "attribute_editor_vector.h"
 #include "../types.h"
@@ -8,17 +8,17 @@ namespace Saklib
 {
     namespace Qtlib
     {
-        class Attribute_Editor_Vector_ElementID:
+        class Attribute_Editor_Vector_String:
                 public Attribute_Editor_Vector
         {
         public:
-            using value_type = ElementID;
+            using value_type = Int;
             using stored_type = Vector<value_type>;
 
             // Special 6
             //============================================================
-            Attribute_Editor_Vector_ElementID(Project_Widget*const project_widget, AttributeID attributeid, QWidget* parent = nullptr);
-            ~Attribute_Editor_Vector_ElementID() override;
+            Attribute_Editor_Vector_String(Project_Widget*const project_widget, AttributeID attributeid, QWidget* parent = nullptr);
+            ~Attribute_Editor_Vector_String() override;
 
         protected:
             // make an appropriately typed component widget
@@ -30,4 +30,4 @@ namespace Saklib
     } // namespace Qtlib
 } // namespace Saklib
 
-#endif // ATTRIBUTE_EDITOR_VECTOR_ELEMENTID_H
+#endif // ATTRIBUTE_EDITOR_VECTOR_STRING_H

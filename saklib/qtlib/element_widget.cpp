@@ -5,8 +5,12 @@
 #include "../element.h"
 #include "../all_attributes.h"
 
+#include "qstring_operations.h"
+
 #include <QLabel>
-#include <QGridLayout>
+//#include <QGridLayout>
+#include <QFormLayout>
+#include <QVBoxLayout>
 
 //#include "editor_bool.h"
 
@@ -20,11 +24,13 @@ Saklib::Qtlib::Element_Widget::Element_Widget(Project_Widget*const project_widge
     m_element_name_label(),
     m_element_type_label(),
 
-    m_attribute_names(),
-    m_attribute_types(),
+    //m_attribute_names(),
+    //m_attribute_types(),
     m_attribute_editors(),
 
-    m_layout(new QGridLayout)
+    m_layout(std::make_unique<QVBoxLayout>()),
+    m_attribute_layout(std::make_unique<QFormLayout>())
+
 {
     // Really shouldn't have got here with an invalid ID
     assert(mp_project_widget->is_valid(elementid));
@@ -40,12 +46,12 @@ Saklib::Qtlib::Element_Widget::Element_Widget(Project_Widget*const project_widge
 
 
     // Add the widgets to the layout
-    int grid_row{0};
+    //int grid_row{0};
 
-    m_layout->addWidget(m_element_name_label.get(), grid_row, 0);
-    m_layout->addWidget(m_element_type_label.get(), ++grid_row, 0);
-    ++grid_row;
-
+    m_layout->addWidget(m_element_name_label.get());//, grid_row, 0);
+    m_layout->addWidget(m_element_type_label.get());//, ++grid_row, 0);
+    //++grid_row;
+    m_layout->addLayout(m_attribute_layout.get());
     {
         // scope to expire this reference
         Vector<Uptr<Attribute>> const& attributes = mp_project_widget->element(m_elementid).attributes();
@@ -57,23 +63,23 @@ Saklib::Qtlib::Element_Widget::Element_Widget(Project_Widget*const project_widge
             AttributeID attributeid{m_elementid, attribute_index};
 
             // Make a label that is the Attribute name
-            auto name_label = std::make_unique<QLabel>(attribute->name().c_str());
+            //auto name_label = std::make_unique<QLabel>(attribute->name().c_str());
             // Set sizing
-            name_label->setSizePolicy( QSizePolicy::Minimum, QSizePolicy::Minimum );
+            //name_label->setSizePolicy( QSizePolicy::Minimum, QSizePolicy::Minimum );
             // Add it to the grid
-            m_layout->addWidget(name_label.get(), grid_row, 0);
+           // m_layout->addWidget(name_label.get(), grid_row, 0);
             // Store the label
-            m_attribute_names.push_back(std::move(name_label));
+            //m_attribute_names.push_back(std::move(name_label));
 
 
             // Make a label that is the Attribute type
-            auto type_label = std::make_unique<QLabel>(attribute->type_string().c_str());
+            //auto type_label = std::make_unique<QLabel>(attribute->type_string().c_str());
             // Set sizing
-            type_label->setSizePolicy( QSizePolicy::Minimum, QSizePolicy::Minimum );
+            //type_label->setSizePolicy( QSizePolicy::Minimum, QSizePolicy::Minimum );
             // Add it to the grid
-            m_layout->addWidget(type_label.get(), grid_row, 1);
+            //m_layout->addWidget(type_label.get(), grid_row, 1);
             // Store the label
-            m_attribute_types.push_back(std::move(type_label));
+            //m_attribute_types.push_back(std::move(type_label));
 
 
             // make and add editors
@@ -81,19 +87,23 @@ Saklib::Qtlib::Element_Widget::Element_Widget(Project_Widget*const project_widge
 
             editor->setSizePolicy( QSizePolicy::Minimum, QSizePolicy::Minimum );
             // Add it to the grid
-            m_layout->addWidget(editor.get(), grid_row, 2);
+            //m_layout->addWidget(editor.get(), grid_row, 2);
+
+            m_attribute_layout->addRow(to_QString(attribute->name()), editor.get());
+
             // Store it
             m_attribute_editors.push_back(std::move(editor));
 
             // Seperator Line?
 
             // next grid row and index
-            ++grid_row;
+            //++grid_row;
         }
     }
     // This is the same as putting a vertical spacer at the bottom, the blank space
     // below the last row in the grid can be stretched down
-    m_layout->setRowStretch(++grid_row,1);
+    //m_layout->setRowStretch(++grid_row,1);
+    m_attribute_layout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
     setLayout(m_layout.get());
     //this->setSizePolicy( QSizePolicy::MinimumExpanding, QSizePolicy::Minimum );
 }
@@ -101,8 +111,8 @@ Saklib::Qtlib::Element_Widget::Element_Widget(Project_Widget*const project_widge
 Saklib::Qtlib::Element_Widget::~Element_Widget()
 {
     // Clear these up first
-    m_attribute_names.clear();
-    m_attribute_types.clear();
+    //m_attribute_names.clear();
+    //m_attribute_types.clear();
     m_attribute_editors.clear();
 }
 
@@ -112,6 +122,7 @@ void Saklib::Qtlib::Element_Widget::refresh_data()
     m_element_name_label->setText(mp_project_widget->element(m_elementid).name().c_str());
     for (auto& attribute_editor : m_attribute_editors)
         attribute_editor->refresh_data();
+
 }
 
 void Saklib::Qtlib::Element_Widget::refresh_data(size_type attribute_index)
