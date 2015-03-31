@@ -115,6 +115,9 @@ namespace Saklib
             // These functions set the data without question, and tell the model and widget to update.
 
             template <typename T>
+            T const& attribute_value(AttributeID attributeid) const;
+
+            template <typename T>
             void attribute_set_value(AttributeID attributeid, T const& value);
             void attribute_set_value(AttributeID attributeid, ElementID value);
 
@@ -131,10 +134,17 @@ namespace Saklib
             void attribute_vector_pop_back(AttributeID attributeid);
             void attribute_vector_swap_at(AttributeID attributeid, size_type index, size_type other_index);
 
+            void attribute_vector_remove_at(AttributeID attributeid, size_type index);
+
             // Attribute_Type<Vector<T>> Type Dependent Functions
             //------------------------------------------------------------
             // We must know the type to use these ones, and they should be called without specifying the
             // explicitly so that the ElementID overload can be used (specialisation for it doesn't work).
+
+
+
+            template <typename T>
+            T const& attribute_vector_at(AttributeID attributeid, size_type index) const;
 
             template <typename T>
             void attribute_vector_set_at(AttributeID attributeid, size_type index, T const& value);
@@ -151,6 +161,10 @@ namespace Saklib
             template <typename T>
             void attribute_vector_push_back(AttributeID attributeid, T const& value);
             void attribute_vector_push_back(AttributeID attributeid, ElementID value);
+
+            template <typename T>
+            void attribute_vector_insert_at(AttributeID attributeid, size_type index, T const& value);
+            void attribute_vector_insert_at(AttributeID attributeid, size_type index, ElementID value);
 
 
             // Flat Access
@@ -193,24 +207,26 @@ namespace Saklib
             template <typename T>
             bool undoable_attribute_set_value(AttributeID attributeid, T const& value);
 
-            //bool undoable_attribute_vector_clear(AttributeID attributeid);
-            //bool undoable_attribute_vector_pop_back(AttributeID attributeid);
-            //bool undoable_attribute_vector_swap_at(AttributeID attributeid, size_type index, size_type other_index);
+            bool undoable_attribute_vector_clear(AttributeID attributeid);
+            bool undoable_attribute_vector_pop_back(AttributeID attributeid);
+            bool undoable_attribute_vector_swap_at(AttributeID attributeid, size_type index, size_type other_index);
+
+            bool undoable_attribute_vector_remove_at(AttributeID attributeid, size_type index);
 
             template <typename T>
             bool undoable_attribute_vector_set_at(AttributeID attributeid, size_type index, T const& value);
 
-            //template <typename T>
-            //bool undoable_attribute_vector_set_front(AttributeID attributeid, T const& value);
-
-            //template <typename T>
-            //bool undoable_attribute_vector_set_front(AttributeID attributeid, ElementID value);
+            template <typename T>
+            bool undoable_attribute_vector_set_front(AttributeID attributeid, ElementID value);
 
             template <typename T>
             bool undoable_attribute_vector_set_back(AttributeID attributeid, T const& value);
 
             template <typename T>
             bool undoable_attribute_vector_push_back(AttributeID attributeid, T const& value);
+
+            template <typename T>
+            bool undoable_attribute_vector_insert_at(AttributeID attributeid, size_type index, T const& value);
 
             // Command History
             //------------------------------------------------------------
@@ -248,9 +264,6 @@ namespace Saklib
             // The ElementID of the Element that is currently being edited
             ElementID currently_open_elementid() const;
 
-
-            // Hmmmm these might be better handled elsewhere...
-
             // Overall Project
             //------------------------------------------------------------
             ElementID project_elementid() const;
@@ -274,14 +287,16 @@ namespace Saklib
             //============================================================
 
             // make sure an operation will work
+            void assert_element(ElementID elementid) const;
+
             template <typename T>
-            void verify_attribute(AttributeID attributeid);
+            void assert_attribute(AttributeID attributeid) const;
 
             template <typename T, typename Func, typename... Args>
             void attribute_function(AttributeID attributeid, Func member_function, Args... args);
 
-            void update_representations(ElementID elementid);
-            void update_representations(AttributeID attributeid);
+            //void update_representations(ElementID elementid);
+            //void update_representations(AttributeID attributeid);
 
             void update_widget(ElementID elementid);
             void update_widget(AttributeID attributeid);

@@ -25,7 +25,9 @@ Saklib::Qtlib::Attribute_Editor_Bool::~Attribute_Editor_Bool() = default;
 
 void Saklib::Qtlib::Attribute_Editor_Bool::v_refresh_data()
 {
-    m_checkbox->setChecked(attribute_value<Bool>());
+    Bool data = attribute_value<Bool>();
+    m_checkbox->setChecked(data);
+    m_checkbox->setText(data ? "True" : "False");
 }
 
 void Saklib::Qtlib::Attribute_Editor_Bool::slot_clicked()
@@ -41,7 +43,7 @@ void Saklib::Qtlib::Attribute_Editor_Bool::shared_construction()
     m_checkbox = std::make_unique<QCheckBox>();
     m_layout = std::make_unique<QHBoxLayout>();
 
-    m_checkbox->setChecked(attribute_value<Bool>());
+    v_refresh_data();
 
     QObject::connect(m_checkbox.get(), &QCheckBox::clicked,
                      this, &Attribute_Editor_Bool::slot_clicked);

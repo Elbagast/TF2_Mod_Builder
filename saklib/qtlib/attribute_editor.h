@@ -34,8 +34,9 @@ namespace Saklib
             void refresh_data()                         { v_refresh_data(); }
             Project_Widget*const project_widget() const { return mp_project_widget; }
             AttributeID attributeid() const             { return m_attributeid; }
+            Type_Enum attribute_type_enum() const       { return m_attribute_type; }
             bool is_vector_component() const            { return m_is_vector_component; }
-            size_type vector_index() const              { return m_vector_index; }
+            size_type vector_index() const              { assert(m_is_vector_component); return m_vector_index; }
 
             template <typename T>
             T const& attribute_value()
@@ -47,10 +48,13 @@ namespace Saklib
             }
 
         protected:
+            // Require subclasses to match with the data they represent
             virtual void v_refresh_data() = 0;
+
         private:
             Project_Widget*const mp_project_widget;
             AttributeID m_attributeid;
+            Type_Enum m_attribute_type;
             size_type m_vector_index;
             bool m_is_vector_component;
         };

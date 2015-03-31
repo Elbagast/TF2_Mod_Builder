@@ -1,30 +1,32 @@
 #ifndef ATTRIBUTE_EDITOR_VECTOR_ELEMENTID_H
 #define ATTRIBUTE_EDITOR_VECTOR_ELEMENTID_H
 
-#include "attribute_editor_vector.h"
+#include "attribute_editor_vector_type.h"
 #include "../types.h"
 
 namespace Saklib
 {
     namespace Qtlib
     {
-        class Attribute_Editor_Vector_ElementID:
+        /*
+        Attribute_Editor_Vector_Type<ElementID>
+        ====================================================================================================
+        Template specialisation so that the user is prompted to select an Element type to create whenever
+        one is added to the vector.
+        */
+        template<>
+        class Attribute_Editor_Vector_Type<ElementID> :
                 public Attribute_Editor_Vector
         {
         public:
-            using value_type = ElementID;
-            using stored_type = Vector<value_type>;
-
             // Special 6
             //============================================================
-            Attribute_Editor_Vector_ElementID(Project_Widget*const project_widget, AttributeID attributeid, QWidget* parent = nullptr);
-            ~Attribute_Editor_Vector_ElementID() override;
+            Attribute_Editor_Vector_Type(Project_Widget*const project_widget, AttributeID attributeid, QWidget* parent = nullptr);
+            ~Attribute_Editor_Vector_Type() override;
 
         protected:
-            // make an appropriately typed component widget
-            Uptr<Attribute_Editor> make_component_widget(size_type index) const override;
-
             void slot_append() override;
+            void slot_insert(size_type index) override;
         };
 
     } // namespace Qtlib

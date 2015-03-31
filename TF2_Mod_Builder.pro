@@ -50,10 +50,7 @@ SOURCES += main.cpp\
     saklib/qtlib/attribute_editor_vector_elementid.cpp \
     saklib/qtlib/attribute_editor_vector.cpp \
     saklib/qtlib/project_widget_declaration.cpp \
-    saklib/qtlib/attribute_editor_vector_int.cpp \
-    saklib/qtlib/attribute_editor_vector_bool.cpp \
-    saklib/qtlib/attribute_editor_vector_double.cpp \
-    saklib/qtlib/attribute_editor_vector_string.cpp
+    saklib/qtlib/outliner/outliner_operations.cpp
 
 HEADERS  += \
     saklib/all_attributes.h \
@@ -111,10 +108,8 @@ HEADERS  += \
     saklib/qtlib/project_widget_declaration.h \
     saklib/qtlib/project_widget_templates.h \
     saklib/qtlib/project_widget_inlines.h \
-    saklib/qtlib/attribute_editor_vector_int.h \
-    saklib/qtlib/attribute_editor_vector_bool.h \
-    saklib/qtlib/attribute_editor_vector_double.h \
-    saklib/qtlib/attribute_editor_vector_string.h
+    saklib/qtlib/outliner/outliner_operations.h \
+    saklib/qtlib/attribute_editor_vector_type.h
 
 FORMS    += \
     saklib/qtlib/consoledialog.ui \

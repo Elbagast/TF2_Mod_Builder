@@ -52,6 +52,13 @@ Saklib::Attribute_Type<T> *const Saklib::Qtlib::Project_Widget::attribute_type_c
 // These functions set the data without question, and tell the model and widget to update.
 
 template <typename T>
+T const& Saklib::Qtlib::Project_Widget::attribute_value(AttributeID attributeid) const
+{
+    assert_attribute<T>(attributeid);
+    return attribute_type_cast<T>(attributeid)->value();
+}
+
+template <typename T>
 void Saklib::Qtlib::Project_Widget::attribute_set_value(AttributeID attributeid, T const& value)
 {
     // god dammit have to specificy the template right now, but it works
@@ -66,6 +73,13 @@ void Saklib::Qtlib::Project_Widget::attribute_set_value(AttributeID attributeid,
 //------------------------------------------------------------
 // We must know the type to use these ones, and they should be called without specifying the
 // explicitly so that the ElementID overload can be used (specialisation for it doesn't work).
+
+template <typename T>
+T const& Saklib::Qtlib::Project_Widget::attribute_vector_at(AttributeID attributeid, size_type index) const
+{
+    assert_attribute<Vector<T>>(attributeid);
+    return attribute_type_cast<Vector<T>>(attributeid)->at(index);
+}
 
 template <typename T>
 void Saklib::Qtlib::Project_Widget::attribute_vector_set_at(AttributeID attributeid, size_type index, T const& value)
@@ -101,6 +115,7 @@ bool Saklib::Qtlib::Project_Widget::undoable_attribute_set_value(AttributeID att
 {
     // if conditions are right to issue a command
     if(attributeid.is_valid()
+       && this->is_valid(attributeid)
        && this->attribute_type_enum(attributeid) == Type_Traits<T>::type_enum()
        && this->attribute_type_cast<T>(attributeid)->value() != value)
     {
@@ -119,6 +134,7 @@ template <typename T>
 bool Saklib::Qtlib::Project_Widget::undoable_attribute_vector_set_at(AttributeID attributeid, size_type index, T const& value)
 {
     if(attributeid.is_valid()
+       && this->is_valid(attributeid)
        && this->attribute_type_enum(attributeid) == Type_Traits<Vector<T>>::type_enum()
        && this->attribute_type_cast<Vector<T>>(attributeid)->at(index) != value)
     {
@@ -135,10 +151,50 @@ bool Saklib::Qtlib::Project_Widget::undoable_attribute_vector_set_at(AttributeID
 
 
 template <typename T>
+bool Saklib::Qtlib::Project_Widget::undoable_attribute_vector_set_front(AttributeID attributeid, ElementID value)
+{
+    if(attributeid.is_valid()
+       && this->is_valid(attributeid)
+       && this->attribute_type_enum(attributeid) == Type_Traits<Vector<T>>::type_enum()
+       && this->attribute_type_cast<Vector<T>>(attributeid)->at(index) != value)
+    {
+        m_command_history.emplace_execute<PWC_Attribute_Vector_Set_Front<T>>(this, attributeid, value);
+        command_history_changed();
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+
+template <typename T>
+bool Saklib::Qtlib::Project_Widget::undoable_attribute_vector_set_back(AttributeID attributeid, T const& value)
+{
+    if(attributeid.is_valid()
+       && this->is_valid(attributeid)
+       && this->attribute_type_enum(attributeid) == Type_Traits<Vector<T>>::type_enum()
+       && this->attribute_type_cast<Vector<T>>(attributeid)->at(index) != value)
+    {
+        m_command_history.emplace_execute<PWC_Attribute_Vector_Set_Back<T>>(this, attributeid, value);
+        command_history_changed();
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+
+
+template <typename T>
 bool Saklib::Qtlib::Project_Widget::undoable_attribute_vector_push_back(AttributeID attributeid, T const& value)
 {
     // if conditions are right to issue a command
     if(attributeid.is_valid()
+       && this->is_valid(attributeid)
        && this->attribute_type_enum(attributeid) == Type_Traits<Vector<T>>::type_enum() )
     {
         // do it. The command should call the update_... function(s) when it is executed/unexecuted
@@ -152,22 +208,45 @@ bool Saklib::Qtlib::Project_Widget::undoable_attribute_vector_push_back(Attribut
     }
 }
 
+template <typename T>
+bool Saklib::Qtlib::Project_Widget::undoable_attribute_vector_insert_at(AttributeID attributeid, size_type index, T const& value)
+{
+    if(attributeid.is_valid()
+       && this->is_valid(attributeid)
+       && this->attribute_type_enum(attributeid) == Type_Traits<Vector<T>>::type_enum()
+       && this->attribute_type_cast<Vector<T>>(attributeid)->at(index) != value)
+    {
+        m_command_history.emplace_execute<PWC_Attribute_Vector_Insert_At<T>>(this, attributeid, index, value);
+        command_history_changed();
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+
+
 // Internal
 //============================================================
 
 // make sure an operation will work
+
 template <typename T>
-void Saklib::Qtlib::Project_Widget::verify_attribute(AttributeID attributeid)
+void Saklib::Qtlib::Project_Widget::assert_attribute(AttributeID attributeid) const
 {
     assert(attributeid.is_valid());
+    assert(this->is_valid(attributeid));
     assert(this->attribute_type_enum(attributeid) == Type_Traits<T>::type_enum());
     //assert(this->attribute_type_cast<T>(attributeid)->value() != value);
 }
 
+
 template <typename T, typename Func, typename... Args>
 void Saklib::Qtlib::Project_Widget::attribute_function(AttributeID attributeid, Func member_function, Args... args)
 {
-    verify_attribute<T>(attributeid);
+    assert_attribute<T>(attributeid);
     (m_element_manager.element(attributeid.elementid()).attribute_type_cast<T>(attributeid.index())->*member_function)(std::forward<Args>(args)...);
     //m_element_manager.element(attributeid.elementid()).attribute_type_cast<T>(attributeid.index())->(member_function)(std::forward<Args>(args)...);
     update_widget(attributeid);

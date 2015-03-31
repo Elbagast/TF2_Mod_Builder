@@ -5,7 +5,7 @@
 
 #include <numeric>
 
-#include <QLabel>
+//#include <QLabel>
 #include <QDoubleSpinBox>
 #include <QHBoxLayout>
 
@@ -15,7 +15,7 @@
 Saklib::Qtlib::Attribute_Editor_Double::Attribute_Editor_Double(Project_Widget*const project_widget, AttributeID attributeid, QWidget* parent):
     Attribute_Editor(project_widget, attributeid, parent),
     m_spinbox(new QDoubleSpinBox(this)),
-    m_label(),
+    //m_label(),
     m_layout()
 {
     shared_construction();
@@ -23,7 +23,7 @@ Saklib::Qtlib::Attribute_Editor_Double::Attribute_Editor_Double(Project_Widget*c
 Saklib::Qtlib::Attribute_Editor_Double::Attribute_Editor_Double(Project_Widget*const project_widget, AttributeID attributeid, size_type vector_index, QWidget* parent):
     Attribute_Editor(project_widget, attributeid, vector_index, parent),
     m_spinbox(new QDoubleSpinBox(this)),
-    m_label(),
+    //m_label(),
     m_layout()
 {
     shared_construction();
@@ -48,7 +48,7 @@ void Saklib::Qtlib::Attribute_Editor_Double::slot_editingFinished()
 void Saklib::Qtlib::Attribute_Editor_Double::shared_construction()
 {
     m_spinbox = std::make_unique<QDoubleSpinBox>();
-    m_label = std::make_unique<QLabel>();
+    //m_label = std::make_unique<QLabel>();
     m_layout = std::make_unique<QHBoxLayout>();
     m_spinbox->setValue(attribute_value<Double>());
 
@@ -59,18 +59,18 @@ void Saklib::Qtlib::Attribute_Editor_Double::shared_construction()
     m_spinbox->setMinimum(-1000000.00);
     m_spinbox->setMaximum(1000000.00);
 
-    QString label_text{"Min: "};
-    label_text.append(to_QString(m_spinbox->minimum()));
-    label_text.append(" Max: ");
-    label_text.append(to_QString(m_spinbox->maximum()));
-    m_label->setText(label_text);
+    //QString label_text{"Min: "};
+    //label_text.append(to_QString(m_spinbox->minimum()));
+    //label_text.append(" Max: ");
+    //label_text.append(to_QString(m_spinbox->maximum()));
+    //m_label->setText(label_text);
 
     QObject::connect(m_spinbox.get(), &QSpinBox::editingFinished,
                      this, &Attribute_Editor_Double::slot_editingFinished);
 
     m_layout->addWidget(m_spinbox.get());
     m_layout->setStretch(0,1);
-    m_layout->addWidget(m_label.get());
+    //m_layout->addWidget(m_label.get());
     //m_layout->setSpacing(0);
     m_layout->setContentsMargins(0,0,0,0);
     this->setLayout(m_layout.get());

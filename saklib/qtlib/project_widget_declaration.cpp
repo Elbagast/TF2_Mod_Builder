@@ -6,6 +6,7 @@
 #include "element_widget.h"
 
 #include "outliner/outliner_model.h"
+#include "outliner/outliner_operations.h"
 #include "outliner/outliner_delegate.h"
 #include "outliner/outliner_treeview.h"
 
@@ -321,8 +322,8 @@ bool Saklib::Qtlib::Project_Widget::attribute_vector_empty(AttributeID attribute
 
 void Saklib::Qtlib::Project_Widget::attribute_vector_clear(AttributeID attributeid)
 {
-    auto type = attribute(attributeid)->type_enum();
-    switch(type)
+    auto attribute_type = attribute(attributeid)->type_enum();
+    switch(attribute_type)
     {
     case Type_Enum::Vector_Bool:        internal_attribute_vector_clear<Bool>(attributeid); break;
     case Type_Enum::Vector_Int:         internal_attribute_vector_clear<Int>(attributeid); break;
@@ -336,8 +337,8 @@ void Saklib::Qtlib::Project_Widget::attribute_vector_clear(AttributeID attribute
 
 void Saklib::Qtlib::Project_Widget::attribute_vector_pop_back(AttributeID attributeid)
 {
-    auto type = attribute(attributeid)->type_enum();
-    switch(type)
+    auto attribute_type = attribute(attributeid)->type_enum();
+    switch(attribute_type)
     {
     case Type_Enum::Vector_Bool:        internal_attribute_vector_pop_back<Bool>(attributeid); break;
     case Type_Enum::Vector_Int:         internal_attribute_vector_pop_back<Int>(attributeid); break;
@@ -350,8 +351,8 @@ void Saklib::Qtlib::Project_Widget::attribute_vector_pop_back(AttributeID attrib
 }
 void Saklib::Qtlib::Project_Widget::attribute_vector_swap_at(AttributeID attributeid, size_type index, size_type other_index)
 {
-    auto type = attribute(attributeid)->type_enum();
-    switch(type)
+    auto attribute_type = attribute(attributeid)->type_enum();
+    switch(attribute_type)
     {
     case Type_Enum::Vector_Bool:        internal_attribute_vector_swap_at<Bool>(attributeid, index, other_index); break;
     case Type_Enum::Vector_Int:         internal_attribute_vector_swap_at<Int>(attributeid, index, other_index); break;
@@ -371,19 +372,51 @@ void Saklib::Qtlib::Project_Widget::attribute_vector_swap_at(AttributeID attribu
 
 void Saklib::Qtlib::Project_Widget::attribute_vector_set_at(AttributeID attributeid, size_type index, ElementID value)
 {
-    assert(0);
-    verify_attribute<Vector_ElementID>(attributeid);
+    assert_attribute<Vector_ElementID>(attributeid);
 
-    update_widget(attributeid); // with index for vectors?
-    update_model(attributeid);
+    ElementID old_value = attribute_vector_at<ElementID>(attributeid, index);
 
+    m_element_manager.element(attributeid.elementid()).attribute_type_cast<Vector_ElementID>(attributeid.index())->set_at(index, value);
+
+    m_element_manager.set_parent(old_value, invalid_attributeid());
+    m_element_manager.set_parent(value, attributeid);
+
+    update_widget(attributeid);
+    //update_model(attributeid);
+
+    // need to do the following...
+
+    // if the ElementID changed from invalid to valid,
+    if (!old_value.is_valid() && value.is_valid())
+    {
+        // tell the model that row 0 was added as a child of attributeid
+        m_outliner_model->add_row(attributeid, 0);
+        //m_outliner->setExpanded(m_outliner_model->make_index_of(value), true);
+        //m_outliner->setExpanded(m_outliner_model->make_index_of(attributeid.elementid()), true);
+    }
+    // else if the ElementID changed from valid to invalid,
+    else if (old_value.is_valid() && !value.is_valid())
+    {
+        // tell the model that row 0 was removed as a child of attributeid
+        m_outliner_model->remove_row(attributeid, 0);
+        //m_outliner->setExpanded(m_outliner_model->make_index_of(attributeid.elementid()), true);
+    }
+    else
+    {
+        // tell the model to update the children of attributeid
+        m_outliner_model->update_children(attributeid);
+    }
+
+    //m_outliner_model->update_children(attributeid); // doesn't work...
+
+    //m_outliner_model->update_all(); // using this shows everything is there
     emit signal_unsaved_edits(true);
 }
 
 void Saklib::Qtlib::Project_Widget::attribute_vector_set_front(AttributeID attributeid, ElementID value)
 {
     assert(0);
-    verify_attribute<Vector_ElementID>(attributeid);
+    assert_attribute<Vector_ElementID>(attributeid);
 
     update_widget(attributeid); // with index for vectors?
     update_model(attributeid);
@@ -394,7 +427,7 @@ void Saklib::Qtlib::Project_Widget::attribute_vector_set_front(AttributeID attri
 void Saklib::Qtlib::Project_Widget::attribute_vector_set_back(AttributeID attributeid, ElementID value)
 {
     assert(0);
-    verify_attribute<Vector_ElementID>(attributeid);
+    assert_attribute<Vector_ElementID>(attributeid);
 
     update_widget(attributeid); // with index for vectors?
     update_model(attributeid);
@@ -404,7 +437,7 @@ void Saklib::Qtlib::Project_Widget::attribute_vector_set_back(AttributeID attrib
 
 void Saklib::Qtlib::Project_Widget::attribute_vector_push_back(AttributeID attributeid, ElementID value)
 {
-    verify_attribute<Vector_ElementID>(attributeid);
+    assert_attribute<Vector_ElementID>(attributeid);
 
     auto attribute = this->attribute_type_cast<Vector_ElementID>(attributeid);
 
@@ -623,6 +656,30 @@ bool Saklib::Qtlib::Project_Widget::undoable_element_set_name(ElementID elementi
     }
 }
 
+bool Saklib::Qtlib::Project_Widget::undoable_attribute_vector_clear(AttributeID attributeid)
+{
+    assert(0);
+    return false;
+}
+
+bool Saklib::Qtlib::Project_Widget::undoable_attribute_vector_pop_back(AttributeID attributeid)
+{
+    assert(0);
+    return false;
+}
+
+bool Saklib::Qtlib::Project_Widget::undoable_attribute_vector_swap_at(AttributeID attributeid, size_type index, size_type other_index)
+{
+    assert(0);
+    return false;
+}
+
+
+bool Saklib::Qtlib::Project_Widget::undoable_attribute_vector_remove_at(AttributeID attributeid, size_type index)
+{
+    assert(0);
+    return false;
+}
 
 
 
@@ -737,6 +794,13 @@ void Saklib::Qtlib::Project_Widget::save_as(Path const& filepath)
 
 // Internal
 //============================================================
+void Saklib::Qtlib::Project_Widget::assert_element(ElementID elementid) const
+{
+    assert(elementid.is_valid());
+    assert(this->is_valid(elementid));
+}
+
+
 void Saklib::Qtlib::Project_Widget::update_widget(ElementID elementid)
 {
     // if the ElementID is valid and editor is valid and is for a this ElementID
@@ -776,7 +840,7 @@ void Saklib::Qtlib::Project_Widget::update_model(AttributeID attributeid)
 template <>
 void Saklib::Qtlib::Project_Widget::internal_attribute_vector_clear<Saklib::ElementID>(AttributeID attributeid)
 {
-    verify_attribute<Vector_ElementID>(attributeid);
+    assert_attribute<Vector_ElementID>(attributeid);
 
     auto attribute = this->attribute_type_cast<Vector_ElementID>(attributeid);
     auto old_size = attribute->size();
@@ -788,7 +852,7 @@ void Saklib::Qtlib::Project_Widget::internal_attribute_vector_clear<Saklib::Elem
 template <>
 void Saklib::Qtlib::Project_Widget::internal_attribute_vector_pop_back<Saklib::ElementID>(AttributeID attributeid)
 {
-    verify_attribute<Vector_ElementID>(attributeid);
+    assert_attribute<Vector_ElementID>(attributeid);
 
     auto attribute = this->attribute_type_cast<Vector_ElementID>(attributeid);
 

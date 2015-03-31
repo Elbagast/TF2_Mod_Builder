@@ -104,8 +104,10 @@ Saklib::Qtlib::Element_Widget::Element_Widget(Project_Widget*const project_widge
     // below the last row in the grid can be stretched down
     //m_layout->setRowStretch(++grid_row,1);
     m_attribute_layout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
+    m_attribute_layout->setSizeConstraint(QLayout::SetFixedSize); // resize whenever the size changes...
+    m_layout->setSizeConstraint(QLayout::SetFixedSize); // resize whenever the size changes...
     setLayout(m_layout.get());
-    //this->setSizePolicy( QSizePolicy::MinimumExpanding, QSizePolicy::Minimum );
+    this->setSizePolicy( QSizePolicy::MinimumExpanding, QSizePolicy::Minimum );
 }
 
 Saklib::Qtlib::Element_Widget::~Element_Widget()

@@ -61,7 +61,7 @@ void Saklib::Qtlib::Outliner_Treeview::rowsInserted(QModelIndex const& parent, i
     QTreeView::rowsInserted(parent, start, end);
 }
 
-// To add opening edtitors on double-click
+// To add opening editors on double-click
 void Saklib::Qtlib::Outliner_Treeview::mouseDoubleClickEvent(QMouseEvent* mouse_event)
 {
     if (mouse_event->button() == Qt::LeftButton)

@@ -36,7 +36,7 @@ namespace Saklib
             // Data Members
             //============================================================
             Uptr<QSpinBox> m_spinbox;
-            Uptr<QLabel> m_label;
+            //Uptr<QLabel> m_label;
             Uptr<QHBoxLayout> m_layout;
         };
 

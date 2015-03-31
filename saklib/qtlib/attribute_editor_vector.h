@@ -12,7 +12,14 @@ namespace Saklib
 {
     namespace Qtlib
     {
-        class Attribute_Editor_Vector_Component;
+        class Element_Widget;
+
+        /*
+        Attribute_Editor_Vector
+        ====================================================================================================
+        Generic editor class for Attributes that are vectors. The Editors for each item in the vector are
+        type specific.
+        */
 
         class Attribute_Editor_Vector :
                 public Attribute_Editor
@@ -29,60 +36,30 @@ namespace Saklib
         protected:
             void v_refresh_data() override;
 
-            // make an appropriately typed component widget
-            virtual Uptr<Attribute_Editor> make_component_widget(size_type index) const = 0;
-
             // actions from the buttons/context menu...use the virtual functions to implement them?
         protected slots:
+            void slot_custom_context_menu(QPoint const& pos);
+
+            // only type dependent calls are virtual...or they could just use type switches..
             virtual void slot_append() = 0;
+            virtual void slot_insert(size_type index) = 0;
+            void slot_remove(size_type index);
+            void slot_remove_last();
+            void slot_swap(size_type index, size_type other_index);
+            void slot_move_up(size_type index);
+            void slot_move_down(size_type index);
+            void slot_clear();
 
         private:
             // Data Members
             //============================================================
             Uptr<QPushButton> m_append_button; // button that append the end that
-            Uptr<QVBoxLayout> m_layout; // the layout that must be refilled from scratch if things are added...
+            Uptr<QVBoxLayout> m_layout;
+
+            Uptr<QVBoxLayout> m_component_layout;
 
             Vector<Uptr<Attribute_Editor>> m_vector_widgets;
         };
-
-        class Attribute_Editor_Vector_Component:
-                public Attribute_Editor
-        {
-            Q_OBJECT
-        public:
-            // Special 6
-            //============================================================
-            Attribute_Editor_Vector_Component(Project_Widget*const project_widget, AttributeID attributeid, size_type index, QWidget* parent = nullptr):
-                Attribute_Editor(project_widget, attributeid, parent),
-                m_index(index)
-            {
-            }
-            ~Attribute_Editor_Vector_Component() override = default;
-
-            size_type index() const { return m_index; }
-
-        private:
-
-            // Data Members
-            //============================================================
-            size_type m_index;
-        };
-
-
-        template <typename T>
-        class Attribute_Editor_Vector_Type:
-                public Attribute_Editor_Vector
-        {
-        public:
-            Attribute_Editor_Vector_Type(Project_Widget*const project_widget, AttributeID attributeid, QWidget* parent = nullptr):
-                Attribute_Editor_Vector(project_widget, attributeid, parent)
-            {}
-            ~Attribute_Editor_Vector_Type() override = default;
-        protected:
-            Uptr<Attribute_Editor> make_component_widget(size_type index) const override;
-            void slot_append() override;
-        };
-
 
     } // namespace Qtlib
 } // namespace Saklib

@@ -11,7 +11,7 @@ namespace Saklib
         /*
         Project_Widget_Command_Element
         ====================================================================================================
-        Shared garbage collection modiifications go here
+        Shared garbage collection modifications go here
         */
         class Project_Widget_Command_Element:
                 public Command
@@ -46,7 +46,7 @@ namespace Saklib
         /*
         Project_Widget_Command_Attribute
         ====================================================================================================
-        Shared garbage collection modiifications go here
+        Shared garbage collection modifications go here
         */
         class Project_Widget_Command_Attribute:
                 public Command
@@ -143,33 +143,32 @@ namespace Saklib
 
 
         /*
-        PWC_Attribute_Vector_Push_Back<T>
+        PWC_Attribute_Vector_Clear<T>
         ====================================================================================================
         */
         template <typename T>
-        class PWC_Attribute_Vector_Push_Back:
+        class PWC_Attribute_Vector_Clear:
                 public Project_Widget_Command_Attribute
         {
         public:
-            PWC_Attribute_Vector_Push_Back(Project_Widget*const project_widget, AttributeID attributeid, T const& value):
+            PWC_Attribute_Vector_Clear(Project_Widget*const project_widget, AttributeID attributeid):
                 Project_Widget_Command_Attribute(project_widget, attributeid),
-                m_new_value(value)
+                m_old_vector(project_widget->attribute_type_cast<Vector<T>>(attributeid)->vector())
             {}
-            ~PWC_Attribute_Vector_Push_Back() override = default;
+            ~PWC_Attribute_Vector_Clear() override = default;
 
         protected:
             void v_execute() override
             {
-                project_widget()->attribute_vector_push_back(attributeid(), m_new_value);
+                project_widget()->attribute_vector_clear(attributeid());
             }
             void v_unexecute() override
             {
-                project_widget()->attribute_vector_pop_back(attributeid());
+                project_widget()->attribute_vector_set_vector(attributeid(), m_old_vector);
             }
         private:
-            T m_new_value;
+            Vector<T> m_old_vector;
         };
-
 
         /*
         PWC_Attribute_Vector_Set_Value_At<T>
@@ -201,6 +200,212 @@ namespace Saklib
             size_type m_index;
             T m_new_value;
             T m_old_value;
+        };
+
+        /*
+        PWC_Attribute_Vector_Set_Front<T>
+        ====================================================================================================
+        */
+        template <typename T>
+        class PWC_Attribute_Vector_Set_Front:
+                public Project_Widget_Command_Attribute
+        {
+        public:
+            PWC_Attribute_Vector_Set_Front(Project_Widget*const project_widget, AttributeID attributeid, T const& value):
+                Project_Widget_Command_Attribute(project_widget, attributeid),
+                m_new_value(value),
+                m_old_value(project_widget->attribute_type_cast<Vector<T>>(attributeid)->front())
+            {}
+            ~PWC_Attribute_Vector_Set_Front() override = default;
+
+        protected:
+            void v_execute() override
+            {
+                project_widget()->attribute_vector_set_front(attributeid(), m_new_value);
+            }
+            void v_unexecute() override
+            {
+                project_widget()->attribute_vector_set_front(attributeid(), m_old_value);
+            }
+        private:
+            T m_new_value;
+            T m_old_value;
+        };
+
+        /*
+        PWC_Attribute_Vector_Set_Back<T>
+        ====================================================================================================
+        */
+        template <typename T>
+        class PWC_Attribute_Vector_Set_Back:
+                public Project_Widget_Command_Attribute
+        {
+        public:
+            PWC_Attribute_Vector_Set_Back(Project_Widget*const project_widget, AttributeID attributeid, T const& value):
+                Project_Widget_Command_Attribute(project_widget, attributeid),
+                m_new_value(value),
+                m_old_value(project_widget->attribute_type_cast<Vector<T>>(attributeid)->front())
+            {}
+            ~PWC_Attribute_Vector_Set_Back() override = default;
+
+        protected:
+            void v_execute() override
+            {
+                project_widget()->attribute_vector_set_back(attributeid(), m_new_value);
+            }
+            void v_unexecute() override
+            {
+                project_widget()->attribute_vector_set_back(attributeid(), m_old_value);
+            }
+        private:
+            T m_new_value;
+            T m_old_value;
+        };
+
+        /*
+        PWC_Attribute_Vector_Swap_At<T>
+        ====================================================================================================
+        */
+        template <typename T>
+        class PWC_Attribute_Vector_Swap_At:
+                public Project_Widget_Command_Attribute
+        {
+        public:
+            PWC_Attribute_Vector_Swap_At(Project_Widget*const project_widget, AttributeID attributeid, size_type index, size_type other_index):
+                Project_Widget_Command_Attribute(project_widget, attributeid),
+                m_index(index),
+                m_other_index(other_index)
+            {}
+            ~PWC_Attribute_Vector_Swap_At() override = default;
+
+        protected:
+            void v_execute() override
+            {
+                project_widget()->attribute_vector_swap_at(attributeid(), m_index, m_other_index);
+            }
+            void v_unexecute() override
+            {
+                project_widget()->attribute_vector_swap_at(attributeid(), m_index, m_other_index);
+            }
+        private:
+            size_type m_index;
+            size_type m_other_index;
+        };
+
+        /*
+        PWC_Attribute_Vector_Push_Back<T>
+        ====================================================================================================
+        */
+        template <typename T>
+        class PWC_Attribute_Vector_Push_Back:
+                public Project_Widget_Command_Attribute
+        {
+        public:
+            PWC_Attribute_Vector_Push_Back(Project_Widget*const project_widget, AttributeID attributeid, T const& value):
+                Project_Widget_Command_Attribute(project_widget, attributeid),
+                m_new_value(value)
+            {}
+            ~PWC_Attribute_Vector_Push_Back() override = default;
+
+        protected:
+            void v_execute() override
+            {
+                project_widget()->attribute_vector_push_back(attributeid(), m_new_value);
+            }
+            void v_unexecute() override
+            {
+                project_widget()->attribute_vector_pop_back(attributeid());
+            }
+        private:
+            T m_new_value;
+        };
+
+        /*
+        PWC_Attribute_Vector_Pop_Back<T>
+        ====================================================================================================
+        */
+        template <typename T>
+        class PWC_Attribute_Vector_Pop_Back:
+                public Project_Widget_Command_Attribute
+        {
+        public:
+            PWC_Attribute_Vector_Pop_Back(Project_Widget*const project_widget, AttributeID attributeid):
+                Project_Widget_Command_Attribute(project_widget, attributeid),
+                m_old_value(project_widget->attribute_type_cast<Vector<T>>(attributeid)->back())
+            {}
+            ~PWC_Attribute_Vector_Pop_Back() override = default;
+
+        protected:
+            void v_execute() override
+            {
+                project_widget()->attribute_vector_pop_back(attributeid());
+            }
+            void v_unexecute() override
+            {
+                project_widget()->attribute_vector_push_back(attributeid(), m_old_value);
+            }
+        private:
+            T m_old_value;
+        };
+
+        /*
+        PWC_Attribute_Vector_Insert_At<T>
+        ====================================================================================================
+        */
+        template <typename T>
+        class PWC_Attribute_Vector_Insert_At:
+                public Project_Widget_Command_Attribute
+        {
+        public:
+            PWC_Attribute_Vector_Insert_At(Project_Widget*const project_widget, AttributeID attributeid, size_type index):
+                Project_Widget_Command_Attribute(project_widget, attributeid),
+                m_index(index),
+                m_value(project_widget->attribute_type_cast<Vector<T>>(attributeid)->at(index))
+            {}
+            ~PWC_Attribute_Vector_Insert_At() override = default;
+
+        protected:
+            void v_execute() override
+            {
+                project_widget()->attribute_vector_insert_at(attributeid(), index, m_value);
+            }
+            void v_unexecute() override
+            {
+                project_widget()->attribute_vector_remove_at(attributeid(), index);
+            }
+        private:
+            size_type m_index;
+            T m_value;
+        };
+
+        /*
+        PWC_Attribute_Vector_Remove_At<T>
+        ====================================================================================================
+        */
+        template <typename T>
+        class PWC_Attribute_Vector_Remove_At:
+                public Project_Widget_Command_Attribute
+        {
+        public:
+            PWC_Attribute_Vector_Remove_At(Project_Widget*const project_widget, AttributeID attributeid, size_type index, T const& value):
+                Project_Widget_Command_Attribute(project_widget, attributeid),
+                m_index(index),
+                m_value(value)
+            {}
+            ~PWC_Attribute_Vector_Remove_At() override = default;
+
+        protected:
+            void v_execute() override
+            {
+                project_widget()->attribute_vector_remove_at(attributeid(), index);
+            }
+            void v_unexecute() override
+            {
+                project_widget()->attribute_vector_insert_at(attributeid(), index, m_value);
+            }
+        private:
+            size_type m_index;
+            T m_value;
         };
 
     } // namespace Qtlib

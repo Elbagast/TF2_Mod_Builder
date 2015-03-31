@@ -25,6 +25,9 @@ namespace Saklib
                 public QAbstractItemModel
         {
             Q_OBJECT
+
+            friend class Outliner_Row_Inserter;
+            friend class Outliner_Row_Remover;
         public:
             // Special 6
             //============================================================

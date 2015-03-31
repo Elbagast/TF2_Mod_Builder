@@ -49,7 +49,7 @@ void Saklib::Qtlib::Attribute_Editor_ElementID::slot_clicked()
 {
     if (m_elementid.is_valid() && project_widget()->is_valid(m_elementid))
     {
-       this->project_widget()->open_editor(m_elementid);
+       project_widget()->open_editor(m_elementid);
     }
     else
     {
@@ -57,7 +57,7 @@ void Saklib::Qtlib::Attribute_Editor_ElementID::slot_clicked()
         auto element_types = Element::get_registered_types();
 
         // Make a dialog that asks the user to select one, floating above the project widget
-        Select_Element_Type_Dialog dialog{element_types, this->project_widget()};
+        Select_Element_Type_Dialog dialog{element_types, project_widget()};
 
         // if the user selects one, make an Element of that type and assign it to the attribute
         if (dialog.exec() == QDialog::Accepted && !dialog.selected_element_type().empty())
