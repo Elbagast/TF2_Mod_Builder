@@ -234,8 +234,8 @@ Saklib::String Saklib::Qtlib::Project_Widget::attribute_type_string(AttributeID 
 // Attribute_Type<T>
 //------------------------------------------------------------
 // These functions set the data without question, and tell the model and widget to update.
-
-void Saklib::Qtlib::Project_Widget::attribute_set_value(AttributeID attributeid, ElementID value)
+template <>
+void Saklib::Qtlib::Project_Widget::attribute_set_value<Saklib::ElementID>(AttributeID attributeid, ElementID const& value)
 {
     assert(attributeid.is_valid());
     assert(this->attribute_type_enum(attributeid) == Type_Traits<ElementID>::type_enum());
@@ -288,89 +288,99 @@ void Saklib::Qtlib::Project_Widget::attribute_set_value(AttributeID attributeid,
 
 
 // if the attribute is a vector, return it's size, otherwise 0
-Saklib::size_type Saklib::Qtlib::Project_Widget::attribute_vector_size(AttributeID attributeid) const
+Saklib::size_type Saklib::Qtlib::Project_Widget::any_attribute_vector_size(AttributeID attributeid) const
 {
     auto attribute_type = attribute_type_enum(attributeid);
     switch(attribute_type)
     {
-    case Type_Enum::Vector_Bool:        return attribute_type_cast<Vector_Bool>(attributeid)->size();
-    case Type_Enum::Vector_Int:         return attribute_type_cast<Vector_Int>(attributeid)->size();
-    case Type_Enum::Vector_Double:      return attribute_type_cast<Vector_Double>(attributeid)->size();
-    case Type_Enum::Vector_String:      return attribute_type_cast<Vector_String>(attributeid)->size();
-    case Type_Enum::Vector_Path:        return attribute_type_cast<Vector_Path>(attributeid)->size();
-    case Type_Enum::Vector_ElementID:   return attribute_type_cast<Vector_ElementID>(attributeid)->size();
+    case Type_Enum::Vector_Bool:        return attribute_vector_size<TypeHolder_vt<Type_Enum::Vector_Bool>>(attributeid);
+    case Type_Enum::Vector_Int:         return attribute_vector_size<TypeHolder_vt<Type_Enum::Vector_Int>>(attributeid);
+    case Type_Enum::Vector_Double:      return attribute_vector_size<TypeHolder_vt<Type_Enum::Vector_Double>>(attributeid);
+    case Type_Enum::Vector_String:      return attribute_vector_size<TypeHolder_vt<Type_Enum::Vector_String>>(attributeid);
+    case Type_Enum::Vector_Path:        return attribute_vector_size<TypeHolder_vt<Type_Enum::Vector_Path>>(attributeid);
+    case Type_Enum::Vector_ElementID:   return attribute_vector_size<TypeHolder_vt<Type_Enum::Vector_ElementID>>(attributeid);
     default: return 0;
     }
 }
 
 // if the attribute is a vector, return it's size, otherwise 0
-bool Saklib::Qtlib::Project_Widget::attribute_vector_empty(AttributeID attributeid) const
+bool Saklib::Qtlib::Project_Widget::any_attribute_vector_empty(AttributeID attributeid) const
 {
     auto attribute_type = attribute_type_enum(attributeid);
     switch(attribute_type)
     {
-    case Type_Enum::Vector_Bool:        return attribute_type_cast<Vector_Bool>(attributeid)->empty();
-    case Type_Enum::Vector_Int:         return attribute_type_cast<Vector_Int>(attributeid)->empty();
-    case Type_Enum::Vector_Double:      return attribute_type_cast<Vector_Double>(attributeid)->empty();
-    case Type_Enum::Vector_String:      return attribute_type_cast<Vector_String>(attributeid)->empty();
-    case Type_Enum::Vector_Path:        return attribute_type_cast<Vector_Path>(attributeid)->empty();
-    case Type_Enum::Vector_ElementID:   return attribute_type_cast<Vector_ElementID>(attributeid)->empty();
+    case Type_Enum::Vector_Bool:        return attribute_vector_empty<TypeHolder_vt<Type_Enum::Vector_Bool>>(attributeid);
+    case Type_Enum::Vector_Int:         return attribute_vector_empty<TypeHolder_vt<Type_Enum::Vector_Int>>(attributeid);
+    case Type_Enum::Vector_Double:      return attribute_vector_empty<TypeHolder_vt<Type_Enum::Vector_Double>>(attributeid);
+    case Type_Enum::Vector_String:      return attribute_vector_empty<TypeHolder_vt<Type_Enum::Vector_String>>(attributeid);
+    case Type_Enum::Vector_Path:        return attribute_vector_empty<TypeHolder_vt<Type_Enum::Vector_Path>>(attributeid);
+    case Type_Enum::Vector_ElementID:   return attribute_vector_empty<TypeHolder_vt<Type_Enum::Vector_ElementID>>(attributeid);
     default: return false;
     }
 }
 
 
-void Saklib::Qtlib::Project_Widget::attribute_vector_clear(AttributeID attributeid)
+void Saklib::Qtlib::Project_Widget::any_attribute_vector_clear(AttributeID attributeid)
 {
     auto attribute_type = attribute(attributeid)->type_enum();
     switch(attribute_type)
     {
-    case Type_Enum::Vector_Bool:        internal_attribute_vector_clear<Bool>(attributeid); break;
-    case Type_Enum::Vector_Int:         internal_attribute_vector_clear<Int>(attributeid); break;
-    case Type_Enum::Vector_Double:      internal_attribute_vector_clear<Double>(attributeid); break;
-    case Type_Enum::Vector_String:      internal_attribute_vector_clear<String>(attributeid); break;
-    case Type_Enum::Vector_Path:        internal_attribute_vector_clear<Vector_Path>(attributeid); break;
-    case Type_Enum::Vector_ElementID:   internal_attribute_vector_clear<ElementID>(attributeid); break;
+    case Type_Enum::Vector_Bool:        attribute_vector_clear<TypeHolder_vt<Type_Enum::Vector_Bool>>(attributeid); break;
+    case Type_Enum::Vector_Int:         attribute_vector_clear<TypeHolder_vt<Type_Enum::Vector_Int>>(attributeid); break;
+    case Type_Enum::Vector_Double:      attribute_vector_clear<TypeHolder_vt<Type_Enum::Vector_Double>>(attributeid); break;
+    case Type_Enum::Vector_String:      attribute_vector_clear<TypeHolder_vt<Type_Enum::Vector_String>>(attributeid); break;
+    case Type_Enum::Vector_Path:        attribute_vector_clear<TypeHolder_vt<Type_Enum::Vector_Path>>(attributeid); break;
+    case Type_Enum::Vector_ElementID:   attribute_vector_clear<TypeHolder_vt<Type_Enum::Vector_ElementID>>(attributeid); break;
     default: assert(false); // called on the wrong type
     }
 }
 
-void Saklib::Qtlib::Project_Widget::attribute_vector_pop_back(AttributeID attributeid)
+void Saklib::Qtlib::Project_Widget::any_attribute_vector_pop_back(AttributeID attributeid)
 {
     auto attribute_type = attribute(attributeid)->type_enum();
     switch(attribute_type)
     {
-    case Type_Enum::Vector_Bool:        internal_attribute_vector_pop_back<Bool>(attributeid); break;
-    case Type_Enum::Vector_Int:         internal_attribute_vector_pop_back<Int>(attributeid); break;
-    case Type_Enum::Vector_Double:      internal_attribute_vector_pop_back<Double>(attributeid); break;
-    case Type_Enum::Vector_String:      internal_attribute_vector_pop_back<String>(attributeid); break;
-    case Type_Enum::Vector_Path:        internal_attribute_vector_pop_back<Path>(attributeid); break;
-    case Type_Enum::Vector_ElementID:   internal_attribute_vector_pop_back<ElementID>(attributeid); break;
+    case Type_Enum::Vector_Bool:        attribute_vector_pop_back<TypeHolder_vt<Type_Enum::Vector_Bool>>(attributeid); break;
+    case Type_Enum::Vector_Int:         attribute_vector_pop_back<TypeHolder_vt<Type_Enum::Vector_Int>>(attributeid); break;
+    case Type_Enum::Vector_Double:      attribute_vector_pop_back<TypeHolder_vt<Type_Enum::Vector_Double>>(attributeid); break;
+    case Type_Enum::Vector_String:      attribute_vector_pop_back<TypeHolder_vt<Type_Enum::Vector_String>>(attributeid); break;
+    case Type_Enum::Vector_Path:        attribute_vector_pop_back<TypeHolder_vt<Type_Enum::Vector_Path>>(attributeid); break;
+    case Type_Enum::Vector_ElementID:   attribute_vector_pop_back<TypeHolder_vt<Type_Enum::Vector_ElementID>>(attributeid); break;
     default: assert(false); // called on the wrong type
     }
 }
-void Saklib::Qtlib::Project_Widget::attribute_vector_swap_at(AttributeID attributeid, size_type index, size_type other_index)
+void Saklib::Qtlib::Project_Widget::any_attribute_vector_swap_at(AttributeID attributeid, size_type index, size_type other_index)
 {
     auto attribute_type = attribute(attributeid)->type_enum();
     switch(attribute_type)
     {
-    case Type_Enum::Vector_Bool:        internal_attribute_vector_swap_at<Bool>(attributeid, index, other_index); break;
-    case Type_Enum::Vector_Int:         internal_attribute_vector_swap_at<Int>(attributeid, index, other_index); break;
-    case Type_Enum::Vector_Double:      internal_attribute_vector_swap_at<Double>(attributeid, index, other_index); break;
-    case Type_Enum::Vector_String:      internal_attribute_vector_swap_at<String>(attributeid, index, other_index); break;
-    case Type_Enum::Vector_Path:        internal_attribute_vector_swap_at<Path>(attributeid, index, other_index); break;
-    case Type_Enum::Vector_ElementID:   internal_attribute_vector_swap_at<ElementID>(attributeid, index, other_index); break;
+    case Type_Enum::Vector_Bool:        attribute_vector_swap_at<TypeHolder_vt<Type_Enum::Vector_Bool>>(attributeid, index, other_index); break;
+    case Type_Enum::Vector_Int:         attribute_vector_swap_at<TypeHolder_vt<Type_Enum::Vector_Int>>(attributeid, index, other_index); break;
+    case Type_Enum::Vector_Double:      attribute_vector_swap_at<TypeHolder_vt<Type_Enum::Vector_Double>>(attributeid, index, other_index); break;
+    case Type_Enum::Vector_String:      attribute_vector_swap_at<TypeHolder_vt<Type_Enum::Vector_String>>(attributeid, index, other_index); break;
+    case Type_Enum::Vector_Path:        attribute_vector_swap_at<TypeHolder_vt<Type_Enum::Vector_Path>>(attributeid, index, other_index); break;
+    case Type_Enum::Vector_ElementID:   attribute_vector_swap_at<TypeHolder_vt<Type_Enum::Vector_ElementID>>(attributeid, index, other_index); break;
     default: assert(false); // called on the wrong type
     }
 }
 
-// Attribute_Type<Vector<T>> Type Dependent Vector Functions
+// Attribute_Type<Vector<T>> Forwarding Functions
 //------------------------------------------------------------
 // We must know the type to use these ones, and they should be called without specifying the
 // explicitly so that the ElementID overload can be used (specialisation for it doesn't work).
 
+template <>
+void Saklib::Qtlib::Project_Widget::attribute_vector_clear<Saklib::ElementID>(AttributeID attributeid)
+{
+    assert_attribute<Vector_ElementID>(attributeid);
 
-void Saklib::Qtlib::Project_Widget::attribute_vector_set_at(AttributeID attributeid, size_type index, ElementID value)
+    assert(0);
+}
+
+/*
+template <>
+void Saklib::Qtlib::Project_Widget::attribute_vector_set_at<Saklib::ElementID>(AttributeID attributeid, size_type index, ElementID const& value)
+//void Saklib::Qtlib::Project_Widget::attribute_vector_set_at(AttributeID attributeid, size_type index, ElementID const& value)
 {
     assert_attribute<Vector_ElementID>(attributeid);
 
@@ -412,30 +422,25 @@ void Saklib::Qtlib::Project_Widget::attribute_vector_set_at(AttributeID attribut
     //m_outliner_model->update_all(); // using this shows everything is there
     emit signal_unsaved_edits(true);
 }
-
-void Saklib::Qtlib::Project_Widget::attribute_vector_set_front(AttributeID attributeid, ElementID value)
+*/
+template<>
+void Saklib::Qtlib::Project_Widget::attribute_vector_set_front<Saklib::ElementID>(AttributeID attributeid, ElementID const& value)
 {
-    assert(0);
     assert_attribute<Vector_ElementID>(attributeid);
 
-    update_widget(attributeid); // with index for vectors?
-    update_model(attributeid);
-
-    emit signal_unsaved_edits(true);
+    assert(0);
 }
 
-void Saklib::Qtlib::Project_Widget::attribute_vector_set_back(AttributeID attributeid, ElementID value)
+template<>
+void Saklib::Qtlib::Project_Widget::attribute_vector_set_back<Saklib::ElementID>(AttributeID attributeid, ElementID const& value)
 {
-    assert(0);
     assert_attribute<Vector_ElementID>(attributeid);
 
-    update_widget(attributeid); // with index for vectors?
-    update_model(attributeid);
-
-    emit signal_unsaved_edits(true);
+    assert(0);
 }
-
-void Saklib::Qtlib::Project_Widget::attribute_vector_push_back(AttributeID attributeid, ElementID value)
+/*
+template<>
+void Saklib::Qtlib::Project_Widget::attribute_vector_push_back<Saklib::ElementID>(AttributeID attributeid, ElementID const& value)
 {
     assert_attribute<Vector_ElementID>(attributeid);
 
@@ -452,6 +457,45 @@ void Saklib::Qtlib::Project_Widget::attribute_vector_push_back(AttributeID attri
     m_outliner_model->add_row(attributeid, old_size);
     emit signal_unsaved_edits(true);
 }
+*/
+template<>
+void Saklib::Qtlib::Project_Widget::attribute_vector_pop_back<Saklib::ElementID>(AttributeID attributeid)
+{
+    assert_attribute<Vector_ElementID>(attributeid);
+
+    auto attribute = this->attribute_type_cast<Vector_ElementID>(attributeid);
+
+    auto removed_value = attribute->back();
+    auto old_size = attribute->size();
+
+    attribute->pop_back();
+    m_element_manager.set_parent(removed_value, invalid_attributeid());
+
+    update_widget(attributeid);
+    update_model(attributeid);
+
+    m_outliner_model->remove_row(attributeid, old_size - 1); // do we want this call? how does the model handle it?
+    emit signal_unsaved_edits(true);
+}
+
+template<>
+void Saklib::Qtlib::Project_Widget::attribute_vector_insert_at<Saklib::ElementID>(AttributeID attributeid, size_type index, ElementID const& value)
+{
+    assert_attribute<Vector_ElementID>(attributeid);
+
+    assert(0);
+}
+
+template<>
+void Saklib::Qtlib::Project_Widget::attribute_vector_remove_at<Saklib::ElementID>(AttributeID attributeid, size_type index)
+{
+    assert_attribute<Vector_ElementID>(attributeid);
+
+    assert(0);
+}
+
+
+
 
 
 // Flat Access
@@ -829,42 +873,4 @@ void Saklib::Qtlib::Project_Widget::update_model(ElementID elementid)
 void Saklib::Qtlib::Project_Widget::update_model(AttributeID attributeid)
 {
     m_outliner_model->update_item(attributeid);
-}
-
-
-// Type Dependent Vector Write Functions
-//------------------------------------------------------------
-// The public and non-typed functions call these internal templated ones based on the
-// Attribute type.
-
-template <>
-void Saklib::Qtlib::Project_Widget::internal_attribute_vector_clear<Saklib::ElementID>(AttributeID attributeid)
-{
-    assert_attribute<Vector_ElementID>(attributeid);
-
-    auto attribute = this->attribute_type_cast<Vector_ElementID>(attributeid);
-    auto old_size = attribute->size();
-
-
-    emit signal_unsaved_edits(true);
-}
-
-template <>
-void Saklib::Qtlib::Project_Widget::internal_attribute_vector_pop_back<Saklib::ElementID>(AttributeID attributeid)
-{
-    assert_attribute<Vector_ElementID>(attributeid);
-
-    auto attribute = this->attribute_type_cast<Vector_ElementID>(attributeid);
-
-    auto removed_value = attribute->back();
-    auto old_size = attribute->size();
-
-    attribute->pop_back();
-    m_element_manager.set_parent(removed_value, invalid_attributeid());
-
-    update_widget(attributeid);
-    update_model(attributeid);
-
-    m_outliner_model->remove_row(attributeid, old_size - 1); // do we want this call? how does the model handle it?
-    emit signal_unsaved_edits(true);
 }

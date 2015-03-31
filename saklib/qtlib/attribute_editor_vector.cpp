@@ -56,7 +56,7 @@ Saklib::Qtlib::Attribute_Editor_Vector::~Attribute_Editor_Vector()
 
 Saklib::size_type Saklib::Qtlib::Attribute_Editor_Vector::attribute_vector_size() const
 {
-    return this->project_widget()->attribute_vector_size(attributeid());
+    return this->project_widget()->any_attribute_vector_size(attributeid());
 }
 
 void Saklib::Qtlib::Attribute_Editor_Vector::v_refresh_data()

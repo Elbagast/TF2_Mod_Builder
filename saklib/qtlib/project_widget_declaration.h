@@ -6,6 +6,8 @@
 #include "../element_manager.h"
 #include "../command_history.h"
 
+#include "outliner/outliner_model.h"
+
 #include <QWidget>
 
 class QHBoxLayout;
@@ -87,9 +89,15 @@ namespace Saklib
             Attribute const*const attribute(ElementID elementid, size_type attribute_index) const;
             Attribute const*const attribute(ElementID elementid, String const& attribute_name) const;
 
+
+            // Attribute forwarding functions
+            //------------------------------------------------------------
             String const& attribute_name(AttributeID attributeid) const;
             Type_Enum attribute_type_enum(AttributeID attributeid) const;
             String attribute_type_string(AttributeID attributeid) const;
+
+            // Attribute_Type<T> casting
+            //------------------------------------------------------------
 
             template <typename T>
             Attribute_Type<T> *const attribute_type_cast(AttributeID attributeid);
@@ -100,7 +108,6 @@ namespace Saklib
             template <typename T>
             Attribute_Type<T> *const attribute_type_cast(ElementID elementid, String const& attribute_name);
 
-
             template <typename T>
             Attribute_Type<T> const*const attribute_type_cast(AttributeID attributeid) const;
 
@@ -110,7 +117,7 @@ namespace Saklib
             template <typename T>
             Attribute_Type<T> const*const attribute_type_cast(ElementID elementid, String const& attribute_name) const;
 
-            // Attribute_Type<T>
+            // Attribute_Type<T> forwarding functions
             //------------------------------------------------------------
             // These functions set the data without question, and tell the model and widget to update.
 
@@ -119,52 +126,87 @@ namespace Saklib
 
             template <typename T>
             void attribute_set_value(AttributeID attributeid, T const& value);
-            void attribute_set_value(AttributeID attributeid, ElementID value);
+            template <>
+            void attribute_set_value(AttributeID attributeid, ElementID const& value);
 
             // Attribute_Type<Vector<T>> Type-Anonymous Functions
             //------------------------------------------------------------
             // We do not need to know the underlying type to call these functions, but this must figure
             // it out and act appropriately.
 
-            // if the attribute is a vector, return it's size, otherwise 0
-            size_type attribute_vector_size(AttributeID attributeid) const;
-            bool attribute_vector_empty(AttributeID attributeid) const;
+            bool any_attribute_vector_empty(AttributeID attributeid) const;
+            size_type any_attribute_vector_size(AttributeID attributeid) const;
 
-            void attribute_vector_clear(AttributeID attributeid);
-            void attribute_vector_pop_back(AttributeID attributeid);
-            void attribute_vector_swap_at(AttributeID attributeid, size_type index, size_type other_index);
+            void any_attribute_vector_clear(AttributeID attributeid);
+            void any_attribute_vector_pop_back(AttributeID attributeid);
+            void any_attribute_vector_swap_at(AttributeID attributeid, size_type index, size_type other_index);
 
-            void attribute_vector_remove_at(AttributeID attributeid, size_type index);
+            void any_attribute_vector_remove_at(AttributeID attributeid, size_type index);
 
-            // Attribute_Type<Vector<T>> Type Dependent Functions
+            // Attribute_Type<Vector<T>> forwarding functions
             //------------------------------------------------------------
             // We must know the type to use these ones, and they should be called without specifying the
             // explicitly so that the ElementID overload can be used (specialisation for it doesn't work).
 
+            template <typename T>
+            bool attribute_vector_empty(AttributeID attributeid) const;
 
+            template <typename T>
+            size_type attribute_vector_size(AttributeID attributeid) const;
+
+            template <typename T>
+            void attribute_vector_clear(AttributeID attributeid);
+            template <>
+            void attribute_vector_clear<ElementID>(AttributeID attributeid);
 
             template <typename T>
             T const& attribute_vector_at(AttributeID attributeid, size_type index) const;
 
             template <typename T>
+            T const& attribute_vector_front(AttributeID attributeid) const;
+
+            template <typename T>
+            T const& attribute_vector_back(AttributeID attributeid) const;
+
+            template <typename T>
             void attribute_vector_set_at(AttributeID attributeid, size_type index, T const& value);
-            void attribute_vector_set_at(AttributeID attributeid, size_type index, ElementID value);
+            template <>
+            void attribute_vector_set_at<ElementID>(AttributeID attributeid, size_type index, ElementID const& value);
+            //template<>
+            //void attribute_vector_set_at(AttributeID attributeid, size_type index, ElementID const& value);
 
             template <typename T>
             void attribute_vector_set_front(AttributeID attributeid, T const& value);
-            void attribute_vector_set_front(AttributeID attributeid, ElementID value);
+            template <>
+            void attribute_vector_set_front<ElementID>(AttributeID attributeid, ElementID const& value);
 
             template <typename T>
             void attribute_vector_set_back(AttributeID attributeid, T const& value);
-            void attribute_vector_set_back(AttributeID attributeid, ElementID value);
+            template <>
+            void attribute_vector_set_back<ElementID>(AttributeID attributeid, ElementID const& value);
+
+            template <typename T>
+            void attribute_vector_swap_at(AttributeID attributeid, size_type index, size_type other_index);
 
             template <typename T>
             void attribute_vector_push_back(AttributeID attributeid, T const& value);
-            void attribute_vector_push_back(AttributeID attributeid, ElementID value);
+            template <>
+            void attribute_vector_push_back<ElementID>(AttributeID attributeid, ElementID const& value);
+
+            template <typename T>
+            void attribute_vector_pop_back(AttributeID attributeid);
+            template <>
+            void attribute_vector_pop_back<ElementID>(AttributeID attributeid);
 
             template <typename T>
             void attribute_vector_insert_at(AttributeID attributeid, size_type index, T const& value);
-            void attribute_vector_insert_at(AttributeID attributeid, size_type index, ElementID value);
+            template <>
+            void attribute_vector_insert_at<ElementID>(AttributeID attributeid, size_type index, ElementID const& value);
+
+            template <typename T>
+            void attribute_vector_remove_at(AttributeID attributeid, size_type index);
+            template <>
+            void attribute_vector_remove_at<ElementID>(AttributeID attributeid, size_type index);
 
 
             // Flat Access
@@ -304,25 +346,6 @@ namespace Saklib
             void update_model(ElementID elementid);
             void update_model(AttributeID attributeid);
 
-            // Type Dependent Vector Write Functions
-            //------------------------------------------------------------
-            // The public and non-typed functions call these internal templated ones based on the
-            // Attribute type.
-
-            template <typename T>
-            void internal_attribute_vector_clear(AttributeID attributeid);
-            template <>
-            void internal_attribute_vector_clear<ElementID>(AttributeID attributeid);
-
-            template <typename T>
-            void internal_attribute_vector_swap_at(AttributeID attributeid, size_type index, size_type other_index);
-
-            template <typename T>
-            void internal_attribute_vector_pop_back(AttributeID attributeid);
-            template <>
-            void internal_attribute_vector_pop_back<ElementID>(AttributeID attributeid);
-
-
         private:
             // Data Members
             //============================================================
@@ -355,6 +378,72 @@ namespace Saklib
 
     } // namespace Qtlib
 }  // namespace Saklib
+
+// why can't it find these when they're in the cpp....
+
+template <>
+void Saklib::Qtlib::Project_Widget::attribute_vector_set_at<Saklib::ElementID>(AttributeID attributeid, size_type index, ElementID const& value)
+//void Saklib::Qtlib::Project_Widget::attribute_vector_set_at(AttributeID attributeid, size_type index, ElementID const& value)
+{
+    assert_attribute<Vector_ElementID>(attributeid);
+
+    ElementID old_value = attribute_vector_at<ElementID>(attributeid, index);
+
+    m_element_manager.element(attributeid.elementid()).attribute_type_cast<Vector_ElementID>(attributeid.index())->set_at(index, value);
+
+    m_element_manager.set_parent(old_value, invalid_attributeid());
+    m_element_manager.set_parent(value, attributeid);
+
+    update_widget(attributeid);
+    //update_model(attributeid);
+
+    // need to do the following...
+
+    // if the ElementID changed from invalid to valid,
+    if (!old_value.is_valid() && value.is_valid())
+    {
+        // tell the model that row 0 was added as a child of attributeid
+        m_outliner_model->add_row(attributeid, 0);
+        //m_outliner->setExpanded(m_outliner_model->make_index_of(value), true);
+        //m_outliner->setExpanded(m_outliner_model->make_index_of(attributeid.elementid()), true);
+    }
+    // else if the ElementID changed from valid to invalid,
+    else if (old_value.is_valid() && !value.is_valid())
+    {
+        // tell the model that row 0 was removed as a child of attributeid
+        m_outliner_model->remove_row(attributeid, 0);
+        //m_outliner->setExpanded(m_outliner_model->make_index_of(attributeid.elementid()), true);
+    }
+    else
+    {
+        // tell the model to update the children of attributeid
+        m_outliner_model->update_children(attributeid);
+    }
+
+    //m_outliner_model->update_children(attributeid); // doesn't work...
+
+    //m_outliner_model->update_all(); // using this shows everything is there
+    emit signal_unsaved_edits(true);
+}
+
+template<>
+void Saklib::Qtlib::Project_Widget::attribute_vector_push_back<Saklib::ElementID>(AttributeID attributeid, ElementID const& value)
+{
+    assert_attribute<Vector_ElementID>(attributeid);
+
+    auto attribute = this->attribute_type_cast<Vector_ElementID>(attributeid);
+
+    auto old_size = attribute->size();
+
+    attribute->push_back(value);
+    m_element_manager.set_parent(value, attributeid);
+
+    update_widget(attributeid);
+    update_model(attributeid);
+
+    m_outliner_model->add_row(attributeid, old_size);
+    emit signal_unsaved_edits(true);
+}
 
 #endif // PROJECT_WIDGET_DECLARATION
 

@@ -69,16 +69,50 @@ void Saklib::Qtlib::Project_Widget::attribute_set_value(AttributeID attributeid,
 
 
 
-// Attribute_Type<Vector<T>> Type Dependent Functions
+// Attribute_Type<Vector<T>> forwarding functions
 //------------------------------------------------------------
 // We must know the type to use these ones, and they should be called without specifying the
 // explicitly so that the ElementID overload can be used (specialisation for it doesn't work).
+
+template <typename T>
+bool Saklib::Qtlib::Project_Widget::attribute_vector_empty(AttributeID attributeid) const
+{
+    assert_attribute<Vector<T>>(attributeid);
+    return attribute_type_cast<Vector<T>>(attributeid)->empty();
+}
+
+template <typename T>
+Saklib::size_type Saklib::Qtlib::Project_Widget::attribute_vector_size(AttributeID attributeid) const
+{
+    assert_attribute<Vector<T>>(attributeid);
+    return attribute_type_cast<Vector<T>>(attributeid)->size();
+}
+
+template <typename T>
+void Saklib::Qtlib::Project_Widget::attribute_vector_clear(AttributeID attributeid)
+{
+    attribute_function<Vector<T>, decltype(&Attribute_Type<Vector<T>>::clear)>(attributeid, &Attribute_Type<Vector<T>>::clear);
+}
 
 template <typename T>
 T const& Saklib::Qtlib::Project_Widget::attribute_vector_at(AttributeID attributeid, size_type index) const
 {
     assert_attribute<Vector<T>>(attributeid);
     return attribute_type_cast<Vector<T>>(attributeid)->at(index);
+}
+
+template <typename T>
+T const& Saklib::Qtlib::Project_Widget::attribute_vector_front(AttributeID attributeid) const
+{
+    assert_attribute<Vector<T>>(attributeid);
+    return attribute_type_cast<Vector<T>>(attributeid)->front();
+}
+
+template <typename T>
+T const& Saklib::Qtlib::Project_Widget::attribute_vector_back(AttributeID attributeid) const
+{
+    assert_attribute<Vector<T>>(attributeid);
+    return attribute_type_cast<Vector<T>>(attributeid)->back();
 }
 
 template <typename T>
@@ -100,10 +134,36 @@ void Saklib::Qtlib::Project_Widget::attribute_vector_set_back(AttributeID attrib
 }
 
 template <typename T>
+void Saklib::Qtlib::Project_Widget::attribute_vector_swap_at(AttributeID attributeid, size_type index, size_type other_index)
+
+{
+    attribute_function<Vector<T>, decltype(&Attribute_Type<Vector<T>>::swap_at), size_type, size_type>(attributeid, &Attribute_Type<Vector<T>>::swap_at, index, other_index);
+}
+
+template <typename T>
 void Saklib::Qtlib::Project_Widget::attribute_vector_push_back(AttributeID attributeid, T const& value)
 {
     attribute_function<Vector<T>, decltype(&Attribute_Type<Vector<T>>::push_back), T>(attributeid, &Attribute_Type<Vector<T>>::push_back, value);
 }
+
+template <typename T>
+void Saklib::Qtlib::Project_Widget::attribute_vector_pop_back(AttributeID attributeid)
+{
+    attribute_function<Vector<T>, decltype(&Attribute_Type<Vector<T>>::pop_back)>(attributeid, &Attribute_Type<Vector<T>>::pop_back);
+}
+
+template <typename T>
+void Saklib::Qtlib::Project_Widget::attribute_vector_insert_at(AttributeID attributeid, size_type index, T const& value)
+{
+    attribute_function<Vector<T>, decltype(&Attribute_Type<Vector<T>>::insert_at), size_type, T>(attributeid, &Attribute_Type<Vector<T>>::insert_at, index, value);
+}
+
+template <typename T>
+void Saklib::Qtlib::Project_Widget::attribute_vector_remove_at(AttributeID attributeid, size_type index)
+{
+    attribute_function<Vector<T>, decltype(&Attribute_Type<Vector<T>>::remove_at), size_type>(attributeid, &Attribute_Type<Vector<T>>::remove_at, index);
+}
+
 
 
 // Commands - indirect write access
@@ -119,7 +179,6 @@ bool Saklib::Qtlib::Project_Widget::undoable_attribute_set_value(AttributeID att
        && this->attribute_type_enum(attributeid) == Type_Traits<T>::type_enum()
        && this->attribute_type_cast<T>(attributeid)->value() != value)
     {
-        // do it. The command should call the update_... function(s) when it is executed/unexecuted
         m_command_history.emplace_execute<PWC_Attribute_Set_Value<T>>(this, attributeid, value);
         command_history_changed();
         return true;
@@ -138,8 +197,7 @@ bool Saklib::Qtlib::Project_Widget::undoable_attribute_vector_set_at(AttributeID
        && this->attribute_type_enum(attributeid) == Type_Traits<Vector<T>>::type_enum()
        && this->attribute_type_cast<Vector<T>>(attributeid)->at(index) != value)
     {
-        // do it. The command should call the update_... function(s) when it is executed/unexecuted
-        m_command_history.emplace_execute<PWC_Attribute_Vector_Set_Value_At<T>>(this, attributeid, index, value);
+        m_command_history.emplace_execute<PWC_Attribute_Vector_Set_At<T>>(this, attributeid, index, value);
         command_history_changed();
         return true;
     }
@@ -254,28 +312,6 @@ void Saklib::Qtlib::Project_Widget::attribute_function(AttributeID attributeid, 
     emit signal_unsaved_edits(true);
 }
 
-// Type Dependent Vector Write Functions
-//------------------------------------------------------------
-// The public and non-typed functions call these internal templated ones based on the
-// Attribute type.
-
-template <typename T>
-void Saklib::Qtlib::Project_Widget::internal_attribute_vector_clear(AttributeID attributeid)
-{
-    attribute_function<Vector<T>, decltype(&Attribute_Type<Vector<T>>::clear)>(attributeid, &Attribute_Type<Vector<T>>::clear);
-}
-
-template <typename T>
-void Saklib::Qtlib::Project_Widget::internal_attribute_vector_swap_at(AttributeID attributeid, size_type index, size_type other_index)
-{
-    attribute_function<Vector<T>, decltype(&Attribute_Type<Vector<T>>::swap_at), size_type, size_type>(attributeid, &Attribute_Type<Vector<T>>::swap_at, index, other_index);
-}
-
-template <typename T>
-void Saklib::Qtlib::Project_Widget::internal_attribute_vector_pop_back(AttributeID attributeid)
-{
-    attribute_function<Vector<T>, decltype(&Attribute_Type<Vector<T>>::pop_back)>(attributeid, &Attribute_Type<Vector<T>>::pop_back);
-}
 
 #endif // PROJECT_WIDGET_TEMPLATES_H
 

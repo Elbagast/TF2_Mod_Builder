@@ -129,11 +129,11 @@ namespace Saklib
         protected:
             void v_execute() override
             {
-                project_widget()->attribute_set_value(attributeid(), m_new_value);
+                project_widget()->attribute_set_value<T>(attributeid(), m_new_value);
             }
             void v_unexecute() override
             {
-                project_widget()->attribute_set_value(attributeid(), m_old_value);
+                project_widget()->attribute_set_value<T>(attributeid(), m_old_value);
             }
         private:
             T m_old_value;
@@ -160,41 +160,41 @@ namespace Saklib
         protected:
             void v_execute() override
             {
-                project_widget()->attribute_vector_clear(attributeid());
+                project_widget()->attribute_vector_clear<T>(attributeid());
             }
             void v_unexecute() override
             {
-                project_widget()->attribute_vector_set_vector(attributeid(), m_old_vector);
+                project_widget()->attribute_vector_set_vector<T>(attributeid(), m_old_vector);
             }
         private:
             Vector<T> m_old_vector;
         };
 
         /*
-        PWC_Attribute_Vector_Set_Value_At<T>
+        PWC_Attribute_Vector_Set_At<T>
         ====================================================================================================
         */
         template <typename T>
-        class PWC_Attribute_Vector_Set_Value_At:
+        class PWC_Attribute_Vector_Set_At:
                 public Project_Widget_Command_Attribute
         {
         public:
-            PWC_Attribute_Vector_Set_Value_At(Project_Widget*const project_widget, AttributeID attributeid, size_type index, T const& value):
+            PWC_Attribute_Vector_Set_At(Project_Widget*const project_widget, AttributeID attributeid, size_type index, T const& value):
                 Project_Widget_Command_Attribute(project_widget, attributeid),
                 m_index(index),
                 m_new_value(value),
                 m_old_value(project_widget->attribute_type_cast<Vector<T>>(attributeid)->at(index))
             {}
-            ~PWC_Attribute_Vector_Set_Value_At() override = default;
+            ~PWC_Attribute_Vector_Set_At() override = default;
 
         protected:
             void v_execute() override
             {
-                project_widget()->attribute_vector_set_at(attributeid(), m_index, m_new_value);
+                project_widget()->attribute_vector_set_at<T>(attributeid(), m_index, m_new_value);
             }
             void v_unexecute() override
             {
-                project_widget()->attribute_vector_set_at(attributeid(), m_index, m_old_value);
+                project_widget()->attribute_vector_set_at<T>(attributeid(), m_index, m_old_value);
             }
         private:
             size_type m_index;
@@ -221,11 +221,11 @@ namespace Saklib
         protected:
             void v_execute() override
             {
-                project_widget()->attribute_vector_set_front(attributeid(), m_new_value);
+                project_widget()->attribute_vector_set_front<T>(attributeid(), m_new_value);
             }
             void v_unexecute() override
             {
-                project_widget()->attribute_vector_set_front(attributeid(), m_old_value);
+                project_widget()->attribute_vector_set_front<T>(attributeid(), m_old_value);
             }
         private:
             T m_new_value;
@@ -251,11 +251,11 @@ namespace Saklib
         protected:
             void v_execute() override
             {
-                project_widget()->attribute_vector_set_back(attributeid(), m_new_value);
+                project_widget()->attribute_vector_set_back<T>(attributeid(), m_new_value);
             }
             void v_unexecute() override
             {
-                project_widget()->attribute_vector_set_back(attributeid(), m_old_value);
+                project_widget()->attribute_vector_set_back<T>(attributeid(), m_old_value);
             }
         private:
             T m_new_value;
@@ -281,11 +281,11 @@ namespace Saklib
         protected:
             void v_execute() override
             {
-                project_widget()->attribute_vector_swap_at(attributeid(), m_index, m_other_index);
+                project_widget()->attribute_vector_swap_at<T>(attributeid(), m_index, m_other_index);
             }
             void v_unexecute() override
             {
-                project_widget()->attribute_vector_swap_at(attributeid(), m_index, m_other_index);
+                project_widget()->attribute_vector_swap_at<T>(attributeid(), m_index, m_other_index);
             }
         private:
             size_type m_index;
@@ -310,11 +310,11 @@ namespace Saklib
         protected:
             void v_execute() override
             {
-                project_widget()->attribute_vector_push_back(attributeid(), m_new_value);
+                project_widget()->attribute_vector_push_back<T>(attributeid(), m_new_value);
             }
             void v_unexecute() override
             {
-                project_widget()->attribute_vector_pop_back(attributeid());
+                project_widget()->attribute_vector_pop_back<T>(attributeid());
             }
         private:
             T m_new_value;
@@ -338,11 +338,11 @@ namespace Saklib
         protected:
             void v_execute() override
             {
-                project_widget()->attribute_vector_pop_back(attributeid());
+                project_widget()->attribute_vector_pop_back<T>(attributeid());
             }
             void v_unexecute() override
             {
-                project_widget()->attribute_vector_push_back(attributeid(), m_old_value);
+                project_widget()->attribute_vector_push_back<T>(attributeid(), m_old_value);
             }
         private:
             T m_old_value;
@@ -367,11 +367,11 @@ namespace Saklib
         protected:
             void v_execute() override
             {
-                project_widget()->attribute_vector_insert_at(attributeid(), index, m_value);
+                project_widget()->attribute_vector_insert_at<T>(attributeid(), index, m_value);
             }
             void v_unexecute() override
             {
-                project_widget()->attribute_vector_remove_at(attributeid(), index);
+                project_widget()->attribute_vector_remove_at<T>(attributeid(), index);
             }
         private:
             size_type m_index;
@@ -397,11 +397,11 @@ namespace Saklib
         protected:
             void v_execute() override
             {
-                project_widget()->attribute_vector_remove_at(attributeid(), index);
+                project_widget()->attribute_vector_remove_at<T>(attributeid(), index);
             }
             void v_unexecute() override
             {
-                project_widget()->attribute_vector_insert_at(attributeid(), index, m_value);
+                project_widget()->attribute_vector_insert_at<T>(attributeid(), index, m_value);
             }
         private:
             size_type m_index;
