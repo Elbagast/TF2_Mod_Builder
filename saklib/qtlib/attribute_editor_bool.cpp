@@ -7,10 +7,43 @@
 //============================================================
 Saklib::Qtlib::Attribute_Editor_Bool::Attribute_Editor_Bool(Project_Widget*const project_widget, AttributeID attributeid, QWidget* parent):
     Attribute_Editor(project_widget, attributeid, parent),
-    m_checkbox(new QCheckBox(this)),
-    m_layout(new QHBoxLayout)
+    m_checkbox(nullptr),
+    m_layout(nullptr)
 {
-    m_checkbox->setChecked(this->project_widget()->attribute_type_cast<Bool>(this->attributeid())->value());
+    shared_construction();
+}
+Saklib::Qtlib::Attribute_Editor_Bool::Attribute_Editor_Bool(Project_Widget*const project_widget, AttributeID attributeid, size_type vector_index, QWidget* parent):
+    Attribute_Editor(project_widget, attributeid, vector_index, parent),
+    m_checkbox(nullptr),
+    m_layout(nullptr)
+{
+    shared_construction();
+}
+
+Saklib::Qtlib::Attribute_Editor_Bool::~Attribute_Editor_Bool() = default;
+
+
+void Saklib::Qtlib::Attribute_Editor_Bool::v_refresh_data()
+{
+    Bool data = attribute_value<Bool>();
+    m_checkbox->setChecked(data);
+    m_checkbox->setText(data ? "True" : "False");
+}
+
+void Saklib::Qtlib::Attribute_Editor_Bool::slot_clicked()
+{
+    if (is_vector_component())
+        project_widget()->undoable_attribute_vector_set_at<Bool>(attributeid(), vector_index(), m_checkbox->isChecked());
+    else
+        project_widget()->undoable_attribute_set_value<Bool>(attributeid(), m_checkbox->isChecked());
+}
+
+void Saklib::Qtlib::Attribute_Editor_Bool::shared_construction()
+{
+    m_checkbox = std::make_unique<QCheckBox>();
+    m_layout = std::make_unique<QHBoxLayout>();
+
+    v_refresh_data();
 
     QObject::connect(m_checkbox.get(), &QCheckBox::clicked,
                      this, &Attribute_Editor_Bool::slot_clicked);
@@ -20,21 +53,4 @@ Saklib::Qtlib::Attribute_Editor_Bool::Attribute_Editor_Bool(Project_Widget*const
     m_layout->setContentsMargins(0,0,0,0);
     this->setLayout(m_layout.get());
     this->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
-}
-Saklib::Qtlib::Attribute_Editor_Bool::~Attribute_Editor_Bool() = default;
-
-
-void Saklib::Qtlib::Attribute_Editor_Bool::v_refresh_data()
-{
-    auto const data_value = this->project_widget()->attribute_type_cast<Bool>(this->attributeid())->value();
-    if (m_checkbox->isChecked() != data_value)
-    {
-        // block signals?
-        m_checkbox->setChecked(data_value);
-    }
-}
-
-void Saklib::Qtlib::Attribute_Editor_Bool::slot_clicked()
-{
-    this->project_widget()->undoable_set_attribute_value_type<Bool>(this->attributeid(), m_checkbox->isChecked());
 }

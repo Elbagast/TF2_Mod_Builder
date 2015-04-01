@@ -13,8 +13,6 @@ namespace Ui
 
 namespace Saklib
 {
-    class ElementID;
-
     namespace Qtlib
     {
         class Project_Widget;

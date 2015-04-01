@@ -3,11 +3,14 @@
 
 #include "../types.h"
 #include "../elementid.h"
+#include "../attributeid.h"
 #include "../attribute_type.h"
 #include <QWidget>
 
 class QLabel;
 class QGridLayout;
+class QVBoxLayout;
+class QFormLayout;
 
 namespace Saklib
 {
@@ -56,16 +59,22 @@ namespace Saklib
             //============================================================
             Project_Widget*const mp_project_widget; // Commands reference this so that data is updated properly
             ElementID const m_elementid;         // Reference to the Element being edited
+            AttributeID m_parentid;
 
             // Widgets
             Uptr<QLabel> m_element_name_label;  // Label for the Element name - any editing done through this so it'd need its own class
             Uptr<QLabel> m_element_type_label;  // Label for the Element type
+            Uptr<QLabel> m_element_can_be_root_label;  // Label for the ElementID
+            Uptr<QLabel> m_element_id_label;  // Label for the ElementID
+            Uptr<QLabel> m_parent_id_label;  // Label for the parent AttributeID
 
-            Vector<Uptr<QLabel>> m_attribute_names;
-            Vector<Uptr<QLabel>> m_attribute_types;
+            //Vector<Uptr<QLabel>> m_attribute_names;
+            //Vector<Uptr<QLabel>> m_attribute_types;
             Vector<Uptr<Attribute_Editor>> m_attribute_editors;
 
-            Uptr<QGridLayout> m_layout; // Layout for this
+            //Uptr<QGridLayout> m_layout; // Layout for this
+            Uptr<QVBoxLayout> m_layout; // Layout for this
+            Uptr<QFormLayout> m_attribute_layout; // Layout for Attributes
         };
 
     } // namespace Qtlib

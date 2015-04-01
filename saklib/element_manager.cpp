@@ -192,7 +192,7 @@ Saklib::Vector_ElementID Saklib::Element_Manager::root_elementids() const
     Vector_ElementID result{};
     for (auto const& value : m_map)
     {
-        if (!value.second.m_parent.is_valid())
+        if (!value.second.m_parent.is_valid() && value.second.m_element.can_be_root() )
         {
             assert(value.first.is_valid());
             result.push_back(value.first);
@@ -205,6 +205,19 @@ Saklib::Vector_ElementID Saklib::Element_Manager::root_elementids() const
 // Command Interface
 //============================================================
 // Bits that only Command objects will end up using
+
+Saklib::size_type Saklib::Element_Manager::command_ref_count(ElementID elementid) const
+{
+    auto found = m_map.find(elementid);
+    if (found != m_map.end())
+    {
+        return found->second.m_command_ref_count;
+    }
+    else
+    {
+        return 0;
+    }
+}
 
 // Adjust ref counts
 void Saklib::Element_Manager::increment_command_ref_count(ElementID elementid)

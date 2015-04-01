@@ -7,6 +7,7 @@
 
 #include <QMenu>
 #include <QAbstractItemView>
+#include <QtDebug>
 
 // Special 6
 //============================================================
@@ -66,7 +67,7 @@ QVariant Saklib::Qtlib::Outliner_Model::data(QModelIndex const& index, int role)
         // get the approriate data
         if (!indexid.is_valid())
         {
-            return QVariant();
+            return QVariant("None");
         }
         else if (indexid.is_element())
         {
@@ -100,7 +101,8 @@ int Saklib::Qtlib::Outliner_Model::rowCount(QModelIndex const& index) const
 
     if (!indexid.is_valid())
     {
-        return mp_project_widget->outliner_row_count_root();
+        //return mp_project_widget->outliner_row_count_root();
+        return 0;
     }
     else if (indexid.is_element())
     {
@@ -110,6 +112,10 @@ int Saklib::Qtlib::Outliner_Model::rowCount(QModelIndex const& index) const
     {
         return mp_project_widget->outliner_row_count(indexid.attributeid());
     }
+    //else if (!index.isValid()) // root index
+    //{
+     //   return mp_project_widget->outliner_row_count_root();
+    //}
     else
     {
         return 0;
@@ -136,7 +142,7 @@ bool Saklib::Qtlib::Outliner_Model::setData(QModelIndex const& index, QVariant c
             // EDIT THE DATA
 
             // make a command to edit the name...
-            mp_project_widget->undoable_set_element_name(index_id.elementid(), to_String(value));
+            mp_project_widget->undoable_element_set_name(index_id.elementid(), to_String(value));
 
             //Works! but going to want to reorganise updating data in views...
 
@@ -329,24 +335,47 @@ QModelIndex Saklib::Qtlib::Outliner_Model::make_index_of(ProxyID proxyid) const
 }
 QModelIndex Saklib::Qtlib::Outliner_Model::make_index_of(QModelIndex const& parent, size_type proxyid_value) const
 {
-    if (parent.isValid())
+    for (int row = 0, end = rowCount(parent); row != end; ++row)
     {
-        for (int row = 0, end = rowCount(parent); row != end; ++row)
+        QModelIndex next_index{index(row, 0, parent)};
+        assert(next_index.isValid());
+        if (next_index.internalId() == proxyid_value)
         {
-            QModelIndex next_index{index(row, 0, parent)};
-            assert(next_index.isValid());
-            if (next_index.internalId() == proxyid_value)
-            {
-                return next_index;
-            }
-            else
-            {
-                // recurse through children
-                return make_index_of(next_index, proxyid_value);
-            }
+            return next_index;
+        }
+        else
+        {
+            // recurse through children
+            return make_index_of(next_index, proxyid_value);
         }
     }
+
+    auto proxyid = ProxyID::unpack(proxyid_value);
+    if (proxyid.is_element())
+        qDebug() << "ElementID not found: " << proxyid.elementid_value();
+    else if (proxyid.is_element())
+        qDebug() << "AttributeID not found: " << proxyid.elementid_value() << ":" << proxyid.attribute_index();
+
     return QModelIndex();
+}
+
+void Saklib::Qtlib::Outliner_Model::child_indexes(Vector<QModelIndex>& results, QModelIndex const& parent) const
+{
+    int row_count = this->rowCount(parent);
+    for (int row = 0; row != row_count; ++row)
+    {
+        auto child_index = this->index(row,0,parent);
+        results.push_back(child_index);
+        if (this->rowCount(child_index) > 0)
+            child_indexes(results, child_index);
+    }
+}
+
+Saklib::Vector<QModelIndex> Saklib::Qtlib::Outliner_Model::all_indexes() const
+{
+    Vector<QModelIndex> result{};
+    child_indexes(result, QModelIndex());
+    return result;
 }
 
 // Return true if make_index_of returns a valid, non-root QModelIndex
@@ -378,6 +407,7 @@ void Saklib::Qtlib::Outliner_Model::update_item(ElementID elementid)
 }
 void Saklib::Qtlib::Outliner_Model::update_item(AttributeID attributeid)
 {
+    // This just updates the text in this index...
     auto index = make_index_of(attributeid);
     emit QAbstractItemModel::dataChanged(index, index);
 }
@@ -399,18 +429,18 @@ void Saklib::Qtlib::Outliner_Model::update_children(AttributeID attributeid)
     auto type = mp_project_widget->attribute_type_enum(attributeid);
     if (type == Type_Enum::ElementID)
     {
-        auto child_elementid = mp_project_widget->attribute_enum_cast<Type_Enum::ElementID>(attributeid)->value();
+        auto child_elementid = mp_project_widget->attribute_type_cast<ElementID>(attributeid)->value();
         if (child_elementid.is_valid())
         {
             auto child_index = make_index_of(child_elementid);
-            assert(child_index.isValid());
+            //assert(child_index.isValid());
             // Emit a signal to tell attatched views that the data has changed at this index
             emit QAbstractItemModel::dataChanged(child_index, child_index);
         }
     }
     else if (type == Type_Enum::Vector_ElementID)
     {
-        auto const& children = mp_project_widget->attribute_enum_cast<Type_Enum::Vector_ElementID>(attributeid)->vector();
+        auto const& children = mp_project_widget->attribute_type_cast<Vector_ElementID>(attributeid)->vector();
 
         if (!children.empty())
         {
@@ -422,6 +452,22 @@ void Saklib::Qtlib::Outliner_Model::update_children(AttributeID attributeid)
         }
     }
 }
+
+// Add or remove rows from Attributes
+void Saklib::Qtlib::Outliner_Model::add_row(AttributeID attributeid, int row)
+{
+    auto index = make_index_of(attributeid);
+    this->beginInsertRows(index, row, row);
+    this->endInsertRows();
+}
+
+void Saklib::Qtlib::Outliner_Model::remove_row(AttributeID attributeid, int row)
+{
+    auto index = make_index_of(attributeid);
+    this->beginRemoveRows(index, row, row);
+    this->endRemoveRows();
+}
+
 
 // Request for a context menu by view at index and position
 void Saklib::Qtlib::Outliner_Model::custom_context_menu(QAbstractItemView*const view, QModelIndex const& index, QPoint position)

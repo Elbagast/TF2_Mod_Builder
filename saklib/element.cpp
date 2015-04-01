@@ -37,6 +37,7 @@ Saklib::Vector_String Saklib::Element::get_registered_types()
 Saklib::Element::Element(String const& type) :
     m_type(initialise_type_from_definition_of(type)),
     m_name(initialise_name_from_definition_of(type)),
+    m_can_be_root(initialise_can_be_root_from_definition_of(type)),
     m_attributes(initialise_attributes_from_definition_of(type))
 {}
 /*
@@ -52,6 +53,7 @@ Saklib::Element::~Element() = default;
 Saklib::Element::Element(Element && other) :
     m_type(std::move(other.m_type)),
     m_name(std::move(other.m_name)),
+    m_can_be_root(std::move(other.m_can_be_root)),
     m_attributes(std::move(other.m_attributes))
 {
 }
@@ -59,6 +61,7 @@ Saklib::Element& Saklib::Element::operator=(Element && other)
 {
     m_type = std::move(other.m_type);
     m_name = std::move(other.m_name);
+    m_can_be_root = std::move(other.m_can_be_root);
     m_attributes = std::move(other.m_attributes);
 
     return *this;
@@ -69,6 +72,11 @@ Saklib::Element& Saklib::Element::operator=(Element && other)
 Saklib::String const& Saklib::Element::type() const
 {
     return m_type;
+}
+
+bool Saklib::Element::can_be_root() const
+{
+    return m_can_be_root;
 }
 
 Saklib::String const& Saklib::Element::name() const
@@ -184,6 +192,11 @@ Saklib::String Saklib::Element::initialise_name_from_definition_of(String const&
 {
     return s_element_definition_manager.get_type_from_definition_of(type);
 }
+bool Saklib::Element::initialise_can_be_root_from_definition_of(String const& type)
+{
+    return s_element_definition_manager.get_can_be_root_from_definition_of(type);
+}
+
 Saklib::Vector<Saklib::Uptr<Saklib::Attribute>> Saklib::Element::initialise_attributes_from_definition_of(String const& type)
 {
     return s_element_definition_manager.get_attributes_from_definition_of(type);
@@ -250,6 +263,10 @@ Saklib::Vector<Saklib::Uptr<Saklib::Attribute>> Saklib::Element::Element_Definit
         result.push_back(make_Attribute(definition));
 
     return result;
+}
+bool Saklib::Element::Element_Definition_Manager::get_can_be_root_from_definition_of(String const& type) const
+{
+    return find_definition(type)->can_be_root();
 }
 
 Saklib::Vector<Saklib::Element_Definition>::iterator Saklib::Element::Element_Definition_Manager::find_definition(String const& type)

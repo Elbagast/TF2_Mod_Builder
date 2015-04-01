@@ -20,6 +20,7 @@ namespace Saklib
             // Special 6
             //============================================================
             Attribute_Editor_Double(Project_Widget*const project_widget, AttributeID attributeid, QWidget* parent = nullptr);
+            Attribute_Editor_Double(Project_Widget*const project_widget, AttributeID attributeid, size_type vector_index, QWidget* parent = nullptr);
             ~Attribute_Editor_Double() override;
 
         protected:
@@ -30,10 +31,12 @@ namespace Saklib
             void slot_editingFinished();
 
         private:
+            void shared_construction();
+
             // Data Members
             //============================================================
             Uptr<QDoubleSpinBox> m_spinbox;
-            Uptr<QLabel> m_label;
+            //Uptr<QLabel> m_label;
             Uptr<QHBoxLayout> m_layout;
         };
 

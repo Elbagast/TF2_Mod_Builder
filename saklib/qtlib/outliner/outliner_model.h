@@ -25,6 +25,11 @@ namespace Saklib
                 public QAbstractItemModel
         {
             Q_OBJECT
+
+            friend class Outliner_Model_Row_Inserter;
+            friend class Outliner_Model_Row_Remover;
+            friend class Outliner_Model_Reseter;
+            friend class Outliner_Refresh;
         public:
             // Special 6
             //============================================================
@@ -71,6 +76,9 @@ namespace Saklib
             QModelIndex make_index_of(ProxyID proxyid) const;
             QModelIndex make_index_of(QModelIndex const& parent, size_type proxyid_value) const;
 
+            void child_indexes(Vector<QModelIndex>& results, QModelIndex const& parent) const;
+            Vector<QModelIndex> all_indexes() const;
+
             // Return true if make_index_of returns a valid, non-root QModelIndex
             bool has_index_of(ElementID elementid) const;
             bool has_index_of(AttributeID attributeid) const;
@@ -86,6 +94,10 @@ namespace Saklib
             // Update the data for a specific item's children
             void update_children(ElementID elementid);
             void update_children(AttributeID attributeid);
+
+            // Add or remove rows from Attributes
+            void add_row(AttributeID attributeid, int row);
+            void remove_row(AttributeID attributeid, int row);
 
             // Request for a context menu by view at index and position
             void custom_context_menu(QAbstractItemView*const view, QModelIndex const& index, QPoint position);
