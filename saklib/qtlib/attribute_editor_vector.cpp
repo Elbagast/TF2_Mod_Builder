@@ -100,33 +100,3 @@ void Saklib::Qtlib::Attribute_Editor_Vector::slot_custom_context_menu(QPoint con
     context_menu.addAction("Attribute_Editor_Vector");
     context_menu.exec(menu_position);
 }
-
-
-void Saklib::Qtlib::Attribute_Editor_Vector::slot_remove(size_type index)
-{
-    //project_widget()->undoable_attribute_vector_remove_at(attributeid(), index);
-}
-void Saklib::Qtlib::Attribute_Editor_Vector::slot_remove_last()
-{
-    //project_widget()->undoable_attribute_vector_pop_back(attributeid());
-}
-void Saklib::Qtlib::Attribute_Editor_Vector::slot_swap(size_type index, size_type other_index)
-{
-    //project_widget()->undoable_attribute_vector_swap_at(attributeid(), index, other_index);
-}
-void Saklib::Qtlib::Attribute_Editor_Vector::slot_move_up(size_type index)
-{
-    auto size = attribute_vector_size();
-    if (size > 1 && index > 0)
-        ;//project_widget()->undoable_attribute_vector_swap_at(attributeid(), index, index - 1);
-}
-void Saklib::Qtlib::Attribute_Editor_Vector::slot_move_down(size_type index)
-{
-    auto size = attribute_vector_size();
-    if (size > 1 && index < attribute_vector_size() - 1)
-        ;//project_widget()->undoable_attribute_vector_swap_at(attributeid(), index, index + 1);
-}
-void Saklib::Qtlib::Attribute_Editor_Vector::slot_clear()
-{
-    //project_widget()->undoable_attribute_vector_clear(attributeid());
-}

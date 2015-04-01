@@ -1,6 +1,7 @@
 #ifndef OUTLINER_OPERATIONS_H
 #define OUTLINER_OPERATIONS_H
 
+//#include "../../types.h"
 class QModelIndex;
 
 namespace Saklib
@@ -21,7 +22,8 @@ namespace Saklib
         public:
             // Special 6
             //============================================================
-            Outliner_Row_Inserter(Outliner_Model* model, QModelIndex const& index, int start_row, int row_count);
+            Outliner_Row_Inserter(Outliner_Model* model, QModelIndex const& index, int row);
+            Outliner_Row_Inserter(Outliner_Model* model, QModelIndex const& index, int start_row, int end_row);
             ~Outliner_Row_Inserter();
         private:
             Outliner_Model* mp_outliner_model;
@@ -32,7 +34,8 @@ namespace Saklib
         public:
             // Special 6
             //============================================================
-            Outliner_Row_Remover(Outliner_Model* model, QModelIndex const& index, int start_row, int row_count);
+            Outliner_Row_Remover(Outliner_Model* model, QModelIndex const& index, int row);
+            Outliner_Row_Remover(Outliner_Model* model, QModelIndex const& index, int start_row, int end_row);
             ~Outliner_Row_Remover();
         private:
             Outliner_Model* mp_outliner_model;

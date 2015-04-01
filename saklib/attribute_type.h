@@ -125,6 +125,7 @@ namespace Saklib
         //stored_type& vector()                                   { return m_vector; }
         stored_type const& vector() const                       { return m_vector; }
         void set_vector(stored_type const& vector_value)        { m_vector = vector_value; }
+        void swap_vector(stored_type& vector_value)             { std::swap(m_vector, vector_value); }
 
         bool empty() const                                      { return m_vector.empty(); }
         size_type size() const                                  { return m_vector.size(); }
@@ -146,14 +147,16 @@ namespace Saklib
         // add value before index, such that index will point to the value added afterwards
         void insert_at(size_type index, value_type const& value)
         {
-            auto index_iterator = std::advance(m_vector.begin(), index);
+            auto index_iterator = m_vector.begin();
+            std::advance(m_vector.begin(), index);
             m_vector.insert(index_iterator, value);
         }
-
+        // remove value at index, such that index will point to where the value was
         void remove_at(size_type index)
         {
-            auto index_iterator = std::advance(m_vector.begin(), index);
-            m_vector.remove(index_iterator, value);
+            auto index_iterator = m_vector.begin();
+            std::advance(m_vector.begin(), index);
+            m_vector.erase(index_iterator);
         }
 
     protected:

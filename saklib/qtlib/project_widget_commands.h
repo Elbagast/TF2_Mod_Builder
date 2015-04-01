@@ -160,11 +160,11 @@ namespace Saklib
         protected:
             void v_execute() override
             {
-                project_widget()->attribute_vector_clear<T>(attributeid());
+                //project_widget()->attribute_vector_clear<T>(attributeid());
             }
             void v_unexecute() override
             {
-                project_widget()->attribute_vector_set_vector<T>(attributeid(), m_old_vector);
+                //project_widget()->attribute_vector_set_vector<T>(attributeid(), m_old_vector);
             }
         private:
             Vector<T> m_old_vector;
@@ -357,21 +357,21 @@ namespace Saklib
                 public Project_Widget_Command_Attribute
         {
         public:
-            PWC_Attribute_Vector_Insert_At(Project_Widget*const project_widget, AttributeID attributeid, size_type index):
+            PWC_Attribute_Vector_Insert_At(Project_Widget*const project_widget, AttributeID attributeid, size_type index, T const& value):
                 Project_Widget_Command_Attribute(project_widget, attributeid),
                 m_index(index),
-                m_value(project_widget->attribute_type_cast<Vector<T>>(attributeid)->at(index))
+                m_value(value)
             {}
             ~PWC_Attribute_Vector_Insert_At() override = default;
 
         protected:
             void v_execute() override
             {
-                project_widget()->attribute_vector_insert_at<T>(attributeid(), index, m_value);
+                project_widget()->attribute_vector_insert_at<T>(attributeid(), m_index, m_value);
             }
             void v_unexecute() override
             {
-                project_widget()->attribute_vector_remove_at<T>(attributeid(), index);
+                project_widget()->attribute_vector_remove_at<T>(attributeid(), m_index);
             }
         private:
             size_type m_index;
@@ -387,21 +387,21 @@ namespace Saklib
                 public Project_Widget_Command_Attribute
         {
         public:
-            PWC_Attribute_Vector_Remove_At(Project_Widget*const project_widget, AttributeID attributeid, size_type index, T const& value):
+            PWC_Attribute_Vector_Remove_At(Project_Widget*const project_widget, AttributeID attributeid, size_type index):
                 Project_Widget_Command_Attribute(project_widget, attributeid),
                 m_index(index),
-                m_value(value)
+                m_value(project_widget->attribute_vector_at<T>(attributeid, index))
             {}
             ~PWC_Attribute_Vector_Remove_At() override = default;
 
         protected:
             void v_execute() override
             {
-                project_widget()->attribute_vector_remove_at<T>(attributeid(), index);
+                project_widget()->attribute_vector_remove_at<T>(attributeid(), m_index);
             }
             void v_unexecute() override
             {
-                project_widget()->attribute_vector_insert_at<T>(attributeid(), index, m_value);
+                project_widget()->attribute_vector_insert_at<T>(attributeid(), m_index, m_value);
             }
         private:
             size_type m_index;

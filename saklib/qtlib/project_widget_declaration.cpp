@@ -236,44 +236,45 @@ Saklib::String Saklib::Qtlib::Project_Widget::attribute_type_string(AttributeID 
 // These functions set the data without question, and tell the model and widget to update.
 template <>
 void Saklib::Qtlib::Project_Widget::attribute_set_value<Saklib::ElementID>(AttributeID attributeid, ElementID const& value)
+//void Saklib::Qtlib::Project_Widget::attribute_set_value(AttributeID attributeid, ElementID value)
 {
     assert(attributeid.is_valid());
     assert(this->attribute_type_enum(attributeid) == Type_Traits<ElementID>::type_enum());
-    //assert(this->attribute_type_cast<ElementID>(attributeid)->value() != value);
 
     ElementID old_value = m_element_manager.element(attributeid.elementid()).attribute_type_cast<ElementID>(attributeid.index())->value();
-
-    m_element_manager.element(attributeid.elementid()).attribute_type_cast<ElementID>(attributeid.index())->set_value(value);
-
-    m_element_manager.set_parent(old_value, invalid_attributeid());
-    m_element_manager.set_parent(value, attributeid);
-
-    update_widget(attributeid);
-    //update_model(attributeid);
-
-    // need to do the following...
 
     // if the ElementID changed from invalid to valid,
     if (!old_value.is_valid() && value.is_valid())
     {
         // tell the model that row 0 was added as a child of attributeid
-        m_outliner_model->add_row(attributeid, 0);
-        //m_outliner->setExpanded(m_outliner_model->make_index_of(value), true);
-        //m_outliner->setExpanded(m_outliner_model->make_index_of(attributeid.elementid()), true);
+        Outliner_Row_Inserter inserter(m_outliner_model.get(), m_outliner_model->make_index_of(attributeid), 0);
+
+        attribute_type_cast<ElementID>(attributeid)->set_value(value);
+        m_element_manager.set_parent(old_value, invalid_attributeid());
+        m_element_manager.set_parent(value, attributeid);
+
+        //m_outliner_model->add_row(attributeid, 0);
     }
     // else if the ElementID changed from valid to invalid,
     else if (old_value.is_valid() && !value.is_valid())
     {
-        // tell the model that row 0 was removed as a child of attributeid
-        m_outliner_model->remove_row(attributeid, 0);
-        //m_outliner->setExpanded(m_outliner_model->make_index_of(attributeid.elementid()), true);
+        Outliner_Row_Remover remover(m_outliner_model.get(), m_outliner_model->make_index_of(attributeid), 0);
+
+        attribute_type_cast<ElementID>(attributeid)->set_value(value);
+        m_element_manager.set_parent(old_value, invalid_attributeid());
+        m_element_manager.set_parent(value, attributeid);
+
+        //m_outliner_model->remove_row(attributeid, 0);
     }
     else
     {
         // tell the model to update the children of attributeid
-        m_outliner_model->update_children(attributeid);
+        m_outliner_model->update_item(value);
+        m_element_manager.set_parent(old_value, invalid_attributeid());
+        m_element_manager.set_parent(value, attributeid);
     }
 
+    update_widget(attributeid);
     //m_outliner_model->update_children(attributeid); // doesn't work...
 
     //m_outliner_model->update_all(); // using this shows everything is there
@@ -377,52 +378,31 @@ void Saklib::Qtlib::Project_Widget::attribute_vector_clear<Saklib::ElementID>(At
     assert(0);
 }
 
-/*
 template <>
 void Saklib::Qtlib::Project_Widget::attribute_vector_set_at<Saklib::ElementID>(AttributeID attributeid, size_type index, ElementID const& value)
 //void Saklib::Qtlib::Project_Widget::attribute_vector_set_at(AttributeID attributeid, size_type index, ElementID const& value)
+//void Saklib::Qtlib::Project_Widget::attribute_vector_set_at(AttributeID attributeid, size_type index, ElementID value)
 {
     assert_attribute<Vector_ElementID>(attributeid);
-
     ElementID old_value = attribute_vector_at<ElementID>(attributeid, index);
 
-    m_element_manager.element(attributeid.elementid()).attribute_type_cast<Vector_ElementID>(attributeid.index())->set_at(index, value);
+    attribute_type_cast<Vector_ElementID>(attributeid)->set_at(index, value);
 
-    m_element_manager.set_parent(old_value, invalid_attributeid());
-    m_element_manager.set_parent(value, attributeid);
+    element_set_parent(old_value, invalid_attributeid());
+    element_set_parent(value, attributeid);
 
     update_widget(attributeid);
-    //update_model(attributeid);
+    update_model(attributeid);
 
     // need to do the following...
 
-    // if the ElementID changed from invalid to valid,
-    if (!old_value.is_valid() && value.is_valid())
-    {
-        // tell the model that row 0 was added as a child of attributeid
-        m_outliner_model->add_row(attributeid, 0);
-        //m_outliner->setExpanded(m_outliner_model->make_index_of(value), true);
-        //m_outliner->setExpanded(m_outliner_model->make_index_of(attributeid.elementid()), true);
-    }
-    // else if the ElementID changed from valid to invalid,
-    else if (old_value.is_valid() && !value.is_valid())
-    {
-        // tell the model that row 0 was removed as a child of attributeid
-        m_outliner_model->remove_row(attributeid, 0);
-        //m_outliner->setExpanded(m_outliner_model->make_index_of(attributeid.elementid()), true);
-    }
-    else
-    {
-        // tell the model to update the children of attributeid
-        m_outliner_model->update_children(attributeid);
-    }
 
     //m_outliner_model->update_children(attributeid); // doesn't work...
 
     //m_outliner_model->update_all(); // using this shows everything is there
     emit signal_unsaved_edits(true);
 }
-*/
+
 template<>
 void Saklib::Qtlib::Project_Widget::attribute_vector_set_front<Saklib::ElementID>(AttributeID attributeid, ElementID const& value)
 {
@@ -438,26 +418,26 @@ void Saklib::Qtlib::Project_Widget::attribute_vector_set_back<Saklib::ElementID>
 
     assert(0);
 }
-/*
+
 template<>
 void Saklib::Qtlib::Project_Widget::attribute_vector_push_back<Saklib::ElementID>(AttributeID attributeid, ElementID const& value)
+//void Saklib::Qtlib::Project_Widget::attribute_vector_push_back(AttributeID attributeid, ElementID const& value)
+//void Saklib::Qtlib::Project_Widget::attribute_vector_push_back(AttributeID attributeid, ElementID value)
 {
     assert_attribute<Vector_ElementID>(attributeid);
 
     auto attribute = this->attribute_type_cast<Vector_ElementID>(attributeid);
 
-    auto old_size = attribute->size();
+    {
+        Outliner_Row_Inserter inserter(m_outliner_model.get(), m_outliner_model->make_index_of(attributeid), outliner_row_count(attributeid));
 
-    attribute->push_back(value);
-    m_element_manager.set_parent(value, attributeid);
-
+        attribute->push_back(value);
+        element_set_parent(value, attributeid);
+    }
     update_widget(attributeid);
-    update_model(attributeid);
 
-    m_outliner_model->add_row(attributeid, old_size);
     emit signal_unsaved_edits(true);
 }
-*/
 template<>
 void Saklib::Qtlib::Project_Widget::attribute_vector_pop_back<Saklib::ElementID>(AttributeID attributeid)
 {
@@ -465,21 +445,21 @@ void Saklib::Qtlib::Project_Widget::attribute_vector_pop_back<Saklib::ElementID>
 
     auto attribute = this->attribute_type_cast<Vector_ElementID>(attributeid);
 
-    auto removed_value = attribute->back();
-    auto old_size = attribute->size();
+    {
+        Outliner_Row_Remover remover(m_outliner_model.get(), m_outliner_model->make_index_of(attributeid), outliner_row_count(attributeid));
 
-    attribute->pop_back();
-    m_element_manager.set_parent(removed_value, invalid_attributeid());
-
+        ElementID last_value = attribute->back();
+        attribute->pop_back();
+        element_set_parent(last_value, invalid_attributeid());
+    }
     update_widget(attributeid);
-    update_model(attributeid);
 
-    m_outliner_model->remove_row(attributeid, old_size - 1); // do we want this call? how does the model handle it?
     emit signal_unsaved_edits(true);
 }
 
 template<>
 void Saklib::Qtlib::Project_Widget::attribute_vector_insert_at<Saklib::ElementID>(AttributeID attributeid, size_type index, ElementID const& value)
+//void Saklib::Qtlib::Project_Widget::attribute_vector_insert_at(AttributeID attributeid, size_type index, ElementID value)
 {
     assert_attribute<Vector_ElementID>(attributeid);
 
@@ -492,6 +472,113 @@ void Saklib::Qtlib::Project_Widget::attribute_vector_remove_at<Saklib::ElementID
     assert_attribute<Vector_ElementID>(attributeid);
 
     assert(0);
+}
+
+
+
+
+
+
+
+// Data Setters
+//------------------------------------------------------------
+// You must only set data though these in order to keep everything in sync. These setters will issue
+// appropriate commands as necessary and return true if a change was actually made to data.
+
+
+
+
+// Type Anonymous Vector Write Functions
+//------------------------------------------------------------
+// We do not need to know the underlying type to call these functions, but this must figure
+// it out and act appropriately.
+
+
+
+// Commands - indirect write access
+//------------------------------------------------------------
+// To support undoing edits use these functions to edit data from the outliner/widgets.
+
+bool Saklib::Qtlib::Project_Widget::undoable_element_set_name(ElementID elementid, String const& value)
+{
+    // if conditions are right to issue a command
+    if(elementid.is_valid()
+       && this->is_valid(elementid)
+       && this->element_name(elementid) != value)
+    {
+        // do it. The command should call the update_... function(s) when it is executed/unexecuted
+        m_command_history.emplace_execute<PWC_Element_Set_Name>(this, elementid, value);
+        command_history_changed();
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+bool Saklib::Qtlib::Project_Widget::undoable_any_attribute_vector_clear(AttributeID attributeid)
+{
+    auto attribute_type = attribute(attributeid)->type_enum();
+    switch(attribute_type)
+    {
+    case Type_Enum::Vector_Bool:        return undoable_attribute_vector_clear<TypeHolder_vt<Type_Enum::Vector_Bool>>(attributeid);
+    case Type_Enum::Vector_Int:         return undoable_attribute_vector_clear<TypeHolder_vt<Type_Enum::Vector_Int>>(attributeid);
+    case Type_Enum::Vector_Double:      return undoable_attribute_vector_clear<TypeHolder_vt<Type_Enum::Vector_Double>>(attributeid);
+    case Type_Enum::Vector_String:      return undoable_attribute_vector_clear<TypeHolder_vt<Type_Enum::Vector_String>>(attributeid);
+    case Type_Enum::Vector_Path:        return undoable_attribute_vector_clear<TypeHolder_vt<Type_Enum::Vector_Path>>(attributeid);
+    case Type_Enum::Vector_ElementID:   return undoable_attribute_vector_clear<TypeHolder_vt<Type_Enum::Vector_ElementID>>(attributeid);
+    default: assert(false); // called on the wrong type
+    }
+    return false;
+}
+
+bool Saklib::Qtlib::Project_Widget::undoable_any_attribute_vector_swap_at(AttributeID attributeid, size_type index, size_type other_index)
+{
+    auto attribute_type = attribute(attributeid)->type_enum();
+    switch(attribute_type)
+    {
+    case Type_Enum::Vector_Bool:        return undoable_attribute_vector_swap_at<TypeHolder_vt<Type_Enum::Vector_Bool>>(attributeid, index, other_index);
+    case Type_Enum::Vector_Int:         return undoable_attribute_vector_swap_at<TypeHolder_vt<Type_Enum::Vector_Int>>(attributeid, index, other_index);
+    case Type_Enum::Vector_Double:      return undoable_attribute_vector_swap_at<TypeHolder_vt<Type_Enum::Vector_Double>>(attributeid, index, other_index);
+    case Type_Enum::Vector_String:      return undoable_attribute_vector_swap_at<TypeHolder_vt<Type_Enum::Vector_String>>(attributeid, index, other_index);
+    case Type_Enum::Vector_Path:        return undoable_attribute_vector_swap_at<TypeHolder_vt<Type_Enum::Vector_Path>>(attributeid, index, other_index);
+    case Type_Enum::Vector_ElementID:   return undoable_attribute_vector_swap_at<TypeHolder_vt<Type_Enum::Vector_ElementID>>(attributeid, index, other_index);
+    default: assert(false); // called on the wrong type
+    }
+    return false;
+}
+
+bool Saklib::Qtlib::Project_Widget::undoable_any_attribute_vector_pop_back(AttributeID attributeid)
+{
+    auto attribute_type = attribute(attributeid)->type_enum();
+    switch(attribute_type)
+    {
+    case Type_Enum::Vector_Bool:        return undoable_attribute_vector_pop_back<TypeHolder_vt<Type_Enum::Vector_Bool>>(attributeid);
+    case Type_Enum::Vector_Int:         return undoable_attribute_vector_pop_back<TypeHolder_vt<Type_Enum::Vector_Int>>(attributeid);
+    case Type_Enum::Vector_Double:      return undoable_attribute_vector_pop_back<TypeHolder_vt<Type_Enum::Vector_Double>>(attributeid);
+    case Type_Enum::Vector_String:      return undoable_attribute_vector_pop_back<TypeHolder_vt<Type_Enum::Vector_String>>(attributeid);
+    case Type_Enum::Vector_Path:        return undoable_attribute_vector_pop_back<TypeHolder_vt<Type_Enum::Vector_Path>>(attributeid);
+    case Type_Enum::Vector_ElementID:   return undoable_attribute_vector_pop_back<TypeHolder_vt<Type_Enum::Vector_ElementID>>(attributeid);
+    default: assert(false); // called on the wrong type
+    }
+    return false;
+}
+
+bool Saklib::Qtlib::Project_Widget::undoable_any_attribute_vector_remove_at(AttributeID attributeid, size_type index)
+{
+    auto attribute_type = attribute(attributeid)->type_enum();
+    switch(attribute_type)
+    {
+    case Type_Enum::Vector_Bool:        return undoable_attribute_vector_remove_at<TypeHolder_vt<Type_Enum::Vector_Bool>>(attributeid, index);
+    case Type_Enum::Vector_Int:         return undoable_attribute_vector_remove_at<TypeHolder_vt<Type_Enum::Vector_Int>>(attributeid, index);
+    case Type_Enum::Vector_Double:      return undoable_attribute_vector_remove_at<TypeHolder_vt<Type_Enum::Vector_Double>>(attributeid, index);
+    case Type_Enum::Vector_String:      return undoable_attribute_vector_remove_at<TypeHolder_vt<Type_Enum::Vector_String>>(attributeid, index);
+    case Type_Enum::Vector_Path:        return undoable_attribute_vector_remove_at<TypeHolder_vt<Type_Enum::Vector_Path>>(attributeid, index);
+    case Type_Enum::Vector_ElementID:   return undoable_attribute_vector_remove_at<TypeHolder_vt<Type_Enum::Vector_ElementID>>(attributeid, index);
+    default: assert(false); // called on the wrong type
+    }
+    return false;
 }
 
 
@@ -657,74 +744,6 @@ int Saklib::Qtlib::Project_Widget::outliner_row_in_parent(AttributeID attributei
     }
     return 0;
 }
-
-
-
-
-
-
-// Data Setters
-//------------------------------------------------------------
-// You must only set data though these in order to keep everything in sync. These setters will issue
-// appropriate commands as necessary and return true if a change was actually made to data.
-
-
-
-
-// Type Anonymous Vector Write Functions
-//------------------------------------------------------------
-// We do not need to know the underlying type to call these functions, but this must figure
-// it out and act appropriately.
-
-
-
-// Commands - indirect write access
-//------------------------------------------------------------
-// To support undoing edits use these functions to edit data from the outliner/widgets.
-
-bool Saklib::Qtlib::Project_Widget::undoable_element_set_name(ElementID elementid, String const& value)
-{
-    // if conditions are right to issue a command
-    if(elementid.is_valid()
-       && this->is_valid(elementid)
-       && this->element_name(elementid) != value)
-    {
-        // do it. The command should call the update_... function(s) when it is executed/unexecuted
-        m_command_history.emplace_execute<PWC_Element_Set_Name>(this, elementid, value);
-        command_history_changed();
-        return true;
-    }
-    else
-    {
-        return false;
-    }
-}
-
-bool Saklib::Qtlib::Project_Widget::undoable_attribute_vector_clear(AttributeID attributeid)
-{
-    assert(0);
-    return false;
-}
-
-bool Saklib::Qtlib::Project_Widget::undoable_attribute_vector_pop_back(AttributeID attributeid)
-{
-    assert(0);
-    return false;
-}
-
-bool Saklib::Qtlib::Project_Widget::undoable_attribute_vector_swap_at(AttributeID attributeid, size_type index, size_type other_index)
-{
-    assert(0);
-    return false;
-}
-
-
-bool Saklib::Qtlib::Project_Widget::undoable_attribute_vector_remove_at(AttributeID attributeid, size_type index)
-{
-    assert(0);
-    return false;
-}
-
 
 
 

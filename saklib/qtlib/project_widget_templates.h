@@ -189,6 +189,28 @@ bool Saklib::Qtlib::Project_Widget::undoable_attribute_set_value(AttributeID att
     }
 }
 
+
+
+// Attribute_Type<Vector<T>>
+//------------------------------------------------------------
+template <typename T>
+bool Saklib::Qtlib::Project_Widget::undoable_attribute_vector_clear(AttributeID attributeid)
+{
+    if(attributeid.is_valid()
+       && this->is_valid(attributeid)
+       && this->attribute_type_enum(attributeid) == Type_Traits<Vector<T>>::type_enum()
+       && this->attribute_vector_empty<T>(attributeid) == false )
+    {
+        m_command_history.emplace_execute<PWC_Attribute_Vector_Clear<T>>(this, attributeid);
+        command_history_changed();
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
 template <typename T>
 bool Saklib::Qtlib::Project_Widget::undoable_attribute_vector_set_at(AttributeID attributeid, size_type index, T const& value)
 {
@@ -207,9 +229,8 @@ bool Saklib::Qtlib::Project_Widget::undoable_attribute_vector_set_at(AttributeID
     }
 }
 
-
 template <typename T>
-bool Saklib::Qtlib::Project_Widget::undoable_attribute_vector_set_front(AttributeID attributeid, ElementID value)
+bool Saklib::Qtlib::Project_Widget::undoable_attribute_vector_set_front(AttributeID attributeid, T const& value)
 {
     if(attributeid.is_valid()
        && this->is_valid(attributeid)
@@ -225,7 +246,6 @@ bool Saklib::Qtlib::Project_Widget::undoable_attribute_vector_set_front(Attribut
         return false;
     }
 }
-
 
 template <typename T>
 bool Saklib::Qtlib::Project_Widget::undoable_attribute_vector_set_back(AttributeID attributeid, T const& value)
@@ -245,18 +265,51 @@ bool Saklib::Qtlib::Project_Widget::undoable_attribute_vector_set_back(Attribute
     }
 }
 
-
+template <typename T>
+bool Saklib::Qtlib::Project_Widget::undoable_attribute_vector_swap_at(AttributeID attributeid, size_type index, size_type other_index)
+{
+    if(attributeid.is_valid()
+       && this->is_valid(attributeid)
+       && this->attribute_type_enum(attributeid) == Type_Traits<Vector<T>>::type_enum()
+       && this->attribute_vector_size<Vector<T>>(attributeid) > index
+       && this->attribute_vector_size<Vector<T>>(attributeid) > other_index )
+    {
+        m_command_history.emplace_execute<PWC_Attribute_Vector_Swap_At<T>>(this, attributeid, index, other_index);
+        command_history_changed();
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
 
 template <typename T>
 bool Saklib::Qtlib::Project_Widget::undoable_attribute_vector_push_back(AttributeID attributeid, T const& value)
 {
-    // if conditions are right to issue a command
     if(attributeid.is_valid()
        && this->is_valid(attributeid)
        && this->attribute_type_enum(attributeid) == Type_Traits<Vector<T>>::type_enum() )
     {
-        // do it. The command should call the update_... function(s) when it is executed/unexecuted
         m_command_history.emplace_execute<PWC_Attribute_Vector_Push_Back<T>>(this, attributeid, value);
+        command_history_changed();
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+template <typename T>
+bool Saklib::Qtlib::Project_Widget::undoable_attribute_vector_pop_back(AttributeID attributeid)
+{
+    if(attributeid.is_valid()
+       && this->is_valid(attributeid)
+       && this->attribute_type_enum(attributeid) == Type_Traits<Vector<T>>::type_enum()
+       && this->attribute_vector_empty<T>(attributeid) == false )
+    {
+        m_command_history.emplace_execute<PWC_Attribute_Vector_Pop_Back<T>>(this, attributeid);
         command_history_changed();
         return true;
     }
@@ -272,7 +325,8 @@ bool Saklib::Qtlib::Project_Widget::undoable_attribute_vector_insert_at(Attribut
     if(attributeid.is_valid()
        && this->is_valid(attributeid)
        && this->attribute_type_enum(attributeid) == Type_Traits<Vector<T>>::type_enum()
-       && this->attribute_type_cast<Vector<T>>(attributeid)->at(index) != value)
+       && this->attribute_vector_size<Vector<T>>(attributeid) > index
+       && this->attribute_type_cast<Vector<T>>(attributeid)->at(index) != value) // hmm
     {
         m_command_history.emplace_execute<PWC_Attribute_Vector_Insert_At<T>>(this, attributeid, index, value);
         command_history_changed();
@@ -284,6 +338,23 @@ bool Saklib::Qtlib::Project_Widget::undoable_attribute_vector_insert_at(Attribut
     }
 }
 
+template <typename T>
+bool Saklib::Qtlib::Project_Widget::undoable_attribute_vector_remove_at(AttributeID attributeid, size_type index)
+{
+    if(attributeid.is_valid()
+       && this->is_valid(attributeid)
+       && this->attribute_type_enum(attributeid) == Type_Traits<Vector<T>>::type_enum()
+       && this->attribute_vector_size<Vector<T>>(attributeid) > index)
+    {
+        m_command_history.emplace_execute<PWC_Attribute_Vector_Remove_At<T>>(this, attributeid, index);
+        command_history_changed();
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
 
 
 // Internal

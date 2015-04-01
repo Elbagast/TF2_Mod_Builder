@@ -43,6 +43,35 @@ void Saklib::Qtlib::Attribute_Editor_Vector_Type<Saklib::ElementID>::slot_insert
     if (dialog.exec() == QDialog::Accepted && !dialog.selected_element_type().empty())
     {
         ElementID new_element = project_widget()->make_element(dialog.selected_element_type());
-        //project_widget()->undoable_attribute_vector_insert_at(attributeid(), index, new_element);
+        project_widget()->undoable_attribute_vector_insert_at(attributeid(), index, new_element);
     }
+}
+
+void Saklib::Qtlib::Attribute_Editor_Vector_Type<Saklib::ElementID>::slot_remove(size_type index)
+{
+    project_widget()->undoable_attribute_vector_remove_at<ElementID>(attributeid(), index);
+}
+void Saklib::Qtlib::Attribute_Editor_Vector_Type<Saklib::ElementID>::slot_remove_last()
+{
+    project_widget()->undoable_attribute_vector_pop_back<ElementID>(attributeid());
+}
+void Saklib::Qtlib::Attribute_Editor_Vector_Type<Saklib::ElementID>::slot_swap(size_type index, size_type other_index)
+{
+    project_widget()->undoable_attribute_vector_swap_at<ElementID>(attributeid(), index, other_index);
+}
+void Saklib::Qtlib::Attribute_Editor_Vector_Type<Saklib::ElementID>::slot_move_up(size_type index)
+{
+    auto size = attribute_vector_size();
+    if (size > 1 && index > 0)
+        project_widget()->undoable_attribute_vector_swap_at<ElementID>(attributeid(), index, index - 1);
+}
+void Saklib::Qtlib::Attribute_Editor_Vector_Type<Saklib::ElementID>::slot_move_down(size_type index)
+{
+    auto size = attribute_vector_size();
+    if (size > 1 && index < attribute_vector_size() - 1)
+        project_widget()->undoable_attribute_vector_swap_at<ElementID>(attributeid(), index, index + 1);
+}
+void Saklib::Qtlib::Attribute_Editor_Vector_Type<Saklib::ElementID>::slot_clear()
+{
+    project_widget()->undoable_attribute_vector_clear<ElementID>(attributeid());
 }

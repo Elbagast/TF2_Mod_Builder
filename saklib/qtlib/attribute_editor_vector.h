@@ -40,15 +40,14 @@ namespace Saklib
         protected slots:
             void slot_custom_context_menu(QPoint const& pos);
 
-            // only type dependent calls are virtual...or they could just use type switches..
             virtual void slot_append() = 0;
             virtual void slot_insert(size_type index) = 0;
-            void slot_remove(size_type index);
-            void slot_remove_last();
-            void slot_swap(size_type index, size_type other_index);
-            void slot_move_up(size_type index);
-            void slot_move_down(size_type index);
-            void slot_clear();
+            virtual void slot_remove(size_type index) = 0;
+            virtual void slot_remove_last() = 0;
+            virtual void slot_swap(size_type index, size_type other_index) = 0;
+            virtual void slot_move_up(size_type index) = 0;
+            virtual void slot_move_down(size_type index) = 0;
+            virtual void slot_clear() = 0;
 
         private:
             // Data Members

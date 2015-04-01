@@ -6,8 +6,6 @@
 #include "../element_manager.h"
 #include "../command_history.h"
 
-#include "outliner/outliner_model.h"
-
 #include <QWidget>
 
 class QHBoxLayout;
@@ -126,8 +124,9 @@ namespace Saklib
 
             template <typename T>
             void attribute_set_value(AttributeID attributeid, T const& value);
-            template <>
-            void attribute_set_value(AttributeID attributeid, ElementID const& value);
+            //template <>
+            //void attribute_set_value(AttributeID attributeid, ElementID const& value);
+            //void attribute_set_value(AttributeID attributeid, ElementID value);
 
             // Attribute_Type<Vector<T>> Type-Anonymous Functions
             //------------------------------------------------------------
@@ -156,8 +155,8 @@ namespace Saklib
 
             template <typename T>
             void attribute_vector_clear(AttributeID attributeid);
-            template <>
-            void attribute_vector_clear<ElementID>(AttributeID attributeid);
+
+
 
             template <typename T>
             T const& attribute_vector_at(AttributeID attributeid, size_type index) const;
@@ -170,44 +169,81 @@ namespace Saklib
 
             template <typename T>
             void attribute_vector_set_at(AttributeID attributeid, size_type index, T const& value);
-            template <>
-            void attribute_vector_set_at<ElementID>(AttributeID attributeid, size_type index, ElementID const& value);
-            //template<>
-            //void attribute_vector_set_at(AttributeID attributeid, size_type index, ElementID const& value);
 
             template <typename T>
             void attribute_vector_set_front(AttributeID attributeid, T const& value);
-            template <>
-            void attribute_vector_set_front<ElementID>(AttributeID attributeid, ElementID const& value);
 
             template <typename T>
             void attribute_vector_set_back(AttributeID attributeid, T const& value);
-            template <>
-            void attribute_vector_set_back<ElementID>(AttributeID attributeid, ElementID const& value);
 
             template <typename T>
             void attribute_vector_swap_at(AttributeID attributeid, size_type index, size_type other_index);
 
             template <typename T>
             void attribute_vector_push_back(AttributeID attributeid, T const& value);
-            template <>
-            void attribute_vector_push_back<ElementID>(AttributeID attributeid, ElementID const& value);
 
             template <typename T>
             void attribute_vector_pop_back(AttributeID attributeid);
-            template <>
-            void attribute_vector_pop_back<ElementID>(AttributeID attributeid);
 
             template <typename T>
             void attribute_vector_insert_at(AttributeID attributeid, size_type index, T const& value);
-            template <>
-            void attribute_vector_insert_at<ElementID>(AttributeID attributeid, size_type index, ElementID const& value);
 
             template <typename T>
             void attribute_vector_remove_at(AttributeID attributeid, size_type index);
-            template <>
-            void attribute_vector_remove_at<ElementID>(AttributeID attributeid, size_type index);
 
+
+
+
+            // Commands - indirect write access
+            //------------------------------------------------------------
+            // To support undoing edits use these functions to edit data from the outliner/widgets.
+
+
+            // Attribute_Type<T>
+            //------------------------------------------------------------
+            bool undoable_element_set_name(ElementID elementid, String const& value);
+
+            template <typename T>
+            bool undoable_attribute_set_value(AttributeID attributeid, T const& value);
+
+
+            // Attribute_Type<Vector<T>>
+            //------------------------------------------------------------
+            // any type
+
+            bool undoable_any_attribute_vector_clear(AttributeID attributeid);
+            bool undoable_any_attribute_vector_swap_at(AttributeID attributeid, size_type index, size_type other_index);
+            bool undoable_any_attribute_vector_pop_back(AttributeID attributeid);
+            bool undoable_any_attribute_vector_remove_at(AttributeID attributeid, size_type index);
+
+            // specific type
+
+            template <typename T>
+            bool undoable_attribute_vector_clear(AttributeID attributeid);
+
+            template <typename T>
+            bool undoable_attribute_vector_set_at(AttributeID attributeid, size_type index, T const& value);
+
+            template <typename T>
+            bool undoable_attribute_vector_set_front(AttributeID attributeid, T const& value);
+
+            template <typename T>
+            bool undoable_attribute_vector_set_back(AttributeID attributeid, T const& value);
+
+            template <typename T>
+            bool undoable_attribute_vector_swap_at(AttributeID attributeid, size_type index, size_type other_index);
+
+            template <typename T>
+            bool undoable_attribute_vector_push_back(AttributeID attributeid, T const& value);
+
+            template <typename T>
+            bool undoable_attribute_vector_pop_back(AttributeID attributeid);
+
+            template <typename T>
+            bool undoable_attribute_vector_insert_at(AttributeID attributeid, size_type index, T const& value);
+
+            template <typename T>
+            bool undoable_attribute_vector_remove_at(AttributeID attributeid, size_type index);
 
             // Flat Access
             //------------------------------------------------------------
@@ -240,35 +276,7 @@ namespace Saklib
             int outliner_row_in_parent(AttributeID attributeid) const;
 
 
-            // Commands - indirect write access
-            //------------------------------------------------------------
-            // To support undoing edits use these functions to edit data from the outliner/widgets.
 
-            bool undoable_element_set_name(ElementID elementid, String const& value);
-
-            template <typename T>
-            bool undoable_attribute_set_value(AttributeID attributeid, T const& value);
-
-            bool undoable_attribute_vector_clear(AttributeID attributeid);
-            bool undoable_attribute_vector_pop_back(AttributeID attributeid);
-            bool undoable_attribute_vector_swap_at(AttributeID attributeid, size_type index, size_type other_index);
-
-            bool undoable_attribute_vector_remove_at(AttributeID attributeid, size_type index);
-
-            template <typename T>
-            bool undoable_attribute_vector_set_at(AttributeID attributeid, size_type index, T const& value);
-
-            template <typename T>
-            bool undoable_attribute_vector_set_front(AttributeID attributeid, ElementID value);
-
-            template <typename T>
-            bool undoable_attribute_vector_set_back(AttributeID attributeid, T const& value);
-
-            template <typename T>
-            bool undoable_attribute_vector_push_back(AttributeID attributeid, T const& value);
-
-            template <typename T>
-            bool undoable_attribute_vector_insert_at(AttributeID attributeid, size_type index, T const& value);
 
             // Command History
             //------------------------------------------------------------
@@ -376,74 +384,32 @@ namespace Saklib
             static ElementID make_Project(Element_Manager& element_manager);
         };
 
+
+        // Templated member function specialisations must be declared outside of the class...
+
+        template <>
+        void Project_Widget::attribute_set_value<ElementID>(AttributeID attributeid, ElementID const& value);
+
+        template <>
+        void Project_Widget::attribute_vector_clear<ElementID>(AttributeID attributeid);
+        template <>
+        void Project_Widget::attribute_vector_set_at<ElementID>(AttributeID attributeid, size_type index, ElementID const& value);
+        template <>
+        void Project_Widget::attribute_vector_set_front<ElementID>(AttributeID attributeid, ElementID const& value);
+        template <>
+        void Project_Widget::attribute_vector_set_back<ElementID>(AttributeID attributeid, ElementID const& value);
+        template <>
+        void Project_Widget::attribute_vector_push_back<ElementID>(AttributeID attributeid, ElementID const& value);
+        template <>
+        void Project_Widget::attribute_vector_pop_back<ElementID>(AttributeID attributeid);
+        template <>
+        void Project_Widget::attribute_vector_insert_at<ElementID>(AttributeID attributeid, size_type index, ElementID const& value);
+        template <>
+        void Project_Widget::attribute_vector_remove_at<ElementID>(AttributeID attributeid, size_type index);
+
+
     } // namespace Qtlib
 }  // namespace Saklib
-
-// why can't it find these when they're in the cpp....
-
-template <>
-void Saklib::Qtlib::Project_Widget::attribute_vector_set_at<Saklib::ElementID>(AttributeID attributeid, size_type index, ElementID const& value)
-//void Saklib::Qtlib::Project_Widget::attribute_vector_set_at(AttributeID attributeid, size_type index, ElementID const& value)
-{
-    assert_attribute<Vector_ElementID>(attributeid);
-
-    ElementID old_value = attribute_vector_at<ElementID>(attributeid, index);
-
-    m_element_manager.element(attributeid.elementid()).attribute_type_cast<Vector_ElementID>(attributeid.index())->set_at(index, value);
-
-    m_element_manager.set_parent(old_value, invalid_attributeid());
-    m_element_manager.set_parent(value, attributeid);
-
-    update_widget(attributeid);
-    //update_model(attributeid);
-
-    // need to do the following...
-
-    // if the ElementID changed from invalid to valid,
-    if (!old_value.is_valid() && value.is_valid())
-    {
-        // tell the model that row 0 was added as a child of attributeid
-        m_outliner_model->add_row(attributeid, 0);
-        //m_outliner->setExpanded(m_outliner_model->make_index_of(value), true);
-        //m_outliner->setExpanded(m_outliner_model->make_index_of(attributeid.elementid()), true);
-    }
-    // else if the ElementID changed from valid to invalid,
-    else if (old_value.is_valid() && !value.is_valid())
-    {
-        // tell the model that row 0 was removed as a child of attributeid
-        m_outliner_model->remove_row(attributeid, 0);
-        //m_outliner->setExpanded(m_outliner_model->make_index_of(attributeid.elementid()), true);
-    }
-    else
-    {
-        // tell the model to update the children of attributeid
-        m_outliner_model->update_children(attributeid);
-    }
-
-    //m_outliner_model->update_children(attributeid); // doesn't work...
-
-    //m_outliner_model->update_all(); // using this shows everything is there
-    emit signal_unsaved_edits(true);
-}
-
-template<>
-void Saklib::Qtlib::Project_Widget::attribute_vector_push_back<Saklib::ElementID>(AttributeID attributeid, ElementID const& value)
-{
-    assert_attribute<Vector_ElementID>(attributeid);
-
-    auto attribute = this->attribute_type_cast<Vector_ElementID>(attributeid);
-
-    auto old_size = attribute->size();
-
-    attribute->push_back(value);
-    m_element_manager.set_parent(value, attributeid);
-
-    update_widget(attributeid);
-    update_model(attributeid);
-
-    m_outliner_model->add_row(attributeid, old_size);
-    emit signal_unsaved_edits(true);
-}
 
 #endif // PROJECT_WIDGET_DECLARATION
 
