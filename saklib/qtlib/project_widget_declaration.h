@@ -71,6 +71,8 @@ namespace Saklib
             String const& element_name(ElementID elementid) const;
             void element_set_name(ElementID elementid, String const& value);
 
+            bool element_can_be_root(ElementID elementid) const;
+
             AttributeID element_parent(ElementID elementid) const;
             void element_set_parent(ElementID elementid, AttributeID attributeid = invalid_attributeid());
 
@@ -147,6 +149,9 @@ namespace Saklib
             // We must know the type to use these ones, and they should be called without specifying the
             // explicitly so that the ElementID overload can be used (specialisation for it doesn't work).
 
+            //template <typename T>
+            //void attribute_vector_swap_vector(AttributeID attributeid, Vector<T> other_vector) {}
+
             template <typename T>
             bool attribute_vector_empty(AttributeID attributeid) const;
 
@@ -190,14 +195,6 @@ namespace Saklib
 
             template <typename T>
             void attribute_vector_remove_at(AttributeID attributeid, size_type index);
-
-
-
-
-            // Commands - indirect write access
-            //------------------------------------------------------------
-            // To support undoing edits use these functions to edit data from the outliner/widgets.
-
 
             // Attribute_Type<T>
             //------------------------------------------------------------
@@ -303,6 +300,15 @@ namespace Saklib
             // Call whenever commands are issued or called
             void command_history_changed();
 
+            size_type command_ref_count(ElementID elementid) const;
+
+            void increment_command_ref_count(ElementID elementid);
+            void increment_command_ref_count(AttributeID attributeid);
+
+            void decrement_command_ref_count(ElementID elementid);
+            void decrement_command_ref_count(AttributeID attributeid);
+
+
 
             // Element Widget
             //------------------------------------------------------------
@@ -353,6 +359,7 @@ namespace Saklib
 
             void update_model(ElementID elementid);
             void update_model(AttributeID attributeid);
+
 
         private:
             // Data Members

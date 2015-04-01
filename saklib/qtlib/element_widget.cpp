@@ -20,9 +20,13 @@ Saklib::Qtlib::Element_Widget::Element_Widget(Project_Widget*const project_widge
     QWidget(nullptr),
     mp_project_widget(project_widget),
     m_elementid(elementid),
+    m_parentid(mp_project_widget->element_parent(m_elementid)),
 
     m_element_name_label(),
     m_element_type_label(),
+    m_element_can_be_root_label(),
+    m_element_id_label(),
+    m_parent_id_label(),
 
     //m_attribute_names(),
     //m_attribute_types(),
@@ -38,18 +42,27 @@ Saklib::Qtlib::Element_Widget::Element_Widget(Project_Widget*const project_widge
     // Configure the labels
 
     // If the name is editable this type will get changed.
-    m_element_name_label.reset(new QLabel(mp_project_widget->element(m_elementid).name().c_str()));
+    m_element_name_label = std::make_unique<QLabel>(mp_project_widget->element(m_elementid).name().c_str());
     //m_element_name_label->setSizePolicy( QSizePolicy::Expanding, QSizePolicy::Minimum );
 
-    m_element_type_label.reset(new QLabel(mp_project_widget->element(m_elementid).type().c_str()));
+    m_element_type_label = std::make_unique<QLabel>(mp_project_widget->element(m_elementid).type().c_str());
     //m_element_type_label->setSizePolicy( QSizePolicy::Expanding, QSizePolicy::Minimum );
 
+    m_element_can_be_root_label = std::make_unique<QLabel>(mp_project_widget->element_can_be_root(m_elementid) ? "Can be root." : "Cannot be root.");
+
+    m_element_id_label = std::make_unique<QLabel>(to_QString(m_elementid.value()));
+
+    //QString parent_label =
+    m_parent_id_label = std::make_unique<QLabel>(to_QString(m_parentid.elementid().value()).append(" : ").append(to_QString(m_parentid.index())));
 
     // Add the widgets to the layout
     //int grid_row{0};
 
     m_layout->addWidget(m_element_name_label.get());//, grid_row, 0);
     m_layout->addWidget(m_element_type_label.get());//, ++grid_row, 0);
+    m_layout->addWidget(m_element_can_be_root_label.get());//, ++grid_row, 0);
+    m_layout->addWidget(m_element_id_label.get());//, ++grid_row, 0);
+    m_layout->addWidget(m_parent_id_label.get());//, ++grid_row, 0);
     //++grid_row;
     m_layout->addLayout(m_attribute_layout.get());
     {
@@ -122,6 +135,8 @@ Saklib::Qtlib::Element_Widget::~Element_Widget()
 void Saklib::Qtlib::Element_Widget::refresh_data()
 {
     m_element_name_label->setText(mp_project_widget->element(m_elementid).name().c_str());
+    m_parentid = mp_project_widget->element_parent(m_elementid);
+    m_parent_id_label->setText(to_QString(m_parentid.elementid().value()).append(" : ").append(to_QString(m_parentid.index())));
     for (auto& attribute_editor : m_attribute_editors)
         attribute_editor->refresh_data();
 

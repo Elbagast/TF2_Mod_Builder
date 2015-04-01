@@ -19,6 +19,10 @@ win32:LIBS += -L"D:/Programming/C++/Boost/boost_1_57_0/stage/lib"
 win32:INCLUDEPATH += "D:/Programming/C++/Boost/boost_1_57_0"
 win32:DEPENDPATH += "D:/Programming/C++/Boost/boost_1_57_0/stage/lib"
 
+# enable print to console
+CONFIG += console
+CONFIG += debug
+
 SOURCES += main.cpp\
     saklib/attribute.cpp \
     saklib/attribute_definition.cpp \

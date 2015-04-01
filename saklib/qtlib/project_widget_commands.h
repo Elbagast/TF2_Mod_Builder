@@ -25,11 +25,11 @@ namespace Saklib
                 assert(mp_project_widget);
                 assert(mp_project_widget->is_valid(m_elementid));
 
-                // ref count change for ElementID
+                mp_project_widget->increment_command_ref_count(m_elementid);
             }
             ~Project_Widget_Command_Element() override
             {
-                // ref count change for ElementID
+                mp_project_widget->decrement_command_ref_count(m_elementid);
             }
 
             Project_Widget*const project_widget() const { return mp_project_widget; }
@@ -60,11 +60,11 @@ namespace Saklib
                 assert(mp_project_widget);
                 assert(mp_project_widget->is_valid(m_attributeid));
 
-                // ref count change for AttributeID
+                mp_project_widget->increment_command_ref_count(m_attributeid);
             }
             ~Project_Widget_Command_Attribute() override
             {
-                // ref count change for AttributeID
+                mp_project_widget->decrement_command_ref_count(m_attributeid);
             }
 
             Project_Widget*const project_widget() const { return mp_project_widget; }
@@ -140,6 +140,39 @@ namespace Saklib
             T m_new_value;
         };
 
+        template <>
+        class PWC_Attribute_Set_Value<ElementID>:
+                public Project_Widget_Command_Attribute
+        {
+        public:
+            PWC_Attribute_Set_Value(Project_Widget*const project_widget, AttributeID attributeid, ElementID const& value):
+                Project_Widget_Command_Attribute(project_widget, attributeid),
+                m_old_value(project_widget->attribute_type_cast<ElementID>(attributeid)->value()),
+                m_new_value(value)
+            {
+                this->project_widget()->increment_command_ref_count(m_old_value);
+                this->project_widget()->increment_command_ref_count(m_new_value);
+            }
+            ~PWC_Attribute_Set_Value() override
+            {
+                this->project_widget()->decrement_command_ref_count(m_old_value);
+                this->project_widget()->decrement_command_ref_count(m_new_value);
+            }
+
+        protected:
+            void v_execute() override
+            {
+                project_widget()->attribute_set_value<ElementID>(attributeid(), m_new_value);
+            }
+            void v_unexecute() override
+            {
+                project_widget()->attribute_set_value<ElementID>(attributeid(), m_old_value);
+            }
+        private:
+            ElementID m_old_value;
+            ElementID m_new_value;
+        };
+
 
 
         /*
@@ -202,6 +235,41 @@ namespace Saklib
             T m_old_value;
         };
 
+        template <>
+        class PWC_Attribute_Vector_Set_At<ElementID>:
+                public Project_Widget_Command_Attribute
+        {
+        public:
+            PWC_Attribute_Vector_Set_At(Project_Widget*const project_widget, AttributeID attributeid, size_type index, ElementID const& value):
+                Project_Widget_Command_Attribute(project_widget, attributeid),
+                m_index(index),
+                m_new_value(value),
+                m_old_value(project_widget->attribute_type_cast<Vector<ElementID>>(attributeid)->at(index))
+            {
+                this->project_widget()->increment_command_ref_count(m_old_value);
+                this->project_widget()->increment_command_ref_count(m_new_value);
+            }
+            ~PWC_Attribute_Vector_Set_At() override
+            {
+                this->project_widget()->decrement_command_ref_count(m_old_value);
+                this->project_widget()->decrement_command_ref_count(m_new_value);
+            }
+
+        protected:
+            void v_execute() override
+            {
+                project_widget()->attribute_vector_set_at<ElementID>(attributeid(), m_index, m_new_value);
+            }
+            void v_unexecute() override
+            {
+                project_widget()->attribute_vector_set_at<ElementID>(attributeid(), m_index, m_old_value);
+            }
+        private:
+            size_type m_index;
+            ElementID m_new_value;
+            ElementID m_old_value;
+        };
+
         /*
         PWC_Attribute_Vector_Set_Front<T>
         ====================================================================================================
@@ -232,6 +300,39 @@ namespace Saklib
             T m_old_value;
         };
 
+        template <>
+        class PWC_Attribute_Vector_Set_Front<ElementID>:
+                public Project_Widget_Command_Attribute
+        {
+        public:
+            PWC_Attribute_Vector_Set_Front(Project_Widget*const project_widget, AttributeID attributeid, ElementID const& value):
+                Project_Widget_Command_Attribute(project_widget, attributeid),
+                m_new_value(value),
+                m_old_value(project_widget->attribute_type_cast<Vector<ElementID>>(attributeid)->front())
+            {
+                this->project_widget()->increment_command_ref_count(m_old_value);
+                this->project_widget()->increment_command_ref_count(m_new_value);
+            }
+            ~PWC_Attribute_Vector_Set_Front() override
+            {
+                this->project_widget()->decrement_command_ref_count(m_old_value);
+                this->project_widget()->decrement_command_ref_count(m_new_value);
+            }
+
+        protected:
+            void v_execute() override
+            {
+                project_widget()->attribute_vector_set_front<ElementID>(attributeid(), m_new_value);
+            }
+            void v_unexecute() override
+            {
+                project_widget()->attribute_vector_set_front<ElementID>(attributeid(), m_old_value);
+            }
+        private:
+            ElementID m_new_value;
+            ElementID m_old_value;
+        };
+
         /*
         PWC_Attribute_Vector_Set_Back<T>
         ====================================================================================================
@@ -260,6 +361,39 @@ namespace Saklib
         private:
             T m_new_value;
             T m_old_value;
+        };
+
+        template <>
+        class PWC_Attribute_Vector_Set_Back<ElementID>:
+                public Project_Widget_Command_Attribute
+        {
+        public:
+            PWC_Attribute_Vector_Set_Back(Project_Widget*const project_widget, AttributeID attributeid, ElementID const& value):
+                Project_Widget_Command_Attribute(project_widget, attributeid),
+                m_new_value(value),
+                m_old_value(project_widget->attribute_type_cast<Vector<ElementID>>(attributeid)->front())
+            {
+                this->project_widget()->increment_command_ref_count(m_old_value);
+                this->project_widget()->increment_command_ref_count(m_new_value);
+            }
+            ~PWC_Attribute_Vector_Set_Back() override
+            {
+                this->project_widget()->decrement_command_ref_count(m_old_value);
+                this->project_widget()->decrement_command_ref_count(m_new_value);
+            }
+
+        protected:
+            void v_execute() override
+            {
+                project_widget()->attribute_vector_set_back<ElementID>(attributeid(), m_new_value);
+            }
+            void v_unexecute() override
+            {
+                project_widget()->attribute_vector_set_back<ElementID>(attributeid(), m_old_value);
+            }
+        private:
+            ElementID m_new_value;
+            ElementID m_old_value;
         };
 
         /*
@@ -306,7 +440,6 @@ namespace Saklib
                 m_new_value(value)
             {}
             ~PWC_Attribute_Vector_Push_Back() override = default;
-
         protected:
             void v_execute() override
             {
@@ -318,6 +451,35 @@ namespace Saklib
             }
         private:
             T m_new_value;
+        };
+
+        template <>
+        class PWC_Attribute_Vector_Push_Back<ElementID>:
+                public Project_Widget_Command_Attribute
+        {
+        public:
+            PWC_Attribute_Vector_Push_Back(Project_Widget*const project_widget, AttributeID attributeid, ElementID const& value):
+                Project_Widget_Command_Attribute(project_widget, attributeid),
+                m_new_value(value)
+            {
+                this->project_widget()->increment_command_ref_count(m_new_value);
+            }
+            ~PWC_Attribute_Vector_Push_Back() override
+            {
+                this->project_widget()->decrement_command_ref_count(m_new_value);
+            }
+
+        protected:
+            void v_execute() override
+            {
+                project_widget()->attribute_vector_push_back<ElementID>(attributeid(), m_new_value);
+            }
+            void v_unexecute() override
+            {
+                project_widget()->attribute_vector_pop_back<ElementID>(attributeid());
+            }
+        private:
+            ElementID m_new_value;
         };
 
         /*
@@ -346,6 +508,35 @@ namespace Saklib
             }
         private:
             T m_old_value;
+        };
+
+        template <>
+        class PWC_Attribute_Vector_Pop_Back<ElementID>:
+                public Project_Widget_Command_Attribute
+        {
+        public:
+            PWC_Attribute_Vector_Pop_Back(Project_Widget*const project_widget, AttributeID attributeid):
+                Project_Widget_Command_Attribute(project_widget, attributeid),
+                m_old_value(project_widget->attribute_type_cast<Vector<ElementID>>(attributeid)->back())
+            {
+                this->project_widget()->increment_command_ref_count(m_old_value);
+            }
+            ~PWC_Attribute_Vector_Pop_Back() override
+            {
+                this->project_widget()->decrement_command_ref_count(m_old_value);
+            }
+
+        protected:
+            void v_execute() override
+            {
+                project_widget()->attribute_vector_pop_back<ElementID>(attributeid());
+            }
+            void v_unexecute() override
+            {
+                project_widget()->attribute_vector_push_back<ElementID>(attributeid(), m_old_value);
+            }
+        private:
+            ElementID m_old_value;
         };
 
         /*
@@ -378,6 +569,37 @@ namespace Saklib
             T m_value;
         };
 
+        template <>
+        class PWC_Attribute_Vector_Insert_At<ElementID>:
+                public Project_Widget_Command_Attribute
+        {
+        public:
+            PWC_Attribute_Vector_Insert_At(Project_Widget*const project_widget, AttributeID attributeid, size_type index, ElementID const& value):
+                Project_Widget_Command_Attribute(project_widget, attributeid),
+                m_index(index),
+                m_value(value)
+            {
+                this->project_widget()->increment_command_ref_count(m_value);
+            }
+            ~PWC_Attribute_Vector_Insert_At() override
+            {
+                this->project_widget()->decrement_command_ref_count(m_value);
+            }
+
+        protected:
+            void v_execute() override
+            {
+                project_widget()->attribute_vector_insert_at<ElementID>(attributeid(), m_index, m_value);
+            }
+            void v_unexecute() override
+            {
+                project_widget()->attribute_vector_remove_at<ElementID>(attributeid(), m_index);
+            }
+        private:
+            size_type m_index;
+            ElementID m_value;
+        };
+
         /*
         PWC_Attribute_Vector_Remove_At<T>
         ====================================================================================================
@@ -406,6 +628,37 @@ namespace Saklib
         private:
             size_type m_index;
             T m_value;
+        };
+
+        template <>
+        class PWC_Attribute_Vector_Remove_At<ElementID>:
+                public Project_Widget_Command_Attribute
+        {
+        public:
+            PWC_Attribute_Vector_Remove_At(Project_Widget*const project_widget, AttributeID attributeid, size_type index):
+                Project_Widget_Command_Attribute(project_widget, attributeid),
+                m_index(index),
+                m_value(project_widget->attribute_vector_at<ElementID>(attributeid, index))
+            {
+                this->project_widget()->increment_command_ref_count(m_value);
+            }
+            ~PWC_Attribute_Vector_Remove_At() override
+            {
+                this->project_widget()->decrement_command_ref_count(m_value);
+            }
+
+        protected:
+            void v_execute() override
+            {
+                project_widget()->attribute_vector_remove_at<ElementID>(attributeid(), m_index);
+            }
+            void v_unexecute() override
+            {
+                project_widget()->attribute_vector_insert_at<ElementID>(attributeid(), m_index, m_value);
+            }
+        private:
+            size_type m_index;
+            ElementID m_value;
         };
 
     } // namespace Qtlib

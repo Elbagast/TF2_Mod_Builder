@@ -17,6 +17,7 @@
 #include <QLabel>
 
 #include <cassert>
+#include <QDebug>
 
 #include "../interal_element_definitions.h"
 
@@ -63,15 +64,6 @@ Saklib::Qtlib::Project_Widget::Project_Widget(Path const& filepath, QWidget* par
 
     m_outliner->setModel(m_outliner_model.get());
     m_outliner->setItemDelegate(m_outliner_delegate.get());
-
-    // TESTING LINES
-    m_element_manager.make_element("File");
-    m_element_manager.make_element("SingleInt");
-    auto test_child =  this->make_element("SingleInt");
-    auto parent_attribute = this->attributeid(m_project_elementid, "TestElement");
-    attribute_set_value(parent_attribute, test_child);
-
-
 
     // Does this need to be a signal?
     //QObject::connect(m_outliner_model.get, &Outliner_Model::signal_editorRequestedFor,
@@ -123,6 +115,7 @@ void Saklib::Qtlib::Project_Widget::destroy_element(ElementID elementid)
     {
         m_editor.reset();
     }
+    qDebug() << "Destroyed Element: " << to_QString(elementid.value());
 }
 
 // Does this refer to something in this? - rename these to has(blah) ?
@@ -170,6 +163,11 @@ void Saklib::Qtlib::Project_Widget::element_set_name(ElementID elementid, String
     update_widget(elementid);
     update_model(elementid);
     emit signal_unsaved_edits(true);
+}
+
+bool Saklib::Qtlib::Project_Widget::element_can_be_root(ElementID elementid) const
+{
+    return m_element_manager.element(elementid).can_be_root();
 }
 
 Saklib::AttributeID Saklib::Qtlib::Project_Widget::element_parent(ElementID elementid) const
@@ -236,48 +234,29 @@ Saklib::String Saklib::Qtlib::Project_Widget::attribute_type_string(AttributeID 
 // These functions set the data without question, and tell the model and widget to update.
 template <>
 void Saklib::Qtlib::Project_Widget::attribute_set_value<Saklib::ElementID>(AttributeID attributeid, ElementID const& value)
-//void Saklib::Qtlib::Project_Widget::attribute_set_value(AttributeID attributeid, ElementID value)
 {
-    assert(attributeid.is_valid());
-    assert(this->attribute_type_enum(attributeid) == Type_Traits<ElementID>::type_enum());
+    auto attribute = attribute_type_cast<ElementID>(attributeid);
+    ElementID old_value = attribute->value();
+    ElementID new_value = value;
 
-    ElementID old_value = m_element_manager.element(attributeid.elementid()).attribute_type_cast<ElementID>(attributeid.index())->value();
-
-    // if the ElementID changed from invalid to valid,
-    if (!old_value.is_valid() && value.is_valid())
+    assert_attribute<ElementID>(attributeid);
     {
-        // tell the model that row 0 was added as a child of attributeid
-        Outliner_Row_Inserter inserter(m_outliner_model.get(), m_outliner_model->make_index_of(attributeid), 0);
+        Outliner_Refresh refresh{m_outliner_model.get(), m_outliner.get()};
+        //Outliner_Reset reset{m_outliner_model.get()};
 
-        attribute_type_cast<ElementID>(attributeid)->set_value(value);
-        m_element_manager.set_parent(old_value, invalid_attributeid());
-        m_element_manager.set_parent(value, attributeid);
+        auto attribute = attribute_type_cast<ElementID>(attributeid);
+        ElementID old_value = attribute->value();
+        ElementID new_value = value;
 
-        //m_outliner_model->add_row(attributeid, 0);
-    }
-    // else if the ElementID changed from valid to invalid,
-    else if (old_value.is_valid() && !value.is_valid())
-    {
-        Outliner_Row_Remover remover(m_outliner_model.get(), m_outliner_model->make_index_of(attributeid), 0);
-
-        attribute_type_cast<ElementID>(attributeid)->set_value(value);
-        m_element_manager.set_parent(old_value, invalid_attributeid());
-        m_element_manager.set_parent(value, attributeid);
-
-        //m_outliner_model->remove_row(attributeid, 0);
-    }
-    else
-    {
-        // tell the model to update the children of attributeid
-        m_outliner_model->update_item(value);
-        m_element_manager.set_parent(old_value, invalid_attributeid());
-        m_element_manager.set_parent(value, attributeid);
+        attribute->set_value(new_value);
+        element_set_parent(new_value, attributeid);
+        element_set_parent(old_value, invalid_attributeid());
     }
 
     update_widget(attributeid);
-    //m_outliner_model->update_children(attributeid); // doesn't work...
+    update_widget(old_value);
+    update_widget(new_value);
 
-    //m_outliner_model->update_all(); // using this shows everything is there
     emit signal_unsaved_edits(true);
 }
 
@@ -374,32 +353,42 @@ template <>
 void Saklib::Qtlib::Project_Widget::attribute_vector_clear<Saklib::ElementID>(AttributeID attributeid)
 {
     assert_attribute<Vector_ElementID>(attributeid);
+    {
+        Outliner_Refresh referesh{m_outliner_model.get(), m_outliner.get()};
+        //Outliner_Reset reset{m_outliner_model.get()};
 
-    assert(0);
+        auto attribute = attribute_type_cast<Vector_ElementID>(attributeid);
+
+        attribute->clear();
+    }
+
+    update_widget(attributeid);
+    //m_outliner->expandAll();
+
+    emit signal_unsaved_edits(true);
 }
 
 template <>
 void Saklib::Qtlib::Project_Widget::attribute_vector_set_at<Saklib::ElementID>(AttributeID attributeid, size_type index, ElementID const& value)
-//void Saklib::Qtlib::Project_Widget::attribute_vector_set_at(AttributeID attributeid, size_type index, ElementID const& value)
-//void Saklib::Qtlib::Project_Widget::attribute_vector_set_at(AttributeID attributeid, size_type index, ElementID value)
 {
     assert_attribute<Vector_ElementID>(attributeid);
-    ElementID old_value = attribute_vector_at<ElementID>(attributeid, index);
 
-    attribute_type_cast<Vector_ElementID>(attributeid)->set_at(index, value);
+    auto attribute = attribute_type_cast<Vector_ElementID>(attributeid);
+    ElementID old_value = attribute->at(index);
+    ElementID new_value = value;
 
-    element_set_parent(old_value, invalid_attributeid());
-    element_set_parent(value, attributeid);
+    {
+        Outliner_Refresh referesh{m_outliner_model.get(), m_outliner.get()};
+
+        attribute->set_at(index, new_value);
+        element_set_parent(new_value, attributeid);
+        element_set_parent(old_value, invalid_attributeid());
+    }
 
     update_widget(attributeid);
-    update_model(attributeid);
+    update_widget(old_value);
+    update_widget(new_value);
 
-    // need to do the following...
-
-
-    //m_outliner_model->update_children(attributeid); // doesn't work...
-
-    //m_outliner_model->update_all(); // using this shows everything is there
     emit signal_unsaved_edits(true);
 }
 
@@ -408,7 +397,23 @@ void Saklib::Qtlib::Project_Widget::attribute_vector_set_front<Saklib::ElementID
 {
     assert_attribute<Vector_ElementID>(attributeid);
 
-    assert(0);
+    auto attribute = attribute_type_cast<Vector_ElementID>(attributeid);
+    ElementID old_value = attribute->front();
+    ElementID new_value = value;
+
+    {
+        Outliner_Refresh referesh{m_outliner_model.get(), m_outliner.get()};
+
+        attribute->set_front(new_value);
+        element_set_parent(new_value, attributeid);
+        element_set_parent(old_value, invalid_attributeid());
+    }
+
+    update_widget(attributeid);
+    update_widget(old_value);
+    update_widget(new_value);
+
+    emit signal_unsaved_edits(true);
 }
 
 template<>
@@ -416,20 +421,33 @@ void Saklib::Qtlib::Project_Widget::attribute_vector_set_back<Saklib::ElementID>
 {
     assert_attribute<Vector_ElementID>(attributeid);
 
-    assert(0);
+    auto attribute = attribute_type_cast<Vector_ElementID>(attributeid);
+    ElementID old_value = attribute->front();
+    ElementID new_value = value;
+
+    {
+        Outliner_Refresh referesh{m_outliner_model.get(), m_outliner.get()};
+
+        attribute->set_back(new_value);
+        element_set_parent(new_value, attributeid);
+        element_set_parent(old_value, invalid_attributeid());
+    }
+
+    update_widget(attributeid);
+    update_widget(old_value);
+    update_widget(new_value);
+
+    emit signal_unsaved_edits(true);
 }
 
 template<>
 void Saklib::Qtlib::Project_Widget::attribute_vector_push_back<Saklib::ElementID>(AttributeID attributeid, ElementID const& value)
-//void Saklib::Qtlib::Project_Widget::attribute_vector_push_back(AttributeID attributeid, ElementID const& value)
-//void Saklib::Qtlib::Project_Widget::attribute_vector_push_back(AttributeID attributeid, ElementID value)
 {
     assert_attribute<Vector_ElementID>(attributeid);
-
-    auto attribute = this->attribute_type_cast<Vector_ElementID>(attributeid);
-
     {
-        Outliner_Row_Inserter inserter(m_outliner_model.get(), m_outliner_model->make_index_of(attributeid), outliner_row_count(attributeid));
+        Outliner_Refresh referesh{m_outliner_model.get(), m_outliner.get()};
+
+        auto attribute = this->attribute_type_cast<Vector_ElementID>(attributeid);
 
         attribute->push_back(value);
         element_set_parent(value, attributeid);
@@ -442,15 +460,14 @@ template<>
 void Saklib::Qtlib::Project_Widget::attribute_vector_pop_back<Saklib::ElementID>(AttributeID attributeid)
 {
     assert_attribute<Vector_ElementID>(attributeid);
-
-    auto attribute = this->attribute_type_cast<Vector_ElementID>(attributeid);
-
     {
-        Outliner_Row_Remover remover(m_outliner_model.get(), m_outliner_model->make_index_of(attributeid), outliner_row_count(attributeid));
+        Outliner_Refresh referesh{m_outliner_model.get(), m_outliner.get()};
 
-        ElementID last_value = attribute->back();
+        auto attribute = this->attribute_type_cast<Vector_ElementID>(attributeid);
+
+        ElementID back_value = attribute->back();
         attribute->pop_back();
-        element_set_parent(last_value, invalid_attributeid());
+        element_set_parent(back_value, invalid_attributeid());
     }
     update_widget(attributeid);
 
@@ -459,11 +476,19 @@ void Saklib::Qtlib::Project_Widget::attribute_vector_pop_back<Saklib::ElementID>
 
 template<>
 void Saklib::Qtlib::Project_Widget::attribute_vector_insert_at<Saklib::ElementID>(AttributeID attributeid, size_type index, ElementID const& value)
-//void Saklib::Qtlib::Project_Widget::attribute_vector_insert_at(AttributeID attributeid, size_type index, ElementID value)
 {
     assert_attribute<Vector_ElementID>(attributeid);
+    {
+        Outliner_Refresh referesh{m_outliner_model.get(), m_outliner.get()};
 
-    assert(0);
+        auto attribute = this->attribute_type_cast<Vector_ElementID>(attributeid);
+
+        attribute->insert_at(index, value);
+        element_set_parent(value, invalid_attributeid());
+    }
+    update_widget(attributeid);
+
+    emit signal_unsaved_edits(true);
 }
 
 template<>
@@ -471,7 +496,20 @@ void Saklib::Qtlib::Project_Widget::attribute_vector_remove_at<Saklib::ElementID
 {
     assert_attribute<Vector_ElementID>(attributeid);
 
-    assert(0);
+    auto attribute = this->attribute_type_cast<Vector_ElementID>(attributeid);
+    ElementID removed_value = attribute->at(index);
+
+    {
+        Outliner_Refresh referesh{m_outliner_model.get(), m_outliner.get()};
+
+
+        attribute->remove_at(index);
+        element_set_parent(removed_value, invalid_attributeid());
+    }
+    update_widget(attributeid);
+    update_widget(removed_value);
+
+    emit signal_unsaved_edits(true);
 }
 
 
@@ -797,6 +835,42 @@ void Saklib::Qtlib::Project_Widget::clear_history()
     command_history_changed();
 }
 
+Saklib::size_type Saklib::Qtlib::Project_Widget::command_ref_count(ElementID elementid) const
+{
+    return m_element_manager.command_ref_count(elementid);
+}
+
+void Saklib::Qtlib::Project_Widget::increment_command_ref_count(ElementID elementid)
+{
+    if (elementid.is_valid() && is_valid(elementid))
+    {
+        m_element_manager.increment_command_ref_count(elementid);
+    }
+}
+void Saklib::Qtlib::Project_Widget::increment_command_ref_count(AttributeID attributeid)
+{
+    increment_command_ref_count(attributeid.elementid());
+}
+
+void Saklib::Qtlib::Project_Widget::decrement_command_ref_count(ElementID elementid)
+{
+    if (elementid.is_valid() && is_valid(elementid))
+    {
+        m_element_manager.decrement_command_ref_count(elementid);
+        if (m_element_manager.command_ref_count(elementid) == 0 // no commands use it now
+            && !element_parent(elementid).is_valid()            // it has no parent
+            && !element_can_be_root(elementid) )                // it cannot be parentless
+        {
+            destroy_element(elementid);
+        }
+    }
+}
+void Saklib::Qtlib::Project_Widget::decrement_command_ref_count(AttributeID attributeid)
+{
+    decrement_command_ref_count(attributeid.elementid());
+}
+
+
 // Call whenever commands are issued or called
 void Saklib::Qtlib::Project_Widget::command_history_changed()
 {
@@ -893,3 +967,5 @@ void Saklib::Qtlib::Project_Widget::update_model(AttributeID attributeid)
 {
     m_outliner_model->update_item(attributeid);
 }
+
+

@@ -26,8 +26,10 @@ namespace Saklib
         {
             Q_OBJECT
 
-            friend class Outliner_Row_Inserter;
-            friend class Outliner_Row_Remover;
+            friend class Outliner_Model_Row_Inserter;
+            friend class Outliner_Model_Row_Remover;
+            friend class Outliner_Model_Reseter;
+            friend class Outliner_Refresh;
         public:
             // Special 6
             //============================================================
@@ -73,6 +75,9 @@ namespace Saklib
             QModelIndex make_index_of(AttributeID attributeid) const;
             QModelIndex make_index_of(ProxyID proxyid) const;
             QModelIndex make_index_of(QModelIndex const& parent, size_type proxyid_value) const;
+
+            void child_indexes(Vector<QModelIndex>& results, QModelIndex const& parent) const;
+            Vector<QModelIndex> all_indexes() const;
 
             // Return true if make_index_of returns a valid, non-root QModelIndex
             bool has_index_of(ElementID elementid) const;

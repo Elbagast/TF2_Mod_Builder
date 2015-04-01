@@ -49,10 +49,11 @@ namespace Saklib
 
         // Basic Access
         //============================================================
+        String const& type() const;
+        bool can_be_root() const;
+
         String const& name() const;
         void set_name(String const& name);
-
-        String const& type() const;
 
         // Attributes Access
         //============================================================
@@ -119,6 +120,7 @@ namespace Saklib
         //============================================================
         String m_type;
         String m_name;
+        bool m_can_be_root;
         Vector<Uptr<Attribute>> m_attributes;
         // maybe cache stats here?
 
@@ -126,6 +128,7 @@ namespace Saklib
         //============================================================
         static String initialise_type_from_definition_of(String const& type); // called so that a check that type is valid can be made here
         static String initialise_name_from_definition_of(String const& type);
+        static bool initialise_can_be_root_from_definition_of(String const& type);
         static Vector<Uptr<Attribute>> initialise_attributes_from_definition_of(String const& type);
 
         // Internal Manager
@@ -150,6 +153,7 @@ namespace Saklib
 
             String get_type_from_definition_of(String const& type) const; // called so that a check that type is valid can be made here
             String get_name_from_definition_of(String const& type) const;
+            bool get_can_be_root_from_definition_of(String const& type) const;
             Vector<Uptr<Attribute>> get_attributes_from_definition_of(String const& type) const;
 
             static Uptr<Attribute> initialise_attribute_from_definition(Attribute_Definition const& definition);

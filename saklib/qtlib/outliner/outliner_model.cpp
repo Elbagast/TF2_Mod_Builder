@@ -7,6 +7,7 @@
 
 #include <QMenu>
 #include <QAbstractItemView>
+#include <QtDebug>
 
 // Special 6
 //============================================================
@@ -66,7 +67,7 @@ QVariant Saklib::Qtlib::Outliner_Model::data(QModelIndex const& index, int role)
         // get the approriate data
         if (!indexid.is_valid())
         {
-            return QVariant();
+            return QVariant("None");
         }
         else if (indexid.is_element())
         {
@@ -100,7 +101,8 @@ int Saklib::Qtlib::Outliner_Model::rowCount(QModelIndex const& index) const
 
     if (!indexid.is_valid())
     {
-        return mp_project_widget->outliner_row_count_root();
+        //return mp_project_widget->outliner_row_count_root();
+        return 0;
     }
     else if (indexid.is_element())
     {
@@ -110,6 +112,10 @@ int Saklib::Qtlib::Outliner_Model::rowCount(QModelIndex const& index) const
     {
         return mp_project_widget->outliner_row_count(indexid.attributeid());
     }
+    //else if (!index.isValid()) // root index
+    //{
+     //   return mp_project_widget->outliner_row_count_root();
+    //}
     else
     {
         return 0;
@@ -329,24 +335,47 @@ QModelIndex Saklib::Qtlib::Outliner_Model::make_index_of(ProxyID proxyid) const
 }
 QModelIndex Saklib::Qtlib::Outliner_Model::make_index_of(QModelIndex const& parent, size_type proxyid_value) const
 {
-    if (parent.isValid())
+    for (int row = 0, end = rowCount(parent); row != end; ++row)
     {
-        for (int row = 0, end = rowCount(parent); row != end; ++row)
+        QModelIndex next_index{index(row, 0, parent)};
+        assert(next_index.isValid());
+        if (next_index.internalId() == proxyid_value)
         {
-            QModelIndex next_index{index(row, 0, parent)};
-            assert(next_index.isValid());
-            if (next_index.internalId() == proxyid_value)
-            {
-                return next_index;
-            }
-            else
-            {
-                // recurse through children
-                return make_index_of(next_index, proxyid_value);
-            }
+            return next_index;
+        }
+        else
+        {
+            // recurse through children
+            return make_index_of(next_index, proxyid_value);
         }
     }
+
+    auto proxyid = ProxyID::unpack(proxyid_value);
+    if (proxyid.is_element())
+        qDebug() << "ElementID not found: " << proxyid.elementid_value();
+    else if (proxyid.is_element())
+        qDebug() << "AttributeID not found: " << proxyid.elementid_value() << ":" << proxyid.attribute_index();
+
     return QModelIndex();
+}
+
+void Saklib::Qtlib::Outliner_Model::child_indexes(Vector<QModelIndex>& results, QModelIndex const& parent) const
+{
+    int row_count = this->rowCount(parent);
+    for (int row = 0; row != row_count; ++row)
+    {
+        auto child_index = this->index(row,0,parent);
+        results.push_back(child_index);
+        if (this->rowCount(child_index) > 0)
+            child_indexes(results, child_index);
+    }
+}
+
+Saklib::Vector<QModelIndex> Saklib::Qtlib::Outliner_Model::all_indexes() const
+{
+    Vector<QModelIndex> result{};
+    child_indexes(result, QModelIndex());
+    return result;
 }
 
 // Return true if make_index_of returns a valid, non-root QModelIndex

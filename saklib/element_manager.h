@@ -90,6 +90,8 @@ namespace Saklib
         //============================================================
         // Bits that only Command objects will end up using
 
+        size_type command_ref_count(ElementID elementid) const;
+
         // Adjust ref counts
         void increment_command_ref_count(ElementID elementid);
         void decrement_command_ref_count(ElementID elementid);
@@ -133,9 +135,9 @@ namespace Saklib
             // Member Data
             //============================================================
             Element m_element;
-            AttributeID m_parent;   // the Attribute that owns this Element
-            Vector_AttributeID m_linked; // where this Element is referenced
-            size_type m_command_ref_count; // how many Commands reference this Element
+            AttributeID m_parent;           // the Attribute that owns this Element
+            Vector_AttributeID m_linked;    // where this Element is referenced
+            size_type m_command_ref_count;  // how many Commands reference this Element
 
             // Attribute stats that we compute once?
         };

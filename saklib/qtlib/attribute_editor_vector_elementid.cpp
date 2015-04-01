@@ -26,7 +26,7 @@ void Saklib::Qtlib::Attribute_Editor_Vector_Type<Saklib::ElementID>::slot_append
     if (dialog.exec() == QDialog::Accepted && !dialog.selected_element_type().empty())
     {
         ElementID new_element = project_widget()->make_element(dialog.selected_element_type());
-        project_widget()->undoable_attribute_vector_push_back(attributeid(), new_element);
+        project_widget()->undoable_attribute_vector_push_back<ElementID>(attributeid(), new_element);
     }
 }
 
@@ -43,7 +43,7 @@ void Saklib::Qtlib::Attribute_Editor_Vector_Type<Saklib::ElementID>::slot_insert
     if (dialog.exec() == QDialog::Accepted && !dialog.selected_element_type().empty())
     {
         ElementID new_element = project_widget()->make_element(dialog.selected_element_type());
-        project_widget()->undoable_attribute_vector_insert_at(attributeid(), index, new_element);
+        project_widget()->undoable_attribute_vector_insert_at<ElementID>(attributeid(), index, new_element);
     }
 }
 

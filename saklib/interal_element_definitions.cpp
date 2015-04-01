@@ -6,7 +6,7 @@
 // Define the Element type needed by this Class
 Saklib::Element_Definition Saklib::internal_definition_of_Project()
 {
-    return Element_Definition("Project",
+    return Element_Definition("Project", true,
     {
         make_shared_Attribute_Definition("Filepath", Type_Enum::Path),
         make_shared_Attribute_Definition("TestBool", Type_Enum::Bool),
@@ -27,7 +27,7 @@ Saklib::Element_Definition Saklib::internal_definition_of_Project()
 
 Saklib::Element_Definition Saklib::internal_definition_of_File()
 {
-    return Element_Definition("File",
+    return Element_Definition("File", false,
     {
         make_shared_Attribute_Definition("Source", Type_Enum::Path),
         make_shared_Attribute_Definition("Target", Type_Enum::Path),
@@ -36,7 +36,7 @@ Saklib::Element_Definition Saklib::internal_definition_of_File()
 
 Saklib::Element_Definition Saklib::internal_definition_of_SingleInt()
 {
-    return Element_Definition("SingleInt",
+    return Element_Definition("SingleInt", false,
     {
         make_shared_Attribute_Definition("Data", Type_Enum::Int),
     });
