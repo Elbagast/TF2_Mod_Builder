@@ -3,6 +3,7 @@
 
 #include "../types.h"
 #include "../project_observer.h"
+#include "quptr.h"
 #include <QWidget>
 
 class QHBoxLayout;
@@ -88,15 +89,15 @@ namespace Saklib
             // Data Members
             //============================================================
             // Outliner model
-            Uptr<Outliner_Model> m_outliner_model;
-            Uptr<Outliner_Delegate> m_outliner_delegate;
+            QUptr<Outliner_Model> m_outliner_model;
+            QUptr<Outliner_Delegate> m_outliner_delegate;
 
             // Widgets
-            Uptr<Outliner_Treeview> m_outliner; // Element outliner (No direct attribute access)
-            Uptr<QScrollArea> m_scroll_area; // area that will contain m_editor
-            Uptr<Element_Widget> m_editor; // editor for a given ElementID
+            QUptr<Outliner_Treeview> m_outliner; // Element outliner (No direct attribute access)
+            QUptr<QScrollArea> m_scroll_area; // area that will contain m_editor
+            QUptr<Element_Widget> m_editor; // editor for a given ElementID
 
-            Uptr<QHBoxLayout> m_layout;
+            QUptr<QHBoxLayout> m_layout;
         };
 
     } // namespace Qtlib

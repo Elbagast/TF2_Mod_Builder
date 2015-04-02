@@ -15,9 +15,9 @@
 Saklib::Qtlib::Attribute_Editor_Vector::Attribute_Editor_Vector(Project_Widget*const project_widget, AttributeID attributeid, QWidget* parent):
     Attribute_Editor(project_widget, attributeid, parent),
     //mp_element_widget(parent),
-    m_append_button(std::make_unique<QPushButton>("Append...")),
-    m_layout(std::make_unique<QVBoxLayout>()),
-    m_component_layout(std::make_unique<QVBoxLayout>()),
+    m_append_button(make_quptr<QPushButton>("Append...")),
+    m_layout(make_quptr<QVBoxLayout>()),
+    m_component_layout(make_quptr<QVBoxLayout>()),
     m_vector_widgets()
 {
     QObject::connect(m_append_button.get(), &QPushButton::clicked,
@@ -42,17 +42,7 @@ Saklib::Qtlib::Attribute_Editor_Vector::Attribute_Editor_Vector(Project_Widget*c
     v_refresh_data();
 }
 
-Saklib::Qtlib::Attribute_Editor_Vector::~Attribute_Editor_Vector()
-{
-    m_layout->removeWidget(m_append_button.get());
-    m_append_button->setParent(nullptr);
-    for (auto const& widget : m_vector_widgets)
-    {
-        m_component_layout->removeWidget(widget.get());
-        widget->setParent(nullptr);
-    }
-    m_vector_widgets.clear();
-}
+Saklib::Qtlib::Attribute_Editor_Vector::~Attribute_Editor_Vector() = default;
 
 
 Saklib::size_type Saklib::Qtlib::Attribute_Editor_Vector::attribute_vector_size() const

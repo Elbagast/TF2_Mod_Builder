@@ -117,10 +117,10 @@ void Saklib::Qtlib::Attribute_Editor_ElementID::shared_construction()
 {
     m_elementid = attribute_value<ElementID>();
 
-    m_layout = std::make_unique<QHBoxLayout>();
-    m_button = std::make_unique<QPushButton>(button_text());
-    m_name_label = std::make_unique<QLabel>(name_label_text());
-    m_type_label = std::make_unique<QLabel>(type_label_text());
+    m_layout = make_quptr<QHBoxLayout>();
+    m_button = make_quptr<QPushButton>(button_text());
+    m_name_label = make_quptr<QLabel>(name_label_text());
+    m_type_label = make_quptr<QLabel>(type_label_text());
 
     // If the ElementID is a valid value, make sure it's valid in the project_widget
     if (m_elementid.is_valid())

@@ -52,12 +52,12 @@ namespace Saklib
         private:
             // Data Members
             //============================================================
-            Uptr<QPushButton> m_append_button; // button that append the end that
-            Uptr<QVBoxLayout> m_layout;
+            QUptr<QPushButton> m_append_button; // button that append the end that
+            QUptr<QVBoxLayout> m_layout;
 
-            Uptr<QVBoxLayout> m_component_layout;
+            QUptr<QVBoxLayout> m_component_layout;
 
-            Vector<Uptr<Attribute_Editor>> m_vector_widgets;
+            Vector<QUptr<Attribute_Editor>> m_vector_widgets;
         };
 
     } // namespace Qtlib

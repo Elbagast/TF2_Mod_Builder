@@ -1,8 +1,8 @@
 #ifndef QUPTR_H
 #define QUPTR_H
 
-#include "../types.h"
 #include <QPointer>
+#include <memory>
 
 namespace Saklib
 {
@@ -18,11 +18,9 @@ namespace Saklib
         deleted elsewhere already. Since it's not always clear where this happens, we need a smart pointer
         that manages double-deletes as needed, rather than having to guess whether it's happened already.
 
-        So, this class owns a pointer to a Qt class, but the destructor only calls delete on the pointer if
-        it determines that that was not already done, otherwise it's a std::unique_ptr.
-
-
-        ...Alternatively investigate a different system for managing Element_Widgets
+        How do do this is pretty simple: QUptr has a QPointer that stores the pointer, and calls delete on
+        that pointer if it isn't set to null by the time ~QUptr is called. Now just use it you would a
+        std::unique_ptr.
         */
         template <typename T>
         class QUptr
@@ -30,36 +28,102 @@ namespace Saklib
             // T must inherit QObject or this won't compile
         public:
             QUptr():
-                m_ptr(nullptr),
                 m_qptr(nullptr)
             {}
             QUptr(std::nullptr_t null_pointer):
-                m_ptr(null_pointer),
                 m_qptr(null_pointer)
             {}
             explicit QUptr(T* pointer):
-                m_ptr(pointer),
                 m_qptr(pointer)
             {}
+            explicit QUptr(std::unique_ptr<T>&& uptr):
+                m_qptr(uptr.release())
+            {}
+            ~QUptr()
+            {
+                reset();
+            }
 
             QUptr(QUptr const& other) = delete;
             QUptr& operator=(QUptr const& other) = delete;
 
-            // Implicit default move
+            QUptr(QUptr && other):
+                m_qptr(std::move(other.m_qptr))
+            {
+                other.m_qptr.clear();
+            }
+
+            QUptr& operator=(QUptr && other)
+            {
+                m_qptr = std::move(other.m_qptr);
+                other.m_qptr.clear();
+                return *this;
+            }
+
+            QUptr& operator=(std::unique_ptr<T>&& uptr)
+            {
+                m_qptr = uptr.release();
+                return *this;
+            }
 
             //
-            // release
-            // reset
-            // swap
-            // get
-            // operator bool
-            // operator*
-            // opearator->
+            T* release()
+            {
+                T* result = m_qptr.data();
+                m_qptr.clear();
+                return result;
+            }
+
+            void reset()
+            {
+                if (m_qptr.data() != nullptr)
+                {
+                    delete m_qptr.data();
+                    m_qptr = nullptr;
+                }
+            }
+
+            void reset(T* pointer)
+            {
+                reset();
+                m_qptr = pointer;
+            }
+
+            void swap(QUptr& other)
+            {
+                T* other_ptr = other.release();
+                other.reset(this->release());
+                this->reset(other_ptr);
+            }
+
+            T* get() const
+            {
+                return m_qptr.data();
+            }
+
+            explicit operator bool() const
+            {
+                return !m_qptr.isNull();
+            }
+            T& operator*()
+            {
+                return *(m_qptr.data());
+            }
+
+            T* operator->() const
+            {
+                return m_qptr.data();
+            }
 
         private:
-            Uptr<T> m_ptr;
             QPointer<T> m_qptr;
         };
+
+        template <typename T, typename... Args>
+        QUptr<T> make_quptr(Args&&... args)
+        {
+            return QUptr<T>(new T(std::forward<Args>(args)...));
+        }
 
     } // namespace Qtlib
 } // namespace Saklib

@@ -16,12 +16,12 @@
 Saklib::Qtlib::Project_Widget::Project_Widget(Project_Manager& project_manager, QWidget* parent):
     QWidget(parent),
     Project_Observer(project_manager),
-    m_outliner_model(std::make_unique<Outliner_Model>(this)),
-    m_outliner_delegate(std::make_unique<Outliner_Delegate>(this)),
-    m_outliner(std::make_unique<Outliner_Treeview>(this)),
-    m_scroll_area(std::make_unique<QScrollArea>(this)),
+    m_outliner_model(make_quptr<Outliner_Model>(this)),
+    m_outliner_delegate(make_quptr<Outliner_Delegate>(this)),
+    m_outliner(make_quptr<Outliner_Treeview>(this)),
+    m_scroll_area(make_quptr<QScrollArea>(this)),
     m_editor(nullptr),
-    m_layout(std::make_unique<QHBoxLayout>(this))
+    m_layout(make_quptr<QHBoxLayout>(this))
 {
     m_outliner->setModel(m_outliner_model.get());
     m_outliner->setItemDelegate(m_outliner_delegate.get());
@@ -34,20 +34,7 @@ Saklib::Qtlib::Project_Widget::Project_Widget(Project_Manager& project_manager, 
     setLayout(m_layout.get());
     open_editor(this->project_manager().project_elementid());
 }
-Saklib::Qtlib::Project_Widget::~Project_Widget()
-{
-    // Break all parenting so the Uptr can clean them up without double deletes
-    //if (m_outliner_model) m_outliner_model->setParent(nullptr);
-    //if (m_outliner_delegate) m_outliner_delegate->setParent(nullptr);
-    if (m_outliner) m_outliner->setParent(nullptr);
-    if (m_scroll_area)
-    {
-        m_scroll_area->setParent(nullptr);
-        m_scroll_area->setWidget(nullptr);
-    }
-    if (m_editor) m_editor->setParent(nullptr);
-    //if (m_layout) m_layout->setParent(nullptr);
-}
+Saklib::Qtlib::Project_Widget::~Project_Widget() = default;
 
 // Element Widget
 //------------------------------------------------------------

@@ -48,9 +48,9 @@ void Saklib::Qtlib::Attribute_Editor_Int::slot_editingFinished()
 
 void Saklib::Qtlib::Attribute_Editor_Int::shared_construction()
 {
-    m_spinbox = std::make_unique<QSpinBox>();
-    //m_label = std::make_unique<QLabel>();
-    m_layout = std::make_unique<QHBoxLayout>();
+    m_spinbox = make_quptr<QSpinBox>();
+    //m_label = make_quptr<QLabel>();
+    m_layout = make_quptr<QHBoxLayout>();
 
     m_spinbox->setValue(attribute_value<Int>());
 

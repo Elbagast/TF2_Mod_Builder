@@ -358,7 +358,7 @@ namespace Saklib
         void all_observers_function(MemFunc func) const;
 
         template <typename MemFunc, typename... Args>
-        void all_observers_function(MemFunc func, Args... args) const;
+        void all_observers_function(MemFunc func, Args&&... args) const;
 
         // Data Members
         //============================================================

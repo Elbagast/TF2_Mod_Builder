@@ -22,7 +22,7 @@ Saklib::size_type Saklib::Qtlib::Project_Main_Window::s_new_count{0};
 Saklib::Qtlib::Project_Main_Window::Project_Main_Window(Project_Manager& project_manager, QWidget *parent) :
     QMainWindow(parent),
     mr_project_manager(project_manager),
-    m_ui(new Ui::Project_Main_Window),
+    m_ui(std::make_unique<Ui::Project_Main_Window>()),
     m_project_widget(nullptr),
     m_window_title(this, s_app_name.c_str())
 {
@@ -283,7 +283,7 @@ bool Saklib::Qtlib::Project_Main_Window::has_unsaved_edits() const
 
 void Saklib::Qtlib::Project_Main_Window::make_project_widget()
 {
-    m_project_widget = std::make_unique<Project_Widget>(mr_project_manager);
+    m_project_widget = make_quptr<Project_Widget>(mr_project_manager);
 
     // Make it into the central widget
     setCentralWidget(m_project_widget.get());

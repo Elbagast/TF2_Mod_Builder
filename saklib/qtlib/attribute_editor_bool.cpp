@@ -41,8 +41,8 @@ void Saklib::Qtlib::Attribute_Editor_Bool::slot_clicked()
 
 void Saklib::Qtlib::Attribute_Editor_Bool::shared_construction()
 {
-    m_checkbox = std::make_unique<QCheckBox>();
-    m_layout = std::make_unique<QHBoxLayout>();
+    m_checkbox = make_quptr<QCheckBox>();
+    m_layout = make_quptr<QHBoxLayout>();
 
     v_refresh_data();
 

@@ -12,6 +12,7 @@
 #include <QLabel>
 //#include <QGridLayout>
 #include <QFormLayout>
+#include <QHBoxLayout>
 #include <QVBoxLayout>
 
 //#include "editor_bool.h"
@@ -24,35 +25,43 @@ Saklib::Qtlib::Element_Widget::Element_Widget(Project_Widget*const project_widge
     m_elementid(elementid),
     m_parentid(mp_project_widget->project_manager().element_parent(m_elementid)),
 
-    m_element_name_label(),
-    m_element_type_label(),
-    m_element_can_be_root_label(),
-    m_element_id_label(),
-    m_parent_id_label(),
+    m_self_header_layout(std::make_unique<QHBoxLayout>()),
+    m_element_type_label(std::make_unique<QLabel>()),
+    m_element_name_label(std::make_unique<QLabel>()),
+    m_element_id_label(std::make_unique<QLabel>()),
+
+    m_parent_id_label(std::make_unique<QLabel>()),
 
     //m_attribute_names(),
     //m_attribute_types(),
+    m_attribute_layouts(),
     m_attribute_editors(),
 
     m_layout(std::make_unique<QVBoxLayout>()),
+
+    m_parent_header_layout(std::make_unique<QHBoxLayout>()),
     m_attribute_layout(std::make_unique<QFormLayout>())
 
 {
     // Really shouldn't have got here with an invalid ID
     assert(mp_project_widget->project_manager().is_valid(elementid));
 
+
     // Configure the labels
 
     // If the name is editable this type will get changed.
-    m_element_name_label = std::make_unique<QLabel>(mp_project_widget->project_manager().element_name(m_elementid).c_str());
-    //m_element_name_label->setSizePolicy( QSizePolicy::Expanding, QSizePolicy::Minimum );
+    m_element_name_label->setText(mp_project_widget->project_manager().element_name(m_elementid).c_str());
 
-    m_element_type_label = std::make_unique<QLabel>(mp_project_widget->project_manager().element_type(m_elementid).c_str());
-    //m_element_type_label->setSizePolicy( QSizePolicy::Expanding, QSizePolicy::Minimum );
+    m_element_type_label->setText(mp_project_widget->project_manager().element_type(m_elementid).c_str());
 
-    m_element_can_be_root_label = std::make_unique<QLabel>(mp_project_widget->project_manager().element_can_be_root(m_elementid) ? "Can be root." : "Cannot be root.");
+    m_element_id_label->setText(QString("ID: ").append(to_QString(m_elementid.value())));
 
-    m_element_id_label = std::make_unique<QLabel>(to_QString(m_elementid.value()));
+    m_self_header_layout->addWidget(m_element_type_label.get());
+    m_self_header_layout->addWidget(m_element_name_label.get());
+    m_self_header_layout->addStretch();
+    m_self_header_layout->addWidget(m_element_id_label.get());
+
+    m_layout->addLayout(m_self_header_layout.get());
 
     //QString parent_label =
     m_parent_id_label = std::make_unique<QLabel>(to_QString(m_parentid.elementid().value()).append(" : ").append(to_QString(m_parentid.index())));
@@ -60,11 +69,11 @@ Saklib::Qtlib::Element_Widget::Element_Widget(Project_Widget*const project_widge
     // Add the widgets to the layout
     //int grid_row{0};
 
-    m_layout->addWidget(m_element_name_label.get());//, grid_row, 0);
-    m_layout->addWidget(m_element_type_label.get());//, ++grid_row, 0);
-    m_layout->addWidget(m_element_can_be_root_label.get());//, ++grid_row, 0);
-    m_layout->addWidget(m_element_id_label.get());//, ++grid_row, 0);
-    m_layout->addWidget(m_parent_id_label.get());//, ++grid_row, 0);
+    //m_layout->addWidget(m_element_name_label.get());//, grid_row, 0);
+    //m_layout->addWidget(m_element_type_label.get());//, ++grid_row, 0);
+    //m_layout->addWidget(m_element_can_be_root_label.get());//, ++grid_row, 0);
+    //m_layout->addWidget(m_element_id_label.get());//, ++grid_row, 0);
+    //m_layout->addWidget(m_parent_id_label.get());//, ++grid_row, 0);
     //++grid_row;
     m_layout->addLayout(m_attribute_layout.get());
     {
@@ -77,37 +86,21 @@ Saklib::Qtlib::Element_Widget::Element_Widget(Project_Widget*const project_widge
             // Make a AttributeID that refers to this Attribute
             AttributeID attributeid{m_elementid, attribute_index};
 
-            // Make a label that is the Attribute name
-            //auto name_label = std::make_unique<QLabel>(attribute->name().c_str());
-            // Set sizing
-            //name_label->setSizePolicy( QSizePolicy::Minimum, QSizePolicy::Minimum );
-            // Add it to the grid
-           // m_layout->addWidget(name_label.get(), grid_row, 0);
-            // Store the label
-            //m_attribute_names.push_back(std::move(name_label));
-
-
-            // Make a label that is the Attribute type
-            //auto type_label = std::make_unique<QLabel>(attribute->type_string().c_str());
-            // Set sizing
-            //type_label->setSizePolicy( QSizePolicy::Minimum, QSizePolicy::Minimum );
-            // Add it to the grid
-            //m_layout->addWidget(type_label.get(), grid_row, 1);
-            // Store the label
-            //m_attribute_types.push_back(std::move(type_label));
-
-
             // make and add editors
-            Uptr<Attribute_Editor> editor{make_Attribute_Editor(mp_project_widget, attributeid)};
+            QUptr<Attribute_Editor> editor{make_Attribute_Editor(mp_project_widget, attributeid)};
+            QUptr<QHBoxLayout> layout{std::make_unique<QHBoxLayout>()};
+            layout->addWidget(editor.get());
+            //layout->addStretch();
 
             editor->setSizePolicy( QSizePolicy::Minimum, QSizePolicy::Minimum );
             // Add it to the grid
             //m_layout->addWidget(editor.get(), grid_row, 2);
 
-            m_attribute_layout->addRow(to_QString(attribute->name()), editor.get());
+            m_attribute_layout->addRow(to_QString(attribute->name()), layout.get());
 
             // Store it
             m_attribute_editors.push_back(std::move(editor));
+            m_attribute_layouts.push_back(std::move(layout));
 
             // Seperator Line?
 
@@ -127,10 +120,22 @@ Saklib::Qtlib::Element_Widget::Element_Widget(Project_Widget*const project_widge
 
 Saklib::Qtlib::Element_Widget::~Element_Widget()
 {
-    // Clear these up first
-    //m_attribute_names.clear();
-    //m_attribute_types.clear();
+    // delete order to stop double deletes...
+    /*
+    m_element_type_label.reset();
+    m_element_name_label.reset();
+    m_element_id_label.reset();
+    m_self_header_layout.reset();
+
+    m_parent_id_label.reset();
+    m_parent_header_layout.reset();
+
     m_attribute_editors.clear();
+    m_attribute_layouts.clear();
+
+    m_attribute_layout.reset();
+    m_layout.reset();
+    */
 }
 
 // Update the data displayed by this widget and its children

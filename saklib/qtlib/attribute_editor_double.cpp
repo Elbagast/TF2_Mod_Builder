@@ -15,7 +15,7 @@
 //============================================================
 Saklib::Qtlib::Attribute_Editor_Double::Attribute_Editor_Double(Project_Widget*const project_widget, AttributeID attributeid, QWidget* parent):
     Attribute_Editor(project_widget, attributeid, parent),
-    m_spinbox(new QDoubleSpinBox(this)),
+    m_spinbox(),
     //m_label(),
     m_layout()
 {
@@ -23,7 +23,7 @@ Saklib::Qtlib::Attribute_Editor_Double::Attribute_Editor_Double(Project_Widget*c
 }
 Saklib::Qtlib::Attribute_Editor_Double::Attribute_Editor_Double(Project_Widget*const project_widget, AttributeID attributeid, size_type vector_index, QWidget* parent):
     Attribute_Editor(project_widget, attributeid, vector_index, parent),
-    m_spinbox(new QDoubleSpinBox(this)),
+    m_spinbox(),
     //m_label(),
     m_layout()
 {
@@ -48,9 +48,9 @@ void Saklib::Qtlib::Attribute_Editor_Double::slot_editingFinished()
 
 void Saklib::Qtlib::Attribute_Editor_Double::shared_construction()
 {
-    m_spinbox = std::make_unique<QDoubleSpinBox>();
-    //m_label = std::make_unique<QLabel>();
-    m_layout = std::make_unique<QHBoxLayout>();
+    m_spinbox = make_quptr<QDoubleSpinBox>();
+    //m_label = make_quptr<QLabel>();
+    m_layout = make_quptr<QHBoxLayout>();
     m_spinbox->setValue(attribute_value<Double>());
 
     // ok this gets a bit weird with numeric limits, because they're mad

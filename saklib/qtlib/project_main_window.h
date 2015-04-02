@@ -2,6 +2,7 @@
 #define PROJECT_MAIN_WINDOW_H
 
 #include "../types.h"
+#include "quptr.h"
 
 #include <QMainWindow>
 #include "windowtitle.h"
@@ -101,7 +102,7 @@ namespace Saklib
 
             // Form built UI
             Uptr<Ui::Project_Main_Window> m_ui;
-            Uptr<Project_Widget> m_project_widget;
+            QUptr<Project_Widget> m_project_widget;
             WindowTitle m_window_title;
 
             // Static Data Members

@@ -34,8 +34,8 @@ namespace Saklib
 
             // Data Members
             //============================================================
-            Uptr<QLineEdit> m_line_edit;
-            Uptr<QHBoxLayout> m_layout;
+            QUptr<QLineEdit> m_line_edit;
+            QUptr<QHBoxLayout> m_layout;
         };
 
     } // namespace Qtlib

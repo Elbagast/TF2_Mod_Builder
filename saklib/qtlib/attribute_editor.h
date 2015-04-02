@@ -76,15 +76,15 @@ namespace Saklib
         protected:
             void v_refresh_data() override {}
         private:
-            Uptr<QLabel> m_label;
-            Uptr<QHBoxLayout> m_layout;
+            QUptr<QLabel> m_label;
+            QUptr<QHBoxLayout> m_layout;
         };
 
         // Function with a typeswitch
-        Uptr<Attribute_Editor> make_Attribute_Editor(Project_Widget*const project_widget, AttributeID attributeid);
+        QUptr<Attribute_Editor> make_Attribute_Editor(Project_Widget*const project_widget, AttributeID attributeid);
 
         // Function with a typeswitch
-        Uptr<Attribute_Editor> make_Attribute_Editor(Project_Widget*const project_widget, AttributeID attributeid, size_type vector_index);
+        QUptr<Attribute_Editor> make_Attribute_Editor(Project_Widget*const project_widget, AttributeID attributeid, size_type vector_index);
 
     } // namespace Qtlib
 } // namespace Saklib

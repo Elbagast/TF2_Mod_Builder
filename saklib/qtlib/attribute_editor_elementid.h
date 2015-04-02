@@ -49,11 +49,11 @@ namespace Saklib
             //============================================================
             ElementID m_elementid;
 
-            Uptr<QPushButton> m_button;
-            Uptr<QLabel> m_name_label;
-            Uptr<QLabel> m_type_label; // type changer?
+            QUptr<QPushButton> m_button;
+            QUptr<QLabel> m_name_label;
+            QUptr<QLabel> m_type_label; // type changer?
 
-            Uptr<QHBoxLayout> m_layout;
+            QUptr<QHBoxLayout> m_layout;
         };
 
     } // namespace Qtlib

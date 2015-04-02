@@ -44,8 +44,8 @@ void Saklib::Qtlib::Attribute_Editor_String::slot_editingFinished()
 
 void Saklib::Qtlib::Attribute_Editor_String::shared_construction()
 {
-    m_line_edit = std::make_unique<QLineEdit>();
-    m_layout = std::make_unique<QHBoxLayout>();
+    m_line_edit = make_quptr<QLineEdit>();
+    m_layout = make_quptr<QHBoxLayout>();
 
     m_line_edit->setText(to_QString(attribute_value<String>()));
 

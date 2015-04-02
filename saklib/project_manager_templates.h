@@ -397,7 +397,7 @@ void Saklib::Project_Manager::all_observers_function(MemFunc func) const
 }
 
 template <typename MemFunc, typename... Args>
-void Saklib::Project_Manager::all_observers_function(MemFunc func, Args... args) const
+void Saklib::Project_Manager::all_observers_function(MemFunc func, Args&&... args) const
 {
     for (auto p_observer : m_observers)
     {
