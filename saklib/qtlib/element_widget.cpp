@@ -1,6 +1,8 @@
 #include "element_widget.h"
 
 #include "project_widget.h"
+#include "../project_manager.h"
+
 #include "attribute_editor.h"
 #include "../element.h"
 #include "../all_attributes.h"
@@ -20,7 +22,7 @@ Saklib::Qtlib::Element_Widget::Element_Widget(Project_Widget*const project_widge
     QWidget(nullptr),
     mp_project_widget(project_widget),
     m_elementid(elementid),
-    m_parentid(mp_project_widget->element_parent(m_elementid)),
+    m_parentid(mp_project_widget->project_manager().element_parent(m_elementid)),
 
     m_element_name_label(),
     m_element_type_label(),
@@ -37,18 +39,18 @@ Saklib::Qtlib::Element_Widget::Element_Widget(Project_Widget*const project_widge
 
 {
     // Really shouldn't have got here with an invalid ID
-    assert(mp_project_widget->is_valid(elementid));
+    assert(mp_project_widget->project_manager().is_valid(elementid));
 
     // Configure the labels
 
     // If the name is editable this type will get changed.
-    m_element_name_label = std::make_unique<QLabel>(mp_project_widget->element(m_elementid).name().c_str());
+    m_element_name_label = std::make_unique<QLabel>(mp_project_widget->project_manager().element_name(m_elementid).c_str());
     //m_element_name_label->setSizePolicy( QSizePolicy::Expanding, QSizePolicy::Minimum );
 
-    m_element_type_label = std::make_unique<QLabel>(mp_project_widget->element(m_elementid).type().c_str());
+    m_element_type_label = std::make_unique<QLabel>(mp_project_widget->project_manager().element_type(m_elementid).c_str());
     //m_element_type_label->setSizePolicy( QSizePolicy::Expanding, QSizePolicy::Minimum );
 
-    m_element_can_be_root_label = std::make_unique<QLabel>(mp_project_widget->element_can_be_root(m_elementid) ? "Can be root." : "Cannot be root.");
+    m_element_can_be_root_label = std::make_unique<QLabel>(mp_project_widget->project_manager().element_can_be_root(m_elementid) ? "Can be root." : "Cannot be root.");
 
     m_element_id_label = std::make_unique<QLabel>(to_QString(m_elementid.value()));
 
@@ -67,7 +69,7 @@ Saklib::Qtlib::Element_Widget::Element_Widget(Project_Widget*const project_widge
     m_layout->addLayout(m_attribute_layout.get());
     {
         // scope to expire this reference
-        Vector<Uptr<Attribute>> const& attributes = mp_project_widget->element(m_elementid).attributes();
+        Vector<Uptr<Attribute>> const& attributes = mp_project_widget->project_manager().element(m_elementid).attributes();
         for (size_type attribute_index = 0, end = attributes.size(); attribute_index != end; ++attribute_index)
         {
             // The Attribute we're working with
@@ -134,8 +136,8 @@ Saklib::Qtlib::Element_Widget::~Element_Widget()
 // Update the data displayed by this widget and its children
 void Saklib::Qtlib::Element_Widget::refresh_data()
 {
-    m_element_name_label->setText(mp_project_widget->element(m_elementid).name().c_str());
-    m_parentid = mp_project_widget->element_parent(m_elementid);
+    m_element_name_label->setText(mp_project_widget->project_manager().element(m_elementid).name().c_str());
+    m_parentid = mp_project_widget->project_manager().element_parent(m_elementid);
     m_parent_id_label->setText(to_QString(m_parentid.elementid().value()).append(" : ").append(to_QString(m_parentid.index())));
     for (auto& attribute_editor : m_attribute_editors)
         attribute_editor->refresh_data();

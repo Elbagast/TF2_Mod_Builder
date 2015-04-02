@@ -1,6 +1,7 @@
 #include "attribute_editor_double.h"
 
 #include "project_widget.h"
+#include "../project_manager.h"
 #include "qstring_operations.h"
 
 #include <numeric>
@@ -40,9 +41,9 @@ void Saklib::Qtlib::Attribute_Editor_Double::v_refresh_data()
 void Saklib::Qtlib::Attribute_Editor_Double::slot_editingFinished()
 {
     if (is_vector_component())
-        project_widget()->undoable_attribute_vector_set_at<Double>(attributeid(), vector_index(), m_spinbox->value());
+        project_widget()->project_manager().undoable_attribute_vector_set_at<Double>(attributeid(), vector_index(), m_spinbox->value());
     else
-        project_widget()->undoable_attribute_set_value<Double>(attributeid(), m_spinbox->value());
+        project_widget()->project_manager().undoable_attribute_set_value<Double>(attributeid(), m_spinbox->value());
 }
 
 void Saklib::Qtlib::Attribute_Editor_Double::shared_construction()

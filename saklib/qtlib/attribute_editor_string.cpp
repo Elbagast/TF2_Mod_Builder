@@ -1,6 +1,8 @@
 #include "attribute_editor_string.h"
 
 #include "project_widget.h"
+#include "../project_manager.h"
+
 #include "qstring_operations.h"
 
 #include <QLineEdit>
@@ -35,9 +37,9 @@ void Saklib::Qtlib::Attribute_Editor_String::v_refresh_data()
 void Saklib::Qtlib::Attribute_Editor_String::slot_editingFinished()
 {
     if (is_vector_component())
-        project_widget()->undoable_attribute_vector_set_at<String>(attributeid(), vector_index(), to_String(m_line_edit->text()));
+        project_widget()->project_manager().undoable_attribute_vector_set_at<String>(attributeid(), vector_index(), to_String(m_line_edit->text()));
     else
-        project_widget()->undoable_attribute_set_value<String>(attributeid(), to_String(m_line_edit->text()));
+        project_widget()->project_manager().undoable_attribute_set_value<String>(attributeid(), to_String(m_line_edit->text()));
 }
 
 void Saklib::Qtlib::Attribute_Editor_String::shared_construction()

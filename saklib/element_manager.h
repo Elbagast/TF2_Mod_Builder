@@ -86,6 +86,9 @@ namespace Saklib
         // ElementIDs that have no parent
         Vector_ElementID root_elementids() const;
 
+        // Destory everything
+        void clear();
+
         // Command Interface
         //============================================================
         // Bits that only Command objects will end up using

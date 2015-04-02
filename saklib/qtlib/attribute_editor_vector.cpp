@@ -3,6 +3,7 @@
 #include "attribute_editor_elementid.h"
 
 #include "project_widget.h"
+#include "../project_manager.h"
 #include "qstring_operations.h"
 
 #include <QVBoxLayout>
@@ -56,7 +57,7 @@ Saklib::Qtlib::Attribute_Editor_Vector::~Attribute_Editor_Vector()
 
 Saklib::size_type Saklib::Qtlib::Attribute_Editor_Vector::attribute_vector_size() const
 {
-    return this->project_widget()->any_attribute_vector_size(attributeid());
+    return this->project_widget()->project_manager().any_attribute_vector_size(attributeid());
 }
 
 void Saklib::Qtlib::Attribute_Editor_Vector::v_refresh_data()

@@ -13,10 +13,11 @@ namespace Ui
 
 namespace Saklib
 {
+    class Project_Manager;
+
     namespace Qtlib
     {
         class Project_Widget;
-
         /*
         Project_Main_Window
         ====================================================================================================
@@ -35,9 +36,9 @@ namespace Saklib
         public:
             // Special 6
             //============================================================
-            explicit Project_Main_Window(QWidget *parent = nullptr);
+            explicit Project_Main_Window(Project_Manager& project_manager, QWidget *parent = nullptr);
             // Called if the program is opened with a file
-            explicit Project_Main_Window(Path const& projectFilePath, QWidget *parent = nullptr);
+            explicit Project_Main_Window(Project_Manager& project_manager, Path const& projectFilePath, QWidget *parent = nullptr);
 
             ~Project_Main_Window() override;
 
@@ -92,8 +93,11 @@ namespace Saklib
             // Report whether there are currently unsaved edits
             bool has_unsaved_edits() const;
 
+            void make_project_widget();
+
             // Data Members
             //============================================================
+            Project_Manager& mr_project_manager;
 
             // Form built UI
             Uptr<Ui::Project_Main_Window> m_ui;

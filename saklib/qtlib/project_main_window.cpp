@@ -8,6 +8,7 @@
 #include <numeric>
 
 #include "qstring_operations.h"
+#include "../project_manager.h"
 #include "project_widget.h"
 
 // Static Data Members
@@ -18,8 +19,9 @@ Saklib::size_type Saklib::Qtlib::Project_Main_Window::s_new_count{0};
 
 // Special 6
 //============================================================
-Saklib::Qtlib::Project_Main_Window::Project_Main_Window(QWidget *parent) :
+Saklib::Qtlib::Project_Main_Window::Project_Main_Window(Project_Manager& project_manager, QWidget *parent) :
     QMainWindow(parent),
+    mr_project_manager(project_manager),
     m_ui(new Ui::Project_Main_Window),
     m_project_widget(nullptr),
     m_window_title(this, s_app_name.c_str())
@@ -47,8 +49,8 @@ Saklib::Qtlib::Project_Main_Window::Project_Main_Window(QWidget *parent) :
     new_project();
     // Alternatively open a supplied filepath?
 }
-Saklib::Qtlib::Project_Main_Window::Project_Main_Window(Path const& filepath, QWidget *parent) :
-    Project_Main_Window(parent)
+Saklib::Qtlib::Project_Main_Window::Project_Main_Window(Project_Manager& project_manager, Path const& filepath, QWidget *parent) :
+    Project_Main_Window(project_manager, parent)
 {
     // runs the main constructor, then opens the project
     open_project(filepath);
@@ -151,17 +153,17 @@ bool Saklib::Qtlib::Project_Main_Window::actionSlot_Exit()
 //====================
 void Saklib::Qtlib::Project_Main_Window::actionSlot_Undo()
 {
-    m_project_widget->undo();
+    mr_project_manager.undo();
 }
 
 void Saklib::Qtlib::Project_Main_Window::actionSlot_Redo()
 {
-    m_project_widget->redo();
+    mr_project_manager.redo();
 }
 
 void Saklib::Qtlib::Project_Main_Window::actionSlot_Clear_History()
 {
-    m_project_widget->clear_history();
+    mr_project_manager.clear_history();
 }
 
 
@@ -221,36 +223,24 @@ void Saklib::Qtlib::Project_Main_Window::closeEvent(QCloseEvent *event)
 void Saklib::Qtlib::Project_Main_Window::new_project()
 {
     String project_name = s_new_name_front + std::to_string(++s_new_count);
+    Path project_path = Saklib::to_Path(project_name);
 
-    m_project_widget = std::make_unique<Project_Widget>(Saklib::to_Path(project_name));
+    m_project_widget.reset();
 
-    setCentralWidget(m_project_widget.get());
-    QObject::connect(m_project_widget.get(), &Project_Widget::signal_unsaved_edits,
-                     this, &Project_Main_Window::slot_unsaved_edits);
-    QObject::connect(m_project_widget.get(), &Project_Widget::signal_update_undo_actions,
-                     this, &Project_Main_Window::slot_update_undo_actions);
+    mr_project_manager.clear();
+    mr_project_manager.new_project(project_path);
 
-    // Update the window title with the new file path and editing state
-    m_window_title.set_variable_title(to_QString(m_project_widget->project_filepath()));
-    slot_update_undo_actions(0,0);
+    make_project_widget();
 }
 // Opens a project and loads the data found in the file.
 void Saklib::Qtlib::Project_Main_Window::open_project(Path const& filepath)   // currently a clone of newProject
 {
-    // Make a completely new widget using this file path - potentially want to change this?
-    m_project_widget = std::make_unique<Project_Widget>(filepath);
+    m_project_widget.reset();
 
-    // Make it into the central widget
-    setCentralWidget(m_project_widget.get());
+    mr_project_manager.clear();
+    mr_project_manager.open_project(filepath);
 
-    QObject::connect(m_project_widget.get(), &Project_Widget::signal_unsaved_edits,
-                     this, &Project_Main_Window::slot_unsaved_edits);
-    QObject::connect(m_project_widget.get(), &Project_Widget::signal_update_undo_actions,
-                     this, &Project_Main_Window::slot_update_undo_actions);
-
-    // Update the window title with the new file path and editing state
-    m_window_title.set_variable_title(to_QString(m_project_widget->project_filepath()));
-    slot_update_undo_actions(0,0);
+    make_project_widget();
 }
 void Saklib::Qtlib::Project_Main_Window::open_project(QString const& filePath)
 {
@@ -289,4 +279,21 @@ bool Saklib::Qtlib::Project_Main_Window::ask_to_save()
 bool Saklib::Qtlib::Project_Main_Window::has_unsaved_edits() const
 {
     return m_window_title.has_unsaved_edits();
+}
+
+void Saklib::Qtlib::Project_Main_Window::make_project_widget()
+{
+    m_project_widget = std::make_unique<Project_Widget>(mr_project_manager);
+
+    // Make it into the central widget
+    setCentralWidget(m_project_widget.get());
+
+    QObject::connect(m_project_widget.get(), &Project_Widget::signal_unsaved_edits,
+                     this, &Project_Main_Window::slot_unsaved_edits);
+    QObject::connect(m_project_widget.get(), &Project_Widget::signal_update_undo_actions,
+                     this, &Project_Main_Window::slot_update_undo_actions);
+
+    // Update the window title with the new file path and editing state
+    m_window_title.set_variable_title(to_QString(m_project_widget->project_filepath()));
+    slot_update_undo_actions(0,0);
 }

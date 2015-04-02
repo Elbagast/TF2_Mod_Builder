@@ -8,7 +8,8 @@
 // Special 6
 //============================================================
 Saklib::Qtlib::Outliner_Treeview::Outliner_Treeview(QWidget *parent) :
-    QTreeView(parent)
+    QTreeView(parent),
+    m_expanded_indexes()
 {
     // Connect the base class signal to the new slot so that we can do our own context menu
     QObject::connect(this, &QTreeView::customContextMenuRequested,
@@ -25,6 +26,39 @@ void Saklib::Qtlib::Outliner_Treeview::setModel(QAbstractItemModel* newModel)
 {
     QTreeView::setModel(newModel);
     applySettings();
+}
+
+void Saklib::Qtlib::Outliner_Treeview::cache_expanded_indexes()
+{
+    m_expanded_indexes.clear();
+    // Cast to the assumed correct model type
+    auto model = dynamic_cast<Outliner_Model*const>(this->model());
+    if (model)
+    {
+        auto all_indexes = model->all_indexes();
+        for (auto const& index : all_indexes)
+        {
+            if (isExpanded(index))
+            {
+                m_expanded_indexes.push_back(index);
+            }
+        }
+    }
+}
+
+void Saklib::Qtlib::Outliner_Treeview::restore_expanded_indexes()
+{
+    auto model = dynamic_cast<Outliner_Model*const>(this->model());
+    if (model)
+    {
+        for (auto const& index : m_expanded_indexes)
+        {
+            if (model->hasIndex(index.row(), index.column(), index.parent()))
+            {
+                setExpanded(index, true);
+            }
+        }
+    }
 }
 
 // Slots

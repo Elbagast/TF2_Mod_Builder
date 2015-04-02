@@ -2,7 +2,7 @@
 #define OUTLINER_TREEVIEW_H
 
 #include <QTreeView>
-#include <memory>
+#include "../../types.h"
 
 namespace Saklib
 {
@@ -29,6 +29,9 @@ namespace Saklib
             // Adding additional behaviour
             void setModel(QAbstractItemModel * newModel) override;
 
+            void cache_expanded_indexes();
+            void restore_expanded_indexes();
+
         public slots:
             // Slots
             //============================================================
@@ -49,6 +52,8 @@ namespace Saklib
             //============================================================
             // Called on construction and after the model is changed
             void applySettings();
+
+            Vector<QModelIndex> m_expanded_indexes;
         };
 
     } // namespace Qtlib

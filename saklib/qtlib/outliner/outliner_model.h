@@ -11,6 +11,8 @@ class QAbstractItemView;
 
 namespace Saklib
 {
+    class Project_Manager;
+
     namespace Qtlib
     {
         class Project_Widget;
@@ -25,11 +27,6 @@ namespace Saklib
                 public QAbstractItemModel
         {
             Q_OBJECT
-
-            friend class Outliner_Model_Row_Inserter;
-            friend class Outliner_Model_Row_Remover;
-            friend class Outliner_Model_Reseter;
-            friend class Outliner_Refresh;
         public:
             // Special 6
             //============================================================
@@ -107,6 +104,9 @@ namespace Saklib
 
             // Forward this request to the Project_Manager
             void request_editor(ElementID elementid);
+
+            void begin_model_reset();
+            void end_model_reset();
 
         private:
             // Data Members

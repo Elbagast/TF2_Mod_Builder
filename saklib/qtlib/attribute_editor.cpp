@@ -2,6 +2,8 @@
 
 #include "../types.h"
 #include "project_widget.h"
+#include "../project_manager.h"
+
 #include "attribute_editor_bool.h"
 #include "attribute_editor_int.h"
 #include "attribute_editor_double.h"
@@ -24,24 +26,24 @@ Saklib::Qtlib::Attribute_Editor::Attribute_Editor(Project_Widget*const project_w
     QWidget(parent),
     mp_project_widget(project_widget),
     m_attributeid(attributeid),
-    m_attribute_type(mp_project_widget->attribute_type_enum(attributeid)),
+    m_attribute_type(mp_project_widget->project_manager().attribute_type_enum(attributeid)),
     m_vector_index(0),
     m_is_vector_component(false)
 {
     assert(mp_project_widget);
-    assert(mp_project_widget->is_valid(attributeid));
+    assert(mp_project_widget->project_manager().is_valid(attributeid));
 }
 
 Saklib::Qtlib::Attribute_Editor::Attribute_Editor(Project_Widget*const project_widget, AttributeID attributeid, size_type vector_index, QWidget* parent):
     QWidget(parent),
     mp_project_widget(project_widget),
     m_attributeid(attributeid),
-    m_attribute_type(mp_project_widget->attribute_type_enum(attributeid)),
+    m_attribute_type(mp_project_widget->project_manager().attribute_type_enum(attributeid)),
     m_vector_index(vector_index),
     m_is_vector_component(true)
 {
     assert(mp_project_widget);
-    assert(mp_project_widget->is_valid(attributeid));
+    assert(mp_project_widget->project_manager().is_valid(attributeid));
 }
 
 Saklib::Qtlib::Attribute_Editor::~Attribute_Editor() = default;
@@ -68,9 +70,9 @@ Saklib::Qtlib::Attribute_Editor_Dummy::~Attribute_Editor_Dummy() = default;
 Saklib::Uptr<Saklib::Qtlib::Attribute_Editor> Saklib::Qtlib::make_Attribute_Editor(Project_Widget*const project_widget, AttributeID attributeid)
 {
     assert(project_widget);
-    assert(project_widget->is_valid(attributeid));
+    assert(project_widget->project_manager().is_valid(attributeid));
 
-    switch (project_widget->attribute_type_enum(attributeid))
+    switch (project_widget->project_manager().attribute_type_enum(attributeid))
     {
     case Type_Enum::Bool:            return Uptr<Attribute_Editor>(new Attribute_Editor_Bool(project_widget, attributeid));
     case Type_Enum::Int:             return Uptr<Attribute_Editor>(new Attribute_Editor_Int(project_widget, attributeid));
@@ -95,9 +97,9 @@ Saklib::Uptr<Saklib::Qtlib::Attribute_Editor> Saklib::Qtlib::make_Attribute_Edit
 Saklib::Uptr<Saklib::Qtlib::Attribute_Editor> Saklib::Qtlib::make_Attribute_Editor(Project_Widget*const project_widget, AttributeID attributeid, size_type vector_index)
 {
     assert(project_widget);
-    assert(project_widget->is_valid(attributeid));
+    assert(project_widget->project_manager().is_valid(attributeid));
 
-    switch (project_widget->attribute_type_enum(attributeid))
+    switch (project_widget->project_manager().attribute_type_enum(attributeid))
     {
     case Type_Enum::Vector_Bool:            return Uptr<Attribute_Editor>(new Attribute_Editor_Bool(project_widget, attributeid, vector_index));
     case Type_Enum::Vector_Int:             return Uptr<Attribute_Editor>(new Attribute_Editor_Int(project_widget, attributeid, vector_index));

@@ -53,8 +53,9 @@ SOURCES += main.cpp\
     saklib/qtlib/select_element_type_dialog.cpp \
     saklib/qtlib/attribute_editor_vector_elementid.cpp \
     saklib/qtlib/attribute_editor_vector.cpp \
-    saklib/qtlib/project_widget_declaration.cpp \
-    saklib/qtlib/outliner/outliner_operations.cpp
+    saklib/project_observer.cpp \
+    saklib/project_manager_declaration.cpp \
+    saklib/qtlib/project_widget.cpp
 
 HEADERS  += \
     saklib/all_attributes.h \
@@ -103,17 +104,17 @@ HEADERS  += \
     saklib/qtlib/attribute_editor_double.h \
     saklib/qtlib/attribute_editor_string.h \
     saklib/command_element.h \
-    saklib/qtlib/project_widget.h \
     saklib/qtlib/attribute_editor_elementid.h \
     saklib/qtlib/select_element_type_dialog.h \
     saklib/qtlib/attribute_editor_vector_elementid.h \
     saklib/qtlib/attribute_editor_vector.h \
-    saklib/qtlib/project_widget_commands.h \
-    saklib/qtlib/project_widget_declaration.h \
-    saklib/qtlib/project_widget_templates.h \
-    saklib/qtlib/project_widget_inlines.h \
-    saklib/qtlib/outliner/outliner_operations.h \
-    saklib/qtlib/attribute_editor_vector_type.h
+    saklib/qtlib/attribute_editor_vector_type.h \
+    saklib/project_observer.h \
+    saklib/project_manager_declaration.h \
+    saklib/project_manager.h \
+    saklib/project_manager_commands.h \
+    saklib/project_manager_templates.h \
+    saklib/qtlib/project_widget.h
 
 FORMS    += \
     saklib/qtlib/consoledialog.ui \

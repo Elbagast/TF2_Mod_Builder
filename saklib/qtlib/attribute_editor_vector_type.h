@@ -3,6 +3,7 @@
 
 #include "attribute_editor_vector.h"
 #include "project_widget.h"
+#include "../project_manager.h"
 
 namespace Saklib
 {
@@ -27,39 +28,39 @@ namespace Saklib
         protected:
             void slot_append() override
             {
-                project_widget()->undoable_attribute_vector_push_back<T>(attributeid(), T());
+                project_widget()->project_manager().undoable_attribute_vector_push_back<T>(attributeid(), T());
             }
             void slot_insert(size_type index) override
             {
-                project_widget()->undoable_attribute_vector_insert_at<T>(attributeid(), index, T());
+                project_widget()->project_manager().undoable_attribute_vector_insert_at<T>(attributeid(), index, T());
             }
             void slot_remove(size_type index) override
             {
-                project_widget()->undoable_attribute_vector_remove_at<T>(attributeid(), index);
+                project_widget()->project_manager().undoable_attribute_vector_remove_at<T>(attributeid(), index);
             }
             void slot_remove_last() override
             {
-                project_widget()->undoable_attribute_vector_pop_back<T>(attributeid());
+                project_widget()->project_manager().undoable_attribute_vector_pop_back<T>(attributeid());
             }
             void slot_swap(size_type index, size_type other_index) override
             {
-                project_widget()->undoable_attribute_vector_swap_at<T>(attributeid(), index, other_index);
+                project_widget()->project_manager().undoable_attribute_vector_swap_at<T>(attributeid(), index, other_index);
             }
             void slot_move_up(size_type index) override
             {
                 auto size = attribute_vector_size();
                 if (size > 1 && index > 0)
-                    project_widget()->undoable_attribute_vector_swap_at<T>(attributeid(), index, index - 1);
+                    project_widget()->project_manager().undoable_attribute_vector_swap_at<T>(attributeid(), index, index - 1);
             }
             void slot_move_down(size_type index) override
             {
                 auto size = attribute_vector_size();
                 if (size > 1 && index < attribute_vector_size() - 1)
-                    project_widget()->undoable_attribute_vector_swap_at<T>(attributeid(), index, index + 1);
+                    project_widget()->project_manager().undoable_attribute_vector_swap_at<T>(attributeid(), index, index + 1);
             }
             void slot_clear() override
             {
-                project_widget()->undoable_attribute_vector_clear<T>(attributeid());
+                project_widget()->project_manager().undoable_attribute_vector_clear<T>(attributeid());
             }
         };
 

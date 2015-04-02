@@ -1,6 +1,7 @@
 #include "outliner_model.h"
 
 #include "../project_widget.h"
+#include "../../project_manager.h"
 
 #include "../qvariant_operations.h"
 #include "../qstring_operations.h"
@@ -71,11 +72,11 @@ QVariant Saklib::Qtlib::Outliner_Model::data(QModelIndex const& index, int role)
         }
         else if (indexid.is_element())
         {
-            return to_QVariant(mp_project_widget->element_name(indexid.elementid()));
+            return to_QVariant(mp_project_widget->project_manager().element_name(indexid.elementid()));
         }
         else if (indexid.is_attribute())
         {
-            return to_QVariant(mp_project_widget->attribute_name(indexid.attributeid()));
+            return to_QVariant(mp_project_widget->project_manager().attribute_name(indexid.attributeid()));
         }
     }
 
@@ -92,7 +93,7 @@ int Saklib::Qtlib::Outliner_Model::rowCount(QModelIndex const& index) const
 
     if (!index.isValid())
     {
-        return mp_project_widget->outliner_row_count_root();
+        return mp_project_widget->project_manager().outliner_row_count_root();
     }
 
     // Make a proxy out of the id
@@ -101,20 +102,20 @@ int Saklib::Qtlib::Outliner_Model::rowCount(QModelIndex const& index) const
 
     if (!indexid.is_valid())
     {
-        //return mp_project_widget->outliner_row_count_root();
+        //return mp_project_widget->project_manager().outliner_row_count_root();
         return 0;
     }
     else if (indexid.is_element())
     {
-        return mp_project_widget->outliner_row_count(indexid.elementid());
+        return mp_project_widget->project_manager().outliner_row_count(indexid.elementid());
     }
     else if (indexid.is_attribute())
     {
-        return mp_project_widget->outliner_row_count(indexid.attributeid());
+        return mp_project_widget->project_manager().outliner_row_count(indexid.attributeid());
     }
     //else if (!index.isValid()) // root index
     //{
-     //   return mp_project_widget->outliner_row_count_root();
+     //   return mp_project_widget->project_manager().outliner_row_count_root();
     //}
     else
     {
@@ -142,7 +143,7 @@ bool Saklib::Qtlib::Outliner_Model::setData(QModelIndex const& index, QVariant c
             // EDIT THE DATA
 
             // make a command to edit the name...
-            mp_project_widget->undoable_element_set_name(index_id.elementid(), to_String(value));
+            mp_project_widget->project_manager().undoable_element_set_name(index_id.elementid(), to_String(value));
 
             //Works! but going to want to reorganise updating data in views...
 
@@ -209,12 +210,12 @@ QModelIndex Saklib::Qtlib::Outliner_Model::index(int row, int column, QModelInde
     {
         // Then this index represents a Root ElementID
 
-        auto root_elementids = mp_project_widget->root_elementids();
+        auto root_elementids = mp_project_widget->project_manager().root_elementids();
         // If the inputs make sense
         if (row >= 0 && row < static_cast<int>(root_elementids.size()))
         {
             // Get the ElementID at row
-            ElementID index_elementid{mp_project_widget->root_elementids().at(row)};
+            ElementID index_elementid{mp_project_widget->project_manager().root_elementids().at(row)};
 
             // Test it before making an index
             if (index_elementid.is_valid())
@@ -229,7 +230,7 @@ QModelIndex Saklib::Qtlib::Outliner_Model::index(int row, int column, QModelInde
         // Then this index represents an ElementID
 
         // get the item by row in parent
-        AttributeID index_attributeid{mp_project_widget->outliner_child_at_row(parentid.elementid(), row)};
+        AttributeID index_attributeid{mp_project_widget->project_manager().outliner_child_at_row(parentid.elementid(), row)};
 
         // Test it before making an index
         if (index_attributeid.is_valid())
@@ -244,7 +245,7 @@ QModelIndex Saklib::Qtlib::Outliner_Model::index(int row, int column, QModelInde
         // Then this index represents an AttributeID
 
         // get the item by row in parent
-        ElementID index_elementid{mp_project_widget->outliner_child_at_row(parentid.attributeid(), row)};
+        ElementID index_elementid{mp_project_widget->project_manager().outliner_child_at_row(parentid.attributeid(), row)};
 
         // Test it before making an index
         if (index_elementid.is_valid())
@@ -279,13 +280,13 @@ QModelIndex Saklib::Qtlib::Outliner_Model::parent(QModelIndex const& index) cons
     else if (indexid.is_element())
     {
         // get the parent
-        AttributeID parent{mp_project_widget->parent_of(indexid.elementid())};
+        AttributeID parent{mp_project_widget->project_manager().parent_of(indexid.elementid())};
 
         // Test it
         if (parent.is_valid())
         {
             // then make an index for the parentid
-            int row = mp_project_widget->outliner_row_in_parent(parent);
+            int row = mp_project_widget->project_manager().outliner_row_in_parent(parent);
             return QAbstractItemModel::createIndex(row, 0, ProxyID::pack(parent));
         }
     }
@@ -299,7 +300,7 @@ QModelIndex Saklib::Qtlib::Outliner_Model::parent(QModelIndex const& index) cons
         if (parent.is_valid())
         {
             // then make an index for the parentid
-            int row = mp_project_widget->outliner_row_in_parent(parent);
+            int row = mp_project_widget->project_manager().outliner_row_in_parent(parent);
             return QAbstractItemModel::createIndex(row, 0, ProxyID::pack(parent));
         }
     }
@@ -415,7 +416,7 @@ void Saklib::Qtlib::Outliner_Model::update_item(AttributeID attributeid)
 // Update the data for a specific item's children
 void Saklib::Qtlib::Outliner_Model::update_children(ElementID elementid)
 {
-    auto child_count = mp_project_widget->element(elementid).attribute_count();
+    auto child_count = mp_project_widget->project_manager().element(elementid).attribute_count();
     if (child_count > 0)
     {
         auto first_child = make_index_of(AttributeID(elementid, 0));
@@ -426,10 +427,10 @@ void Saklib::Qtlib::Outliner_Model::update_children(ElementID elementid)
 }
 void Saklib::Qtlib::Outliner_Model::update_children(AttributeID attributeid)
 {
-    auto type = mp_project_widget->attribute_type_enum(attributeid);
+    auto type = mp_project_widget->project_manager().attribute_type_enum(attributeid);
     if (type == Type_Enum::ElementID)
     {
-        auto child_elementid = mp_project_widget->attribute_type_cast<ElementID>(attributeid)->value();
+        auto child_elementid = mp_project_widget->project_manager().attribute_type_cast<ElementID>(attributeid)->value();
         if (child_elementid.is_valid())
         {
             auto child_index = make_index_of(child_elementid);
@@ -440,7 +441,7 @@ void Saklib::Qtlib::Outliner_Model::update_children(AttributeID attributeid)
     }
     else if (type == Type_Enum::Vector_ElementID)
     {
-        auto const& children = mp_project_widget->attribute_type_cast<Vector_ElementID>(attributeid)->vector();
+        auto const& children = mp_project_widget->project_manager().attribute_type_cast<Vector_ElementID>(attributeid)->vector();
 
         if (!children.empty())
         {
@@ -498,7 +499,7 @@ void Saklib::Qtlib::Outliner_Model::custom_context_menu(QAbstractItemView*const 
     else if (indexid.is_element())
     {
         auto index_elementid = indexid.elementid();
-        auto menu_title = mp_project_widget->element_name(index_elementid);
+        auto menu_title = mp_project_widget->project_manager().element_name(index_elementid);
 
         menu.addAction(menu_title.c_str())->setEnabled(false);
         menu.addSeparator();
@@ -521,9 +522,9 @@ void Saklib::Qtlib::Outliner_Model::custom_context_menu(QAbstractItemView*const 
         auto index_attributeid = indexid.attributeid();
         auto index_elementid = index_attributeid.elementid();
 
-        auto menu_title = mp_project_widget->element_name(index_elementid)
+        auto menu_title = mp_project_widget->project_manager().element_name(index_elementid)
                           + " : "
-                          + mp_project_widget->attribute_name(index_attributeid);
+                          + mp_project_widget->project_manager().attribute_name(index_attributeid);
 
         menu.addAction(menu_title.c_str())->setEnabled(false);
         menu.addSeparator();
@@ -582,4 +583,14 @@ void Saklib::Qtlib::Outliner_Model::request_editor(QModelIndex const& index)
 void Saklib::Qtlib::Outliner_Model::request_editor(ElementID elementid)
 {
     mp_project_widget->open_editor(elementid);
+}
+
+void Saklib::Qtlib::Outliner_Model::begin_model_reset()
+{
+    this->beginResetModel();
+}
+
+void Saklib::Qtlib::Outliner_Model::end_model_reset()
+{
+    this->endResetModel();
 }

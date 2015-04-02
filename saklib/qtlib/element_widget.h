@@ -14,6 +14,7 @@ class QFormLayout;
 
 namespace Saklib
 {
+    class Project_Manager;
     class Element_Manager;
     class Element;
 
