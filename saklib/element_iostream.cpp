@@ -64,7 +64,7 @@ std::ostream& Saklib::operator<<(std::ostream& stream, Element const& element)
     return stream;
 }
 
-std::istream& Saklib::operator>>(std::istream& stream, Element& element)
+std::istream& Saklib::operator>>(std::istream& stream, Element& /*element*/)
 {
     return stream;
 }

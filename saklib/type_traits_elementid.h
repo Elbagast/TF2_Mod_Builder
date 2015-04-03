@@ -42,10 +42,10 @@ namespace Saklib
     };
 
     template <>
-	struct Type_Traits<Vector_ElementID>
+    struct Type_Traits<Vector_ElementID>
     {
     public:
-		using stored_type = Vector_ElementID;
+        using stored_type = Vector_ElementID;
         using value_type = ElementID;
 
         static Type_Enum const type_enum_value{ Type_Enum::Vector_ElementID };
@@ -67,7 +67,7 @@ namespace Saklib
     template <>
     struct TypeHolder<Type_Enum::Vector_ElementID>
     {
-		using traits_type = Type_Traits < Vector_ElementID >;
+        using traits_type = Type_Traits < Vector_ElementID >;
         using stored_type = traits_type::stored_type;
         using value_type = traits_type::value_type;
         static Type_Enum const type_enum_value{ Type_Enum::Vector_ElementID };

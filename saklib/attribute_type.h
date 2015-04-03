@@ -10,7 +10,7 @@
 
 namespace Saklib
 {
-	/*
+    /*
     Attribute_Type<T>
     ====================================================================================================
     Templated subclass for storage of simple types
@@ -97,7 +97,7 @@ namespace Saklib
 
         using value_type = T;
         using value_type_traits = Type_Traits<value_type>;
-		
+        
         using definition_type = Attribute_Definition_Type < stored_type >;
 
         // Special 6
@@ -107,7 +107,7 @@ namespace Saklib
             m_definition(definition), // if this is nullptr the constructor will fail...
             mp_definition(dynamic_cast<definition_type*>(m_definition.get())),
             mr_name(m_definition->name()),
-			m_vector()
+            m_vector()
         {
             assert(definition);                                 // there was actually a definition
             assert(mp_definition);                              // it was the right type

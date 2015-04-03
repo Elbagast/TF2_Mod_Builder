@@ -5,7 +5,7 @@
 
 namespace Saklib
 {
-	class Attribute_Definition;
+    class Attribute_Definition;
 
     /*
     Attribute
@@ -47,7 +47,7 @@ namespace Saklib
         //virtual bool v_is_constrained() const = 0;
     };
 
-	Uptr<Attribute> make_Attribute(Shptr<Attribute_Definition> const& definition);
+    Uptr<Attribute> make_Attribute(Shptr<Attribute_Definition> const& definition);
 
 } // namespace Saklib
 

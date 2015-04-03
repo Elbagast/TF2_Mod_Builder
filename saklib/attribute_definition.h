@@ -5,7 +5,7 @@
 
 namespace Saklib
 {
-	class Constraint;
+    class Constraint;
 
     /*
     Attribute_Definition
@@ -24,9 +24,9 @@ namespace Saklib
         Attribute_Definition(Attribute_Definition const& other) = delete;
         Attribute_Definition& operator=(Attribute_Definition const& other) = delete;
         
-        String const& name() const { return v_name(); }
-        Type_Enum type_enum() const     { return v_type_enum(); }
-        String type_string() const { return v_type_string(); }
+        String const& name() const  { return v_name(); }
+        Type_Enum type_enum() const { return v_type_enum(); }
+        String type_string() const  { return v_type_string(); }
         //Constraint const*const constraint() const  { return v_constraint(); }
         
         bool is_simple_type() const     { return Saklib::is_simple_type(type_enum()); }
@@ -45,23 +45,10 @@ namespace Saklib
 
     };
 
-	Shptr<Attribute_Definition> make_shared_Attribute_Definition(String const& name, Type_Enum type);
+    Shptr<Attribute_Definition> make_shared_Attribute_Definition(String const& name, Type_Enum type);
 
-	template <Type_Enum TE>
-	Shptr<Attribute_Definition> make_shared_Attribute_Definition(String const& name)
-	{
-		return Shptr<Attribute_Definition>(new Attribute_Definition_Type<TypeHolder_st<TE> >(name));
-	}
+    //Shptr<Attribute_Definition> make_shared_Attribute_Definition(String const& name, Type_Enum type, Uptr<Constraint>&& constraint = Uptr<Constraint>());
 
-	/*
-	Shptr<Attribute_Definition> make_shared_Attribute_Definition(String const& name, Type_Enum type, Uptr<Constraint>&& constraint = Uptr<Constraint>());
-
-	template <Type_Enum TE, typename Constraint_Class, typename... Args>
-	Shptr<Attribute_Definition> make_shared_Attribute_Definition(String const& name, Args... args)
-	{
-		return Shptr<Attribute_Definition>(new Attribute_Definition_Type<TypeHolder_st<TE> >(name, Uptr<Constraint_Class>(new Constraint_Class(std::forward<Args>(args)...))));
-	}
-	*/
 } // namespace Saklib
 
 #endif // ATTRIBUTE_DEFINITION_H

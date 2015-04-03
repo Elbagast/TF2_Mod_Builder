@@ -24,7 +24,7 @@ namespace Saklib
         // Typedefs
         //============================================================
         using attribute_type = Attribute_Type < T >;
-		
+        
         using stored_type = typename attribute_type::stored_type;
         using stored_type_traits = typename attribute_type::stored_type_traits;
 
