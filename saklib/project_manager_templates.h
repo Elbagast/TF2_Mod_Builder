@@ -277,8 +277,9 @@ bool Saklib::Project_Manager::undoable_attribute_vector_swap_at(AttributeID attr
     if(attributeid.is_valid()
        && this->is_valid(attributeid)
        && this->attribute_type_enum(attributeid) == Type_Traits<Vector<T>>::type_enum()
-       && this->attribute_vector_size<Vector<T>>(attributeid) > index
-       && this->attribute_vector_size<Vector<T>>(attributeid) > other_index )
+       && this->attribute_vector_size<T>(attributeid) > index
+       && this->attribute_vector_size<T>(attributeid) > other_index
+       && this->attribute_vector_at<T>(attributeid, index) != this->attribute_vector_at<T>(attributeid, other_index) )
     {
         m_command_history.emplace_execute<PMC_Attribute_Vector_Swap_At<T>>(this, attributeid, index, other_index);
         command_history_changed();
@@ -331,7 +332,7 @@ bool Saklib::Project_Manager::undoable_attribute_vector_insert_at(AttributeID at
     if(attributeid.is_valid()
        && this->is_valid(attributeid)
        && this->attribute_type_enum(attributeid) == Type_Traits<Vector<T>>::type_enum()
-       && this->attribute_vector_size<Vector<T>>(attributeid) > index
+       && this->attribute_vector_size<T>(attributeid) > index
        && this->attribute_type_cast<Vector<T>>(attributeid)->at(index) != value) // hmm
     {
         m_command_history.emplace_execute<PMC_Attribute_Vector_Insert_At<T>>(this, attributeid, index, value);
@@ -350,7 +351,7 @@ bool Saklib::Project_Manager::undoable_attribute_vector_remove_at(AttributeID at
     if(attributeid.is_valid()
        && this->is_valid(attributeid)
        && this->attribute_type_enum(attributeid) == Type_Traits<Vector<T>>::type_enum()
-       && this->attribute_vector_size<Vector<T>>(attributeid) > index)
+       && this->attribute_vector_size<T>(attributeid) > index)
     {
         m_command_history.emplace_execute<PMC_Attribute_Vector_Remove_At<T>>(this, attributeid, index);
         command_history_changed();

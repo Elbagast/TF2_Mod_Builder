@@ -48,6 +48,7 @@ void Saklib::Qtlib::Project_Widget::open_editor(ElementID elementid)
         // Replace it with a new Element_Widget
         m_editor = std::make_unique<Element_Widget>(this, elementid);
         m_scroll_area->setWidget(m_editor.get());
+        m_scroll_area->setWidgetResizable(true);
     }
 }
 // The ElementID of the Element that is currently being edited

@@ -398,6 +398,8 @@ namespace Saklib
     template <>
     void Project_Manager::attribute_vector_set_back<ElementID>(AttributeID attributeid, ElementID const& value);
     template <>
+    void Project_Manager::attribute_vector_swap_at<ElementID>(AttributeID attributeid, size_type index, size_type other_index);
+    template <>
     void Project_Manager::attribute_vector_push_back<ElementID>(AttributeID attributeid, ElementID const& value);
     template <>
     void Project_Manager::attribute_vector_pop_back<ElementID>(AttributeID attributeid);

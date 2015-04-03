@@ -32,7 +32,7 @@ void Saklib::Qtlib::Attribute_Editor_Vector_Type<Saklib::ElementID>::slot_append
 }
 
 //template<>
-void Saklib::Qtlib::Attribute_Editor_Vector_Type<Saklib::ElementID>::slot_insert(size_type index)
+void Saklib::Qtlib::Attribute_Editor_Vector_Type<Saklib::ElementID>::slot_insert_at(size_type index)
 {
     // Get a list of types of Element that we can use
     auto element_types = Element::get_registered_types();
@@ -48,7 +48,7 @@ void Saklib::Qtlib::Attribute_Editor_Vector_Type<Saklib::ElementID>::slot_insert
     }
 }
 
-void Saklib::Qtlib::Attribute_Editor_Vector_Type<Saklib::ElementID>::slot_remove(size_type index)
+void Saklib::Qtlib::Attribute_Editor_Vector_Type<Saklib::ElementID>::slot_remove_at(size_type index)
 {
     project_widget()->project_manager().undoable_attribute_vector_remove_at<ElementID>(attributeid(), index);
 }
@@ -63,13 +63,13 @@ void Saklib::Qtlib::Attribute_Editor_Vector_Type<Saklib::ElementID>::slot_swap(s
 void Saklib::Qtlib::Attribute_Editor_Vector_Type<Saklib::ElementID>::slot_move_up(size_type index)
 {
     auto size = attribute_vector_size();
-    if (size > 1 && index > 0)
+    if (size > 1 && index < size && index > 0)
         project_widget()->project_manager().undoable_attribute_vector_swap_at<ElementID>(attributeid(), index, index - 1);
 }
 void Saklib::Qtlib::Attribute_Editor_Vector_Type<Saklib::ElementID>::slot_move_down(size_type index)
 {
     auto size = attribute_vector_size();
-    if (size > 1 && index < attribute_vector_size() - 1)
+    if (size > 1 && index < size && index + 1 < size)
         project_widget()->project_manager().undoable_attribute_vector_swap_at<ElementID>(attributeid(), index, index + 1);
 }
 void Saklib::Qtlib::Attribute_Editor_Vector_Type<Saklib::ElementID>::slot_clear()

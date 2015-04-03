@@ -5,6 +5,7 @@
 #include "../types.h"
 
 class QVBoxLayout;
+class QHBoxLayout;
 class QGridLayout;
 class QPushButton;
 
@@ -13,6 +14,8 @@ namespace Saklib
     namespace Qtlib
     {
         class Element_Widget;
+
+        class Attribute_Editor_Vector_Component;
 
         /*
         Attribute_Editor_Vector
@@ -24,6 +27,7 @@ namespace Saklib
         class Attribute_Editor_Vector :
                 public Attribute_Editor
         {
+            friend class Attribute_Editor_Vector_Component;
             Q_OBJECT
         public:
             // Special 6
@@ -41,8 +45,8 @@ namespace Saklib
             void slot_custom_context_menu(QPoint const& pos);
 
             virtual void slot_append() = 0;
-            virtual void slot_insert(size_type index) = 0;
-            virtual void slot_remove(size_type index) = 0;
+            virtual void slot_insert_at(size_type index) = 0;
+            virtual void slot_remove_at(size_type index) = 0;
             virtual void slot_remove_last() = 0;
             virtual void slot_swap(size_type index, size_type other_index) = 0;
             virtual void slot_move_up(size_type index) = 0;
@@ -52,12 +56,56 @@ namespace Saklib
         private:
             // Data Members
             //============================================================
-            QUptr<QPushButton> m_append_button; // button that append the end that
             QUptr<QVBoxLayout> m_layout;
-
             QUptr<QVBoxLayout> m_component_layout;
 
-            Vector<QUptr<Attribute_Editor>> m_vector_widgets;
+            QUptr<QHBoxLayout> m_button_layout;
+            QUptr<QPushButton> m_append_button; // button that append the end that
+            QUptr<QPushButton> m_clear_button; // button that append the end that
+
+            Vector<QUptr<Attribute_Editor_Vector_Component>> m_vector_widgets;
+        };
+
+
+        /*
+        Attribute_Editor_Vector_Component
+        ====================================================================================================
+        Contains a type-specific Attribute_Editor wrapped in buttons which provide vector editing facilities
+        relevent to the given index
+        */
+        class Attribute_Editor_Vector_Component :
+                public QWidget
+        {
+            Q_OBJECT
+        public:
+            // Special 6
+            //============================================================
+            Attribute_Editor_Vector_Component(Project_Widget*const project_widget, AttributeID attributeid, size_type index, Attribute_Editor_Vector* parent);
+            ~Attribute_Editor_Vector_Component() override;
+
+            void refresh_data()                     { m_editor->refresh_data(); }
+            size_type vector_index() const          { return m_editor->vector_index(); }
+            Attribute_Editor*const editor() const   { return m_editor.get(); }
+
+            // Button slots
+        protected slots:
+            void slot_insert_before();
+            void slot_remove();
+            void slot_move_up();
+            void slot_move_down();
+
+        private:
+            Attribute_Editor_Vector*const mp_parent;
+
+            QUptr<QHBoxLayout> m_layout;
+            QUptr<QVBoxLayout> m_move_button_layout;
+            QUptr<QPushButton> m_move_up_button;
+            QUptr<QPushButton> m_move_down_button;
+            QUptr<QVBoxLayout> m_other_button_layout;
+            QUptr<QPushButton> m_insert_button;
+            QUptr<QPushButton> m_remove_button;
+
+            QUptr<Attribute_Editor> m_editor;
         };
 
     } // namespace Qtlib

@@ -46,11 +46,13 @@ Saklib::Project_Manager::Project_Manager() :
 Saklib::Project_Manager::Project_Manager(Path const& filepath) :
     Project_Manager()
 {
-
     // Store the filename in this attribute
     open_project(filepath);
 }
-Saklib::Project_Manager::~Project_Manager() = default;
+Saklib::Project_Manager::~Project_Manager()
+{
+    clear();
+}
 
 // Interface
 //============================================================
@@ -489,6 +491,20 @@ void Saklib::Project_Manager::attribute_vector_set_back<Saklib::ElementID>(Attri
     attribute->set_back(new_value);
     element_set_parent(new_value, attributeid);
     element_set_parent(old_value, invalid_attributeid());
+
+    observers_end_model_reset();
+    observers_attribute_value_changed(attributeid);
+    set_unsaved_edits(true);
+}
+
+template <>
+void Saklib::Project_Manager::attribute_vector_swap_at<Saklib::ElementID>(AttributeID attributeid, size_type index, size_type other_index)
+{
+    assert_attribute<Vector_ElementID>(attributeid);
+    observers_begin_model_reset();
+
+    auto attribute = attribute_type_cast<Vector_ElementID>(attributeid);
+    attribute->swap_at(index, other_index);
 
     observers_end_model_reset();
     observers_attribute_value_changed(attributeid);

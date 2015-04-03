@@ -26,8 +26,8 @@ namespace Saklib
 
         protected:
             void slot_append() override;
-            void slot_insert(size_type index) override;
-            void slot_remove(size_type index) override;
+            void slot_insert_at(size_type index) override;
+            void slot_remove_at(size_type index) override;
             void slot_remove_last() override;
             void slot_swap(size_type index, size_type other_index) override;
             void slot_move_up(size_type index) override;

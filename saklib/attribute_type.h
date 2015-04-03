@@ -148,14 +148,14 @@ namespace Saklib
         void insert_at(size_type index, value_type const& value)
         {
             auto index_iterator = m_vector.begin();
-            std::advance(m_vector.begin(), index);
+            std::advance(index_iterator, index);
             m_vector.insert(index_iterator, value);
         }
         // remove value at index, such that index will point to where the value was
         void remove_at(size_type index)
         {
             auto index_iterator = m_vector.begin();
-            std::advance(m_vector.begin(), index);
+            std::advance(index_iterator, index);
             m_vector.erase(index_iterator);
         }
 
