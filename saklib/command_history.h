@@ -43,8 +43,8 @@ namespace Saklib
         // Take ownership of the given command pointer, adding it to the top of the queue and calling 
         // the Command::execute() on it.
         void add_execute(Command* command);
-		void add_execute(Uptr<Command>& command);
-		void add_execute(Uptr<Command>&& command);
+        void add_execute(Uptr<Command>& command);
+        void add_execute(Uptr<Command>&& command);
 
         // Forward arguments to construct the templated Command_Class without having to use operator new manually
         template <typename Command_Class, typename... Args>

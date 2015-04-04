@@ -17,24 +17,24 @@ namespace Saklib
     {
     public:
         using stored_type = Undefined;
-	    using value_type = stored_type;
+        using value_type = stored_type;
 
         //static_assert(false, "Cannot instantiate Type_Traits<T> when template is not specialised.");
 
         static Type_Enum const type_enum_value{ Type_Enum::Undefined };
 
         static Type_Enum type_enum()
-	    {
+        {
             return type_enum_value;
-	    }
+        }
         static String type_string()
         {
             return "Undefined";
         }
-	    static void set_to_default_value(stored_type& value)
-	    {
-		    value = stored_type();
-	    }
+        static void set_to_default_value(stored_type& value)
+        {
+            value = stored_type();
+        }
     };
 
     template <typename T>

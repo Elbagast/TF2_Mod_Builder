@@ -13,8 +13,8 @@ namespace Saklib
     ====================================================================================================
     Class the contains flyweight information to create a given Attribute based on it.
 
-	Without any specific type data this is a useless class - so it makes no sense if it containts no 
-	constraint info.
+    Without any specific type data this is a useless class - so it makes no sense if it containts no 
+    constraint info.
     */
     template <typename T>
     class Attribute_Definition_Type:
@@ -28,23 +28,23 @@ namespace Saklib
 
         // Special 6
         //============================================================
-		explicit Attribute_Definition_Type(String const& name) ://, Uptr<Constraint>& constraint = Uptr<Constraint>()) :
+        explicit Attribute_Definition_Type(String const& name) ://, Uptr<Constraint>& constraint = Uptr<Constraint>()) :
             Attribute_Definition(),
             m_name(name)//,
             //m_constraint(assess_constraint_arg(constraint))
         {}
-		/*
-		Attribute_Definition_Type(String const& name) ://, Uptr<constraint_type>& constraint = Uptr<constraint_type>()) :
-			Attribute_Definition(),
-			m_name(name)//,
-			//m_constraint(constraint.release())
-		{}
-		Attribute_Definition_Type(String const& name) ://, Uptr<constraint_type>&& constraint = Uptr<constraint_type>()) :
-			Attribute_Definition(),
-			m_name(name)//,
-			//m_constraint(std::forward<Uptr<constraint_type>>(constraint))
-		{}
-		*/
+        /*
+        Attribute_Definition_Type(String const& name) ://, Uptr<constraint_type>& constraint = Uptr<constraint_type>()) :
+            Attribute_Definition(),
+            m_name(name)//,
+            //m_constraint(constraint.release())
+        {}
+        Attribute_Definition_Type(String const& name) ://, Uptr<constraint_type>&& constraint = Uptr<constraint_type>()) :
+            Attribute_Definition(),
+            m_name(name)//,
+            //m_constraint(std::forward<Uptr<constraint_type>>(constraint))
+        {}
+        */
         ~Attribute_Definition_Type() = default;
 
         Attribute_Definition_Type(Attribute_Definition_Type const& other) = delete;
@@ -64,17 +64,17 @@ namespace Saklib
         //bool v_is_constrained() const override      { return m_constraint != nullptr; }
 
     private:
-		/*
-		Uptr < constraint_type > assess_constraint_arg(Uptr<Constraint>& constraint)
+        /*
+        Uptr < constraint_type > assess_constraint_arg(Uptr<Constraint>& constraint)
         {
             if (constraint != nullptr && constraint->type_enum() == stored_type_traits::type_enum())
-				return Uptr < constraint_type >(dynamic_cast<constraint_type*>(constraint.release()));
+                return Uptr < constraint_type >(dynamic_cast<constraint_type*>(constraint.release()));
             else
-				return Uptr < constraint_type >();
+                return Uptr < constraint_type >();
         }
-		*/
+        */
         String const m_name;
-		//Uptr < constraint_type > const m_constraint;
+        //Uptr < constraint_type > const m_constraint;
     };
     
 } // namespace Saklib

@@ -19,11 +19,11 @@ Saklib::Command_History::Command_History():
 // the Command::execute() on it.
 void Saklib::Command_History::add_execute(Command* command)
 {
-	add_execute(std::move(Uptr<Command>(command)));
+    add_execute(std::move(Uptr<Command>(command)));
 }
 void Saklib::Command_History::add_execute(Uptr<Command>& command)
 {
-	add_execute(std::move(Uptr<Command>(command.release())));
+    add_execute(std::move(Uptr<Command>(command.release())));
 }
 void Saklib::Command_History::add_execute(Uptr<Command>&& command)
 {
@@ -33,7 +33,7 @@ void Saklib::Command_History::add_execute(Uptr<Command>&& command)
 
     // Insert the command at m_next_redo, and set m_next_undo to point to that position.
     // If we don't reassign it then m_position would point to m_container.end(), which is not dereferenceable. 
-	m_next_undo = m_container.insert(m_next_redo, std::forward<Uptr<Command>>(command));
+    m_next_undo = m_container.insert(m_next_redo, std::forward<Uptr<Command>>(command));
     // Set m_next_redo to point to the new end.
     m_next_redo = m_container.end();
 

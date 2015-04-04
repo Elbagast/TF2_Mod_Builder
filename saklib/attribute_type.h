@@ -10,7 +10,7 @@
 
 namespace Saklib
 {
-	/*
+    /*
     Attribute_Type<T>
     ====================================================================================================
     Templated subclass for storage of simple types
@@ -97,7 +97,7 @@ namespace Saklib
 
         using value_type = T;
         using value_type_traits = Type_Traits<value_type>;
-		
+        
         using definition_type = Attribute_Definition_Type < stored_type >;
 
         // Special 6
@@ -107,7 +107,7 @@ namespace Saklib
             m_definition(definition), // if this is nullptr the constructor will fail...
             mp_definition(dynamic_cast<definition_type*>(m_definition.get())),
             mr_name(m_definition->name()),
-			m_vector()
+            m_vector()
         {
             assert(definition);                                 // there was actually a definition
             assert(mp_definition);                              // it was the right type
@@ -148,14 +148,14 @@ namespace Saklib
         void insert_at(size_type index, value_type const& value)
         {
             auto index_iterator = m_vector.begin();
-            std::advance(m_vector.begin(), index);
+            std::advance(index_iterator, index);
             m_vector.insert(index_iterator, value);
         }
         // remove value at index, such that index will point to where the value was
         void remove_at(size_type index)
         {
             auto index_iterator = m_vector.begin();
-            std::advance(m_vector.begin(), index);
+            std::advance(index_iterator, index);
             m_vector.erase(index_iterator);
         }
 
@@ -178,6 +178,142 @@ namespace Saklib
 
         // stored data
         stored_type m_vector;
+    };
+
+    /*
+    Attribute_Type<Vector<Bool>>
+    ====================================================================================================
+    This entire specialisation exists because of the std::vector<bool> specialisation. The actual vector
+    type is different so that references can be returned from it.
+    */
+    template <>
+    class Attribute_Type<Vector<Bool>> :
+        public Attribute
+    {
+    public:
+        using stored_type = Vector<Bool>;
+        using stored_type_traits = Type_Traits < stored_type >;
+
+        using value_type = Bool;
+        using value_type_traits = Type_Traits<value_type>;
+
+        using definition_type = Attribute_Definition_Type < stored_type >;
+
+        // Special 6
+        //============================================================
+        explicit Attribute_Type(Shptr<Attribute_Definition> const& definition) :
+            Attribute(),
+            m_definition(definition), // if this is nullptr the constructor will fail...
+            mp_definition(dynamic_cast<definition_type*>(m_definition.get())),
+            mr_name(m_definition->name()),
+            m_vector()
+        {
+            assert(definition);                                 // there was actually a definition
+            assert(mp_definition);                              // it was the right type
+            assert(v_type_enum() != Type_Enum::Undefined);      // this isn't an Undefined Attribute
+        }
+        ~Attribute_Type() override = default;
+
+        // NO COPYING
+        Attribute_Type(Attribute_Type const& other) = delete;
+        Attribute_Type& operator=(Attribute_Type const& other) = delete;
+
+        // Vector Interface
+        //============================================================
+        // TESTING TEMP
+        //stored_type& vector()                                   { return m_vector; }
+        stored_type const& vector() const
+        {
+            static stored_type fake_vector;
+            fake_vector.clear();
+            for (auto value : m_vector)
+            {
+                fake_vector.push_back(value);
+            }
+            return fake_vector;
+        }
+        void set_vector(stored_type const& vector_value)
+        {
+            m_vector.clear();
+            for (auto value : vector_value)
+            {
+                m_vector.push_back(value);
+            }
+        }
+        void swap_vector(stored_type& vector_value)
+        {
+            stored_type swap_target{vector()};
+            std::swap(vector_value,swap_target);
+            set_vector(swap_target);
+        }
+
+        bool empty() const                                      { return m_vector.empty(); }
+        size_type size() const                                  { return m_vector.size(); }
+        void clear()                                            { m_vector.clear(); }
+
+        value_type const& at(size_type index) const             { return m_vector.at(index).ref(); }
+        value_type const& front() const                         { return m_vector.front().ref(); }
+        value_type const& back() const                          { return m_vector.back().ref(); }
+
+        void set_at(size_type index, value_type const& value)   { m_vector.at(index).set(value); }
+        void set_front(value_type const& value)                 { m_vector.front().set(value); }
+        void set_back(value_type const& value)                  { m_vector.back().set(value); }
+
+        void swap_at(size_type index, size_type other_index)    { std::swap(m_vector.at(index), m_vector.at(other_index)); }
+
+        void push_back(value_type const& value)                 { m_vector.push_back(value); }
+        void pop_back()                                         { m_vector.pop_back(); }
+
+        // add value before index, such that index will point to the value added afterwards
+        void insert_at(size_type index, value_type const& value)
+        {
+            auto index_iterator = m_vector.begin();
+            std::advance(index_iterator, index);
+            m_vector.insert(index_iterator, value);
+        }
+        // remove value at index, such that index will point to where the value was
+        void remove_at(size_type index)
+        {
+            auto index_iterator = m_vector.begin();
+            std::advance(index_iterator, index);
+            m_vector.erase(index_iterator);
+        }
+
+    protected:
+        // Virtuals
+        //============================================================
+        String const& v_name() const override final     { return mr_name; }
+        Type_Enum v_type_enum() const override final    { return stored_type_traits::type_enum(); }
+        String v_type_string() const override final     { return stored_type_traits::type_string(); }
+
+        //bool v_is_constrained() const override final      { return mp_constraint != nullptr; }
+
+    private:
+        class Bool_Holder
+        {
+        public:
+            Bool_Holder(bool input = false): m_value(input) {}
+
+            bool& ref()             { return m_value; }
+            bool const& ref() const { return m_value; }
+            bool value() const      { return m_value; }
+
+            operator bool()         { return m_value; }
+
+            void set(bool value)    { m_value = value; }
+        private:
+            bool m_value;
+        };
+
+        // shared_ptr ensures the definition's lifetime will be at least as long as this
+        Shptr<Attribute_Definition> m_definition;
+
+        // locally cached and pre-cast references
+        definition_type const*const mp_definition;  // lifetime is that of m_definition
+        String const& mr_name;                 // lifetime is that of m_definition
+
+        // stored data
+        Vector<Bool_Holder> m_vector;
     };
 
 

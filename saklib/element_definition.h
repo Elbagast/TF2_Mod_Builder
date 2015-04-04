@@ -58,9 +58,9 @@ namespace Saklib
         //============================================================
         String m_element_type;
         bool m_can_be_root;
-		Vector<Shptr<Attribute_Definition>> m_attribute_definitions;
+        Vector<Shptr<Attribute_Definition>> m_attribute_definitions;
 
-		// if you wanted to cache stats about this Element type, data would go here
+        // if you wanted to cache stats about this Element type, data would go here
     };
 
     

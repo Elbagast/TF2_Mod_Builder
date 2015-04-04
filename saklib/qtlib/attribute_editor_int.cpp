@@ -1,6 +1,7 @@
 #include "attribute_editor_int.h"
 
 #include "project_widget.h"
+#include "../project_manager.h"
 #include "qstring_operations.h"
 
 #include <numeric>
@@ -40,16 +41,16 @@ void Saklib::Qtlib::Attribute_Editor_Int::v_refresh_data()
 void Saklib::Qtlib::Attribute_Editor_Int::slot_editingFinished()
 {
     if (is_vector_component())
-        project_widget()->undoable_attribute_vector_set_at<Int>(attributeid(), vector_index(), m_spinbox->value());
+        project_widget()->project_manager().undoable_attribute_vector_set_at<Int>(attributeid(), vector_index(), m_spinbox->value());
     else
-        project_widget()->undoable_attribute_set_value<Int>(attributeid(), m_spinbox->value());
+        project_widget()->project_manager().undoable_attribute_set_value<Int>(attributeid(), m_spinbox->value());
 }
 
 void Saklib::Qtlib::Attribute_Editor_Int::shared_construction()
 {
-    m_spinbox = std::make_unique<QSpinBox>();
-    //m_label = std::make_unique<QLabel>();
-    m_layout = std::make_unique<QHBoxLayout>();
+    m_spinbox = make_quptr<QSpinBox>();
+    //m_label = make_quptr<QLabel>();
+    m_layout = make_quptr<QHBoxLayout>();
 
     m_spinbox->setValue(attribute_value<Int>());
 

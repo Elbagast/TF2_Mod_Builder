@@ -8,7 +8,7 @@
 
 namespace Saklib
 {  
-	class Attribute;
+    class Attribute;
     /*
     Element
     ====================================================================================================
@@ -32,7 +32,7 @@ namespace Saklib
         // Add this Element_Definition, overriding any definitions that might match
         static void add_override_definition(Element_Definition&& definition);
         // Get a vector of the registered types
-		static Vector_String get_registered_types();
+        static Vector_String get_registered_types();
 
         // Special 6
         //============================================================
@@ -58,7 +58,7 @@ namespace Saklib
         // Attributes Access
         //============================================================
         // How many Attributes does this Element have?
-		size_type attribute_count() const;
+        size_type attribute_count() const;
 
         // How many Attributes of the given type does this Element have?
         template <typename T>

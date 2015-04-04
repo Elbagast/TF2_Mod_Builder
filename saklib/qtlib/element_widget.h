@@ -5,15 +5,18 @@
 #include "../elementid.h"
 #include "../attributeid.h"
 #include "../attribute_type.h"
+#include "quptr.h"
 #include <QWidget>
 
 class QLabel;
 class QGridLayout;
 class QVBoxLayout;
+class QHBoxLayout;
 class QFormLayout;
 
 namespace Saklib
 {
+    class Project_Manager;
     class Element_Manager;
     class Element;
 
@@ -62,19 +65,22 @@ namespace Saklib
             AttributeID m_parentid;
 
             // Widgets
-            Uptr<QLabel> m_element_name_label;  // Label for the Element name - any editing done through this so it'd need its own class
-            Uptr<QLabel> m_element_type_label;  // Label for the Element type
-            Uptr<QLabel> m_element_can_be_root_label;  // Label for the ElementID
-            Uptr<QLabel> m_element_id_label;  // Label for the ElementID
-            Uptr<QLabel> m_parent_id_label;  // Label for the parent AttributeID
+            QUptr<QHBoxLayout> m_self_header_layout;
+            QUptr<QLabel> m_element_type_label;
+            QUptr<QLabel> m_element_name_label;
+            QUptr<QLabel> m_element_id_label;
+
+            QUptr<QLabel> m_parent_id_label;  // Label for the parent AttributeID
 
             //Vector<Uptr<QLabel>> m_attribute_names;
             //Vector<Uptr<QLabel>> m_attribute_types;
-            Vector<Uptr<Attribute_Editor>> m_attribute_editors;
+            Vector<QUptr<QHBoxLayout>> m_attribute_layouts;
+            Vector<QUptr<Attribute_Editor>> m_attribute_editors;
 
             //Uptr<QGridLayout> m_layout; // Layout for this
-            Uptr<QVBoxLayout> m_layout; // Layout for this
-            Uptr<QFormLayout> m_attribute_layout; // Layout for Attributes
+            QUptr<QVBoxLayout> m_layout; // Layout for this
+            QUptr<QHBoxLayout> m_parent_header_layout;
+            QUptr<QFormLayout> m_attribute_layout; // Layout for Attributes
         };
 
     } // namespace Qtlib

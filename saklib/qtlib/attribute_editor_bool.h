@@ -34,8 +34,8 @@ namespace Saklib
 
             // Data Members
             //============================================================
-            Uptr<QCheckBox> m_checkbox;
-            Uptr<QHBoxLayout> m_layout;
+            QUptr<QCheckBox> m_checkbox;
+            QUptr<QHBoxLayout> m_layout;
         };
 
     } // namespace Qtlib

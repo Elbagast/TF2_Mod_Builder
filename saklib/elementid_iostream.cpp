@@ -1,13 +1,13 @@
 #include "elementid_iostream.h"
 #include "elementid.h"
 
-std::ostream& Saklib::operator<<(std::ostream& stream, ElementID id)
+std::ostream& Saklib::operator<<(std::ostream& stream, ElementID elementid)
 {
-    stream << id.value();
+    stream << elementid.value();
     return stream;
 }
 
-std::istream& Saklib::operator>>(std::istream& stream, ElementID id)
+std::istream& Saklib::operator>>(std::istream& stream, ElementID /*elementid*/)
 {
     return stream;
 }

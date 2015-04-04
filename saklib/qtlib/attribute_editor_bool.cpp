@@ -1,5 +1,6 @@
 #include "attribute_editor_bool.h"
 #include "project_widget.h"
+#include "../project_manager.h"
 #include <QCheckBox>
 #include <QHBoxLayout>
 
@@ -33,15 +34,15 @@ void Saklib::Qtlib::Attribute_Editor_Bool::v_refresh_data()
 void Saklib::Qtlib::Attribute_Editor_Bool::slot_clicked()
 {
     if (is_vector_component())
-        project_widget()->undoable_attribute_vector_set_at<Bool>(attributeid(), vector_index(), m_checkbox->isChecked());
+        project_widget()->project_manager().undoable_attribute_vector_set_at<Bool>(attributeid(), vector_index(), m_checkbox->isChecked());
     else
-        project_widget()->undoable_attribute_set_value<Bool>(attributeid(), m_checkbox->isChecked());
+        project_widget()->project_manager().undoable_attribute_set_value<Bool>(attributeid(), m_checkbox->isChecked());
 }
 
 void Saklib::Qtlib::Attribute_Editor_Bool::shared_construction()
 {
-    m_checkbox = std::make_unique<QCheckBox>();
-    m_layout = std::make_unique<QHBoxLayout>();
+    m_checkbox = make_quptr<QCheckBox>();
+    m_layout = make_quptr<QHBoxLayout>();
 
     v_refresh_data();
 

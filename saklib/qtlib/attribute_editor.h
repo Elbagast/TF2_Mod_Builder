@@ -2,6 +2,9 @@
 #define ATTRIBUTE_EDITOR_H
 
 #include "../attributeid.h"
+#include "project_widget.h"
+#include "../project_manager.h"
+
 #include <QWidget>
 
 class QLabel;
@@ -9,6 +12,8 @@ class QHBoxLayout;
 
 namespace Saklib
 {
+    class Project_Manager;
+
     namespace Qtlib
     {
         class Project_Widget;
@@ -42,9 +47,9 @@ namespace Saklib
             T const& attribute_value()
             {
                 if (m_is_vector_component)
-                    return mp_project_widget->attribute_type_cast<Vector<T>>(m_attributeid)->at(m_vector_index);
+                    return mp_project_widget->project_manager().attribute_type_cast<Vector<T>>(m_attributeid)->at(m_vector_index);
                 else
-                    return mp_project_widget->attribute_type_cast<T>(m_attributeid)->value();
+                    return mp_project_widget->project_manager().attribute_type_cast<T>(m_attributeid)->value();
             }
 
         protected:
@@ -71,15 +76,15 @@ namespace Saklib
         protected:
             void v_refresh_data() override {}
         private:
-            Uptr<QLabel> m_label;
-            Uptr<QHBoxLayout> m_layout;
+            QUptr<QLabel> m_label;
+            QUptr<QHBoxLayout> m_layout;
         };
 
         // Function with a typeswitch
-        Uptr<Attribute_Editor> make_Attribute_Editor(Project_Widget*const project_widget, AttributeID attributeid);
+        QUptr<Attribute_Editor> make_Attribute_Editor(Project_Widget*const project_widget, AttributeID attributeid);
 
         // Function with a typeswitch
-        Uptr<Attribute_Editor> make_Attribute_Editor(Project_Widget*const project_widget, AttributeID attributeid, size_type vector_index);
+        QUptr<Attribute_Editor> make_Attribute_Editor(Project_Widget*const project_widget, AttributeID attributeid, size_type vector_index);
 
     } // namespace Qtlib
 } // namespace Saklib

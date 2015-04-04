@@ -202,6 +202,13 @@ Saklib::Vector_ElementID Saklib::Element_Manager::root_elementids() const
     return result;
 }
 
+// Destory everything
+void Saklib::Element_Manager::clear()
+{
+    m_map.clear();
+    m_next_id = 0;
+}
+
 // Command Interface
 //============================================================
 // Bits that only Command objects will end up using

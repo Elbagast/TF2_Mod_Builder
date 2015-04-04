@@ -23,10 +23,10 @@ namespace Saklib
         // Special 6
         //============================================================
         // Root is only set on construction.
-		explicit Element_Editor(String const& root_type) :
-			m_element_manager(),
-			m_command_history(),
-			m_root_elementid(&m_element_manager, root_type)
+        explicit Element_Editor(String const& root_type) :
+            m_element_manager(),
+            m_command_history(),
+            m_root_elementid(&m_element_manager, root_type)
         {
             m_root_elementid.element().set_name("Root");
         }
@@ -40,7 +40,7 @@ namespace Saklib
 
         // Root Element and Attribute Access
         //============================================================
-		Element_Manager& manager() { return m_element_manager; }
+        Element_Manager& manager() { return m_element_manager; }
 
         ElementID root_elementid() const                            { return m_root_elementid; }
         Element& root_element()                                     { return m_root_elementid.element(); }
@@ -66,14 +66,14 @@ namespace Saklib
 
         // Other Element and Attribute Access
         //============================================================
-		// Construct a new Element within this Editor
-		ElementID make_ElementID(String const& element_type)
-		{
-			return ElementID(&m_element_manager, element_type);
-		}
+        // Construct a new Element within this Editor
+        ElementID make_ElementID(String const& element_type)
+        {
+            return ElementID(&m_element_manager, element_type);
+        }
         // Access to the Element manager so that we can get other Elements to play with...
         // Get a list of all ElementIDs currently in the data structure...
-		// Otherwise we'll have to walk the structure to get to Elements
+        // Otherwise we'll have to walk the structure to get to Elements
 
 
         // Element and Attribute Editing via commands...
@@ -89,19 +89,19 @@ namespace Saklib
         }
 
         // Start simple:
-		template <typename T>
-		bool attribute_can_set_to(AttributeID const& attributeid, T const& value)
-		{
-			Attribute_Type<T>* typed_attribute = attributeid.attribute_type_cast<T>();
-			if (typed_attribute != nullptr              // the cast succeeded, i.e. a typematch,
-				&& typed_attribute->value() != value      // ane this wouldn't be a pointless edit,
-				&& typed_attribute->can_set_to(value))  // and it can be set to this value
-			{
-				return true; // could test if the command executed properly...
-			}
-			else
-				return false;
-		}
+        template <typename T>
+        bool attribute_can_set_to(AttributeID const& attributeid, T const& value)
+        {
+            Attribute_Type<T>* typed_attribute = attributeid.attribute_type_cast<T>();
+            if (typed_attribute != nullptr              // the cast succeeded, i.e. a typematch,
+                && typed_attribute->value() != value      // ane this wouldn't be a pointless edit,
+                && typed_attribute->can_set_to(value))  // and it can be set to this value
+            {
+                return true; // could test if the command executed properly...
+            }
+            else
+                return false;
+        }
 
         template <typename T>
         bool attribute_try_set(AttributeID const& attributeid, T const& value)
@@ -110,10 +110,10 @@ namespace Saklib
             if (typed_attribute != nullptr              // the cast succeeded, i.e. a typematch,
                 && typed_attribute->value() != value      // ane this wouldn't be a pointless edit,
                 //&& typed_attribute->can_set_to(value)  // and it can be set to this value
-				)
+                )
             {
                 // Issue an undoable command for this operation
-				m_command_history.emplace_execute<Command_Attribute_Set<T>>(attributeid, value); // Commands can't use raw Attribute pointers since they don't guarantee lifetime
+                m_command_history.emplace_execute<Command_Attribute_Set<T>>(attributeid, value); // Commands can't use raw Attribute pointers since they don't guarantee lifetime
                 return true; // could test if the command executed properly...
             }
             else
@@ -125,34 +125,34 @@ namespace Saklib
         // Command History Access
         //============================================================
         // These are all forwarding functions.
-		Command_History const& command_history() const { return m_command_history; }
+        Command_History const& command_history() const { return m_command_history; }
 
         // Will calling undo do anything?
-		bool can_undo() const           { return m_command_history.can_undo(); }
+        bool can_undo() const           { return m_command_history.can_undo(); }
         // Will calling redo do anything?
-		bool can_redo() const           { return m_command_history.can_redo(); }
+        bool can_redo() const           { return m_command_history.can_redo(); }
 
         // How many commands are stored?
-		size_type size() const          { return m_command_history.size(); }
+        size_type size() const          { return m_command_history.size(); }
         // Is the container empty?
-		bool empty() const              { return m_command_history.empty(); }
+        bool empty() const              { return m_command_history.empty(); }
 
         // How many times can undo() be called()?
-		size_type undo_count() const    { return m_command_history.undo_count(); }
+        size_type undo_count() const    { return m_command_history.undo_count(); }
         // How many times can redo() be called()?
-		size_type redo_count() const    { return m_command_history.redo_count(); }
+        size_type redo_count() const    { return m_command_history.redo_count(); }
 
         // Call unexecute() in the current command and step back one in the history.
-		void undo()                     { m_command_history.undo(); }
+        void undo()                     { m_command_history.undo(); }
         // Step forward one in the history and call execute() on that command.
-		void redo()                     { m_command_history.redo(); }
+        void redo()                     { m_command_history.redo(); }
 
         // Clear all stored commands.
-		void clear()                    { m_command_history.clear(); }
+        void clear()                    { m_command_history.clear(); }
 
     private:
-		Element_Manager m_element_manager;
-		Command_History m_command_history;
+        Element_Manager m_element_manager;
+        Command_History m_command_history;
         ElementID m_root_elementid; // in an Attribute_Type<ElementID> ?
 
         // If we wanted to cache all the ElementIDs for those in the data structure, it should probably be here...

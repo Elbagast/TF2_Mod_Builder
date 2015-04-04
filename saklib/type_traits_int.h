@@ -9,10 +9,10 @@ Type_Traits<int>
 namespace Saklib
 {
     template <>
-	struct Type_Traits<Int>
+    struct Type_Traits<Int>
     {
     public:
-		using stored_type = Int;
+        using stored_type = Int;
         using value_type = stored_type;
 
         static Type_Enum const type_enum_value{ Type_Enum::Int };
@@ -34,18 +34,18 @@ namespace Saklib
     template <>
     struct TypeHolder<Type_Enum::Int>
     {
-		using traits_type = Type_Traits < Int >;
+        using traits_type = Type_Traits < Int >;
         using stored_type = traits_type::stored_type;
         using value_type = traits_type::value_type;
         static Type_Enum const type_enum_value{ Type_Enum::Int };
     };
 
     template <>
-	struct Type_Traits<Vector_Int>
+    struct Type_Traits<Vector_Int>
     {
     public:
-		using stored_type = Vector_Int;
-		using value_type = Int;
+        using stored_type = Vector_Int;
+        using value_type = Int;
 
         static Type_Enum const type_enum_value{ Type_Enum::Vector_Int };
 
@@ -66,7 +66,7 @@ namespace Saklib
     template <>
     struct TypeHolder<Type_Enum::Vector_Int>
     {
-		using traits_type = Type_Traits < Vector_Int >;
+        using traits_type = Type_Traits < Vector_Int >;
         using stored_type = traits_type::stored_type;
         using value_type = traits_type::value_type;
         static Type_Enum const type_enum_value{ Type_Enum::Vector_Int };

@@ -1,5 +1,8 @@
 #include "attribute_editor_elementid.h"
+
 #include "project_widget.h"
+#include "../project_manager.h"
+
 #include "qstring_operations.h"
 #include "select_element_type_dialog.h"
 
@@ -47,7 +50,7 @@ void Saklib::Qtlib::Attribute_Editor_ElementID::v_refresh_data()
 
 void Saklib::Qtlib::Attribute_Editor_ElementID::slot_clicked()
 {
-    if (m_elementid.is_valid() && project_widget()->is_valid(m_elementid))
+    if (m_elementid.is_valid() && project_widget()->project_manager().is_valid(m_elementid))
     {
        project_widget()->open_editor(m_elementid);
     }
@@ -62,11 +65,11 @@ void Saklib::Qtlib::Attribute_Editor_ElementID::slot_clicked()
         // if the user selects one, make an Element of that type and assign it to the attribute
         if (dialog.exec() == QDialog::Accepted && !dialog.selected_element_type().empty())
         {
-            ElementID new_element = project_widget()->make_element(dialog.selected_element_type());
+            ElementID new_element = project_widget()->project_manager().make_element(dialog.selected_element_type());
             if (is_vector_component())
-                project_widget()->undoable_attribute_vector_set_at<ElementID>(attributeid(), vector_index(), new_element);
+                project_widget()->project_manager().undoable_attribute_vector_set_at<ElementID>(attributeid(), vector_index(), new_element);
             else
-                project_widget()->undoable_attribute_set_value<ElementID>(attributeid(), new_element);
+                project_widget()->project_manager().undoable_attribute_set_value<ElementID>(attributeid(), new_element);
         }
     }
 }
@@ -76,7 +79,7 @@ void Saklib::Qtlib::Attribute_Editor_ElementID::slot_clicked()
 //============================================================
 QString Saklib::Qtlib::Attribute_Editor_ElementID::button_text() const
 {
-    if (m_elementid.is_valid() && project_widget()->is_valid(m_elementid))
+    if (m_elementid.is_valid() && project_widget()->project_manager().is_valid(m_elementid))
     {
        return QString("Edit");
     }
@@ -88,9 +91,9 @@ QString Saklib::Qtlib::Attribute_Editor_ElementID::button_text() const
 QString Saklib::Qtlib::Attribute_Editor_ElementID::name_label_text() const
 {
     static QString const label_front{"Name: "};
-    if (m_elementid.is_valid() && project_widget()->is_valid(m_elementid))
+    if (m_elementid.is_valid() && project_widget()->project_manager().is_valid(m_elementid))
     {
-        return label_front + to_QString(project_widget()->element_name(m_elementid));
+        return label_front + to_QString(project_widget()->project_manager().element_name(m_elementid));
     }
     else
     {
@@ -100,9 +103,9 @@ QString Saklib::Qtlib::Attribute_Editor_ElementID::name_label_text() const
 QString Saklib::Qtlib::Attribute_Editor_ElementID::type_label_text() const
 {
     static QString const label_front{"Type: "};
-    if (m_elementid.is_valid() && project_widget()->is_valid(m_elementid))
+    if (m_elementid.is_valid() && project_widget()->project_manager().is_valid(m_elementid))
     {
-        return label_front + to_QString(project_widget()->element_type(m_elementid));
+        return label_front + to_QString(project_widget()->project_manager().element_type(m_elementid));
     }
     else
     {
@@ -114,14 +117,14 @@ void Saklib::Qtlib::Attribute_Editor_ElementID::shared_construction()
 {
     m_elementid = attribute_value<ElementID>();
 
-    m_layout = std::make_unique<QHBoxLayout>();
-    m_button = std::make_unique<QPushButton>(button_text());
-    m_name_label = std::make_unique<QLabel>(name_label_text());
-    m_type_label = std::make_unique<QLabel>(type_label_text());
+    m_layout = make_quptr<QHBoxLayout>();
+    m_button = make_quptr<QPushButton>(button_text());
+    m_name_label = make_quptr<QLabel>(name_label_text());
+    m_type_label = make_quptr<QLabel>(type_label_text());
 
     // If the ElementID is a valid value, make sure it's valid in the project_widget
     if (m_elementid.is_valid())
-        assert(this->project_widget()->is_valid(m_elementid));
+        assert(this->project_widget()->project_manager().is_valid(m_elementid));
 
     QObject::connect(m_button.get(), &QPushButton::clicked,
                      this, &Attribute_Editor_ElementID::slot_clicked);
