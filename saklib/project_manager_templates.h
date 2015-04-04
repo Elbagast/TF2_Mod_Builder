@@ -332,8 +332,7 @@ bool Saklib::Project_Manager::undoable_attribute_vector_insert_at(AttributeID at
     if(attributeid.is_valid()
        && this->is_valid(attributeid)
        && this->attribute_type_enum(attributeid) == Type_Traits<Vector<T>>::type_enum()
-       && this->attribute_vector_size<T>(attributeid) > index
-       && this->attribute_type_cast<Vector<T>>(attributeid)->at(index) != value) // hmm
+       && this->attribute_vector_size<T>(attributeid) > index )
     {
         m_command_history.emplace_execute<PMC_Attribute_Vector_Insert_At<T>>(this, attributeid, index, value);
         command_history_changed();
