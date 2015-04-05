@@ -15,11 +15,10 @@ Saklib::Element_Manager::Element_Manager() :
 // Interface
 //============================================================
 // Build a new Map_Entry containing a new Element from type and return the id number
-Saklib::ElementID Saklib::Element_Manager::make_element(String const& type)
+Saklib::ElementID Saklib::Element_Manager::make_element(Element_Definition const& definition, String const& type)
 {
-    assert(Element::definition_exists(type));
     ElementID newid{++m_next_id};
-    m_map.emplace(newid, Element_Cache(type));
+    m_map.emplace(newid, Element_Cache(definition, type));
     return newid;
 }
 

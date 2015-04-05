@@ -31,7 +31,7 @@ namespace Saklib
         // Interface
         //============================================================
         // Build a new Map_Entry containing a new Element from type and return the id number
-        ElementID make_element(String const& type = String());
+        ElementID make_element(Element_Definition const& definition, String const& type = String());
         // Destory the Element associated with this id
         void destroy_element(ElementID elementid);
 
@@ -109,8 +109,8 @@ namespace Saklib
         public:
             // Special 6
             //============================================================
-            Element_Cache(String const& element_type):
-                m_element(element_type),
+            Element_Cache(Element_Definition const& definition, String const& name):
+                m_element(definition, name),
                 m_parent(),
                 m_linked(),
                 m_command_ref_count{0}

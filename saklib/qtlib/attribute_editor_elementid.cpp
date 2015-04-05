@@ -57,7 +57,7 @@ void Saklib::Qtlib::Attribute_Editor_ElementID::slot_clicked()
     else
     {
         // Get a list of types of Element that we can use
-        auto element_types = Element::get_registered_types();
+        auto element_types = project_widget()->project_manager().all_registered_element_types();
 
         // Make a dialog that asks the user to select one, floating above the project widget
         Select_Element_Type_Dialog dialog{element_types, project_widget()};

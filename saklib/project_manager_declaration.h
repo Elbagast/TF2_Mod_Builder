@@ -3,6 +3,7 @@
 
 #include "types.h"
 #include "all_attributes.h"
+#include "element_definition_manager.h"
 #include "element_manager.h"
 #include "command_history.h"
 
@@ -57,6 +58,13 @@ namespace Saklib
 
         // Lifetime
         //------------------------------------------------------------
+        void register_element_definition(Element_Definition&& definition);
+        bool has_element_definition(String const& type) const;
+        Element_Definition const& element_definition(String const& type) const;
+
+        Vector_String all_registered_element_types() const;
+
+
         // Make a new Element and return all info about it
         ElementID make_element(String const& type);
         // Destory an Element and everything associated with it
@@ -364,6 +372,7 @@ namespace Saklib
         //============================================================
 
         //data
+        Element_Definition_Manager m_internal_element_definitions;
         Element_Manager m_element_manager;
         Command_History m_command_history;
 
@@ -372,12 +381,6 @@ namespace Saklib
 
         bool m_unsaved_edits;
         Vector<Project_Observer*> m_observers;
-
-
-        // Static Helpers
-        //============================================================
-        // Make an ElementID with the supplied manager by registering the Element type the first time this is run
-        static ElementID make_Project(Element_Manager& element_manager);
     };
 
 

@@ -40,7 +40,6 @@ SOURCES += main.cpp\
     saklib/qtlib/outliner/outliner_delegate.cpp \
     saklib/proxyid.cpp \
     saklib/qtlib/outliner/outliner_model.cpp \
-    saklib/interal_element_definitions.cpp \
     saklib/qtlib/quptr.cpp \
     saklib/qtlib/attribute_editor_bool.cpp \
     saklib/qtlib/attribute_editor.cpp \
@@ -55,7 +54,10 @@ SOURCES += main.cpp\
     saklib/qtlib/attribute_editor_vector.cpp \
     saklib/project_observer.cpp \
     saklib/project_manager_declaration.cpp \
-    saklib/qtlib/project_widget.cpp
+    saklib/qtlib/project_widget.cpp \
+    saklib/internal_element_definitions.cpp \
+    saklib/element_definition_manager.cpp \
+    saklib/element_definition.cpp
 
 HEADERS  += \
     saklib/all_attributes.h \
@@ -72,7 +74,6 @@ HEADERS  += \
     saklib/command_history.h \
     saklib/element.h \
     saklib/element_definition.h \
-    saklib/element_editor.h \
     saklib/element_iostream.h \
     saklib/element_manager.h \
     saklib/elementid.h \
@@ -96,7 +97,6 @@ HEADERS  += \
     saklib/qtlib/attribute_editor.h \
     saklib/proxyid.h \
     saklib/qtlib/outliner/outliner_model.h \
-    saklib/interal_element_definitions.h \
     saklib/qtlib/quptr.h \
     saklib/qtlib/attribute_editor_bool.h \
     saklib/qtlib/attribute_editor_int.h \
@@ -114,7 +114,9 @@ HEADERS  += \
     saklib/project_manager.h \
     saklib/project_manager_commands.h \
     saklib/project_manager_templates.h \
-    saklib/qtlib/project_widget.h
+    saklib/qtlib/project_widget.h \
+    saklib/internal_element_definitions.h \
+    saklib/element_definition_manager.h
 
 FORMS    += \
     saklib/qtlib/consoledialog.ui \

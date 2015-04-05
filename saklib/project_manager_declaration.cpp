@@ -7,30 +7,12 @@
 
 #include "project_observer.h"
 
-#include "interal_element_definitions.h"
-
-// Static Helpers
-//============================================================
-// Make an ElementID with the supplied manager by registering the Element type the first time
-// this is run
-Saklib::ElementID Saklib::Project_Manager::make_Project(Element_Manager& element_manager)
-{
-    static bool was_run{false};
-    if (!was_run)
-    {
-        register_all_internal_definitions();
-        was_run = true;
-    }
-    ElementID result{element_manager.make_element("Project")};
-    assert(element_manager.is_valid(result));
-    element_manager.element(result).set_name("Default_Project_Name");
-    return result;
-}
-
+#include "internal_element_definitions.h"
 
 // Special 6
 //============================================================
 Saklib::Project_Manager::Project_Manager() :
+    m_internal_element_definitions{},
     m_element_manager{},
     m_command_history{},
 
@@ -66,7 +48,7 @@ void Saklib::Project_Manager::new_project(Path const& filepath)
 {
     clear();
 
-    m_project_elementid = make_Project(m_element_manager);
+    m_project_elementid = make_element("Project");
     m_project_filepath = m_element_manager.attributeid(m_project_elementid, "Filepath");
 
     set_project_filepath(filepath);
@@ -80,7 +62,7 @@ void Saklib::Project_Manager::open_project(Path const& filepath)
 
     // this should load from the file...
 
-    m_project_elementid = make_Project(m_element_manager);
+    m_project_elementid = make_element("Project");
     m_project_filepath = m_element_manager.attributeid(m_project_elementid, "Filepath");
 
     set_project_filepath(filepath);
@@ -148,11 +130,31 @@ void Saklib::Project_Manager::remove_observer(Project_Observer*const observer)
 
 // Lifetime
 //------------------------------------------------------------
+
+void Saklib::Project_Manager::register_element_definition(Element_Definition&& definition)
+{
+    m_internal_element_definitions.add_override_definition(std::forward<Element_Definition>(definition));
+}
+
+bool Saklib::Project_Manager::has_element_definition(String const& type) const
+{
+    return m_internal_element_definitions.definition_exists(type);
+}
+Saklib::Element_Definition const& Saklib::Project_Manager::element_definition(String const& type) const
+{
+    return m_internal_element_definitions.definition(type);
+}
+
+Saklib::Vector_String Saklib::Project_Manager::all_registered_element_types() const
+{
+    return m_internal_element_definitions.definition_types();
+}
+
 // Make a new Element and return all info about it
 Saklib::ElementID Saklib::Project_Manager::make_element(String const& type)
 {
-    // make an element
-    ElementID newid = m_element_manager.make_element(type);
+    assert(has_element_definition(type));
+    ElementID newid = m_element_manager.make_element(element_definition(type));
     return newid;
 }
 

@@ -1,4 +1,4 @@
-#include "interal_element_definitions.h"
+#include "internal_element_definitions.h"
 #include "element.h"
 
 // Static Helpers
@@ -42,9 +42,3 @@ Saklib::Element_Definition Saklib::internal_definition_of_SingleInt()
     });
 }
 
-void Saklib::register_all_internal_definitions()
-{
-    Element::try_add_definition(internal_definition_of_Project());
-    Element::try_add_definition(internal_definition_of_File());
-    Element::try_add_definition(internal_definition_of_SingleInt());
-}

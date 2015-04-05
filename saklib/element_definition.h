@@ -32,7 +32,7 @@ namespace Saklib
         Element_Definition(Element_Definition const& other) = delete;
         Element_Definition& operator=(Element_Definition const& other) = delete;
 
-        // VS2013 is being a git here. Not only can I not '= default' these, it insists on tryin to copy
+        // VS2013 is being a git here. Not only can I not '= default' these, it insists on trying to copy
         // this class if they aren't defined. Even though copy is deleted. WTF
         Element_Definition(Element_Definition && other) :
             m_element_type(std::move(other.m_element_type)),

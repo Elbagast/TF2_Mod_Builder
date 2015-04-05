@@ -2,6 +2,7 @@
 #include <QApplication>
 #include <iostream>
 #include "saklib/project_manager.h"
+#include "saklib/internal_element_definitions.h"
 
 void myMessageOutput(QtMsgType type, QMessageLogContext const& context, QString const& msg)
 {
@@ -35,6 +36,9 @@ int main(int argc, char *argv[])
 {
     //qInstallMessageHandler(myMessageOutput);
     Saklib::Project_Manager project_manager{};
+    project_manager.register_element_definition( Saklib::internal_definition_of_Project());
+    project_manager.register_element_definition( Saklib::internal_definition_of_File());
+    project_manager.register_element_definition( Saklib::internal_definition_of_SingleInt());
 
     QApplication a(argc, argv);
     Saklib::Qtlib::Project_Main_Window window(project_manager);
