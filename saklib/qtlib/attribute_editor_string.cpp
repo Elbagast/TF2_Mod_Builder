@@ -34,7 +34,7 @@ void Saklib::Qtlib::Attribute_Editor_String::v_refresh_data()
 }
 
 // Slot used to capture the signal editingFinished() from the QLineEdit
-void Saklib::Qtlib::Attribute_Editor_String::slot_editingFinished()
+void Saklib::Qtlib::Attribute_Editor_String::v_editing_finished()
 {
     if (is_vector_component())
         project_widget()->project_manager().undoable_attribute_vector_set_at<String>(attributeid(), vector_index(), to_String(m_line_edit->text()));
@@ -50,7 +50,7 @@ void Saklib::Qtlib::Attribute_Editor_String::shared_construction()
     m_line_edit->setText(to_QString(attribute_value<String>()));
 
     QObject::connect(m_line_edit.get(), &QLineEdit::editingFinished,
-                     this, &Attribute_Editor_String::slot_editingFinished);
+                     this, &Attribute_Editor_String::v_editing_finished);
 
     m_layout->addWidget(m_line_edit.get());
     m_layout->setSpacing(0);

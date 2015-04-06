@@ -3,13 +3,14 @@
 
 #include "types.h"
 #include "type_traits.h"
+#include "attribute.h"
 #include "fwd_attribute_type.h"
 
 
 namespace Saklib
 {  
     class Element_Definition;
-    class Attribute;
+    //class Attribute;
     /*
     Element
     ====================================================================================================

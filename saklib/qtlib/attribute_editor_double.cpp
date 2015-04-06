@@ -37,8 +37,7 @@ void Saklib::Qtlib::Attribute_Editor_Double::v_refresh_data()
     m_spinbox->setValue(attribute_value<Double>());
 }
 
-// Slot used to capture the signal editingFinished() from the QSpinBox
-void Saklib::Qtlib::Attribute_Editor_Double::slot_editingFinished()
+void Saklib::Qtlib::Attribute_Editor_Double::v_editing_finished()
 {
     if (is_vector_component())
         project_widget()->project_manager().undoable_attribute_vector_set_at<Double>(attributeid(), vector_index(), m_spinbox->value());
@@ -67,7 +66,7 @@ void Saklib::Qtlib::Attribute_Editor_Double::shared_construction()
     //m_label->setText(label_text);
 
     QObject::connect(m_spinbox.get(), &QSpinBox::editingFinished,
-                     this, &Attribute_Editor_Double::slot_editingFinished);
+                     this, &Attribute_Editor_Double::v_editing_finished);
 
     m_layout->addWidget(m_spinbox.get());
     m_layout->setStretch(0,1);

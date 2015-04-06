@@ -48,7 +48,7 @@ void Saklib::Qtlib::Attribute_Editor_ElementID::v_refresh_data()
     }
 }
 
-void Saklib::Qtlib::Attribute_Editor_ElementID::slot_clicked()
+void Saklib::Qtlib::Attribute_Editor_ElementID::v_editing_finished()
 {
     if (m_elementid.is_valid() && project_widget()->project_manager().is_valid(m_elementid))
     {
@@ -127,7 +127,7 @@ void Saklib::Qtlib::Attribute_Editor_ElementID::shared_construction()
         assert(this->project_widget()->project_manager().is_valid(m_elementid));
 
     QObject::connect(m_button.get(), &QPushButton::clicked,
-                     this, &Attribute_Editor_ElementID::slot_clicked);
+                     this, &Attribute_Editor_ElementID::v_editing_finished);
 
     m_layout->addWidget(m_button.get());
     m_layout->addWidget(m_name_label.get());

@@ -20,7 +20,6 @@ namespace Saklib
         class Attribute_Editor_ElementID :
                 public Attribute_Editor
         {
-            Q_OBJECT
         public:
             // Special 6
             //============================================================
@@ -32,9 +31,7 @@ namespace Saklib
 
         protected:
             void v_refresh_data() override;
-
-        private slots:
-            void slot_clicked();
+            void v_editing_finished() override;
 
         private:
             void shared_construction();

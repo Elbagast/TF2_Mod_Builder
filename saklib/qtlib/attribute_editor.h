@@ -52,9 +52,13 @@ namespace Saklib
                     return mp_project_widget->project_manager().attribute_type_cast<T>(m_attributeid)->value();
             }
 
+        protected slots:
+            void editing_finished() { v_editing_finished(); }
+
         protected:
             // Require subclasses to match with the data they represent
             virtual void v_refresh_data() = 0;
+            virtual void v_editing_finished() {}//= 0;
 
         private:
             Project_Widget*const mp_project_widget;
@@ -67,7 +71,6 @@ namespace Saklib
         class Attribute_Editor_Dummy :
                 public Attribute_Editor
         {
-            Q_OBJECT
         public:
             // Special 6
             //============================================================
@@ -75,6 +78,7 @@ namespace Saklib
             ~Attribute_Editor_Dummy() override;
         protected:
             void v_refresh_data() override {}
+            void v_editing_finished() override {}
         private:
             QUptr<QLabel> m_label;
             QUptr<QHBoxLayout> m_layout;
@@ -88,4 +92,5 @@ namespace Saklib
 
     } // namespace Qtlib
 } // namespace Saklib
+
 #endif // ATTRIBUTE_EDITOR_H

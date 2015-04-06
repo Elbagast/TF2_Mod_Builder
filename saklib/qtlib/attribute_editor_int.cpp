@@ -38,7 +38,7 @@ void Saklib::Qtlib::Attribute_Editor_Int::v_refresh_data()
 }
 
 // Slot used to capture the signal editingFinished() from the QSpinBox
-void Saklib::Qtlib::Attribute_Editor_Int::slot_editingFinished()
+void Saklib::Qtlib::Attribute_Editor_Int::v_editing_finished()
 {
     if (is_vector_component())
         project_widget()->project_manager().undoable_attribute_vector_set_at<Int>(attributeid(), vector_index(), m_spinbox->value());
@@ -58,7 +58,7 @@ void Saklib::Qtlib::Attribute_Editor_Int::shared_construction()
     m_spinbox->setMaximum(std::numeric_limits<Int>::max());
 
     QObject::connect(m_spinbox.get(), &QSpinBox::editingFinished,
-                     this, &Attribute_Editor_Int::slot_editingFinished);
+                     this, &Attribute_Editor_Int::v_editing_finished);
 
     //QString label_text{"Min: "};
     //label_text.append(to_QString(m_spinbox->minimum()));

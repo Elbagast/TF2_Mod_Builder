@@ -14,7 +14,7 @@ namespace Saklib
         class Attribute_Editor_Bool :
                 public Attribute_Editor
         {
-            Q_OBJECT
+            //Q_OBJECT
         public:
             // Special 6
             //============================================================
@@ -24,10 +24,7 @@ namespace Saklib
 
         protected:
             void v_refresh_data() override;
-
-        private slots:
-            // Slot used to capture the signal clicked() from the QCheckBox
-            void slot_clicked();
+            void v_editing_finished() override;
 
         private:
             void shared_construction();

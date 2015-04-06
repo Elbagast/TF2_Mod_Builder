@@ -6,6 +6,10 @@
 
 QT       += core gui
 
+#CONFIG += c++11
+#QMAKE_CXXFLAGS += -std=c++11
+QMAKE_CXXFLAGS += -std=gnu++14
+
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 TARGET = TF2_Mod_Builder
@@ -15,9 +19,9 @@ TEMPLATE = app
 # Remember to use 32bit compiler...
 CONFIG += static
 CONFIG += threads
-win32:LIBS += -L"D:/Programming/C++/Boost/boost_1_57_0/stage/lib"
-win32:INCLUDEPATH += "D:/Programming/C++/Boost/boost_1_57_0"
-win32:DEPENDPATH += "D:/Programming/C++/Boost/boost_1_57_0/stage/lib"
+LIBS += -L"D:/Programming/C++/Boost/boost_1_57_0/stage/lib"
+INCLUDEPATH += "D:/Programming/C++/Boost/boost_1_57_0"
+DEPENDPATH += "D:/Programming/C++/Boost/boost_1_57_0/stage/lib"
 
 # enable print to console
 CONFIG += console
@@ -57,7 +61,8 @@ SOURCES += main.cpp\
     saklib/qtlib/project_widget.cpp \
     saklib/internal_element_definitions.cpp \
     saklib/element_definition_manager.cpp \
-    saklib/element_definition.cpp
+    saklib/element_definition.cpp \
+    saklib/attribute_constraint_type.cpp
 
 HEADERS  += \
     saklib/all_attributes.h \
@@ -116,7 +121,10 @@ HEADERS  += \
     saklib/project_manager_templates.h \
     saklib/qtlib/project_widget.h \
     saklib/internal_element_definitions.h \
-    saklib/element_definition_manager.h
+    saklib/element_definition_manager.h \
+    saklib/attribute_constraint_type.h \
+    saklib/qtlib/attribute_editor_type.h \
+    saklib/qtlib/qwidget_operations.h
 
 FORMS    += \
     saklib/qtlib/consoledialog.ui \

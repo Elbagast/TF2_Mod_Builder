@@ -14,7 +14,6 @@ namespace Saklib
         class Attribute_Editor_String :
                 public Attribute_Editor
         {
-            Q_OBJECT
         public:
             // Special 6
             //============================================================
@@ -24,10 +23,7 @@ namespace Saklib
 
         protected:
             void v_refresh_data() override;
-
-        private slots:
-            // Slot used to capture the signal editingFinished() from the QLineEdit
-            void slot_editingFinished();
+            void v_editing_finished() override;
 
         private:
             void shared_construction();

@@ -31,7 +31,7 @@ void Saklib::Qtlib::Attribute_Editor_Bool::v_refresh_data()
     m_checkbox->setText(data ? "True" : "False");
 }
 
-void Saklib::Qtlib::Attribute_Editor_Bool::slot_clicked()
+void Saklib::Qtlib::Attribute_Editor_Bool::v_editing_finished()
 {
     if (is_vector_component())
         project_widget()->project_manager().undoable_attribute_vector_set_at<Bool>(attributeid(), vector_index(), m_checkbox->isChecked());
@@ -47,7 +47,7 @@ void Saklib::Qtlib::Attribute_Editor_Bool::shared_construction()
     v_refresh_data();
 
     QObject::connect(m_checkbox.get(), &QCheckBox::clicked,
-                     this, &Attribute_Editor_Bool::slot_clicked);
+                     this, &Attribute_Editor_Bool::editing_finished);
 
     m_layout->addWidget(m_checkbox.get());
     m_layout->setSpacing(0);
