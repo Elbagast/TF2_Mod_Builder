@@ -68,7 +68,7 @@ void Saklib::Qtlib::Outliner_Delegate::setEditorData(QWidget* editor, QModelInde
         // This is the only bit that will be edited..
 
         // Cast to editor type
-        auto true_editor = dynamic_cast<QLineEdit*const>(editor);
+        auto true_editor = dynamic_cast<QLineEdit*>(editor);
 
         // Get the data at index
         auto index_data = index.model()->data(index);
@@ -108,7 +108,7 @@ void Saklib::Qtlib::Outliner_Delegate::setModelData(QWidget* editor, QAbstractIt
         // This is the only bit that will be edited..
 
         // Cast to editor type
-        auto true_editor = dynamic_cast<QLineEdit*const>(editor);
+        auto true_editor = dynamic_cast<QLineEdit*>(editor);
 
         // Get the data at index
         auto editor_data = QVariant(true_editor->text());

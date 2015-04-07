@@ -7,7 +7,7 @@
 // Special 6
 //============================================================
 //template<>
-Saklib::Qtlib::Attribute_Editor_Vector_Type<Saklib::ElementID>::Attribute_Editor_Vector_Type(Project_Widget*const project_widget, AttributeID attributeid, QWidget* parent):
+Saklib::Qtlib::Attribute_Editor_Vector_Type<Saklib::ElementID>::Attribute_Editor_Vector_Type(Project_Widget* project_widget, AttributeID attributeid, QWidget* parent):
     Attribute_Editor_Vector(project_widget, attributeid, parent)
 {
 }

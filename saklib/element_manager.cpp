@@ -111,7 +111,7 @@ Saklib::AttributeID Saklib::Element_Manager::attributeid(ElementID elementid, St
 }
 
 // Access the Attribute associated with this id
-Saklib::Attribute*const Saklib::Element_Manager::attribute(AttributeID attributeid)
+Saklib::Attribute* Saklib::Element_Manager::attribute(AttributeID attributeid)
 {
     auto found = m_map.find(attributeid.elementid());
     if (found != m_map.end()
@@ -121,7 +121,7 @@ Saklib::Attribute*const Saklib::Element_Manager::attribute(AttributeID attribute
         return nullptr;
 }
 
-Saklib::Attribute*const Saklib::Element_Manager::attribute(ElementID elementid, size_type attribute_index)
+Saklib::Attribute* Saklib::Element_Manager::attribute(ElementID elementid, size_type attribute_index)
 {
     auto found = m_map.find(elementid);
     if (found != m_map.end()
@@ -131,7 +131,7 @@ Saklib::Attribute*const Saklib::Element_Manager::attribute(ElementID elementid, 
         return nullptr;
 }
 
-Saklib::Attribute*const Saklib::Element_Manager::attribute(ElementID elementid, String const& attribute_name)
+Saklib::Attribute* Saklib::Element_Manager::attribute(ElementID elementid, String const& attribute_name)
 {
     auto found = m_map.find(elementid);
     if (found != m_map.end())
@@ -141,7 +141,7 @@ Saklib::Attribute*const Saklib::Element_Manager::attribute(ElementID elementid, 
 }
 
 
-Saklib::Attribute const*const Saklib::Element_Manager::attribute(AttributeID attributeid) const
+Saklib::Attribute const* Saklib::Element_Manager::attribute(AttributeID attributeid) const
 {
     const_iterator found = m_map.find(attributeid.elementid());
     if (found != m_map.end()
@@ -151,7 +151,7 @@ Saklib::Attribute const*const Saklib::Element_Manager::attribute(AttributeID att
         return nullptr;
 }
 
-Saklib::Attribute const*const Saklib::Element_Manager::attribute(ElementID elementid, size_type attribute_index) const
+Saklib::Attribute const* Saklib::Element_Manager::attribute(ElementID elementid, size_type attribute_index) const
 {
     auto found = m_map.find(elementid);
     if (found != m_map.end()
@@ -161,7 +161,7 @@ Saklib::Attribute const*const Saklib::Element_Manager::attribute(ElementID eleme
         return nullptr;
 }
 
-Saklib::Attribute const*const Saklib::Element_Manager::attribute(ElementID elementid, String const& attribute_name) const
+Saklib::Attribute const* Saklib::Element_Manager::attribute(ElementID elementid, String const& attribute_name) const
 {
     auto found = m_map.find(elementid);
     if (found != m_map.end())

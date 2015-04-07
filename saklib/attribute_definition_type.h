@@ -51,7 +51,7 @@ namespace Saklib
         Attribute_Definition_Type& operator=(Attribute_Definition_Type const& other) = delete;
 
         // hides Attribute_Definition::constraint when using this exact class
-        //constraint_type const*const constraint() const  { return m_constraint.get(); }
+        //constraint_type const* constraint() const  { return m_constraint.get(); }
 
     protected:
         // Virtuals
@@ -59,7 +59,7 @@ namespace Saklib
         String const& v_name() const override  { return m_name; }
         Type_Enum v_type_enum() const override      { return stored_type_traits::type_enum(); }
         String v_type_string() const override  { return stored_type_traits::type_string(); }
-        //constraint_type const*const v_constraint() const override   { return m_constraint.get(); }
+        //constraint_type const* v_constraint() const override   { return m_constraint.get(); }
 
         //bool v_is_constrained() const override      { return m_constraint != nullptr; }
 

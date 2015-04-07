@@ -1,4 +1,5 @@
 #include "element_iostream.h"
+#include "types.h"
 #include "element.h"
 #include "all_attributes.h"
 #include "elementid_iostream.h"
@@ -22,6 +23,9 @@ std::ostream& Saklib::operator<<(std::ostream& stream, Element const& element)
             break;
         case Type_Enum::String:
             stream << attribute_enum_cast<Type_Enum::String>(attribute.get())->value();
+            break;
+        case Type_Enum::Path:
+            stream << attribute_enum_cast<Type_Enum::Path>(attribute.get())->value().string();
             break;
         case Type_Enum::ElementID:
             stream << attribute_enum_cast<Type_Enum::ElementID>(attribute.get())->value();
@@ -51,11 +55,20 @@ std::ostream& Saklib::operator<<(std::ostream& stream, Element const& element)
                 stream << "\"" << item << "\", ";
             stream << " ]";
             break;
+        case Type_Enum::Vector_Path:
+            stream << "[ ";
+            for (auto const& item : attribute_enum_cast<Type_Enum::Vector_Path>(attribute.get())->vector())
+                stream << "\"" << item.string() << "\", ";
+            stream << " ]";
+            break;
         case Type_Enum::Vector_ElementID:
             stream << "[ ";
             for (auto const& item : attribute_enum_cast<Type_Enum::Vector_ElementID>(attribute.get())->vector())
                 stream << "\"" << item << "\", ";
             stream << " ]";
+            break;
+        case Type_Enum::Undefined:
+        default:
             break;
         }
 
@@ -74,7 +87,7 @@ std::ostream& Saklib::serialise_Element_as_key_values(std::ostream& stream, Elem
 {
     auto lamda_indent = [&stream, &indent](std::size_t i)
     {
-        for (auto count = 0; count != i; ++count)
+        for (std::size_t count = 0; count != i; ++count)
             stream << indent;
     };
 
@@ -93,11 +106,11 @@ std::ostream& Saklib::serialise_Element_as_key_values(std::ostream& stream, Elem
     return stream;
 }
 
-std::ostream& Saklib::serialise_Attribute_as_key_values(std::ostream& stream, Attribute const*const attribute, std::size_t indent_level, std::string const& indent)
+std::ostream& Saklib::serialise_Attribute_as_key_values(std::ostream& stream, Attribute const* attribute, std::size_t indent_level, std::string const& indent)
 {
     auto lamda_indent = [&stream, &indent](std::size_t i)
     {
-        for (auto count = 0; count != i; ++count)
+        for (std::size_t count = 0; count != i; ++count)
             stream << indent;
     };
 
@@ -116,6 +129,9 @@ std::ostream& Saklib::serialise_Attribute_as_key_values(std::ostream& stream, At
         break;
     case Type_Enum::String:
         stream << "\"" << attribute_enum_cast<Type_Enum::String>(attribute)->value() << "\"";
+        break;
+    case Type_Enum::Path:
+        stream << "\"" << attribute_enum_cast<Type_Enum::Path>(attribute)->value().string() << "\"";
         break;
     case Type_Enum::ElementID:
         stream << "\"" << attribute_enum_cast<Type_Enum::ElementID>(attribute)->value().value() << "\"";
@@ -145,11 +161,20 @@ std::ostream& Saklib::serialise_Attribute_as_key_values(std::ostream& stream, At
             stream << "\"" << item << "\", ";
         stream << " ]";
         break;
+    case Type_Enum::Vector_Path:
+        stream << "[ ";
+        for (auto const& item : attribute_enum_cast<Type_Enum::Vector_Path>(attribute)->vector())
+            stream << "\"" << item.string() << "\", ";
+        stream << " ]";
+        break;
     case Type_Enum::Vector_ElementID:
         stream << "[ ";
         for (auto const& item : attribute_enum_cast<Type_Enum::Vector_ElementID>(attribute)->vector())
             stream << "\"" << item << "\", ";
         stream << " ]";
+        break;
+    case Type_Enum::Undefined:
+    default:
         break;
     }
     return stream;

@@ -113,11 +113,13 @@ Saklib::ProxyID::ProxyID(ElementID elementid) :
     m_attribute_index{ 0 }
 {}
 
+#pragma GCC diagnostic ignored "-Wnarrowing"
 inline
 Saklib::ProxyID::ProxyID(AttributeID attributeid) :
     m_elementid_value{ pack_elementid_value(attributeid.elementid().value()) },
     m_attribute_index{ pack_attribute_index(attributeid.index()) }
 {}
+#pragma GCC diagnostic pop
 
 // Interface
 //============================================================

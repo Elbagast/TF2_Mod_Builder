@@ -11,14 +11,14 @@
 
 // Special 6
 //============================================================
-Saklib::Qtlib::Attribute_Editor_String::Attribute_Editor_String(Project_Widget*const project_widget, AttributeID attributeid, QWidget* parent):
+Saklib::Qtlib::Attribute_Editor_String::Attribute_Editor_String(Project_Widget* project_widget, AttributeID attributeid, QWidget* parent):
     Attribute_Editor(project_widget, attributeid, parent),
     m_line_edit(),
     m_layout()
 {
     shared_construction();
 }
-Saklib::Qtlib::Attribute_Editor_String::Attribute_Editor_String(Project_Widget*const project_widget, AttributeID attributeid, size_type vector_index, QWidget* parent):
+Saklib::Qtlib::Attribute_Editor_String::Attribute_Editor_String(Project_Widget* project_widget, AttributeID attributeid, size_type vector_index, QWidget* parent):
     Attribute_Editor(project_widget, attributeid, vector_index, parent),
     m_line_edit(),
     m_layout()

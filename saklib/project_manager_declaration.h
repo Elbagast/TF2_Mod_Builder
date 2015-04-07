@@ -53,8 +53,8 @@ namespace Saklib
         void set_project_filepath(Path const& filepath);
 
 
-        void add_observer(Project_Observer*const observer);
-        void remove_observer(Project_Observer*const observer);
+        void add_observer(Project_Observer* observer);
+        void remove_observer(Project_Observer* observer);
 
         // Lifetime
         //------------------------------------------------------------
@@ -94,13 +94,13 @@ namespace Saklib
         //------------------------------------------------------------
         AttributeID attributeid(ElementID elementid, String const& attribute_name) const;
 
-        Attribute *const attribute(AttributeID attributeid);
-        Attribute *const attribute(ElementID elementid, size_type attribute_index);
-        Attribute *const attribute(ElementID elementid, String const& attribute_name);
+        Attribute* attribute(AttributeID attributeid);
+        Attribute* attribute(ElementID elementid, size_type attribute_index);
+        Attribute* attribute(ElementID elementid, String const& attribute_name);
 
-        Attribute const*const attribute(AttributeID attributeid) const;
-        Attribute const*const attribute(ElementID elementid, size_type attribute_index) const;
-        Attribute const*const attribute(ElementID elementid, String const& attribute_name) const;
+        Attribute const* attribute(AttributeID attributeid) const;
+        Attribute const* attribute(ElementID elementid, size_type attribute_index) const;
+        Attribute const* attribute(ElementID elementid, String const& attribute_name) const;
 
 
         // Attribute forwarding functions
@@ -113,22 +113,22 @@ namespace Saklib
         //------------------------------------------------------------
 
         template <typename T>
-        Attribute_Type<T> *const attribute_type_cast(AttributeID attributeid);
+        Attribute_Type<T>* attribute_type_cast(AttributeID attributeid);
 
         template <typename T>
-        Attribute_Type<T> *const attribute_type_cast(ElementID elementid, size_type attribute_index);
+        Attribute_Type<T>* attribute_type_cast(ElementID elementid, size_type attribute_index);
 
         template <typename T>
-        Attribute_Type<T> *const attribute_type_cast(ElementID elementid, String const& attribute_name);
+        Attribute_Type<T>* attribute_type_cast(ElementID elementid, String const& attribute_name);
 
         template <typename T>
-        Attribute_Type<T> const*const attribute_type_cast(AttributeID attributeid) const;
+        Attribute_Type<T> const* attribute_type_cast(AttributeID attributeid) const;
 
         template <typename T>
-        Attribute_Type<T> const*const attribute_type_cast(ElementID elementid, size_type attribute_index) const;
+        Attribute_Type<T> const* attribute_type_cast(ElementID elementid, size_type attribute_index) const;
 
         template <typename T>
-        Attribute_Type<T> const*const attribute_type_cast(ElementID elementid, String const& attribute_name) const;
+        Attribute_Type<T> const* attribute_type_cast(ElementID elementid, String const& attribute_name) const;
 
         // Attribute_Type<T> forwarding functions
         //------------------------------------------------------------

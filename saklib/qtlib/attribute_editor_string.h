@@ -17,8 +17,8 @@ namespace Saklib
         public:
             // Special 6
             //============================================================
-            Attribute_Editor_String(Project_Widget*const project_widget, AttributeID attributeid, QWidget* parent = nullptr);
-            Attribute_Editor_String(Project_Widget*const project_widget, AttributeID attributeid, size_type vector_index, QWidget* parent = nullptr);
+            Attribute_Editor_String(Project_Widget* project_widget, AttributeID attributeid, QWidget* parent = nullptr);
+            Attribute_Editor_String(Project_Widget* project_widget, AttributeID attributeid, size_type vector_index, QWidget* parent = nullptr);
             ~Attribute_Editor_String() override;
 
         protected:

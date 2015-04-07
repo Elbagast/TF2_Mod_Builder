@@ -71,13 +71,13 @@ namespace Saklib
 
 
         // Access the Attribute associated with this ID
-        Attribute*const attribute(AttributeID attributeid);
-        Attribute*const attribute(ElementID elementid, size_type attribute_index);
-        Attribute*const attribute(ElementID elementid, String const& attribute_name);
+        Attribute* attribute(AttributeID attributeid);
+        Attribute* attribute(ElementID elementid, size_type attribute_index);
+        Attribute* attribute(ElementID elementid, String const& attribute_name);
 
-        Attribute const*const attribute(AttributeID attributeid) const;
-        Attribute const*const attribute(ElementID elementid, size_type attribute_index) const;
-        Attribute const*const attribute(ElementID elementid, String const& attribute_name) const;
+        Attribute const* attribute(AttributeID attributeid) const;
+        Attribute const* attribute(ElementID elementid, size_type attribute_index) const;
+        Attribute const* attribute(ElementID elementid, String const& attribute_name) const;
 
         // Typed Access to Attributes
 

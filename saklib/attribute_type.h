@@ -328,9 +328,9 @@ namespace Saklib
         return dynamic_cast<Attribute_Type<T>*>(attribute);
     }
     template <typename T>
-    Attribute_Type<T>const*const attribute_type_cast(Attribute const*const attribute)
+    Attribute_Type<T>const* attribute_type_cast(Attribute const* attribute)
     {
-        return dynamic_cast<Attribute_Type<T>const*const>(attribute);
+        return dynamic_cast<Attribute_Type<T>const*>(attribute);
     }
 
     template <Type_Enum TE>
@@ -339,9 +339,9 @@ namespace Saklib
         return dynamic_cast<Attribute_Type<TypeHolder_st<TE> >*>(attribute);
     }
     template <Type_Enum TE>
-    Attribute_Type<TypeHolder_st<TE> > const*const attribute_enum_cast(Attribute const*const attribute)
+    Attribute_Type<TypeHolder_st<TE> > const* attribute_enum_cast(Attribute const* attribute)
     {
-        return dynamic_cast<Attribute_Type<TypeHolder_st<TE> > const*const>(attribute);
+        return dynamic_cast<Attribute_Type<TypeHolder_st<TE> > const*>(attribute);
     }
 
 } // namespace Saklib

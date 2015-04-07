@@ -21,7 +21,7 @@ namespace Saklib
                 public Attribute_Editor_Vector
         {
         public:
-            Attribute_Editor_Vector_Type(Project_Widget*const project_widget, AttributeID attributeid, QWidget* parent = nullptr):
+            Attribute_Editor_Vector_Type(Project_Widget* project_widget, AttributeID attributeid, QWidget* parent = nullptr):
                 Attribute_Editor_Vector(project_widget, attributeid, parent)
             {}
             ~Attribute_Editor_Vector_Type() override = default;

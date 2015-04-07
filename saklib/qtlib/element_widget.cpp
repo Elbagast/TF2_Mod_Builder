@@ -19,7 +19,7 @@
 
 // Special 6
 //============================================================
-Saklib::Qtlib::Element_Widget::Element_Widget(Project_Widget*const project_widget, ElementID elementid):
+Saklib::Qtlib::Element_Widget::Element_Widget(Project_Widget* project_widget, ElementID elementid):
     QWidget(nullptr),
     mp_project_widget(project_widget),
     m_elementid(elementid),

@@ -27,7 +27,7 @@ namespace Saklib
         String const& name() const  { return v_name(); }
         Type_Enum type_enum() const { return v_type_enum(); }
         String type_string() const  { return v_type_string(); }
-        //Constraint const*const constraint() const  { return v_constraint(); }
+        //Constraint const* constraint() const  { return v_constraint(); }
         
         bool is_simple_type() const     { return Saklib::is_simple_type(type_enum()); }
         bool is_vector_type() const     { return Saklib::is_vector_type(type_enum()); }
@@ -39,7 +39,7 @@ namespace Saklib
         virtual String const& v_name() const = 0;
         virtual Type_Enum v_type_enum() const = 0;
         virtual String v_type_string() const = 0;
-        //virtual Constraint const*const v_constraint() const = 0;
+        //virtual Constraint const* v_constraint() const = 0;
 
         //virtual bool v_is_constrained() const = 0;
 

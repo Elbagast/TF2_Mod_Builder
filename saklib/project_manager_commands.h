@@ -15,7 +15,7 @@ namespace Saklib
             public Command
     {
     public:
-        Project_Manager_Command_Element(Project_Manager*const project_widget, ElementID elementid):
+        Project_Manager_Command_Element(Project_Manager* project_widget, ElementID elementid):
             Command(),
             mp_project_widget(project_widget),
             m_elementid(elementid)
@@ -30,14 +30,14 @@ namespace Saklib
             mp_project_widget->decrement_command_ref_count(m_elementid);
         }
 
-        Project_Manager*const project_widget() const { return mp_project_widget; }
-        ElementID elementid() const                 { return m_elementid; }
+        Project_Manager* project_widget() const { return mp_project_widget; }
+        ElementID elementid() const             { return m_elementid; }
 
     protected:
         void v_execute() override = 0;
         void v_unexecute() override = 0;
     private:
-        Project_Manager*const mp_project_widget;
+        Project_Manager* mp_project_widget;
         ElementID m_elementid;
     };
 
@@ -50,7 +50,7 @@ namespace Saklib
             public Command
     {
     public:
-        Project_Manager_Command_Attribute(Project_Manager*const project_widget, AttributeID attributeid):
+        Project_Manager_Command_Attribute(Project_Manager* project_widget, AttributeID attributeid):
             Command(),
             mp_project_widget(project_widget),
             m_attributeid(attributeid)
@@ -65,15 +65,15 @@ namespace Saklib
             mp_project_widget->decrement_command_ref_count(m_attributeid);
         }
 
-        Project_Manager*const project_widget() const { return mp_project_widget; }
-        ElementID elementid() const                 { return m_attributeid.elementid(); }
-        AttributeID attributeid() const             { return m_attributeid; }
+        Project_Manager* project_widget() const { return mp_project_widget; }
+        ElementID elementid() const             { return m_attributeid.elementid(); }
+        AttributeID attributeid() const         { return m_attributeid; }
 
     protected:
         void v_execute() override = 0;
         void v_unexecute() override = 0;
     private:
-        Project_Manager*const mp_project_widget;
+        Project_Manager* mp_project_widget;
         AttributeID m_attributeid;
     };
 
@@ -87,7 +87,7 @@ namespace Saklib
             public Project_Manager_Command_Element
     {
     public:
-        PMC_Element_Set_Name(Project_Manager*const project_widget, ElementID elementid, String const& name):
+        PMC_Element_Set_Name(Project_Manager* project_widget, ElementID elementid, String const& name):
             Project_Manager_Command_Element(project_widget, elementid),
             m_old_name(project_widget->element_name(elementid)),
             m_new_name(name)
@@ -117,7 +117,7 @@ namespace Saklib
             public Project_Manager_Command_Attribute
     {
     public:
-        PMC_Attribute_Set_Value(Project_Manager*const project_widget, AttributeID attributeid, T const& value):
+        PMC_Attribute_Set_Value(Project_Manager* project_widget, AttributeID attributeid, T const& value):
             Project_Manager_Command_Attribute(project_widget, attributeid),
             m_old_value(project_widget->attribute_type_cast<T>(attributeid)->value()),
             m_new_value(value)
@@ -143,7 +143,7 @@ namespace Saklib
             public Project_Manager_Command_Attribute
     {
     public:
-        PMC_Attribute_Set_Value(Project_Manager*const project_widget, AttributeID attributeid, ElementID const& value):
+        PMC_Attribute_Set_Value(Project_Manager* project_widget, AttributeID attributeid, ElementID const& value):
             Project_Manager_Command_Attribute(project_widget, attributeid),
             m_old_value(project_widget->attribute_type_cast<ElementID>(attributeid)->value()),
             m_new_value(value)
@@ -160,11 +160,11 @@ namespace Saklib
     protected:
         void v_execute() override
         {
-            project_widget()->template attribute_set_value<ElementID>(attributeid(), m_new_value);
+            project_widget()->attribute_set_value<ElementID>(attributeid(), m_new_value);
         }
         void v_unexecute() override
         {
-            project_widget()->template attribute_set_value<ElementID>(attributeid(), m_old_value);
+            project_widget()->attribute_set_value<ElementID>(attributeid(), m_old_value);
         }
     private:
         ElementID m_old_value;
@@ -182,7 +182,7 @@ namespace Saklib
             public Project_Manager_Command_Attribute
     {
     public:
-        PMC_Attribute_Vector_Clear(Project_Manager*const project_widget, AttributeID attributeid):
+        PMC_Attribute_Vector_Clear(Project_Manager* project_widget, AttributeID attributeid):
             Project_Manager_Command_Attribute(project_widget, attributeid),
             m_old_vector(project_widget->attribute_type_cast<Vector<T>>(attributeid)->vector())
         {}
@@ -206,7 +206,7 @@ namespace Saklib
             public Project_Manager_Command_Attribute
     {
     public:
-        PMC_Attribute_Vector_Clear(Project_Manager*const project_widget, AttributeID attributeid):
+        PMC_Attribute_Vector_Clear(Project_Manager* project_widget, AttributeID attributeid):
             Project_Manager_Command_Attribute(project_widget, attributeid),
             m_old_vector(project_widget->attribute_type_cast<Vector<ElementID>>(attributeid)->vector())
         {
@@ -245,7 +245,7 @@ namespace Saklib
             public Project_Manager_Command_Attribute
     {
     public:
-        PMC_Attribute_Vector_Set_At(Project_Manager*const project_widget, AttributeID attributeid, size_type index, T const& value):
+        PMC_Attribute_Vector_Set_At(Project_Manager* project_widget, AttributeID attributeid, size_type index, T const& value):
             Project_Manager_Command_Attribute(project_widget, attributeid),
             m_index(index),
             m_new_value(value),
@@ -273,7 +273,7 @@ namespace Saklib
             public Project_Manager_Command_Attribute
     {
     public:
-        PMC_Attribute_Vector_Set_At(Project_Manager*const project_widget, AttributeID attributeid, size_type index, ElementID const& value):
+        PMC_Attribute_Vector_Set_At(Project_Manager* project_widget, AttributeID attributeid, size_type index, ElementID const& value):
             Project_Manager_Command_Attribute(project_widget, attributeid),
             m_index(index),
             m_new_value(value),
@@ -312,7 +312,7 @@ namespace Saklib
             public Project_Manager_Command_Attribute
     {
     public:
-        PMC_Attribute_Vector_Set_Front(Project_Manager*const project_widget, AttributeID attributeid, T const& value):
+        PMC_Attribute_Vector_Set_Front(Project_Manager* project_widget, AttributeID attributeid, T const& value):
             Project_Manager_Command_Attribute(project_widget, attributeid),
             m_new_value(value),
             m_old_value(project_widget->attribute_type_cast<Vector<T>>(attributeid)->front())
@@ -338,7 +338,7 @@ namespace Saklib
             public Project_Manager_Command_Attribute
     {
     public:
-        PMC_Attribute_Vector_Set_Front(Project_Manager*const project_widget, AttributeID attributeid, ElementID const& value):
+        PMC_Attribute_Vector_Set_Front(Project_Manager* project_widget, AttributeID attributeid, ElementID const& value):
             Project_Manager_Command_Attribute(project_widget, attributeid),
             m_new_value(value),
             m_old_value(project_widget->attribute_type_cast<Vector<ElementID>>(attributeid)->front())
@@ -375,7 +375,7 @@ namespace Saklib
             public Project_Manager_Command_Attribute
     {
     public:
-        PMC_Attribute_Vector_Set_Back(Project_Manager*const project_widget, AttributeID attributeid, T const& value):
+        PMC_Attribute_Vector_Set_Back(Project_Manager* project_widget, AttributeID attributeid, T const& value):
             Project_Manager_Command_Attribute(project_widget, attributeid),
             m_new_value(value),
             m_old_value(project_widget->attribute_type_cast<Vector<T>>(attributeid)->front())
@@ -401,7 +401,7 @@ namespace Saklib
             public Project_Manager_Command_Attribute
     {
     public:
-        PMC_Attribute_Vector_Set_Back(Project_Manager*const project_widget, AttributeID attributeid, ElementID const& value):
+        PMC_Attribute_Vector_Set_Back(Project_Manager* project_widget, AttributeID attributeid, ElementID const& value):
             Project_Manager_Command_Attribute(project_widget, attributeid),
             m_new_value(value),
             m_old_value(project_widget->attribute_type_cast<Vector<ElementID>>(attributeid)->front())
@@ -438,7 +438,7 @@ namespace Saklib
             public Project_Manager_Command_Attribute
     {
     public:
-        PMC_Attribute_Vector_Swap_At(Project_Manager*const project_widget, AttributeID attributeid, size_type index, size_type other_index):
+        PMC_Attribute_Vector_Swap_At(Project_Manager* project_widget, AttributeID attributeid, size_type index, size_type other_index):
             Project_Manager_Command_Attribute(project_widget, attributeid),
             m_index(index),
             m_other_index(other_index)
@@ -468,7 +468,7 @@ namespace Saklib
             public Project_Manager_Command_Attribute
     {
     public:
-        PMC_Attribute_Vector_Push_Back(Project_Manager*const project_widget, AttributeID attributeid, T const& value):
+        PMC_Attribute_Vector_Push_Back(Project_Manager* project_widget, AttributeID attributeid, T const& value):
             Project_Manager_Command_Attribute(project_widget, attributeid),
             m_new_value(value)
         {}
@@ -491,7 +491,7 @@ namespace Saklib
             public Project_Manager_Command_Attribute
     {
     public:
-        PMC_Attribute_Vector_Push_Back(Project_Manager*const project_widget, AttributeID attributeid, ElementID const& value):
+        PMC_Attribute_Vector_Push_Back(Project_Manager* project_widget, AttributeID attributeid, ElementID const& value):
             Project_Manager_Command_Attribute(project_widget, attributeid),
             m_new_value(value)
         {
@@ -524,7 +524,7 @@ namespace Saklib
             public Project_Manager_Command_Attribute
     {
     public:
-        PMC_Attribute_Vector_Pop_Back(Project_Manager*const project_widget, AttributeID attributeid):
+        PMC_Attribute_Vector_Pop_Back(Project_Manager* project_widget, AttributeID attributeid):
             Project_Manager_Command_Attribute(project_widget, attributeid),
             m_old_value(project_widget->attribute_type_cast<Vector<T>>(attributeid)->back())
         {}
@@ -548,7 +548,7 @@ namespace Saklib
             public Project_Manager_Command_Attribute
     {
     public:
-        PMC_Attribute_Vector_Pop_Back(Project_Manager*const project_widget, AttributeID attributeid):
+        PMC_Attribute_Vector_Pop_Back(Project_Manager* project_widget, AttributeID attributeid):
             Project_Manager_Command_Attribute(project_widget, attributeid),
             m_old_value(project_widget->attribute_type_cast<Vector<ElementID>>(attributeid)->back())
         {
@@ -581,7 +581,7 @@ namespace Saklib
             public Project_Manager_Command_Attribute
     {
     public:
-        PMC_Attribute_Vector_Insert_At(Project_Manager*const project_widget, AttributeID attributeid, size_type index, T const& value):
+        PMC_Attribute_Vector_Insert_At(Project_Manager* project_widget, AttributeID attributeid, size_type index, T const& value):
             Project_Manager_Command_Attribute(project_widget, attributeid),
             m_index(index),
             m_value(value)
@@ -607,7 +607,7 @@ namespace Saklib
             public Project_Manager_Command_Attribute
     {
     public:
-        PMC_Attribute_Vector_Insert_At(Project_Manager*const project_widget, AttributeID attributeid, size_type index, ElementID const& value):
+        PMC_Attribute_Vector_Insert_At(Project_Manager* project_widget, AttributeID attributeid, size_type index, ElementID const& value):
             Project_Manager_Command_Attribute(project_widget, attributeid),
             m_index(index),
             m_value(value)
@@ -642,7 +642,7 @@ namespace Saklib
             public Project_Manager_Command_Attribute
     {
     public:
-        PMC_Attribute_Vector_Remove_At(Project_Manager*const project_widget, AttributeID attributeid, size_type index):
+        PMC_Attribute_Vector_Remove_At(Project_Manager* project_widget, AttributeID attributeid, size_type index):
             Project_Manager_Command_Attribute(project_widget, attributeid),
             m_index(index),
             m_value(project_widget->attribute_vector_at<T>(attributeid, index))
@@ -668,7 +668,7 @@ namespace Saklib
             public Project_Manager_Command_Attribute
     {
     public:
-        PMC_Attribute_Vector_Remove_At(Project_Manager*const project_widget, AttributeID attributeid, size_type index):
+        PMC_Attribute_Vector_Remove_At(Project_Manager* project_widget, AttributeID attributeid, size_type index):
             Project_Manager_Command_Attribute(project_widget, attributeid),
             m_index(index),
             m_value(project_widget->attribute_vector_at<ElementID>(attributeid, index))

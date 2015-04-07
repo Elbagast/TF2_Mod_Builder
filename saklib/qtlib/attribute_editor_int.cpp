@@ -13,7 +13,7 @@
 
 // Special 6
 //============================================================
-Saklib::Qtlib::Attribute_Editor_Int::Attribute_Editor_Int(Project_Widget*const project_widget, AttributeID attributeid, QWidget* parent):
+Saklib::Qtlib::Attribute_Editor_Int::Attribute_Editor_Int(Project_Widget* project_widget, AttributeID attributeid, QWidget* parent):
     Attribute_Editor(project_widget, attributeid, parent),
     m_spinbox(),
     //m_label(),
@@ -21,7 +21,7 @@ Saklib::Qtlib::Attribute_Editor_Int::Attribute_Editor_Int(Project_Widget*const p
 {
     shared_construction();
 }
-Saklib::Qtlib::Attribute_Editor_Int::Attribute_Editor_Int(Project_Widget*const project_widget, AttributeID attributeid, size_type vector_index, QWidget* parent):
+Saklib::Qtlib::Attribute_Editor_Int::Attribute_Editor_Int(Project_Widget* project_widget, AttributeID attributeid, size_type vector_index, QWidget* parent):
     Attribute_Editor(project_widget, attributeid, vector_index, parent),
     m_spinbox(),
     //m_label(),

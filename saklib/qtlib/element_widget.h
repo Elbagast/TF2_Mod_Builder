@@ -36,7 +36,7 @@ namespace Saklib
         public:
             // Special 6
             //============================================================
-            Element_Widget(Project_Widget*const project_widget, ElementID elementid);
+            Element_Widget(Project_Widget* project_widget, ElementID elementid);
             ~Element_Widget() override;
 
             // NO COPYING
@@ -60,7 +60,7 @@ namespace Saklib
         private:
             // Data Members
             //============================================================
-            Project_Widget*const mp_project_widget; // Commands reference this so that data is updated properly
+            Project_Widget* mp_project_widget; // Commands reference this so that data is updated properly
             ElementID const m_elementid;         // Reference to the Element being edited
             AttributeID m_parentid;
 

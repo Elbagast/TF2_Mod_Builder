@@ -110,7 +110,7 @@ void Saklib::Project_Manager::set_project_filepath(Path const& filepath)
 
 
 
-void Saklib::Project_Manager::add_observer(Project_Observer*const observer)
+void Saklib::Project_Manager::add_observer(Project_Observer* observer)
 {
     auto found = std::find(m_observers.cbegin(), m_observers.cend(), observer);
     if (found == m_observers.cend())
@@ -119,7 +119,7 @@ void Saklib::Project_Manager::add_observer(Project_Observer*const observer)
     }
 }
 
-void Saklib::Project_Manager::remove_observer(Project_Observer*const observer)
+void Saklib::Project_Manager::remove_observer(Project_Observer* observer)
 {
     auto found = std::find(m_observers.cbegin(), m_observers.cend(), observer);
     if (found != m_observers.cend())
@@ -242,29 +242,29 @@ Saklib::AttributeID Saklib::Project_Manager::attributeid(ElementID elementid, St
     return m_element_manager.attributeid(elementid, attribute_name);
 }
 
-Saklib::Attribute *const Saklib::Project_Manager::attribute(AttributeID attributeid)
+Saklib::Attribute* Saklib::Project_Manager::attribute(AttributeID attributeid)
 {
     return m_element_manager.attribute(attributeid);
 }
-Saklib::Attribute *const Saklib::Project_Manager::attribute(ElementID elementid, size_type attribute_index)
+Saklib::Attribute* Saklib::Project_Manager::attribute(ElementID elementid, size_type attribute_index)
 {
     return m_element_manager.attribute(elementid, attribute_index);
 }
-Saklib::Attribute *const Saklib::Project_Manager::attribute(ElementID elementid, String const& attribute_name)
+Saklib::Attribute* Saklib::Project_Manager::attribute(ElementID elementid, String const& attribute_name)
 {
     return m_element_manager.attribute(elementid, attribute_name);
 }
 
 
-Saklib::Attribute const*const Saklib::Project_Manager::attribute(AttributeID attributeid) const
+Saklib::Attribute const* Saklib::Project_Manager::attribute(AttributeID attributeid) const
 {
     return m_element_manager.attribute(attributeid);
 }
-Saklib::Attribute const*const Saklib::Project_Manager::attribute(ElementID elementid, size_type attribute_index) const
+Saklib::Attribute const* Saklib::Project_Manager::attribute(ElementID elementid, size_type attribute_index) const
 {
     return m_element_manager.attribute(elementid, attribute_index);
 }
-Saklib::Attribute const*const Saklib::Project_Manager::attribute(ElementID elementid, String const& attribute_name) const
+Saklib::Attribute const* Saklib::Project_Manager::attribute(ElementID elementid, String const& attribute_name) const
 {
     return m_element_manager.attribute(elementid, attribute_name);
 }

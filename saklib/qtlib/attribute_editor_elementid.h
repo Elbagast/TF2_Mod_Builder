@@ -23,8 +23,8 @@ namespace Saklib
         public:
             // Special 6
             //============================================================
-            Attribute_Editor_ElementID(Project_Widget*const project_widget, AttributeID attributeid, QWidget* parent = nullptr);
-            Attribute_Editor_ElementID(Project_Widget*const project_widget, AttributeID attributeid, size_type vector_index, QWidget* parent = nullptr);
+            Attribute_Editor_ElementID(Project_Widget* project_widget, AttributeID attributeid, QWidget* parent = nullptr);
+            Attribute_Editor_ElementID(Project_Widget* project_widget, AttributeID attributeid, size_type vector_index, QWidget* parent = nullptr);
             ~Attribute_Editor_ElementID() override;
 
             ElementID elementid() const { return m_elementid; }

@@ -26,8 +26,8 @@ namespace Saklib
         public:
             // Special 6
             //============================================================
-            Attribute_Editor_Type(Project_Widget*const project_widget, AttributeID attributeid, QWidget* parent = nullptr);
-            Attribute_Editor_Type(Project_Widget*const project_widget, AttributeID attributeid, size_type vector_index, QWidget* parent = nullptr);
+            Attribute_Editor_Type(Project_Widget* project_widget, AttributeID attributeid, QWidget* parent = nullptr);
+            Attribute_Editor_Type(Project_Widget* project_widget, AttributeID attributeid, size_type vector_index, QWidget* parent = nullptr);
             ~Attribute_Editor_Type() override;
 
         protected:
@@ -45,7 +45,7 @@ namespace Saklib
         public:
             // Special 6
             //============================================================
-            Attribute_Editor_Dummy(Project_Widget*const project_widget, AttributeID attributeid, QWidget* parent = nullptr);
+            Attribute_Editor_Dummy(Project_Widget* project_widget, AttributeID attributeid, QWidget* parent = nullptr);
             ~Attribute_Editor_Dummy() override;
         protected:
             void v_refresh_data() override {}
@@ -56,10 +56,10 @@ namespace Saklib
         };
 
         // Function with a typeswitch
-        QUptr<Attribute_Editor> make_Attribute_Editor(Project_Widget*const project_widget, AttributeID attributeid);
+        QUptr<Attribute_Editor> make_Attribute_Editor(Project_Widget* project_widget, AttributeID attributeid);
 
         // Function with a typeswitch
-        QUptr<Attribute_Editor> make_Attribute_Editor(Project_Widget*const project_widget, AttributeID attributeid, size_type vector_index);
+        QUptr<Attribute_Editor> make_Attribute_Editor(Project_Widget* project_widget, AttributeID attributeid, size_type vector_index);
 
     } // namespace Qtlib
 } // namespace Saklib

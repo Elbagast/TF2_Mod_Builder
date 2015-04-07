@@ -471,7 +471,7 @@ void Saklib::Qtlib::Outliner_Model::remove_row(AttributeID attributeid, int row)
 
 
 // Request for a context menu by view at index and position
-void Saklib::Qtlib::Outliner_Model::custom_context_menu(QAbstractItemView*const view, QModelIndex const& index, QPoint position)
+void Saklib::Qtlib::Outliner_Model::custom_context_menu(QAbstractItemView* view, QModelIndex const& index, QPoint position)
 {
     // indexid will be the id in the index but starts invalid
     ProxyID indexid{};

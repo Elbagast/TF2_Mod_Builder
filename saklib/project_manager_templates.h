@@ -13,34 +13,34 @@ Template function implementation for Project_Widget
 //------------------------------------------------------------
 
 template <typename T>
-Saklib::Attribute_Type<T> const*const Saklib::Project_Manager::attribute_type_cast(AttributeID attributeid) const
+Saklib::Attribute_Type<T> const* Saklib::Project_Manager::attribute_type_cast(AttributeID attributeid) const
 {
     return Saklib::attribute_type_cast<T>(attribute(attributeid));
 }
 template <typename T>
-Saklib::Attribute_Type<T> const*const Saklib::Project_Manager::attribute_type_cast(ElementID elementid, size_type attribute_index) const
+Saklib::Attribute_Type<T> const* Saklib::Project_Manager::attribute_type_cast(ElementID elementid, size_type attribute_index) const
 {
     return Saklib::attribute_type_cast<T>(attribute(elementid, attribute_index));
 }
 template <typename T>
-Saklib::Attribute_Type<T> const*const Saklib::Project_Manager::attribute_type_cast(ElementID elementid, String const& attribute_name) const
+Saklib::Attribute_Type<T> const* Saklib::Project_Manager::attribute_type_cast(ElementID elementid, String const& attribute_name) const
 {
     return Saklib::attribute_type_cast<T>(attribute(elementid, attribute_name));
 }
 
 
 template <typename T>
-Saklib::Attribute_Type<T> *const Saklib::Project_Manager::attribute_type_cast(AttributeID attributeid)
+Saklib::Attribute_Type<T>* Saklib::Project_Manager::attribute_type_cast(AttributeID attributeid)
 {
     return Saklib::attribute_type_cast<T>(attribute(attributeid));
 }
 template <typename T>
-Saklib::Attribute_Type<T> *const Saklib::Project_Manager::attribute_type_cast(ElementID elementid, size_type attribute_index)
+Saklib::Attribute_Type<T>* Saklib::Project_Manager::attribute_type_cast(ElementID elementid, size_type attribute_index)
 {
     return Saklib::attribute_type_cast<T>(attribute(elementid, attribute_index));
 }
 template <typename T>
-Saklib::Attribute_Type<T> *const Saklib::Project_Manager::attribute_type_cast(ElementID elementid, String const& attribute_name)
+Saklib::Attribute_Type<T>* Saklib::Project_Manager::attribute_type_cast(ElementID elementid, String const& attribute_name)
 {
     return Saklib::attribute_type_cast<T>(attribute(elementid, attribute_name));
 }

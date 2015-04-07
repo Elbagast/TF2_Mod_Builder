@@ -15,20 +15,20 @@
 Saklib::Qtlib::Attribute_Editor_ElementID::Attribute_Editor_ElementID(Project_Widget*const project_widget, AttributeID attributeid, QWidget* parent):
     Attribute_Editor(project_widget, attributeid, parent),
     m_elementid(),
-    m_layout(),
     m_button(),
     m_name_label(),
-    m_type_label()
+    m_type_label(),
+    m_layout()
 {
     shared_construction();
 }
 Saklib::Qtlib::Attribute_Editor_ElementID::Attribute_Editor_ElementID(Project_Widget*const project_widget, AttributeID attributeid, size_type vector_index, QWidget* parent):
     Attribute_Editor(project_widget, attributeid, vector_index, parent),
     m_elementid(),
-    m_layout(),
     m_button(),
     m_name_label(),
-    m_type_label()
+    m_type_label(),
+    m_layout()
 {
     shared_construction();
 }
