@@ -107,10 +107,12 @@ int Saklib::Qtlib::Outliner_Model::rowCount(QModelIndex const& index) const
     }
     else if (indexid.is_element())
     {
+        //qDebug() << "ElementID = " << indexid.elementid_value();
         return mp_project_widget->project_manager().outliner_row_count(indexid.elementid());
     }
     else if (indexid.is_attribute())
     {
+        //qDebug() << "AttributeID = " << indexid.elementid_value() <<" : "<< indexid.attribute_index();
         return mp_project_widget->project_manager().outliner_row_count(indexid.attributeid());
     }
     //else if (!index.isValid()) // root index

@@ -32,7 +32,7 @@ namespace Saklib
         
         bool is_simple_type() const     { return Saklib::is_simple_type(type_enum()); }
         bool is_vector_type() const     { return Saklib::is_vector_type(type_enum()); }
-        //bool is_constrained() const     { return v_is_constrained(); }
+        bool is_constrained() const     { return v_is_constrained(); }
 
         // hmmmmmm
         //bool is_linked() const          { return v_is_linked(); }
@@ -44,7 +44,7 @@ namespace Saklib
         virtual Type_Enum v_type_enum() const = 0;
         virtual String v_type_string() const = 0;
 
-        //virtual bool v_is_constrained() const = 0;
+        virtual bool v_is_constrained() const = 0;
     };
 
     Uptr<Attribute> make_Attribute(Shptr<Attribute_Definition> const& definition);
