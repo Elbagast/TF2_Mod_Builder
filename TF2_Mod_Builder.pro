@@ -108,7 +108,8 @@ SOURCES += main.cpp\
     saklib/internal_element_definitions.cpp \
     saklib/element_definition_manager.cpp \
     saklib/element_definition.cpp \
-    saklib/constraint_type.cpp
+    saklib/constraint_type.cpp \
+    saklib/constraint_type_elementid.cpp
 
 HEADERS  += \
     saklib/all_attributes.h \
@@ -170,7 +171,8 @@ HEADERS  += \
     saklib/element_definition_manager.h \
     saklib/qtlib/attribute_editor_type.h \
     saklib/qtlib/qwidget_operations.h \
-    saklib/constraint_type.h
+    saklib/constraint_type.h \
+    saklib/constraint_type_elementid.h
 
 FORMS    += \
     saklib/qtlib/consoledialog.ui \
