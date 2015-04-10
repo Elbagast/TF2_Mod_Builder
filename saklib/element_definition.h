@@ -2,7 +2,7 @@
 #define ELEMENT_DEFINITION_H
 
 #include "types.h"
-#include "attribute_definition.h"
+#include "all_attribute_definitions.h"
 
 namespace Saklib
 {

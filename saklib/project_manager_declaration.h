@@ -108,6 +108,7 @@ namespace Saklib
         String const& attribute_name(AttributeID attributeid) const;
         Type_Enum attribute_type_enum(AttributeID attributeid) const;
         String attribute_type_string(AttributeID attributeid) const;
+        bool attribute_is_constrained(AttributeID attributeid) const;
 
         // Attribute_Type<T> casting
         //------------------------------------------------------------
@@ -206,6 +207,10 @@ namespace Saklib
         template <typename T>
         void attribute_vector_remove_at(AttributeID attributeid, size_type index);
 
+        // Attribute_Type<T> Constraint Stuff
+        //------------------------------------------------------------
+        // Get a vector of possible Element types for this attributeid
+        Vector_String attribute_element_types(AttributeID attributeid) const;
 
 
         // Attribute_Type<T>

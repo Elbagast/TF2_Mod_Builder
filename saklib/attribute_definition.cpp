@@ -37,6 +37,7 @@ Saklib::Shptr<Saklib::Attribute_Definition> Saklib::make_shared_Attribute_Defini
     default:                         assert(false); return Shptr<Attribute_Definition>(nullptr);
     }
 }
+
 /*
 namespace
 {

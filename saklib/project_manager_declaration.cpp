@@ -1,7 +1,7 @@
 #include "project_manager.h"
 
 #include "element.h"
-#include "attribute_type.h"
+#include "all_constraints.h"
 
 #include "qtlib/qstring_operations.h"
 
@@ -281,7 +281,10 @@ Saklib::String Saklib::Project_Manager::attribute_type_string(AttributeID attrib
 {
     return m_element_manager.attribute(attributeid)->type_string();
 }
-
+bool Saklib::Project_Manager::attribute_is_constrained(AttributeID attributeid) const
+{
+    return m_element_manager.attribute(attributeid)->is_constrained();
+}
 
 
 // Attribute_Type<T>
@@ -577,6 +580,31 @@ void Saklib::Project_Manager::attribute_vector_remove_at<Saklib::ElementID>(Attr
     observers_end_model_reset();
     observers_attribute_value_changed(attributeid);
     set_unsaved_edits(true);
+}
+
+// Attribute_Type<T> Constraint Stuff
+//------------------------------------------------------------
+// Get a vector of possible Element types for this attributeid
+Saklib::Vector_String Saklib::Project_Manager::attribute_element_types(AttributeID attributeid) const
+{
+    Vector_String result{};
+    auto type = attribute_type_enum(attributeid);
+    bool is_constrained = attribute_is_constrained(attributeid);
+
+    if (is_constrained && type == Type_Enum::ElementID)
+    {
+        result = attribute_type_cast<ElementID>(attributeid)->constraint()->element_types();
+    }
+    else if (is_constrained && type == Type_Enum::Vector_ElementID)
+    {
+        result = attribute_type_cast<Vector_ElementID>(attributeid)->constraint()->value_constraint().element_types();
+    }
+    else
+    {
+        result = all_registered_element_types();
+    }
+
+    return result;
 }
 
 

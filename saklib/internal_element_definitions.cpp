@@ -13,7 +13,8 @@ Saklib::Element_Definition Saklib::internal_definition_of_Project()
         make_shared_Attribute_Definition("TestInt", Type_Enum::Int),
         make_shared_Attribute_Definition("TestDouble", Type_Enum::Double),
         make_shared_Attribute_Definition("TestString", Type_Enum::String),
-        make_shared_Attribute_Definition("TestElement", Type_Enum::ElementID),
+        //make_shared_Attribute_Definition("TestElement", Type_Enum::ElementID, Vector_String{"SingleInt"}),
+        make_shared_Attribute_Definition_by_type<ElementID>("TestElement", Vector_String{"SingleInt"}),
         make_shared_Attribute_Definition("TestElement2", Type_Enum::ElementID),
 
         make_shared_Attribute_Definition("TestVectorBool", Type_Enum::Vector_Bool),
@@ -22,6 +23,7 @@ Saklib::Element_Definition Saklib::internal_definition_of_Project()
         make_shared_Attribute_Definition("TestVectorString", Type_Enum::Vector_String),
         make_shared_Attribute_Definition("TestVectorPath", Type_Enum::Vector_Path),
         make_shared_Attribute_Definition("TestVectorElementID", Type_Enum::Vector_ElementID),
+        make_shared_Attribute_Definition_by_type<Vector_ElementID>("TestVectorElementID2", Vector_String{"File"}),
     });
 }
 

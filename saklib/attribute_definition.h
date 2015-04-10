@@ -27,11 +27,10 @@ namespace Saklib
         String const& name() const  { return v_name(); }
         Type_Enum type_enum() const { return v_type_enum(); }
         String type_string() const  { return v_type_string(); }
-        //Constraint const* constraint() const  { return v_constraint(); }
         
         bool is_simple_type() const     { return Saklib::is_simple_type(type_enum()); }
         bool is_vector_type() const     { return Saklib::is_vector_type(type_enum()); }
-        //bool is_constrained() const     { return v_is_constrained(); }
+        bool is_constrained() const     { return v_is_constrained(); }
 
     protected:
         // Virtuals
@@ -39,15 +38,18 @@ namespace Saklib
         virtual String const& v_name() const = 0;
         virtual Type_Enum v_type_enum() const = 0;
         virtual String v_type_string() const = 0;
-        //virtual Constraint const* v_constraint() const = 0;
-
-        //virtual bool v_is_constrained() const = 0;
-
+        virtual bool v_is_constrained() const = 0;
     };
 
     Shptr<Attribute_Definition> make_shared_Attribute_Definition(String const& name, Type_Enum type);
 
-    //Shptr<Attribute_Definition> make_shared_Attribute_Definition(String const& name, Type_Enum type, Uptr<Constraint>&& constraint = Uptr<Constraint>());
+    template <typename T>
+    Shptr<Attribute_Definition> make_shared_Attribute_Definition_by_type(String const& name);
+
+    template <typename T, typename... Args>
+    Shptr<Attribute_Definition> make_shared_Attribute_Definition_by_type(String const& name, Args&&... args);
+    //This function has to know about all of the constraint types so that it can forward the args...
+    //which means it can't be implemented here
 
 } // namespace Saklib
 

@@ -17,11 +17,8 @@ Saklib::Qtlib::Attribute_Editor_Vector_Type<Saklib::ElementID>::~Attribute_Edito
 //template<>
 void Saklib::Qtlib::Attribute_Editor_Vector_Type<Saklib::ElementID>::slot_append()
 {
-    // Get a list of types of Element that we can use
-    auto element_types = project_widget()->project_manager().all_registered_element_types();
-
     // Make a dialog that asks the user to select one, floating above the project widget
-    Select_Element_Type_Dialog dialog{element_types, project_widget()};
+    Select_Element_Type_Dialog dialog{project_widget()->project_manager().attribute_element_types(attributeid()), project_widget()};
 
     // if the user selects one, make an Element of that type and assign it to the attribute
     if (dialog.exec() == QDialog::Accepted && !dialog.selected_element_type().empty())
@@ -34,11 +31,8 @@ void Saklib::Qtlib::Attribute_Editor_Vector_Type<Saklib::ElementID>::slot_append
 //template<>
 void Saklib::Qtlib::Attribute_Editor_Vector_Type<Saklib::ElementID>::slot_insert_at(size_type index)
 {
-    // Get a list of types of Element that we can use
-    auto element_types = project_widget()->project_manager().all_registered_element_types();
-
     // Make a dialog that asks the user to select one, floating above the project widget
-    Select_Element_Type_Dialog dialog{element_types, project_widget()};
+    Select_Element_Type_Dialog dialog{project_widget()->project_manager().attribute_element_types(attributeid()), project_widget()};
 
     // if the user selects one, make an Element of that type and assign it to the attribute
     if (dialog.exec() == QDialog::Accepted && !dialog.selected_element_type().empty())

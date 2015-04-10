@@ -36,6 +36,8 @@ namespace Saklib
             Attribute_Editor(Project_Widget* project_widget, AttributeID attributeid, size_type vector_index, QWidget* parent = nullptr);
             ~Attribute_Editor() override;
 
+            // Interface
+            //============================================================
             void refresh_data()                     { v_refresh_data(); }
             Project_Widget* project_widget() const  { return mp_project_widget; }
             AttributeID attributeid() const         { return m_attributeid; }
