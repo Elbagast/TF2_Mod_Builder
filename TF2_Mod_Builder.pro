@@ -115,7 +115,8 @@ SOURCES += main.cpp\
     saklib/constraint_type_double.cpp \
     saklib/constraint_type_string.cpp \
     saklib/constraint_type_path.cpp \
-    saklib/constraint_type_vector.cpp
+    saklib/constraint_type_vector.cpp \
+    saklib/all_attribute_definitions.cpp
 
 HEADERS  += \
     saklib/all_attributes.h \

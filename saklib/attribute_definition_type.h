@@ -9,9 +9,9 @@
 namespace Saklib
 {
     /*
-    Attribute_Definition
+    Attribute_Definition_Type<T>
     ====================================================================================================
-    Class the contains flyweight information to create a given Attribute based on it.
+    Class that contains flyweight information to create a given Attribute based on it.
 
     Without any specific type data this is a useless class - so it makes no sense if it contains no
     constraint info.
@@ -28,40 +28,117 @@ namespace Saklib
 
         // Special 6
         //============================================================
-        explicit Attribute_Definition_Type(String const& name) :
-            Attribute_Definition(),
-            m_name(name),
-            m_constraint(nullptr)
-        {}
+        explicit Attribute_Definition_Type(String const& name);
+
         template <typename... Args>
-        Attribute_Definition_Type(String const& name, Args&&... args) :
-            Attribute_Definition(),
-            m_name(name),
-            m_constraint(std::make_unique<constraint_type>(std::forward<Args>(args)...))
-        {}
-        ~Attribute_Definition_Type() = default;
+        Attribute_Definition_Type(String const& name, Args&&... args);
+
+        ~Attribute_Definition_Type();
 
         Attribute_Definition_Type(Attribute_Definition_Type const& other) = delete;
         Attribute_Definition_Type& operator=(Attribute_Definition_Type const& other) = delete;
 
-        // hides Attribute_Definition::constraint when using this exact class
-        constraint_type const* constraint() const  { return m_constraint.get(); }
+        //Attribute_Definition_Type(Attribute_Definition_Type && other) = default;
+        //Attribute_Definition_Type& operator=(Attribute_Definition_Type && other) = default;
+
+        // Interface
+        //============================================================
+        String const& name() const;
+        void set_name(String const& value);
+
+        constraint_type const* constraint() const;
+        void set_constraint(Uptr < constraint_type >&& new_constraint);
 
     protected:
         // Virtuals
         //============================================================
-        String const& v_name() const override   { return m_name; }
-        Type_Enum v_type_enum() const override  { return stored_type_traits::type_enum(); }
-        String v_type_string() const override   { return stored_type_traits::type_string(); }
-        bool v_is_constrained() const override  { return m_constraint != nullptr; }
+        String const& v_name() const override;
+        Type_Enum v_type_enum() const override;
+        String v_type_string() const override;
+        bool v_is_constrained() const override;
 
     private:
         // Data Members
         //============================================================
-        String const m_name;
-        Uptr < constraint_type > const m_constraint;
+        String m_name;
+        Uptr < constraint_type > m_constraint;
     };
     
 } // namespace Saklib
+
+// Implementation
+//----------------------------------------------------------------------------------------------------
+
+// Special 6
+//============================================================
+template <typename T>
+Saklib::Attribute_Definition_Type<T>::Attribute_Definition_Type(String const& name) :
+    Attribute_Definition(),
+    m_name(name),
+    m_constraint(nullptr)
+{}
+
+template <typename T>
+template <typename... Args>
+Saklib::Attribute_Definition_Type<T>::Attribute_Definition_Type(String const& name, Args&&... args) :
+    Attribute_Definition(),
+    m_name(name),
+    m_constraint(std::make_unique<constraint_type>(std::forward<Args>(args)...))
+{}
+
+template <typename T>
+Saklib::Attribute_Definition_Type<T>::~Attribute_Definition_Type() = default;
+
+// Interface
+//============================================================
+template <typename T>
+Saklib::String const& Saklib::Attribute_Definition_Type<T>::name() const
+{
+    return m_name;
+}
+
+template <typename T>
+void Saklib::Attribute_Definition_Type<T>::set_name(String const& value)
+{
+    m_name = value;
+}
+
+template <typename T>
+typename Saklib::Attribute_Definition_Type<T>::constraint_type const* Saklib::Attribute_Definition_Type<T>::constraint() const
+{
+    return m_constraint.get();
+}
+
+template <typename T>
+void Saklib::Attribute_Definition_Type<T>::set_constraint(Uptr < constraint_type >&& new_constraint)
+{
+    m_constraint = std::move(new_constraint);
+}
+
+// Virtuals
+//============================================================
+template <typename T>
+Saklib::String const& Saklib::Attribute_Definition_Type<T>::v_name() const
+{
+    return m_name;
+}
+
+template <typename T>
+Saklib::Type_Enum Saklib::Attribute_Definition_Type<T>::v_type_enum() const
+{
+    return stored_type_traits::type_enum();
+}
+
+template <typename T>
+Saklib::String Saklib::Attribute_Definition_Type<T>::v_type_string() const
+{
+    return stored_type_traits::type_string();
+}
+
+template <typename T>
+bool Saklib::Attribute_Definition_Type<T>::v_is_constrained() const
+{
+    return m_constraint != nullptr;
+}
 
 #endif // ATTRIBUTE_DEFINITION_TYPE_H

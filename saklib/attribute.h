@@ -5,8 +5,6 @@
 
 namespace Saklib
 {
-    class Attribute_Definition;
-
     /*
     Attribute
     ====================================================================================================
@@ -17,22 +15,26 @@ namespace Saklib
     public:
         // Special 6
         //============================================================
-        Attribute() = default;
-        virtual ~Attribute() = default;
+        Attribute();
+        virtual ~Attribute();
 
         // NO COPYING
         Attribute(Attribute const& other) = delete;
         Attribute& operator=(Attribute const& other) = delete;
 
+        // Implcit default move
+        //Attribute(Attribute && other) = default;
+        //Attribute& operator=(Attribute && other) = default;
+
         // General Interface
         //============================================================
-        String const& name() const      { return v_name(); }
-        Type_Enum type_enum() const     { return v_type_enum(); }
-        String type_string() const      { return v_type_string(); } // could probably make this into a non-virtual call...
+        String const& name() const;
+        Type_Enum type_enum() const;
+        String type_string() const;
         
-        bool is_simple_type() const     { return Saklib::is_simple_type(type_enum()); }
-        bool is_vector_type() const     { return Saklib::is_vector_type(type_enum()); }
-        bool is_constrained() const     { return v_is_constrained(); }
+        bool is_simple_type() const;
+        bool is_vector_type() const;
+        bool is_constrained() const;
 
         // hmmmmmm
         //bool is_linked() const          { return v_is_linked(); }
@@ -47,8 +49,54 @@ namespace Saklib
         virtual bool v_is_constrained() const = 0;
     };
 
-    Uptr<Attribute> make_Attribute(Shptr<Attribute_Definition> const& definition);
-
 } // namespace Saklib
+
+// Implementation
+//----------------------------------------------------------------------------------------------------
+// Special 6
+//============================================================
+inline
+Saklib::Attribute::Attribute() = default;
+
+inline
+Saklib::Attribute::~Attribute() = default;
+
+// General Interface
+//============================================================
+inline
+Saklib::String const& Saklib::Attribute::name() const
+{
+    return v_name();
+}
+
+inline
+Saklib::Type_Enum Saklib::Attribute::type_enum() const
+{
+    return v_type_enum();
+}
+
+inline
+Saklib::String Saklib::Attribute::type_string() const
+{
+    return v_type_string();
+} // could probably make this into a non-virtual call...
+
+inline
+bool Saklib::Attribute::is_simple_type() const
+{
+    return Saklib::is_simple_type(type_enum());
+}
+
+inline
+bool Saklib::Attribute::is_vector_type() const
+{
+    return Saklib::is_vector_type(type_enum());
+}
+
+inline
+bool Saklib::Attribute::is_constrained() const
+{
+    return v_is_constrained();
+}
 
 #endif // ATTRIBUTE_H

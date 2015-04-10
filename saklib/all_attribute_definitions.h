@@ -4,6 +4,22 @@
 #include "attribute_definition.h"
 #include "attribute_definition_type.h"
 
+namespace Saklib
+{
+    Shptr<Attribute_Definition> make_shared_Attribute_Definition(String const& name, Type_Enum type);
+
+    template <typename T>
+    Shptr<Attribute_Definition> make_shared_Attribute_Definition_by_type(String const& name);
+
+    template <typename T, typename... Args>
+    Shptr<Attribute_Definition> make_shared_Attribute_Definition_by_type(String const& name, Args&&... args);
+
+} // namespace Saklib
+
+
+// Implementation
+//----------------------------------------------------------------------------------------------------
+
 template <typename T>
 Saklib::Shptr<Saklib::Attribute_Definition> Saklib::make_shared_Attribute_Definition_by_type(String const& name)
 {
