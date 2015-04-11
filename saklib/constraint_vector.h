@@ -1,36 +1,36 @@
-#ifndef CONSTRAINT_TYPE_VECTOR_H
-#define CONSTRAINT_TYPE_VECTOR_H
+#ifndef CONSTRAINT_VECTOR_H
+#define CONSTRAINT_VECTOR_H
 
-#include "constraint_type.h"
+#include "constraint.h"
 #include "maybe.h"
 
 namespace Saklib
 {
     /*
-    Constraint_Type<Vector<T>>
+    Constraint<Vector<T>>
     ====================================================================================================
 
     */
     template <typename T>
-    class Constraint_Type<Vector<T>>
+    class Constraint<Vector<T>>
     {
     public:
-        using value_constraint_type = Constraint_Type<T>;
+        using value_constraint_type = Constraint<T>;
 
         // Special 6
         //============================================================
         template <typename... Args>
-        Constraint_Type(Args&&... args):
+        Constraint(Args&&... args):
             m_value_constraint(value_constraint_type(std::forward<Args>(args)...))
         {}
 
-        ~Constraint_Type() = default;
+        ~Constraint() = default;
 
-        Constraint_Type(Constraint_Type const& other) = default;
-        Constraint_Type& operator=(Constraint_Type const& other) = default;
+        Constraint(Constraint const& other) = default;
+        Constraint& operator=(Constraint const& other) = default;
 
-        //Constraint_Type(Constraint_Type && other) = default;
-        //Constraint_Type& operator=(Constraint_Type && other) = default;
+        //Constraint(Constraint && other) = default;
+        //Constraint& operator=(Constraint && other) = default;
 
         // Interface
         //============================================================
@@ -65,4 +65,4 @@ namespace Saklib
 
 
 
-#endif // CONSTRAINT_TYPE_VECTOR_H
+#endif // CONSTRAINT_VECTOR_H

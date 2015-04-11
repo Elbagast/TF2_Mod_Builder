@@ -39,6 +39,7 @@ int main(int argc, char *argv[])
     project_manager.register_element_definition( Saklib::internal_definition_of_Project());
     project_manager.register_element_definition( Saklib::internal_definition_of_File());
     project_manager.register_element_definition( Saklib::internal_definition_of_SingleInt());
+    project_manager.register_element_definition( Saklib::internal_definition_of_Build());
 
     QApplication a(argc, argv);
     Saklib::Qtlib::Project_Main_Window window(project_manager);

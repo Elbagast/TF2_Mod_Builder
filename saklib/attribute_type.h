@@ -24,7 +24,7 @@ namespace Saklib
         using stored_type_traits = Type_Traits < stored_type >;
 
         using definition_type = Attribute_Definition_Type < stored_type >;
-        using constraint_type = Constraint_Type < stored_type >;
+        using constraint_type = Constraint < stored_type >;
 
         // Special 6
         //============================================================
@@ -107,7 +107,7 @@ namespace Saklib
         using value_type_traits = Type_Traits<value_type>;
         
         using definition_type = Attribute_Definition_Type < stored_type >;
-        using constraint_type = Constraint_Type < stored_type >;
+        using constraint_type = Constraint < stored_type >;
 
 
         // Special 6
@@ -213,7 +213,7 @@ namespace Saklib
         using value_type_traits = Type_Traits<value_type>;
 
         using definition_type = Attribute_Definition_Type < stored_type >;
-        using constraint_type = Constraint_Type < stored_type >;
+        using constraint_type = Constraint < stored_type >;
 
 
         // Special 6

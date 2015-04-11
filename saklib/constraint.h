@@ -1,5 +1,5 @@
-#ifndef CONSTRAINT_TYPE_H
-#define CONSTRAINT_TYPE_H
+#ifndef CONSTRAINT_H
+#define CONSTRAINT_H
 
 #include "types.h"
 #include "all_type_traits.h"
@@ -7,7 +7,7 @@
 namespace Saklib
 {
     /*
-    Constraint_Type<T>
+    Constraint<T>
     ====================================================================================================
     In order to create a constraint for a given type, specialise this template. The interface of a
     constraint could be anything.
@@ -17,26 +17,26 @@ namespace Saklib
 
     */
     template <typename T>
-    class Constraint_Type
+    class Constraint
     {
     public:
         // Special 6
         //============================================================
-        Constraint_Type() = delete;
-        ~Constraint_Type() = delete;
+        Constraint() = delete;
+        ~Constraint() = delete;
 
-        Constraint_Type(Constraint_Type const& other) = delete;
-        Constraint_Type& operator=(Constraint_Type const& other) = delete;
+        Constraint(Constraint const& other) = delete;
+        Constraint& operator=(Constraint const& other) = delete;
 
-        Constraint_Type(Constraint_Type && other) = delete;
-        Constraint_Type& operator=(Constraint_Type && other) = delete;
+        Constraint(Constraint && other) = delete;
+        Constraint& operator=(Constraint && other) = delete;
     };
 
-    // Determine of a type can be constrained by checking if the Constraint_Type<T> destructor is implemented.
+    // Determine of a type can be constrained by checking if the Constraint<T> destructor is implemented.
     //template <typename T>
     //constexpr
     //bool is_constrainable();
 
 } // namespace Saklib
 
-#endif // CONSTRAINT_TYPE_H
+#endif // CONSTRAINT_H

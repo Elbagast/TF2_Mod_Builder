@@ -108,15 +108,15 @@ SOURCES += main.cpp\
     saklib/internal_element_definitions.cpp \
     saklib/element_definition_manager.cpp \
     saklib/element_definition.cpp \
-    saklib/constraint_type.cpp \
-    saklib/constraint_type_elementid.cpp \
-    saklib/constraint_type_bool.cpp \
-    saklib/constraint_type_int.cpp \
-    saklib/constraint_type_double.cpp \
-    saklib/constraint_type_string.cpp \
-    saklib/constraint_type_path.cpp \
-    saklib/constraint_type_vector.cpp \
-    saklib/all_attribute_definitions.cpp
+    saklib/all_attribute_definitions.cpp \
+    saklib/constraint.cpp \
+    saklib/constraint_bool.cpp \
+    saklib/constraint_double.cpp \
+    saklib/constraint_elementid.cpp \
+    saklib/constraint_int.cpp \
+    saklib/constraint_path.cpp \
+    saklib/constraint_string.cpp \
+    saklib/constraint_vector.cpp
 
 HEADERS  += \
     saklib/all_attributes.h \
@@ -178,17 +178,17 @@ HEADERS  += \
     saklib/element_definition_manager.h \
     saklib/qtlib/attribute_editor_type.h \
     saklib/qtlib/qwidget_operations.h \
-    saklib/constraint_type.h \
-    saklib/constraint_type_elementid.h \
-    saklib/constraint_type_bool.h \
-    saklib/constraint_type_int.h \
-    saklib/constraint_type_double.h \
-    saklib/constraint_type_string.h \
-    saklib/constraint_type_path.h \
-    saklib/constraint_type_vector.h \
     saklib/all_constraints.h \
     saklib/maybe.h \
-    saklib/all_attribute_definitions.h
+    saklib/all_attribute_definitions.h \
+    saklib/constraint.h \
+    saklib/constraint_bool.h \
+    saklib/constraint_double.h \
+    saklib/constraint_elementid.h \
+    saklib/constraint_int.h \
+    saklib/constraint_path.h \
+    saklib/constraint_string.h \
+    saklib/constraint_vector.h
 
 FORMS    += \
     saklib/qtlib/consoledialog.ui \

@@ -13,6 +13,7 @@ namespace Saklib
     Element_Definition internal_definition_of_File();
 
     Element_Definition internal_definition_of_SingleInt();
+    Element_Definition internal_definition_of_Build();
 } // namespace Saklib
 
 #endif // INTERNAL_ELEMENT_DEFINITIONS_H

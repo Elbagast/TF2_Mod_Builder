@@ -1,25 +1,25 @@
-#ifndef CONSTRAINT_TYPE_ELEMENTID_H
-#define CONSTRAINT_TYPE_ELEMENTID_H
+#ifndef CONSTRAINT_ELEMENTID_H
+#define CONSTRAINT_ELEMENTID_H
 
-#include "constraint_type.h"
+#include "constraint.h"
 #include "maybe.h"
 
 namespace Saklib
 {
     /*
-    Constraint_Type<ElementID>
+    Constraint<ElementID>
     ====================================================================================================
     Overload for ElementID rather than providing a version called Constraint_ElementID
 
 
     */
     template <>
-    class Constraint_Type<ElementID>
+    class Constraint<ElementID>
     {
     public:
         // Special 6
         //============================================================
-        explicit Constraint_Type(Vector_String const& element_types, String const& default_type = String()):
+        explicit Constraint(Vector_String const& element_types, String const& default_type = String()):
             m_element_types(element_types),
             m_default_element_type()
         {
@@ -28,13 +28,13 @@ namespace Saklib
                 set_default_type(default_type);
             }
         }
-        ~Constraint_Type() = default;
+        ~Constraint() = default;
 
-        Constraint_Type(Constraint_Type const& other) = default;
-        Constraint_Type& operator=(Constraint_Type const& other) = default;
+        Constraint(Constraint const& other) = default;
+        Constraint& operator=(Constraint const& other) = default;
 
-        //Constraint_Type(Constraint_Type && other) = default;
-        //Constraint_Type& operator=(Constraint_Type && other) = default;
+        //Constraint(Constraint && other) = default;
+        //Constraint& operator=(Constraint && other) = default;
 
         // Interface
         //============================================================
@@ -69,4 +69,4 @@ namespace Saklib
 
 } // namespace Saklib
 
-#endif // CONSTRAINT_TYPE_ELEMENTID_H
+#endif // CONSTRAINT_ELEMENTID_H

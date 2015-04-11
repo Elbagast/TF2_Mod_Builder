@@ -53,11 +53,32 @@ void Saklib::Qtlib::Attribute_Editor_Double::shared_construction()
     m_spinbox->setValue(attribute_value<Double>());
 
     // ok this gets a bit weird with numeric limits, because they're mad
-    m_spinbox->setMinimum(std::numeric_limits<Double>::min());
-    m_spinbox->setMaximum(std::numeric_limits<Double>::max());
+    //m_spinbox->setMinimum(std::numeric_limits<Double>::min());
+    //m_spinbox->setMaximum(std::numeric_limits<Double>::max());
 
-    m_spinbox->setMinimum(-1000000.00);
-    m_spinbox->setMaximum(1000000.00);
+    auto attribute = project_widget()->project_manager().attribute_type_cast<Double>(attributeid());
+
+    if (attribute->is_constrained())
+    {
+        auto const& constraint = *(attribute->constraint());
+        if (constraint.has_min_value())
+            m_spinbox->setMinimum(constraint.min_value());
+        else
+            m_spinbox->setMinimum(-1000000.00);
+
+        if (constraint.has_max_value())
+            m_spinbox->setMaximum(constraint.max_value());
+        else
+            m_spinbox->setMaximum(-1000000.00);
+
+        // this works but is ass.
+        // Probably going to want constraints as part of an Attribute by default?
+    }
+    else
+    {
+        m_spinbox->setMinimum(-1000000.00);
+        m_spinbox->setMaximum(1000000.00);
+    }
 
     //QString label_text{"Min: "};
     //label_text.append(to_QString(m_spinbox->minimum()));

@@ -24,7 +24,7 @@ namespace Saklib
         using stored_type = T;
         using stored_type_traits = Type_Traits<stored_type>;
 
-        using constraint_type = Constraint_Type < stored_type >;
+        using constraint_type = Constraint < stored_type >;
 
         // Special 6
         //============================================================
@@ -33,7 +33,7 @@ namespace Saklib
         template <typename... Args>
         Attribute_Definition_Type(String const& name, Args&&... args);
 
-        ~Attribute_Definition_Type();
+        ~Attribute_Definition_Type() = default;
 
         Attribute_Definition_Type(Attribute_Definition_Type const& other) = delete;
         Attribute_Definition_Type& operator=(Attribute_Definition_Type const& other) = delete;
@@ -48,6 +48,12 @@ namespace Saklib
 
         constraint_type const* constraint() const;
         void set_constraint(Uptr < constraint_type >&& new_constraint);
+
+        template <typename... Args>
+        void emplace_constraint(Args&&... args)
+        {
+            m_constraint = std::move(std::make_unique<constraint_type>(std::forward<Args>(args)...));
+        }
 
     protected:
         // Virtuals
@@ -64,6 +70,22 @@ namespace Saklib
         Uptr < constraint_type > m_constraint;
     };
     
+    // Related Non-Member Functions
+    //============================================================
+
+    template <typename T>
+    Uptr<Attribute_Definition_Type<T>> make_Attribute_Definition_Type(String const& name)
+    {
+        return std::make_unique<Attribute_Definition_Type<T>>(name);
+    }
+
+    template <typename T, typename... Args>
+    Uptr<Attribute_Definition_Type<T>> make_Attribute_Definition_Type(String const& name, Args&&... args)
+    {
+        return std::make_unique<Attribute_Definition_Type<T>>(name, std::forward<Args>(args)...);
+    }
+
+
 } // namespace Saklib
 
 // Implementation
@@ -85,9 +107,6 @@ Saklib::Attribute_Definition_Type<T>::Attribute_Definition_Type(String const& na
     m_name(name),
     m_constraint(std::make_unique<constraint_type>(std::forward<Args>(args)...))
 {}
-
-template <typename T>
-Saklib::Attribute_Definition_Type<T>::~Attribute_Definition_Type() = default;
 
 // Interface
 //============================================================

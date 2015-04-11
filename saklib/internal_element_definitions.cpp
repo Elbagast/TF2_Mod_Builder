@@ -44,3 +44,25 @@ Saklib::Element_Definition Saklib::internal_definition_of_SingleInt()
     });
 }
 
+
+Saklib::Element_Definition Saklib::internal_definition_of_Build()
+{
+    Element_Definition definition{"Build"};
+    {
+        auto ad1 = make_Attribute_Definition_Type<Int>("Constrained Int");
+        ad1->emplace_constraint(0,10);
+        definition.add_attribute_definition(std::move(ad1));
+    }
+    {
+        auto ad2 = make_Attribute_Definition_Type<Double>("Constrained Double");
+        ad2->emplace_constraint(-1.0,1.0);
+        //ad2->set_constraint(std::make_unique<Constraint<Double>>(-1.0,1.0));
+        definition.add_attribute_definition(std::move(ad2));
+    }
+    {
+        auto ad3 = make_Attribute_Definition_Type<ElementID>("Constrained ElementID");
+        ad3->emplace_constraint(Vector_String{"Build", "SingleInt"});
+        definition.add_attribute_definition(std::move(ad3));
+    }
+    return definition;
+}
