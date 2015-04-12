@@ -7,6 +7,7 @@
 #include <QWidget>
 
 class QHBoxLayout;
+class QSplitter;
 class QTabWidget;
 class QScrollArea;
 
@@ -93,6 +94,7 @@ namespace Saklib
             QUptr<Outliner_Delegate> m_outliner_delegate;
 
             // Widgets
+            QUptr<QSplitter> m_splitter;
             QUptr<Outliner_Treeview> m_outliner; // Element outliner (No direct attribute access)
             QUptr<QScrollArea> m_scroll_area; // area that will contain m_editor
             QUptr<Element_Widget> m_editor; // editor for a given ElementID

@@ -21,13 +21,13 @@ namespace Saklib
         //============================================================
         template <typename... Args>
         Constraint(Args&&... args):
-            m_value_constraint(value_constraint_type(std::forward<Args>(args)...))
+            m_value_constraint(std::make_unique<value_constraint_type>(std::forward<Args>(args)...))
         {}
 
         ~Constraint() = default;
 
-        Constraint(Constraint const& other) = default;
-        Constraint& operator=(Constraint const& other) = default;
+        Constraint(Constraint const& other) = delete;
+        Constraint& operator=(Constraint const& other) = delete;
 
         //Constraint(Constraint && other) = default;
         //Constraint& operator=(Constraint && other) = default;
@@ -36,16 +36,19 @@ namespace Saklib
         //============================================================
         bool has_value_constraint() const
         {
-            return m_value_constraint.used();
+            return m_value_constraint != nullptr;
         }
-        value_constraint_type const& value_constraint() const
+        value_constraint_type const* value_constraint() const
         {
-            return m_value_constraint.value();
+            return m_value_constraint.get();
         }
 
-        void set_value_constraint(value_constraint_type const& constraint)
+        void set_value_constraint(value_constraint_type && constraint)
         {
-            return m_value_constraint.set_value(constraint);
+            if (m_value_constraint != nullptr)
+                *m_value_constraint = constraint;
+            else
+                m_value_constraint = std::make_unique<value_constraint_type>(constraint);
         }
         template <typename... Args>
         void set_value_constraint(Args&&... args)
@@ -54,12 +57,12 @@ namespace Saklib
         }
         void unset_value_constraint()
         {
-            return m_value_constraint.unset_value();
+            return m_value_constraint.reset();
         }
 
     private:
         //Maybe<size_type> m_max_length;
-        Maybe<value_constraint_type>  m_value_constraint;
+        Uptr<value_constraint_type>  m_value_constraint;
     };
 } // namespace Saklib
 

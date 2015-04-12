@@ -597,7 +597,7 @@ Saklib::Vector_String Saklib::Project_Manager::attribute_element_types(Attribute
     }
     else if (is_constrained && type == Type_Enum::Vector_ElementID)
     {
-        result = attribute_type_cast<Vector_ElementID>(attributeid)->constraint()->value_constraint().element_types();
+        result = attribute_type_cast<Vector_ElementID>(attributeid)->value_constraint()->element_types();
     }
     else
     {

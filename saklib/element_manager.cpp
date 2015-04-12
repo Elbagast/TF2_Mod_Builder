@@ -1,4 +1,5 @@
 #include "element_manager.h"
+#include "element_definition.h"
 #include "attribute.h"
 #include <cassert>
 #include <algorithm>
@@ -15,10 +16,18 @@ Saklib::Element_Manager::Element_Manager() :
 // Interface
 //============================================================
 // Build a new Map_Entry containing a new Element from type and return the id number
-Saklib::ElementID Saklib::Element_Manager::make_element(Element_Definition const& definition, String const& type)
+Saklib::ElementID Saklib::Element_Manager::make_element(Element_Definition const& definition, String const& name)
 {
     ElementID newid{++m_next_id};
-    m_map.emplace(newid, Element_Cache(definition, type));
+
+    String final_name{};
+    if (name.empty())
+    {
+        final_name = definition.type();
+    }
+    make_name_unique(final_name);
+
+    m_map.emplace(newid, Element_Cache(definition, final_name));
     return newid;
 }
 
@@ -201,6 +210,17 @@ Saklib::Vector_ElementID Saklib::Element_Manager::root_elementids() const
     return result;
 }
 
+// Names of all Elements
+Saklib::Vector_String Saklib::Element_Manager::all_element_names() const
+{
+    Vector_String result{};
+    for (auto const& value : m_map)
+    {
+        result.push_back(value.second.m_element.name());
+    }
+    return result;
+}
+
 // Destory everything
 void Saklib::Element_Manager::clear()
 {
@@ -247,6 +267,29 @@ void Saklib::Element_Manager::decrement_command_ref_count(ElementID elementid)
         // delete the Element if appropriate? - check against owner count
     }
 }
+
+void Saklib::Element_Manager::make_name_unique(String& name)
+{
+    // get all the names of Elements that currently exist
+    auto all_names = all_element_names();
+    // if name is not among those that already exist, stop
+    //if (std::find(all_names.cbegin(), all_names.cend(), name) == all_names.cend())
+    //{
+    //    return;
+    //}
+    // make an adjusted name
+    std::size_t count{0};
+    String adjusted_name{name};
+    while(std::find(all_names.cbegin(), all_names.cend(), adjusted_name) != all_names.cend())
+    {
+        ++count;
+        adjusted_name = name + std::to_string(count);
+    }
+
+    name = adjusted_name;
+}
+
+
 /*
 // Adjust Element ownership tracking
 void Saklib::Element_Manager::add_owner(ElementID elementid, AttributeID owner)

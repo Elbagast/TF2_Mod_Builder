@@ -54,8 +54,22 @@ void Saklib::Qtlib::Attribute_Editor_Int::shared_construction()
 
     m_spinbox->setValue(attribute_value<Int>());
 
-    m_spinbox->setMinimum(std::numeric_limits<Int>::min());
-    m_spinbox->setMaximum(std::numeric_limits<Int>::max());
+    auto constraint = project_widget()->project_manager().attribute_type_cast<Int>(attributeid())->constraint();
+
+    if (constraint && constraint->has_min_value())
+        m_spinbox->setMinimum(constraint->min_value());
+    else
+        m_spinbox->setMinimum(std::numeric_limits<Int>::min());
+
+    if (constraint && constraint->has_max_value())
+        m_spinbox->setMaximum(constraint->max_value());
+    else
+        m_spinbox->setMaximum(std::numeric_limits<Int>::max());
+
+    if (constraint && constraint->has_step_size())
+        m_spinbox->setSingleStep(constraint->step_size());
+    else
+        m_spinbox->setSingleStep(1);
 
     QObject::connect(m_spinbox.get(), &QSpinBox::editingFinished,
                      this, &Attribute_Editor_Int::v_editing_finished);

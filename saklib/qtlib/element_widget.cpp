@@ -116,7 +116,7 @@ Saklib::Qtlib::Element_Widget::Element_Widget(Project_Widget* project_widget, El
     //m_attribute_layout->setSizeConstraint(QLayout::SetFixedSize); // resize whenever the size changes...
     m_layout->addStretch();
     //m_layout->setSizeConstraint(QLayout::SetFixedSize); // resize whenever the size changes...
-    setLayout(m_layout.get());
+    this->setLayout(m_layout.get());
     this->setSizePolicy( QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding );
 }
 
@@ -129,8 +129,9 @@ void Saklib::Qtlib::Element_Widget::refresh_data()
     m_parentid = mp_project_widget->project_manager().element_parent(m_elementid);
     m_parent_id_label->setText(to_QString(m_parentid.elementid().value()).append(" : ").append(to_QString(m_parentid.index())));
     for (auto& attribute_editor : m_attribute_editors)
+    {
         attribute_editor->refresh_data();
-
+    }
 }
 
 void Saklib::Qtlib::Element_Widget::refresh_data(size_type attribute_index)

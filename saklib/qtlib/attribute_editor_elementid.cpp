@@ -129,6 +129,7 @@ void Saklib::Qtlib::Attribute_Editor_ElementID::shared_construction()
     m_layout->addWidget(m_button.get());
     m_layout->addWidget(m_name_label.get());
     m_layout->addWidget(m_type_label.get());
+    m_layout->addStretch();
 
     m_layout->setContentsMargins(0,0,0,0);
     this->setLayout(m_layout.get());

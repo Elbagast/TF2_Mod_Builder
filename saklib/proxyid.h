@@ -109,8 +109,8 @@ namespace Saklib
         unsigned char m_data[s_data_size];
     };
 
-    static_assert(sizeof(ProxyID) == sizeof(void*), "ProxyID size mismatch with void*.");
-    static_assert(sizeof(ProxyID) == sizeof(size_type), "ProxyID size mismatch with size_type.");
+    static_assert(sizeof(ProxyID) == sizeof(void*), "Saklib::ProxyID size mismatch with void*.");
+    static_assert(sizeof(ProxyID) == sizeof(size_type), "Saklib::ProxyID size mismatch with Saklib::size_type.");
 
     ProxyID invalid_proxyid();
 
