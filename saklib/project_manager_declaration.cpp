@@ -1,36 +1,18 @@
 #include "project_manager.h"
 
 #include "element.h"
-#include "attribute_type.h"
+#include "all_constraints.h"
 
 #include "qtlib/qstring_operations.h"
 
 #include "project_observer.h"
 
-#include "interal_element_definitions.h"
-
-// Static Helpers
-//============================================================
-// Make an ElementID with the supplied manager by registering the Element type the first time
-// this is run
-Saklib::ElementID Saklib::Project_Manager::make_Project(Element_Manager& element_manager)
-{
-    static bool was_run{false};
-    if (!was_run)
-    {
-        register_all_internal_definitions();
-        was_run = true;
-    }
-    ElementID result{element_manager.make_element("Project")};
-    assert(element_manager.is_valid(result));
-    element_manager.element(result).set_name("Default_Project_Name");
-    return result;
-}
-
+#include "internal_element_definitions.h"
 
 // Special 6
 //============================================================
 Saklib::Project_Manager::Project_Manager() :
+    m_internal_element_definitions{},
     m_element_manager{},
     m_command_history{},
 
@@ -66,7 +48,7 @@ void Saklib::Project_Manager::new_project(Path const& filepath)
 {
     clear();
 
-    m_project_elementid = make_Project(m_element_manager);
+    m_project_elementid = make_element("Project");
     m_project_filepath = m_element_manager.attributeid(m_project_elementid, "Filepath");
 
     set_project_filepath(filepath);
@@ -80,7 +62,7 @@ void Saklib::Project_Manager::open_project(Path const& filepath)
 
     // this should load from the file...
 
-    m_project_elementid = make_Project(m_element_manager);
+    m_project_elementid = make_element("Project");
     m_project_filepath = m_element_manager.attributeid(m_project_elementid, "Filepath");
 
     set_project_filepath(filepath);
@@ -128,7 +110,7 @@ void Saklib::Project_Manager::set_project_filepath(Path const& filepath)
 
 
 
-void Saklib::Project_Manager::add_observer(Project_Observer*const observer)
+void Saklib::Project_Manager::add_observer(Project_Observer* observer)
 {
     auto found = std::find(m_observers.cbegin(), m_observers.cend(), observer);
     if (found == m_observers.cend())
@@ -137,7 +119,7 @@ void Saklib::Project_Manager::add_observer(Project_Observer*const observer)
     }
 }
 
-void Saklib::Project_Manager::remove_observer(Project_Observer*const observer)
+void Saklib::Project_Manager::remove_observer(Project_Observer* observer)
 {
     auto found = std::find(m_observers.cbegin(), m_observers.cend(), observer);
     if (found != m_observers.cend())
@@ -148,11 +130,31 @@ void Saklib::Project_Manager::remove_observer(Project_Observer*const observer)
 
 // Lifetime
 //------------------------------------------------------------
+
+void Saklib::Project_Manager::register_element_definition(Element_Definition&& definition)
+{
+    m_internal_element_definitions.add_override_definition(std::forward<Element_Definition>(definition));
+}
+
+bool Saklib::Project_Manager::has_element_definition(String const& type) const
+{
+    return m_internal_element_definitions.definition_exists(type);
+}
+Saklib::Element_Definition const& Saklib::Project_Manager::element_definition(String const& type) const
+{
+    return m_internal_element_definitions.definition(type);
+}
+
+Saklib::Vector_String Saklib::Project_Manager::all_registered_element_types() const
+{
+    return m_internal_element_definitions.definition_types();
+}
+
 // Make a new Element and return all info about it
 Saklib::ElementID Saklib::Project_Manager::make_element(String const& type)
 {
-    // make an element
-    ElementID newid = m_element_manager.make_element(type);
+    assert(has_element_definition(type));
+    ElementID newid = m_element_manager.make_element(element_definition(type));
     return newid;
 }
 
@@ -202,9 +204,9 @@ Saklib::String const& Saklib::Project_Manager::element_name(ElementID elementid)
 void Saklib::Project_Manager::element_set_name(ElementID elementid, String const& value)
 {
     assert_element(elementid);
-    // maintaining unique names should have been done before getting here
-
-    m_element_manager.element(elementid).set_name(value);
+    // Element_Manager will adjust the name by adding a number to the end if it isn't unique.
+    m_element_manager.set_element_name(elementid, value);
+    //m_element_manager.element(elementid).set_name(value);
     observers_element_name_changed(elementid);
     set_unsaved_edits(true);
 }
@@ -218,7 +220,7 @@ bool Saklib::Project_Manager::element_can_be_root(ElementID elementid) const
 Saklib::AttributeID Saklib::Project_Manager::element_parent(ElementID elementid) const
 {
     assert_element(elementid);
-    return m_element_manager.parent(elementid);
+    return m_element_manager.element_parent(elementid);
 }
 
 void Saklib::Project_Manager::element_set_parent(ElementID elementid, AttributeID attributeid)
@@ -226,7 +228,7 @@ void Saklib::Project_Manager::element_set_parent(ElementID elementid, AttributeI
     if (elementid.is_valid())
     {
         assert_element(elementid);
-        m_element_manager.set_parent(elementid, attributeid);
+        m_element_manager.set_element_parent(elementid, attributeid);
 
         observers_element_parent_changed(elementid);
         set_unsaved_edits(true);
@@ -240,29 +242,29 @@ Saklib::AttributeID Saklib::Project_Manager::attributeid(ElementID elementid, St
     return m_element_manager.attributeid(elementid, attribute_name);
 }
 
-Saklib::Attribute *const Saklib::Project_Manager::attribute(AttributeID attributeid)
+Saklib::Attribute* Saklib::Project_Manager::attribute(AttributeID attributeid)
 {
     return m_element_manager.attribute(attributeid);
 }
-Saklib::Attribute *const Saklib::Project_Manager::attribute(ElementID elementid, size_type attribute_index)
+Saklib::Attribute* Saklib::Project_Manager::attribute(ElementID elementid, size_type attribute_index)
 {
     return m_element_manager.attribute(elementid, attribute_index);
 }
-Saklib::Attribute *const Saklib::Project_Manager::attribute(ElementID elementid, String const& attribute_name)
+Saklib::Attribute* Saklib::Project_Manager::attribute(ElementID elementid, String const& attribute_name)
 {
     return m_element_manager.attribute(elementid, attribute_name);
 }
 
 
-Saklib::Attribute const*const Saklib::Project_Manager::attribute(AttributeID attributeid) const
+Saklib::Attribute const* Saklib::Project_Manager::attribute(AttributeID attributeid) const
 {
     return m_element_manager.attribute(attributeid);
 }
-Saklib::Attribute const*const Saklib::Project_Manager::attribute(ElementID elementid, size_type attribute_index) const
+Saklib::Attribute const* Saklib::Project_Manager::attribute(ElementID elementid, size_type attribute_index) const
 {
     return m_element_manager.attribute(elementid, attribute_index);
 }
-Saklib::Attribute const*const Saklib::Project_Manager::attribute(ElementID elementid, String const& attribute_name) const
+Saklib::Attribute const* Saklib::Project_Manager::attribute(ElementID elementid, String const& attribute_name) const
 {
     return m_element_manager.attribute(elementid, attribute_name);
 }
@@ -279,7 +281,10 @@ Saklib::String Saklib::Project_Manager::attribute_type_string(AttributeID attrib
 {
     return m_element_manager.attribute(attributeid)->type_string();
 }
-
+bool Saklib::Project_Manager::attribute_is_constrained(AttributeID attributeid) const
+{
+    return m_element_manager.attribute(attributeid)->is_constrained();
+}
 
 
 // Attribute_Type<T>
@@ -577,6 +582,31 @@ void Saklib::Project_Manager::attribute_vector_remove_at<Saklib::ElementID>(Attr
     set_unsaved_edits(true);
 }
 
+// Attribute_Type<T> Constraint Stuff
+//------------------------------------------------------------
+// Get a vector of possible Element types for this attributeid
+Saklib::Vector_String Saklib::Project_Manager::attribute_element_types(AttributeID attributeid) const
+{
+    Vector_String result{};
+    auto type = attribute_type_enum(attributeid);
+    bool is_constrained = attribute_is_constrained(attributeid);
+
+    if (is_constrained && type == Type_Enum::ElementID)
+    {
+        result = attribute_type_cast<ElementID>(attributeid)->constraint()->element_types();
+    }
+    else if (is_constrained && type == Type_Enum::Vector_ElementID)
+    {
+        result = attribute_type_cast<Vector_ElementID>(attributeid)->value_constraint()->element_types();
+    }
+    else
+    {
+        result = all_registered_element_types();
+    }
+
+    return result;
+}
+
 
 // Commands - indirect write access
 //------------------------------------------------------------
@@ -804,7 +834,7 @@ int Saklib::Project_Manager::outliner_row_count(AttributeID attributeid) const
 // What is the parent of this item?
 Saklib::AttributeID Saklib::Project_Manager::parent_of(ElementID elementid) const
 {
-    return m_element_manager.parent(elementid);
+    return m_element_manager.element_parent(elementid);
 }
 Saklib::ElementID Saklib::Project_Manager::parent_of(AttributeID attributeid) const
 {

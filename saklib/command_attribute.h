@@ -44,7 +44,7 @@ namespace Saklib
     protected:
         // Interface
         //============================================================
-        attribute_type*const attribute() const
+        attribute_type* attribute() const
         { 
             return mp_attribute;
         }

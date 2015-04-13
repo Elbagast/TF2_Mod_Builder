@@ -22,7 +22,7 @@
 
 // Special 6
 //============================================================
-Saklib::Qtlib::Attribute_Editor::Attribute_Editor(Project_Widget*const project_widget, AttributeID attributeid, QWidget* parent):
+Saklib::Qtlib::Attribute_Editor::Attribute_Editor(Project_Widget* project_widget, AttributeID attributeid, QWidget* parent):
     QWidget(parent),
     mp_project_widget(project_widget),
     m_attributeid(attributeid),
@@ -34,7 +34,7 @@ Saklib::Qtlib::Attribute_Editor::Attribute_Editor(Project_Widget*const project_w
     assert(mp_project_widget->project_manager().is_valid(attributeid));
 }
 
-Saklib::Qtlib::Attribute_Editor::Attribute_Editor(Project_Widget*const project_widget, AttributeID attributeid, size_type vector_index, QWidget* parent):
+Saklib::Qtlib::Attribute_Editor::Attribute_Editor(Project_Widget* project_widget, AttributeID attributeid, size_type vector_index, QWidget* parent):
     QWidget(parent),
     mp_project_widget(project_widget),
     m_attributeid(attributeid),
@@ -51,7 +51,7 @@ Saklib::Qtlib::Attribute_Editor::~Attribute_Editor() = default;
 
 // Special 6
 //============================================================
-Saklib::Qtlib::Attribute_Editor_Dummy::Attribute_Editor_Dummy(Project_Widget*const project_widget, AttributeID attributeid, QWidget* parent):
+Saklib::Qtlib::Attribute_Editor_Dummy::Attribute_Editor_Dummy(Project_Widget* project_widget, AttributeID attributeid, QWidget* parent):
     Attribute_Editor(project_widget, attributeid, parent),
     m_label(make_quptr<QLabel>("DUMMY EDITOR", this)),
     m_layout(make_quptr<QHBoxLayout>())
@@ -67,7 +67,7 @@ Saklib::Qtlib::Attribute_Editor_Dummy::~Attribute_Editor_Dummy() = default;
 
 
 // Function with a typeswitch
-Saklib::Qtlib::QUptr<Saklib::Qtlib::Attribute_Editor> Saklib::Qtlib::make_Attribute_Editor(Project_Widget*const project_widget, AttributeID attributeid)
+Saklib::Qtlib::QUptr<Saklib::Qtlib::Attribute_Editor> Saklib::Qtlib::make_Attribute_Editor(Project_Widget* project_widget, AttributeID attributeid)
 {
     assert(project_widget);
     assert(project_widget->project_manager().is_valid(attributeid));
@@ -94,7 +94,7 @@ Saklib::Qtlib::QUptr<Saklib::Qtlib::Attribute_Editor> Saklib::Qtlib::make_Attrib
 }
 
 // Function with a typeswitch
-Saklib::Qtlib::QUptr<Saklib::Qtlib::Attribute_Editor> Saklib::Qtlib::make_Attribute_Editor(Project_Widget*const project_widget, AttributeID attributeid, size_type vector_index)
+Saklib::Qtlib::QUptr<Saklib::Qtlib::Attribute_Editor> Saklib::Qtlib::make_Attribute_Editor(Project_Widget* project_widget, AttributeID attributeid, size_type vector_index)
 {
     assert(project_widget);
     assert(project_widget->project_manager().is_valid(attributeid));

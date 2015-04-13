@@ -12,7 +12,7 @@
 
 // Special 6
 //============================================================
-Saklib::Qtlib::Attribute_Editor_Vector::Attribute_Editor_Vector(Project_Widget*const project_widget, AttributeID attributeid, QWidget* parent):
+Saklib::Qtlib::Attribute_Editor_Vector::Attribute_Editor_Vector(Project_Widget* project_widget, AttributeID attributeid, QWidget* parent):
     Attribute_Editor(project_widget, attributeid, parent),
     //mp_element_widget(parent),
 
@@ -110,7 +110,7 @@ void Saklib::Qtlib::Attribute_Editor_Vector::slot_custom_context_menu(QPoint con
 
 // Special 6
 //============================================================
-Saklib::Qtlib::Attribute_Editor_Vector_Component::Attribute_Editor_Vector_Component(Project_Widget*const project_widget, AttributeID attributeid, size_type index, Attribute_Editor_Vector* parent):
+Saklib::Qtlib::Attribute_Editor_Vector_Component::Attribute_Editor_Vector_Component(Project_Widget* project_widget, AttributeID attributeid, size_type index, Attribute_Editor_Vector* parent):
     QWidget(parent),
     mp_parent(parent),
     m_layout(make_quptr<QHBoxLayout>()),

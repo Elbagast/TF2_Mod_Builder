@@ -31,7 +31,7 @@ namespace Saklib
         // Interface
         //============================================================
         // Build a new Map_Entry containing a new Element from type and return the id number
-        ElementID make_element(String const& type = String());
+        ElementID make_element(Element_Definition const& definition, String const& name = String());
         // Destory the Element associated with this id
         void destroy_element(ElementID elementid);
 
@@ -40,8 +40,13 @@ namespace Saklib
 
         // Access the parent of this ID
         bool has_parent(ElementID elementid) const;
-        AttributeID parent(ElementID elementid) const;
-        void set_parent(ElementID elementid, AttributeID new_parent);
+        AttributeID element_parent(ElementID elementid) const;
+        void set_element_parent(ElementID elementid, AttributeID new_parent);
+
+        // The name of a given Element
+        String const& element_name(ElementID elementid) const;
+        // Set an Element name, return true if the given name was unique
+        bool set_element_name(ElementID elementid, String const& name);
 
         // Whether this Element has Attribute links in or out
         //bool is_linked(ElementID elementid) const;
@@ -71,13 +76,13 @@ namespace Saklib
 
 
         // Access the Attribute associated with this ID
-        Attribute*const attribute(AttributeID attributeid);
-        Attribute*const attribute(ElementID elementid, size_type attribute_index);
-        Attribute*const attribute(ElementID elementid, String const& attribute_name);
+        Attribute* attribute(AttributeID attributeid);
+        Attribute* attribute(ElementID elementid, size_type attribute_index);
+        Attribute* attribute(ElementID elementid, String const& attribute_name);
 
-        Attribute const*const attribute(AttributeID attributeid) const;
-        Attribute const*const attribute(ElementID elementid, size_type attribute_index) const;
-        Attribute const*const attribute(ElementID elementid, String const& attribute_name) const;
+        Attribute const* attribute(AttributeID attributeid) const;
+        Attribute const* attribute(ElementID elementid, size_type attribute_index) const;
+        Attribute const* attribute(ElementID elementid, String const& attribute_name) const;
 
         // Typed Access to Attributes
 
@@ -85,6 +90,8 @@ namespace Saklib
         Vector_ElementID all_elementids() const;
         // ElementIDs that have no parent
         Vector_ElementID root_elementids() const;
+        // Names of all Elements
+        Vector_String all_element_names() const;
 
         // Destory everything
         void clear();
@@ -102,6 +109,8 @@ namespace Saklib
 
 
     private:
+        String make_name_unique(String const& name);
+
         // Typedefs
         //============================================================
         class Element_Cache
@@ -109,8 +118,8 @@ namespace Saklib
         public:
             // Special 6
             //============================================================
-            Element_Cache(String const& element_type):
-                m_element(element_type),
+            Element_Cache(Element_Definition const& definition, String const& name = String()):
+                m_element(definition, name),
                 m_parent(),
                 m_linked(),
                 m_command_ref_count{0}

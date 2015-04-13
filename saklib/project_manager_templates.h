@@ -13,34 +13,34 @@ Template function implementation for Project_Widget
 //------------------------------------------------------------
 
 template <typename T>
-Saklib::Attribute_Type<T> const*const Saklib::Project_Manager::attribute_type_cast(AttributeID attributeid) const
+Saklib::Attribute_Type<T> const* Saklib::Project_Manager::attribute_type_cast(AttributeID attributeid) const
 {
     return Saklib::attribute_type_cast<T>(attribute(attributeid));
 }
 template <typename T>
-Saklib::Attribute_Type<T> const*const Saklib::Project_Manager::attribute_type_cast(ElementID elementid, size_type attribute_index) const
+Saklib::Attribute_Type<T> const* Saklib::Project_Manager::attribute_type_cast(ElementID elementid, size_type attribute_index) const
 {
     return Saklib::attribute_type_cast<T>(attribute(elementid, attribute_index));
 }
 template <typename T>
-Saklib::Attribute_Type<T> const*const Saklib::Project_Manager::attribute_type_cast(ElementID elementid, String const& attribute_name) const
+Saklib::Attribute_Type<T> const* Saklib::Project_Manager::attribute_type_cast(ElementID elementid, String const& attribute_name) const
 {
     return Saklib::attribute_type_cast<T>(attribute(elementid, attribute_name));
 }
 
 
 template <typename T>
-Saklib::Attribute_Type<T> *const Saklib::Project_Manager::attribute_type_cast(AttributeID attributeid)
+Saklib::Attribute_Type<T>* Saklib::Project_Manager::attribute_type_cast(AttributeID attributeid)
 {
     return Saklib::attribute_type_cast<T>(attribute(attributeid));
 }
 template <typename T>
-Saklib::Attribute_Type<T> *const Saklib::Project_Manager::attribute_type_cast(ElementID elementid, size_type attribute_index)
+Saklib::Attribute_Type<T>* Saklib::Project_Manager::attribute_type_cast(ElementID elementid, size_type attribute_index)
 {
     return Saklib::attribute_type_cast<T>(attribute(elementid, attribute_index));
 }
 template <typename T>
-Saklib::Attribute_Type<T> *const Saklib::Project_Manager::attribute_type_cast(ElementID elementid, String const& attribute_name)
+Saklib::Attribute_Type<T>* Saklib::Project_Manager::attribute_type_cast(ElementID elementid, String const& attribute_name)
 {
     return Saklib::attribute_type_cast<T>(attribute(elementid, attribute_name));
 }
@@ -241,7 +241,7 @@ bool Saklib::Project_Manager::undoable_attribute_vector_set_front(AttributeID at
     if(attributeid.is_valid()
        && this->is_valid(attributeid)
        && this->attribute_type_enum(attributeid) == Type_Traits<Vector<T>>::type_enum()
-       && this->attribute_type_cast<Vector<T>>(attributeid)->at(index) != value)
+       && this->attribute_type_cast<Vector<T>>(attributeid)->front() != value)
     {
         m_command_history.emplace_execute<PMC_Attribute_Vector_Set_Front<T>>(this, attributeid, value);
         command_history_changed();
@@ -259,7 +259,7 @@ bool Saklib::Project_Manager::undoable_attribute_vector_set_back(AttributeID att
     if(attributeid.is_valid()
        && this->is_valid(attributeid)
        && this->attribute_type_enum(attributeid) == Type_Traits<Vector<T>>::type_enum()
-       && this->attribute_type_cast<Vector<T>>(attributeid)->at(index) != value)
+       && this->attribute_type_cast<Vector<T>>(attributeid)->back() != value)
     {
         m_command_history.emplace_execute<PMC_Attribute_Vector_Set_Back<T>>(this, attributeid, value);
         command_history_changed();

@@ -56,14 +56,7 @@ namespace Saklib
     private:
         State m_state;
     };
-    /*
-    // Forward arguments to construct the templated Command_Class without having to use operator new manually
-    template <typename Command_Class, typename... Args>
-    up_Command make_up_Command(Args&&... args)
-    {
-        return up_Command(new Command_Class(std::forward<Args>(args)...)));
-    }
-    */
+
 } // namespace Saklib
 
 #endif // COMMAND_H

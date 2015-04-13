@@ -32,7 +32,7 @@ namespace Saklib
         public:
             // Special 6
             //============================================================
-            Attribute_Editor_Vector(Project_Widget*const project_widget, AttributeID attributeid, QWidget* parent = nullptr);
+            Attribute_Editor_Vector(Project_Widget* project_widget, AttributeID attributeid, QWidget* parent = nullptr);
             ~Attribute_Editor_Vector() override;
 
             size_type attribute_vector_size() const;
@@ -80,12 +80,12 @@ namespace Saklib
         public:
             // Special 6
             //============================================================
-            Attribute_Editor_Vector_Component(Project_Widget*const project_widget, AttributeID attributeid, size_type index, Attribute_Editor_Vector* parent);
+            Attribute_Editor_Vector_Component(Project_Widget* project_widget, AttributeID attributeid, size_type index, Attribute_Editor_Vector* parent);
             ~Attribute_Editor_Vector_Component() override;
 
-            void refresh_data()                     { m_editor->refresh_data(); }
-            size_type vector_index() const          { return m_editor->vector_index(); }
-            Attribute_Editor*const editor() const   { return m_editor.get(); }
+            void refresh_data()                 { m_editor->refresh_data(); }
+            size_type vector_index() const      { return m_editor->vector_index(); }
+            Attribute_Editor* editor() const    { return m_editor.get(); }
 
             // Button slots
         protected slots:
@@ -95,7 +95,7 @@ namespace Saklib
             void slot_move_down();
 
         private:
-            Attribute_Editor_Vector*const mp_parent;
+            Attribute_Editor_Vector* mp_parent;
 
             QUptr<QHBoxLayout> m_layout;
             QUptr<QVBoxLayout> m_move_button_layout;

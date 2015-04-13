@@ -97,7 +97,7 @@ namespace Saklib
             void remove_row(AttributeID attributeid, int row);
 
             // Request for a context menu by view at index and position
-            void custom_context_menu(QAbstractItemView*const view, QModelIndex const& index, QPoint position);
+            void custom_context_menu(QAbstractItemView* view, QModelIndex const& index, QPoint position);
 
             // Allow a view to request an editor for a given index
             void request_editor(QModelIndex const& index);
@@ -111,7 +111,7 @@ namespace Saklib
         private:
             // Data Members
             //============================================================
-            Project_Widget*const mp_project_widget;
+            Project_Widget* mp_project_widget;
         };
 
     } // namespace Qtlib

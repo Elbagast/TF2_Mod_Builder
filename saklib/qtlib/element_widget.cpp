@@ -3,6 +3,8 @@
 #include "project_widget.h"
 #include "../project_manager.h"
 
+#include "element_name_editor.h"
+
 #include "attribute_editor.h"
 #include "../element.h"
 #include "../all_attributes.h"
@@ -19,28 +21,28 @@
 
 // Special 6
 //============================================================
-Saklib::Qtlib::Element_Widget::Element_Widget(Project_Widget*const project_widget, ElementID elementid):
+Saklib::Qtlib::Element_Widget::Element_Widget(Project_Widget* project_widget, ElementID elementid):
     QWidget(nullptr),
     mp_project_widget(project_widget),
     m_elementid(elementid),
     m_parentid(mp_project_widget->project_manager().element_parent(m_elementid)),
 
-    m_self_header_layout(std::make_unique<QHBoxLayout>()),
-    m_element_type_label(std::make_unique<QLabel>()),
-    m_element_name_label(std::make_unique<QLabel>()),
-    m_element_id_label(std::make_unique<QLabel>()),
+    m_self_header_layout(make_quptr<QHBoxLayout>()),
+    m_element_type_label(make_quptr<QLabel>()),
+    m_element_name_editor(make_quptr<Element_Name_Editor>(project_widget, elementid)),
+    m_element_id_label(make_quptr<QLabel>()),
 
-    m_parent_id_label(std::make_unique<QLabel>()),
+    m_parent_id_label(make_quptr<QLabel>()),
 
     //m_attribute_names(),
     //m_attribute_types(),
     m_attribute_layouts(),
     m_attribute_editors(),
 
-    m_layout(std::make_unique<QVBoxLayout>()),
+    m_layout(make_quptr<QVBoxLayout>()),
 
-    m_parent_header_layout(std::make_unique<QHBoxLayout>()),
-    m_attribute_layout(std::make_unique<QFormLayout>())
+    m_parent_header_layout(make_quptr<QHBoxLayout>()),
+    m_attribute_layout(make_quptr<QFormLayout>())
 
 {
     // Really shouldn't have got here with an invalid ID
@@ -50,21 +52,21 @@ Saklib::Qtlib::Element_Widget::Element_Widget(Project_Widget*const project_widge
     // Configure the labels
 
     // If the name is editable this type will get changed.
-    m_element_name_label->setText(mp_project_widget->project_manager().element_name(m_elementid).c_str());
+    //m_element_name_editor->setText(mp_project_widget->project_manager().element_name(m_elementid).c_str());
 
     m_element_type_label->setText(mp_project_widget->project_manager().element_type(m_elementid).c_str());
 
     m_element_id_label->setText(QString("ID: ").append(to_QString(m_elementid.value())));
 
     m_self_header_layout->addWidget(m_element_type_label.get());
-    m_self_header_layout->addWidget(m_element_name_label.get());
+    m_self_header_layout->addWidget(m_element_name_editor.get());
     m_self_header_layout->addStretch();
     m_self_header_layout->addWidget(m_element_id_label.get());
 
     m_layout->addLayout(m_self_header_layout.get());
 
     //QString parent_label =
-    m_parent_id_label = std::make_unique<QLabel>(to_QString(m_parentid.elementid().value()).append(" : ").append(to_QString(m_parentid.index())));
+    m_parent_id_label = make_quptr<QLabel>(to_QString(m_parentid.elementid().value()).append(" : ").append(to_QString(m_parentid.index())));
 
     // Add the widgets to the layout
     //int grid_row{0};
@@ -88,7 +90,7 @@ Saklib::Qtlib::Element_Widget::Element_Widget(Project_Widget*const project_widge
 
             // make and add editors
             QUptr<Attribute_Editor> editor{make_Attribute_Editor(mp_project_widget, attributeid)};
-            QUptr<QHBoxLayout> layout{std::make_unique<QHBoxLayout>()};
+            QUptr<QHBoxLayout> layout{make_quptr<QHBoxLayout>()};
             layout->addWidget(editor.get());
             //layout->addStretch();
 
@@ -114,9 +116,9 @@ Saklib::Qtlib::Element_Widget::Element_Widget(Project_Widget*const project_widge
     m_attribute_layout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
     m_attribute_layout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
     //m_attribute_layout->setSizeConstraint(QLayout::SetFixedSize); // resize whenever the size changes...
-    m_layout->addStretch();
+    m_layout->addStretch(1);
     //m_layout->setSizeConstraint(QLayout::SetFixedSize); // resize whenever the size changes...
-    setLayout(m_layout.get());
+    this->setLayout(m_layout.get());
     this->setSizePolicy( QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding );
 }
 
@@ -125,12 +127,13 @@ Saklib::Qtlib::Element_Widget::~Element_Widget() = default;
 // Update the data displayed by this widget and its children
 void Saklib::Qtlib::Element_Widget::refresh_data()
 {
-    m_element_name_label->setText(mp_project_widget->project_manager().element(m_elementid).name().c_str());
+    refresh_name();
     m_parentid = mp_project_widget->project_manager().element_parent(m_elementid);
     m_parent_id_label->setText(to_QString(m_parentid.elementid().value()).append(" : ").append(to_QString(m_parentid.index())));
     for (auto& attribute_editor : m_attribute_editors)
+    {
         attribute_editor->refresh_data();
-
+    }
 }
 
 void Saklib::Qtlib::Element_Widget::refresh_data(size_type attribute_index)
@@ -138,3 +141,7 @@ void Saklib::Qtlib::Element_Widget::refresh_data(size_type attribute_index)
     m_attribute_editors.at(attribute_index)->refresh_data();
 }
 
+void Saklib::Qtlib::Element_Widget::refresh_name()
+{
+    m_element_name_editor->refresh_data();
+}

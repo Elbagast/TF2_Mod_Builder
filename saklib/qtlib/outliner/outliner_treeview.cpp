@@ -7,7 +7,7 @@
 
 // Special 6
 //============================================================
-Saklib::Qtlib::Outliner_Treeview::Outliner_Treeview(QWidget *parent) :
+Saklib::Qtlib::Outliner_Treeview::Outliner_Treeview(QWidget* parent) :
     QTreeView(parent),
     m_expanded_indexes()
 {
@@ -32,7 +32,7 @@ void Saklib::Qtlib::Outliner_Treeview::cache_expanded_indexes()
 {
     m_expanded_indexes.clear();
     // Cast to the assumed correct model type
-    auto model = dynamic_cast<Outliner_Model*const>(this->model());
+    auto model = dynamic_cast<Outliner_Model*>(this->model());
     if (model)
     {
         auto all_indexes = model->all_indexes();
@@ -48,7 +48,7 @@ void Saklib::Qtlib::Outliner_Treeview::cache_expanded_indexes()
 
 void Saklib::Qtlib::Outliner_Treeview::restore_expanded_indexes()
 {
-    auto model = dynamic_cast<Outliner_Model*const>(this->model());
+    auto model = dynamic_cast<Outliner_Model*>(this->model());
     if (model)
     {
         for (auto const& index : m_expanded_indexes)
@@ -72,7 +72,7 @@ void Saklib::Qtlib::Outliner_Treeview::slot_customContextMenuRequested(QPoint co
     auto index = this->indexAt(pos);
 
     // Cast to the assumed correct model type
-    auto model = dynamic_cast<Outliner_Model*const>(this->model());
+    auto model = dynamic_cast<Outliner_Model*>(this->model());
 
     // if the cast worked (sanity check)
     if (model)
@@ -101,7 +101,7 @@ void Saklib::Qtlib::Outliner_Treeview::mouseDoubleClickEvent(QMouseEvent* mouse_
     if (mouse_event->button() == Qt::LeftButton)
     {
         // Cast to the assumed correct model type
-        auto model = dynamic_cast<Outliner_Model*const>(this->model());
+        auto model = dynamic_cast<Outliner_Model*>(this->model());
 
         // if the cast worked (sanity check)
         if (model)

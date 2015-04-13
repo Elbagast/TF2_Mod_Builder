@@ -3,12 +3,14 @@
 
 #include "types.h"
 #include "type_traits.h"
+#include "attribute.h"
 #include "fwd_attribute_type.h"
-#include "element_definition.h"
+
 
 namespace Saklib
 {  
-    class Attribute;
+    class Element_Definition;
+    //class Attribute;
     /*
     Element
     ====================================================================================================
@@ -21,22 +23,9 @@ namespace Saklib
     class Element
     {
     public:
-        // Internal Manager Access - forwarded to static manager
-        //============================================================
-        // Is an Element_Definition with this type registered?
-        static bool definition_exists(String const& type);
-        // Is an Element_Definition with this exact configuration registered?
-        static bool definition_exists(Element_Definition const& definition);
-        // If an Element_Definition with the same configuration as arg does not exist, add it do the definitions 
-        static bool try_add_definition(Element_Definition&& definition);
-        // Add this Element_Definition, overriding any definitions that might match
-        static void add_override_definition(Element_Definition&& definition);
-        // Get a vector of the registered types
-        static Vector_String get_registered_types();
-
         // Special 6
         //============================================================
-        explicit Element(String const& type = String());
+        Element(Element_Definition const& definition, String const& name = String());
         ~Element();
 
         // NO COPYING
@@ -88,8 +77,7 @@ namespace Saklib
         // Get a Vector of all the Attribute names
         Vector_String attribute_names() const;
 
-        // Access to all of the Attributes (do we want to allow write access?...)
-        Vector<Uptr<Attribute>>& attributes();
+        // Access to all of the Attributes - since std::unique_ptr::get() is const we can edit Attributes via this function
         Vector<Uptr<Attribute>> const& attributes() const;
         
         // Get a pointer to a derived Attribute type for the Attribute specified by name
@@ -124,52 +112,6 @@ namespace Saklib
         Vector<Uptr<Attribute>> m_attributes;
         // maybe cache stats here?
 
-        // Initialisation Helpers
-        //============================================================
-        static String initialise_type_from_definition_of(String const& type); // called so that a check that type is valid can be made here
-        static String initialise_name_from_definition_of(String const& type);
-        static bool initialise_can_be_root_from_definition_of(String const& type);
-        static Vector<Uptr<Attribute>> initialise_attributes_from_definition_of(String const& type);
-
-        // Internal Manager
-        //============================================================
-        class Element_Definition_Manager
-        {
-        public:
-            Element_Definition_Manager();
-
-            // Interface
-            //============================================================
-            // Is an Element_Definition with this type registered?
-            bool definition_exists(String const& type) const;
-            // Is an Element_Definition with this exact configuration registered?
-            bool definition_exists(Element_Definition const& definition) const;
-            // If an Element_Definition with the same configuration as arg does not exist, add it do the definitions 
-            bool try_add_definition(Element_Definition&& definition);
-            // Add this Element_Definition, overriding any definitions that might match
-            void add_override_definition(Element_Definition&& definition);
-            // Get a vector of the registered types
-            Vector_String get_registered_types() const;
-
-            String get_type_from_definition_of(String const& type) const; // called so that a check that type is valid can be made here
-            String get_name_from_definition_of(String const& type) const;
-            bool get_can_be_root_from_definition_of(String const& type) const;
-            Vector<Uptr<Attribute>> get_attributes_from_definition_of(String const& type) const;
-
-            static Uptr<Attribute> initialise_attribute_from_definition(Attribute_Definition const& definition);
-        private:
-            Vector<Element_Definition>::iterator find_definition(String const& type);
-            Vector<Element_Definition>::const_iterator find_definition(String const& type) const; 
-            Vector<Element_Definition>::iterator find_definition(Element_Definition const& definition);
-            Vector<Element_Definition>::const_iterator find_definition(Element_Definition const& definition) const;
-
-            void add_definition(Element_Definition&& definition);
-            
-            Vector<Element_Definition> m_element_definitions;
-        };
-
-
-        static Element_Definition_Manager s_element_definition_manager;
     };
 
 

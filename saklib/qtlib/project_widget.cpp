@@ -8,6 +8,7 @@
 #include "qstring_operations.h"
 
 #include <QHBoxLayout>
+#include <QSplitter>
 #include <QScrollArea>
 #include <QLabel>
 #include <cassert>
@@ -18,6 +19,7 @@ Saklib::Qtlib::Project_Widget::Project_Widget(Project_Manager& project_manager, 
     Project_Observer(project_manager),
     m_outliner_model(make_quptr<Outliner_Model>(this)),
     m_outliner_delegate(make_quptr<Outliner_Delegate>(this)),
+    m_splitter(make_quptr<QSplitter>(Qt::Orientation::Horizontal, this)),
     m_outliner(make_quptr<Outliner_Treeview>(this)),
     m_scroll_area(make_quptr<QScrollArea>(this)),
     m_editor(nullptr),
@@ -25,14 +27,23 @@ Saklib::Qtlib::Project_Widget::Project_Widget(Project_Manager& project_manager, 
 {
     m_outliner->setModel(m_outliner_model.get());
     m_outliner->setItemDelegate(m_outliner_delegate.get());
-    // Does this need to be a signal?
-    //QObject::connect(m_outliner_model.get, &Outliner_Model::signal_editorRequestedFor,
-    // this, &Project_Widget::slot_editorRequestedFor);
+
     m_scroll_area->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
-    m_layout->addWidget(m_outliner.get(), 1);
-    m_layout->addWidget(m_scroll_area.get(), 3);
+
+    m_splitter->addWidget(m_outliner.get());
+    m_splitter->setStretchFactor(0,0);
+
+    m_splitter->addWidget(m_scroll_area.get());
+    m_splitter->setStretchFactor(1,1);
+
+    //m_layout->addWidget(m_outliner.get(), 1);
+    //m_layout->addWidget(m_scroll_area.get(), 3);
+
+    m_layout->addWidget(m_splitter.get());
+
     setLayout(m_layout.get());
     open_editor(this->project_manager().project_elementid());
+    m_splitter->refresh();
 }
 Saklib::Qtlib::Project_Widget::~Project_Widget() = default;
 
@@ -124,7 +135,16 @@ void Saklib::Qtlib::Project_Widget::data_changed(AttributeID attributeid)
 
 void Saklib::Qtlib::Project_Widget::element_name_changed(ElementID elementid)
 {
-    data_changed(elementid);
+    // if the ElementID is valid and editor is valid and is for a this ElementID
+    if (elementid.is_valid()
+        && project_manager().is_valid(elementid)
+        && m_editor
+        && m_editor->elementid() == elementid)
+    {
+        m_editor->refresh_name();
+        m_outliner_model->update_item(elementid);
+    }
+
 }
 
 void Saklib::Qtlib::Project_Widget::element_parent_changed(ElementID elementid)

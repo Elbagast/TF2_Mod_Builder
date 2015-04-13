@@ -107,10 +107,12 @@ int Saklib::Qtlib::Outliner_Model::rowCount(QModelIndex const& index) const
     }
     else if (indexid.is_element())
     {
+        //qDebug() << "ElementID = " << indexid.elementid_value();
         return mp_project_widget->project_manager().outliner_row_count(indexid.elementid());
     }
     else if (indexid.is_attribute())
     {
+        //qDebug() << "AttributeID = " << indexid.elementid_value() <<" : "<< indexid.attribute_index();
         return mp_project_widget->project_manager().outliner_row_count(indexid.attributeid());
     }
     //else if (!index.isValid()) // root index
@@ -471,7 +473,7 @@ void Saklib::Qtlib::Outliner_Model::remove_row(AttributeID attributeid, int row)
 
 
 // Request for a context menu by view at index and position
-void Saklib::Qtlib::Outliner_Model::custom_context_menu(QAbstractItemView*const view, QModelIndex const& index, QPoint position)
+void Saklib::Qtlib::Outliner_Model::custom_context_menu(QAbstractItemView* view, QModelIndex const& index, QPoint position)
 {
     // indexid will be the id in the index but starts invalid
     ProxyID indexid{};

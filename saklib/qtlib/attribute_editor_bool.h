@@ -14,20 +14,17 @@ namespace Saklib
         class Attribute_Editor_Bool :
                 public Attribute_Editor
         {
-            Q_OBJECT
+            //Q_OBJECT
         public:
             // Special 6
             //============================================================
-            Attribute_Editor_Bool(Project_Widget*const project_widget, AttributeID attributeid, QWidget* parent = nullptr);
-            Attribute_Editor_Bool(Project_Widget*const project_widget, AttributeID attributeid, size_type vector_index, QWidget* parent = nullptr);
+            Attribute_Editor_Bool(Project_Widget* project_widget, AttributeID attributeid, QWidget* parent = nullptr);
+            Attribute_Editor_Bool(Project_Widget* project_widget, AttributeID attributeid, size_type vector_index, QWidget* parent = nullptr);
             ~Attribute_Editor_Bool() override;
 
         protected:
             void v_refresh_data() override;
-
-        private slots:
-            // Slot used to capture the signal clicked() from the QCheckBox
-            void slot_clicked();
+            void v_editing_finished() override;
 
         private:
             void shared_construction();

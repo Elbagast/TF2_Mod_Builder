@@ -15,20 +15,20 @@
 Saklib::Qtlib::Attribute_Editor_ElementID::Attribute_Editor_ElementID(Project_Widget*const project_widget, AttributeID attributeid, QWidget* parent):
     Attribute_Editor(project_widget, attributeid, parent),
     m_elementid(),
-    m_layout(),
     m_button(),
     m_name_label(),
-    m_type_label()
+    m_type_label(),
+    m_layout()
 {
     shared_construction();
 }
 Saklib::Qtlib::Attribute_Editor_ElementID::Attribute_Editor_ElementID(Project_Widget*const project_widget, AttributeID attributeid, size_type vector_index, QWidget* parent):
     Attribute_Editor(project_widget, attributeid, vector_index, parent),
     m_elementid(),
-    m_layout(),
     m_button(),
     m_name_label(),
-    m_type_label()
+    m_type_label(),
+    m_layout()
 {
     shared_construction();
 }
@@ -48,7 +48,7 @@ void Saklib::Qtlib::Attribute_Editor_ElementID::v_refresh_data()
     }
 }
 
-void Saklib::Qtlib::Attribute_Editor_ElementID::slot_clicked()
+void Saklib::Qtlib::Attribute_Editor_ElementID::v_editing_finished()
 {
     if (m_elementid.is_valid() && project_widget()->project_manager().is_valid(m_elementid))
     {
@@ -56,11 +56,8 @@ void Saklib::Qtlib::Attribute_Editor_ElementID::slot_clicked()
     }
     else
     {
-        // Get a list of types of Element that we can use
-        auto element_types = Element::get_registered_types();
-
         // Make a dialog that asks the user to select one, floating above the project widget
-        Select_Element_Type_Dialog dialog{element_types, project_widget()};
+        Select_Element_Type_Dialog dialog{project_widget()->project_manager().attribute_element_types(attributeid()), project_widget()};
 
         // if the user selects one, make an Element of that type and assign it to the attribute
         if (dialog.exec() == QDialog::Accepted && !dialog.selected_element_type().empty())
@@ -127,15 +124,15 @@ void Saklib::Qtlib::Attribute_Editor_ElementID::shared_construction()
         assert(this->project_widget()->project_manager().is_valid(m_elementid));
 
     QObject::connect(m_button.get(), &QPushButton::clicked,
-                     this, &Attribute_Editor_ElementID::slot_clicked);
+                     this, &Attribute_Editor_ElementID::v_editing_finished);
 
     m_layout->addWidget(m_button.get());
     m_layout->addWidget(m_name_label.get());
     m_layout->addWidget(m_type_label.get());
+    m_layout->addStretch();
 
     m_layout->setContentsMargins(0,0,0,0);
     this->setLayout(m_layout.get());
     this->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
 }
-
 

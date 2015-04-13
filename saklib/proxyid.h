@@ -4,22 +4,20 @@
 #include "types.h"
 #include "elementid.h"
 #include "attributeid.h"
-#include <numeric>
+//#include <numeric>
+//#include <QtDebug>
 
 namespace Saklib
 {
     /*
     ProxyID
     ====================================================================================================
-    Pack an ElementID or AttributeID into a stucture that is 4 bytes long.
+    Pack an ElementID or AttributeID into a stucture that is sizeof(void*).
     */
 
     class ProxyID
     {
     public:
-        friend bool operator==(ProxyID lhs, ProxyID rhs);
-        friend bool operator< (ProxyID lhs, ProxyID rhs);
-
         // Special 6
         //============================================================
         ProxyID();
@@ -47,7 +45,7 @@ namespace Saklib
         // Does this contain an AttributeID?
         bool is_attribute() const;
 
-        inline bool is_attribute_flag_set() const;
+        bool is_attribute_flag_set() const;
 
         static
         size_type max_elementid_value();
@@ -55,7 +53,7 @@ namespace Saklib
         static
         size_type max_attribute_index();
 
-        // Packing and Unpacking into size_type (unsigned int)
+        // Packing and Unpacking into size_type
         //============================================================
         static
         size_type pack(ProxyID proxyid);
@@ -69,29 +67,52 @@ namespace Saklib
         static
         ProxyID unpack(size_type raw_value);
 
+        // Operators
+        //============================================================
+        bool operator==(ProxyID const& other) const;
+        bool operator!=(ProxyID const& other) const;
+
     private:
         // Internal Data Packing
         //============================================================
-        static
-        unsigned short pack_elementid_value(size_type value);
+        void pack_elementid_value(size_type value);
+
+        void pack_attribute_index(size_type index);
 
         static
-        short pack_attribute_index(size_type index);
+        size_type const s_data_size{sizeof(void*)};
+
+        static
+        size_type const s_data_half_size{s_data_size / 2};
+
+        static
+        size_type const s_count_to_last_byte{s_data_size - 1};
+        /*
+        unsigned char* data_start()
+        {
+            return m_data;
+        }
+
+        unsigned char* data_half_start()
+        {
+            return m_data + s_data_half_size;
+        }
+        unsigned char* data_last()
+        {
+            return m_data + s_count_to_last_byte;
+        }
+        */
+        void clear_data();
 
         // Data
         //============================================================
-        unsigned short m_elementid_value;
-        unsigned short m_attribute_index;
+        unsigned char m_data[s_data_size];
     };
 
-    ProxyID invalid_proxyid();
+    static_assert(sizeof(ProxyID) == sizeof(void*), "Saklib::ProxyID size mismatch with void*.");
+    static_assert(sizeof(ProxyID) == sizeof(size_type), "Saklib::ProxyID size mismatch with Saklib::size_type.");
 
-    bool operator==(ProxyID lhs, ProxyID rhs);
-    bool operator!=(ProxyID lhs, ProxyID rhs);
-    bool operator< (ProxyID lhs, ProxyID rhs);
-    bool operator> (ProxyID lhs, ProxyID rhs);
-    bool operator<=(ProxyID lhs, ProxyID rhs);
-    bool operator>=(ProxyID lhs, ProxyID rhs);
+    ProxyID invalid_proxyid();
 
 } //namespace Saklib
 
@@ -102,29 +123,39 @@ namespace Saklib
 // Special 6
 //============================================================
 inline
-Saklib::ProxyID::ProxyID() :
-    m_elementid_value{ 0 },
-    m_attribute_index{ 0 }
-{}
+Saklib::ProxyID::ProxyID()
+{
+    clear_data();
+}
 
 inline
-Saklib::ProxyID::ProxyID(ElementID elementid) :
-    m_elementid_value{ pack_elementid_value(elementid.value()) },
-    m_attribute_index{ 0 }
-{}
+Saklib::ProxyID::ProxyID(ElementID elementid)
+{
+    clear_data();
+    pack_elementid_value(elementid.value());
+    assert(elementid.value() == elementid_value());
+}
 
+//#pragma GCC diagnostic ignored "-Wnarrowing"
 inline
 Saklib::ProxyID::ProxyID(AttributeID attributeid) :
-    m_elementid_value{ pack_elementid_value(attributeid.elementid().value()) },
-    m_attribute_index{ pack_attribute_index(attributeid.index()) }
-{}
+    ProxyID(attributeid.elementid())
+{
+    pack_attribute_index(attributeid.index());
+
+    //qDebug() << "AttributeID.index in: " << attributeid.index() << "out:" << attribute_index();
+    assert(attributeid.index() == attribute_index());
+}
+//#pragma GCC diagnostic pop
 
 // Interface
 //============================================================
 inline
 Saklib::size_type Saklib::ProxyID::elementid_value() const
 {
-    return static_cast<unsigned int>(m_elementid_value);
+    size_type value{0};
+    memcpy(static_cast<void*>(&value), static_cast<void const*>(m_data), s_data_half_size);
+    return value;
 }
 
 inline
@@ -136,10 +167,13 @@ Saklib::ElementID Saklib::ProxyID::elementid() const
 inline
 Saklib::size_type Saklib::ProxyID::attribute_index() const
 {
-    unsigned short attribute_index{ m_attribute_index };
-    // unset the last bit before converting
-    attribute_index &= ~(1 << (sizeof(unsigned short) * 8 - 1));
-    return static_cast<unsigned int>(attribute_index);
+    unsigned int index_out{ 0 };
+
+    memcpy(static_cast<void*>(&index_out), static_cast<void const*>(m_data + s_data_half_size), s_data_half_size);
+
+    index_out &= ~(1 << (s_data_half_size * 8 - 1));
+
+    return index_out;
 }
 
 inline
@@ -148,14 +182,14 @@ Saklib::AttributeID Saklib::ProxyID::attributeid() const
     if (is_attribute())
         return AttributeID(elementid(), attribute_index());
     else
-        return AttributeID();
+        return invalid_attributeid();
 }
 
 // Does this contain a valid ElementID?
 inline
 bool Saklib::ProxyID::is_valid() const
 {
-    return m_elementid_value != 0;
+    return elementid_value() != 0;
 }
 
 // Does this contain an ElementID?
@@ -175,28 +209,39 @@ bool Saklib::ProxyID::is_attribute() const
 inline
 bool Saklib::ProxyID::is_attribute_flag_set() const
 {
-    return (m_attribute_index >>(sizeof(short) * 8 - 1) & 1);
+    return (m_data[s_count_to_last_byte] >>(7) & 1);
 }
 
 inline
 Saklib::size_type Saklib::ProxyID::max_elementid_value()
 {
-    return static_cast<size_type>(std::numeric_limits<unsigned short>::max());
+    size_type max_value{0};
+    // set bits 0 to sizeof(size_type) / 2 * 8 to 1
+    for (size_type bit = 0, end = sizeof(size_type) / 2 * 8; bit != end; ++bit)
+    {
+        max_value |= (1 << bit);
+    }
+    return max_value;
 }
 
 inline
 Saklib::size_type Saklib::ProxyID::max_attribute_index()
 {
-    return static_cast<size_type>(std::numeric_limits<short>::max());
+    size_type max_value{0};
+    // set bits 0 to sizeof(size_type) / 2 * 8 - 1 to 1
+    for (size_type bit = 0, end = sizeof(size_type) / 2 * 8 - 1; bit != end; ++bit)
+    {
+        max_value |= (1 << bit);
+    }
+    return max_value;
 }
 
-// Packing and Unpacking into size_type (unsigned int)
+// Packing and Unpacking into size_type
 //============================================================
 inline
 Saklib::size_type Saklib::ProxyID::pack(ProxyID proxyid)
 {
     size_type result{0};
-    assert(sizeof(result) == sizeof(proxyid));
     memcpy(static_cast<void*>(&result), static_cast<void const*>(&proxyid), sizeof(proxyid));
     return result;
 }
@@ -206,7 +251,6 @@ Saklib::size_type Saklib::ProxyID::pack(ElementID elementid)
 {
     ProxyID proxyid{elementid};
     size_type result{0};
-    assert(sizeof(result) == sizeof(proxyid));
     memcpy(static_cast<void*>(&result), static_cast<void const*>(&proxyid), sizeof(proxyid));
     return result;
 }
@@ -216,7 +260,6 @@ Saklib::size_type Saklib::ProxyID::pack(AttributeID attributeid)
 {
     ProxyID proxyid{attributeid};
     size_type result{0};
-    assert(sizeof(result) == sizeof(proxyid));
     memcpy(static_cast<void*>(&result), static_cast<void const*>(&proxyid), sizeof(proxyid));
     return result;
 }
@@ -225,70 +268,61 @@ inline
 Saklib::ProxyID Saklib::ProxyID::unpack(size_type raw_value)
 {
     ProxyID result{};
-    assert(sizeof(result) == sizeof(raw_value));
     memcpy(static_cast<void*>(&result), static_cast<void const*>(&raw_value), sizeof(raw_value));
     return result;
+}
+
+// Operators
+//============================================================
+inline
+bool Saklib::ProxyID::operator==(ProxyID const& other) const
+{
+    for (size_type index = 0; index != s_data_size; ++index)
+    {
+        if (m_data[index] != other.m_data[index])
+        {
+            return false;
+        }
+    }
+    return true;
+}
+inline
+bool Saklib::ProxyID::operator!=(ProxyID const& other) const
+{
+    return !operator==(other);
 }
 
 // Internal Data Packing
 //============================================================
 inline
-unsigned short Saklib::ProxyID::pack_elementid_value(size_type value)
+void Saklib::ProxyID::pack_elementid_value(size_type value)
 {
     assert(value <= max_elementid_value());
-    return static_cast<unsigned short>(value);
+    // copy the first half of value into the front of m_data
+    memcpy(static_cast<void*>(m_data), static_cast<void const*>(&value), s_data_half_size);
 }
 
 inline
-short Saklib::ProxyID::pack_attribute_index(size_type index)
+void Saklib::ProxyID::pack_attribute_index(size_type index)
 {
     assert(index <= max_attribute_index());
-    unsigned short packed = static_cast<unsigned short>(index);
+    // copy the first half of value into the front of m_data
+    memcpy(static_cast<void*>(m_data + s_data_half_size), static_cast<void const*>(&index), s_data_half_size);
     // now set the last bit
-    packed |= 1 << (sizeof(short) * 8 - 1);
-    return packed;
+    m_data[s_count_to_last_byte] |= 1 << (7);
 }
 
-inline Saklib::ProxyID Saklib::invalid_proxyid()
+inline
+void Saklib::ProxyID::clear_data()
+{
+    std::fill_n(m_data, s_data_size, 0);
+}
+
+inline
+Saklib::ProxyID Saklib::invalid_proxyid()
 {
     return ProxyID();
 }
 
-inline
-bool Saklib::operator==(ProxyID lhs, ProxyID rhs)
-{
-    return (lhs.m_elementid_value == rhs.m_elementid_value) && (lhs.m_attribute_index == rhs.m_attribute_index);
-
-}
-inline
-bool Saklib::operator!=(ProxyID lhs, ProxyID rhs)
-{
-    return !operator==(lhs, rhs);
-}
-
-inline
-bool Saklib::operator< (ProxyID lhs, ProxyID rhs)
-{
-    return (lhs.m_elementid_value < rhs.m_elementid_value)
-            || ((lhs.m_elementid_value == rhs.m_elementid_value) && (lhs.m_attribute_index < rhs.m_attribute_index));
-}
-
-inline
-bool Saklib::operator> (ProxyID lhs, ProxyID rhs)
-{
-    return operator<(rhs, lhs);
-}
-
-inline
-bool Saklib::operator<=(ProxyID lhs, ProxyID rhs)
-{
-    return !operator>(lhs, rhs);
-}
-
-inline
-bool Saklib::operator>=(ProxyID lhs, ProxyID rhs)
-{
-    return !operator<(lhs, rhs);
-}
 
 #endif // PROXYID_H

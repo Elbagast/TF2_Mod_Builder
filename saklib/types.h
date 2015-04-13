@@ -6,6 +6,8 @@
 #include <memory>
 
 #ifndef Q_MOC_RUN
+#define BOOST_FILESYSTEM_NO_DEPRECATED
+#define BOOST_SYSTEM_NO_DEPRECATED
 #include <boost/filesystem.hpp>
 #endif // Q_MOC_RUN
 

@@ -3,6 +3,7 @@
 
 #include "types.h"
 #include "all_attributes.h"
+#include "element_definition_manager.h"
 #include "element_manager.h"
 #include "command_history.h"
 
@@ -52,11 +53,18 @@ namespace Saklib
         void set_project_filepath(Path const& filepath);
 
 
-        void add_observer(Project_Observer*const observer);
-        void remove_observer(Project_Observer*const observer);
+        void add_observer(Project_Observer* observer);
+        void remove_observer(Project_Observer* observer);
 
         // Lifetime
         //------------------------------------------------------------
+        void register_element_definition(Element_Definition&& definition);
+        bool has_element_definition(String const& type) const;
+        Element_Definition const& element_definition(String const& type) const;
+
+        Vector_String all_registered_element_types() const;
+
+
         // Make a new Element and return all info about it
         ElementID make_element(String const& type);
         // Destory an Element and everything associated with it
@@ -86,13 +94,13 @@ namespace Saklib
         //------------------------------------------------------------
         AttributeID attributeid(ElementID elementid, String const& attribute_name) const;
 
-        Attribute *const attribute(AttributeID attributeid);
-        Attribute *const attribute(ElementID elementid, size_type attribute_index);
-        Attribute *const attribute(ElementID elementid, String const& attribute_name);
+        Attribute* attribute(AttributeID attributeid);
+        Attribute* attribute(ElementID elementid, size_type attribute_index);
+        Attribute* attribute(ElementID elementid, String const& attribute_name);
 
-        Attribute const*const attribute(AttributeID attributeid) const;
-        Attribute const*const attribute(ElementID elementid, size_type attribute_index) const;
-        Attribute const*const attribute(ElementID elementid, String const& attribute_name) const;
+        Attribute const* attribute(AttributeID attributeid) const;
+        Attribute const* attribute(ElementID elementid, size_type attribute_index) const;
+        Attribute const* attribute(ElementID elementid, String const& attribute_name) const;
 
 
         // Attribute forwarding functions
@@ -100,27 +108,28 @@ namespace Saklib
         String const& attribute_name(AttributeID attributeid) const;
         Type_Enum attribute_type_enum(AttributeID attributeid) const;
         String attribute_type_string(AttributeID attributeid) const;
+        bool attribute_is_constrained(AttributeID attributeid) const;
 
         // Attribute_Type<T> casting
         //------------------------------------------------------------
 
         template <typename T>
-        Attribute_Type<T> *const attribute_type_cast(AttributeID attributeid);
+        Attribute_Type<T>* attribute_type_cast(AttributeID attributeid);
 
         template <typename T>
-        Attribute_Type<T> *const attribute_type_cast(ElementID elementid, size_type attribute_index);
+        Attribute_Type<T>* attribute_type_cast(ElementID elementid, size_type attribute_index);
 
         template <typename T>
-        Attribute_Type<T> *const attribute_type_cast(ElementID elementid, String const& attribute_name);
+        Attribute_Type<T>* attribute_type_cast(ElementID elementid, String const& attribute_name);
 
         template <typename T>
-        Attribute_Type<T> const*const attribute_type_cast(AttributeID attributeid) const;
+        Attribute_Type<T> const* attribute_type_cast(AttributeID attributeid) const;
 
         template <typename T>
-        Attribute_Type<T> const*const attribute_type_cast(ElementID elementid, size_type attribute_index) const;
+        Attribute_Type<T> const* attribute_type_cast(ElementID elementid, size_type attribute_index) const;
 
         template <typename T>
-        Attribute_Type<T> const*const attribute_type_cast(ElementID elementid, String const& attribute_name) const;
+        Attribute_Type<T> const* attribute_type_cast(ElementID elementid, String const& attribute_name) const;
 
         // Attribute_Type<T> forwarding functions
         //------------------------------------------------------------
@@ -198,6 +207,10 @@ namespace Saklib
         template <typename T>
         void attribute_vector_remove_at(AttributeID attributeid, size_type index);
 
+        // Attribute_Type<T> Constraint Stuff
+        //------------------------------------------------------------
+        // Get a vector of possible Element types for this attributeid
+        Vector_String attribute_element_types(AttributeID attributeid) const;
 
 
         // Attribute_Type<T>
@@ -364,6 +377,7 @@ namespace Saklib
         //============================================================
 
         //data
+        Element_Definition_Manager m_internal_element_definitions;
         Element_Manager m_element_manager;
         Command_History m_command_history;
 
@@ -372,12 +386,6 @@ namespace Saklib
 
         bool m_unsaved_edits;
         Vector<Project_Observer*> m_observers;
-
-
-        // Static Helpers
-        //============================================================
-        // Make an ElementID with the supplied manager by registering the Element type the first time this is run
-        static ElementID make_Project(Element_Manager& element_manager);
     };
 
 

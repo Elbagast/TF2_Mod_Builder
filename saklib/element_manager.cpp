@@ -1,4 +1,5 @@
 #include "element_manager.h"
+#include "element_definition.h"
 #include "attribute.h"
 #include <cassert>
 #include <algorithm>
@@ -15,11 +16,18 @@ Saklib::Element_Manager::Element_Manager() :
 // Interface
 //============================================================
 // Build a new Map_Entry containing a new Element from type and return the id number
-Saklib::ElementID Saklib::Element_Manager::make_element(String const& type)
+Saklib::ElementID Saklib::Element_Manager::make_element(Element_Definition const& definition, String const& name)
 {
-    assert(Element::definition_exists(type));
     ElementID newid{++m_next_id};
-    m_map.emplace(newid, Element_Cache(type));
+
+    String final_name{};
+    if (name.empty())
+    {
+        final_name = definition.type();
+    }
+    final_name = make_name_unique(final_name);
+
+    m_map.emplace(newid, Element_Cache(definition, final_name));
     return newid;
 }
 
@@ -42,7 +50,7 @@ bool Saklib::Element_Manager::has_parent(ElementID elementid) const
     auto found = m_map.find(elementid);
     return found != m_map.end() && found->second.m_parent.is_valid();
 }
-Saklib::AttributeID Saklib::Element_Manager::parent(ElementID elementid) const
+Saklib::AttributeID Saklib::Element_Manager::element_parent(ElementID elementid) const
 {
     auto found = m_map.find(elementid);
     if (found != m_map.end())
@@ -50,11 +58,29 @@ Saklib::AttributeID Saklib::Element_Manager::parent(ElementID elementid) const
     else
         return AttributeID();
 }
-void Saklib::Element_Manager::set_parent(ElementID elementid, AttributeID owner)
+void Saklib::Element_Manager::set_element_parent(ElementID elementid, AttributeID owner)
 {
     auto found = m_map.find(elementid);
     if (found != m_map.end())
         found->second.m_parent = owner;
+}
+
+// The name of a given Element
+Saklib::String const& Saklib::Element_Manager::element_name(ElementID elementid) const
+{
+    auto found = m_map.find(elementid);
+    assert(found != m_map.end());
+    return found->second.m_element.name();
+}
+
+// Set an Element name, return true if the given name was unique
+bool Saklib::Element_Manager::set_element_name(ElementID elementid, String const& name)
+{
+    auto found = m_map.find(elementid);
+    assert(found != m_map.end());
+    auto& found_element = found->second.m_element;
+    found_element.set_name(make_name_unique(name));
+    return name == found_element.name();
 }
 
 // Access the Element associated with this id
@@ -112,7 +138,7 @@ Saklib::AttributeID Saklib::Element_Manager::attributeid(ElementID elementid, St
 }
 
 // Access the Attribute associated with this id
-Saklib::Attribute*const Saklib::Element_Manager::attribute(AttributeID attributeid)
+Saklib::Attribute* Saklib::Element_Manager::attribute(AttributeID attributeid)
 {
     auto found = m_map.find(attributeid.elementid());
     if (found != m_map.end()
@@ -122,7 +148,7 @@ Saklib::Attribute*const Saklib::Element_Manager::attribute(AttributeID attribute
         return nullptr;
 }
 
-Saklib::Attribute*const Saklib::Element_Manager::attribute(ElementID elementid, size_type attribute_index)
+Saklib::Attribute* Saklib::Element_Manager::attribute(ElementID elementid, size_type attribute_index)
 {
     auto found = m_map.find(elementid);
     if (found != m_map.end()
@@ -132,7 +158,7 @@ Saklib::Attribute*const Saklib::Element_Manager::attribute(ElementID elementid, 
         return nullptr;
 }
 
-Saklib::Attribute*const Saklib::Element_Manager::attribute(ElementID elementid, String const& attribute_name)
+Saklib::Attribute* Saklib::Element_Manager::attribute(ElementID elementid, String const& attribute_name)
 {
     auto found = m_map.find(elementid);
     if (found != m_map.end())
@@ -142,7 +168,7 @@ Saklib::Attribute*const Saklib::Element_Manager::attribute(ElementID elementid, 
 }
 
 
-Saklib::Attribute const*const Saklib::Element_Manager::attribute(AttributeID attributeid) const
+Saklib::Attribute const* Saklib::Element_Manager::attribute(AttributeID attributeid) const
 {
     const_iterator found = m_map.find(attributeid.elementid());
     if (found != m_map.end()
@@ -152,7 +178,7 @@ Saklib::Attribute const*const Saklib::Element_Manager::attribute(AttributeID att
         return nullptr;
 }
 
-Saklib::Attribute const*const Saklib::Element_Manager::attribute(ElementID elementid, size_type attribute_index) const
+Saklib::Attribute const* Saklib::Element_Manager::attribute(ElementID elementid, size_type attribute_index) const
 {
     auto found = m_map.find(elementid);
     if (found != m_map.end()
@@ -162,7 +188,7 @@ Saklib::Attribute const*const Saklib::Element_Manager::attribute(ElementID eleme
         return nullptr;
 }
 
-Saklib::Attribute const*const Saklib::Element_Manager::attribute(ElementID elementid, String const& attribute_name) const
+Saklib::Attribute const* Saklib::Element_Manager::attribute(ElementID elementid, String const& attribute_name) const
 {
     auto found = m_map.find(elementid);
     if (found != m_map.end())
@@ -198,6 +224,17 @@ Saklib::Vector_ElementID Saklib::Element_Manager::root_elementids() const
             result.push_back(value.first);
             assert(result.back().is_valid());
         }
+    }
+    return result;
+}
+
+// Names of all Elements
+Saklib::Vector_String Saklib::Element_Manager::all_element_names() const
+{
+    Vector_String result{};
+    for (auto const& value : m_map)
+    {
+        result.push_back(value.second.m_element.name());
     }
     return result;
 }
@@ -248,6 +285,29 @@ void Saklib::Element_Manager::decrement_command_ref_count(ElementID elementid)
         // delete the Element if appropriate? - check against owner count
     }
 }
+
+Saklib::String Saklib::Element_Manager::make_name_unique(String const& name)
+{
+    // get all the names of Elements that currently exist
+    auto all_names = all_element_names();
+    // if name is not among those that already exist, stop
+    //if (std::find(all_names.cbegin(), all_names.cend(), name) == all_names.cend())
+    //{
+    //    return;
+    //}
+    // make an adjusted name
+    std::size_t count{0};
+    String adjusted_name{name};
+    while(std::find(all_names.cbegin(), all_names.cend(), adjusted_name) != all_names.cend())
+    {
+        ++count;
+        adjusted_name = name + std::to_string(count);
+    }
+
+    return adjusted_name;
+}
+
+
 /*
 // Adjust Element ownership tracking
 void Saklib::Element_Manager::add_owner(ElementID elementid, AttributeID owner)

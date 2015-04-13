@@ -20,21 +20,18 @@ namespace Saklib
         class Attribute_Editor_ElementID :
                 public Attribute_Editor
         {
-            Q_OBJECT
         public:
             // Special 6
             //============================================================
-            Attribute_Editor_ElementID(Project_Widget*const project_widget, AttributeID attributeid, QWidget* parent = nullptr);
-            Attribute_Editor_ElementID(Project_Widget*const project_widget, AttributeID attributeid, size_type vector_index, QWidget* parent = nullptr);
+            Attribute_Editor_ElementID(Project_Widget* project_widget, AttributeID attributeid, QWidget* parent = nullptr);
+            Attribute_Editor_ElementID(Project_Widget* project_widget, AttributeID attributeid, size_type vector_index, QWidget* parent = nullptr);
             ~Attribute_Editor_ElementID() override;
 
             ElementID elementid() const { return m_elementid; }
 
         protected:
             void v_refresh_data() override;
-
-        private slots:
-            void slot_clicked();
+            void v_editing_finished() override;
 
         private:
             void shared_construction();

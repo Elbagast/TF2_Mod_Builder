@@ -4,6 +4,8 @@
 #
 #-------------------------------------------------
 
+# Qt bits
+#==============================
 QT       += core gui
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
@@ -11,17 +13,65 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 TARGET = TF2_Mod_Builder
 TEMPLATE = app
 
-# Boost includes
-# Remember to use 32bit compiler...
 CONFIG += static
 CONFIG += threads
-win32:LIBS += -L"D:/Programming/C++/Boost/boost_1_57_0/stage/lib"
-win32:INCLUDEPATH += "D:/Programming/C++/Boost/boost_1_57_0"
-win32:DEPENDPATH += "D:/Programming/C++/Boost/boost_1_57_0/stage/lib"
 
-# enable print to console
-CONFIG += console
-CONFIG += debug
+# Compiler Flags
+#==============================
+# Getting MinGW to use C++14 features like std::make_unique
+mingw {
+    QMAKE_CXXFLAGS += -std=gnu++14
+}
+
+
+
+# Boost
+#==============================
+# If we use this instead of LIBS it compiles but doesn't work
+#QMAKE_LIBDIR += D:/Programming/C++/Boost/boost_1_57_0/stage/lib
+
+# Define custom variables to stitch together, these probably need to be edited for other systems
+BOOST_INCLUDE_DIR = D:/Programming/C++/Boost/boost_1_57_0
+BOOST_LIBRARY_DIR = $${BOOST_INCLUDE_DIR}/stage/lib
+BOOST_LIBRARIES += boost_filesystem
+
+BOOST_COMPILER = -mgw49
+BOOST_VERSION = -1_57
+BOOST_THREADS = -mt
+BOOST_DEBUG = -d
+
+# Must specify the library for MinGW, if the filename is libfoobar-a-b-blah.a then this is -lfoobar-a-b-blah
+#LIBS += -LD:/Programming/C++/Boost/boost_1_57_0/stage/lib
+LIBS += -L$${BOOST_LIBRARY_DIR}
+# debug versions
+mingw:debug {
+
+    # Simple way, do per library:
+    #LIBS += -lboost_filesystem-mgw49-mt-d-1_57
+    # Automated way:
+    for(library, BOOST_LIBRARIES) {
+        LIBS += -l$${library}$${BOOST_COMPILER}$${BOOST_THREADS}$${BOOST_DEBUG}$${BOOST_VERSION}
+    }
+}
+# release versions
+mingw:!debug {
+    # Simple way, do per library:
+    #LIBS += -lboost_filesystem-mgw49-mt-1_57
+    # Automated way:
+    for(library, BOOST_LIBRARIES) {
+        LIBS += -l$${library}$${BOOST_COMPILER}$${BOOST_THREADS}$${BOOST_VERSION}
+    }
+}
+# msvc doesn't need this, it can find the right .lib files on its own
+
+INCLUDEPATH += $${BOOST_INCLUDE_DIR}
+#INCLUDEPATH += "D:/Programming/C++/Boost/boost_1_57_0"
+DEPENDPATH += $${BOOST_LIBRARY_DIR}
+#DEPENDPATH += "D:/Programming/C++/Boost/boost_1_57_0/stage/lib"
+
+# Included Files
+#==============================
+
 
 SOURCES += main.cpp\
     saklib/attribute.cpp \
@@ -40,7 +90,6 @@ SOURCES += main.cpp\
     saklib/qtlib/outliner/outliner_delegate.cpp \
     saklib/proxyid.cpp \
     saklib/qtlib/outliner/outliner_model.cpp \
-    saklib/interal_element_definitions.cpp \
     saklib/qtlib/quptr.cpp \
     saklib/qtlib/attribute_editor_bool.cpp \
     saklib/qtlib/attribute_editor.cpp \
@@ -55,7 +104,20 @@ SOURCES += main.cpp\
     saklib/qtlib/attribute_editor_vector.cpp \
     saklib/project_observer.cpp \
     saklib/project_manager_declaration.cpp \
-    saklib/qtlib/project_widget.cpp
+    saklib/qtlib/project_widget.cpp \
+    saklib/internal_element_definitions.cpp \
+    saklib/element_definition_manager.cpp \
+    saklib/element_definition.cpp \
+    saklib/all_attribute_definitions.cpp \
+    saklib/constraint.cpp \
+    saklib/constraint_bool.cpp \
+    saklib/constraint_double.cpp \
+    saklib/constraint_elementid.cpp \
+    saklib/constraint_int.cpp \
+    saklib/constraint_path.cpp \
+    saklib/constraint_string.cpp \
+    saklib/constraint_vector.cpp \
+    saklib/qtlib/element_name_editor.cpp
 
 HEADERS  += \
     saklib/all_attributes.h \
@@ -72,7 +134,6 @@ HEADERS  += \
     saklib/command_history.h \
     saklib/element.h \
     saklib/element_definition.h \
-    saklib/element_editor.h \
     saklib/element_iostream.h \
     saklib/element_manager.h \
     saklib/elementid.h \
@@ -96,7 +157,6 @@ HEADERS  += \
     saklib/qtlib/attribute_editor.h \
     saklib/proxyid.h \
     saklib/qtlib/outliner/outliner_model.h \
-    saklib/interal_element_definitions.h \
     saklib/qtlib/quptr.h \
     saklib/qtlib/attribute_editor_bool.h \
     saklib/qtlib/attribute_editor_int.h \
@@ -114,7 +174,23 @@ HEADERS  += \
     saklib/project_manager.h \
     saklib/project_manager_commands.h \
     saklib/project_manager_templates.h \
-    saklib/qtlib/project_widget.h
+    saklib/qtlib/project_widget.h \
+    saklib/internal_element_definitions.h \
+    saklib/element_definition_manager.h \
+    saklib/qtlib/attribute_editor_type.h \
+    saklib/qtlib/qwidget_operations.h \
+    saklib/all_constraints.h \
+    saklib/maybe.h \
+    saklib/all_attribute_definitions.h \
+    saklib/constraint.h \
+    saklib/constraint_bool.h \
+    saklib/constraint_double.h \
+    saklib/constraint_elementid.h \
+    saklib/constraint_int.h \
+    saklib/constraint_path.h \
+    saklib/constraint_string.h \
+    saklib/constraint_vector.h \
+    saklib/qtlib/element_name_editor.h
 
 FORMS    += \
     saklib/qtlib/consoledialog.ui \
@@ -125,4 +201,5 @@ OTHER_FILES += \
     dev_notes.txt
 
 DISTFILES += \
-    readme.txt
+    readme.txt \
+    README.md

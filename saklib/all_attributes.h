@@ -13,6 +13,8 @@ for simple Attribute creation.
 
 namespace Saklib
 {
+    Uptr<Attribute> make_Attribute(Shptr<Attribute_Definition> const& definition);
+
     Type_Enum attribute_TypeString_to_Type_Enum(String const& typeString);
 
     String attribute_Type_Enum_to_TypeString(Type_Enum type);

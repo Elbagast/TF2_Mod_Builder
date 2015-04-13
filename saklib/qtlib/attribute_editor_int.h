@@ -15,20 +15,16 @@ namespace Saklib
         class Attribute_Editor_Int :
                 public Attribute_Editor
         {
-            Q_OBJECT
         public:
             // Special 6
             //============================================================
-            Attribute_Editor_Int(Project_Widget*const project_widget, AttributeID attributeid, QWidget* parent = nullptr);
-            Attribute_Editor_Int(Project_Widget*const project_widget, AttributeID attributeid, size_type vector_index, QWidget* parent = nullptr);
+            Attribute_Editor_Int(Project_Widget* project_widget, AttributeID attributeid, QWidget* parent = nullptr);
+            Attribute_Editor_Int(Project_Widget* project_widget, AttributeID attributeid, size_type vector_index, QWidget* parent = nullptr);
             ~Attribute_Editor_Int() override;
 
         protected:
             void v_refresh_data() override;
-
-        private slots:
-            // Slot used to capture the signal editingFinished() from the QSpinBox
-            void slot_editingFinished();
+            void v_editing_finished() override;
 
         private:
             void shared_construction();

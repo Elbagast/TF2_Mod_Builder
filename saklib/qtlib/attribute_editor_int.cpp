@@ -13,7 +13,7 @@
 
 // Special 6
 //============================================================
-Saklib::Qtlib::Attribute_Editor_Int::Attribute_Editor_Int(Project_Widget*const project_widget, AttributeID attributeid, QWidget* parent):
+Saklib::Qtlib::Attribute_Editor_Int::Attribute_Editor_Int(Project_Widget* project_widget, AttributeID attributeid, QWidget* parent):
     Attribute_Editor(project_widget, attributeid, parent),
     m_spinbox(),
     //m_label(),
@@ -21,7 +21,7 @@ Saklib::Qtlib::Attribute_Editor_Int::Attribute_Editor_Int(Project_Widget*const p
 {
     shared_construction();
 }
-Saklib::Qtlib::Attribute_Editor_Int::Attribute_Editor_Int(Project_Widget*const project_widget, AttributeID attributeid, size_type vector_index, QWidget* parent):
+Saklib::Qtlib::Attribute_Editor_Int::Attribute_Editor_Int(Project_Widget* project_widget, AttributeID attributeid, size_type vector_index, QWidget* parent):
     Attribute_Editor(project_widget, attributeid, vector_index, parent),
     m_spinbox(),
     //m_label(),
@@ -38,7 +38,7 @@ void Saklib::Qtlib::Attribute_Editor_Int::v_refresh_data()
 }
 
 // Slot used to capture the signal editingFinished() from the QSpinBox
-void Saklib::Qtlib::Attribute_Editor_Int::slot_editingFinished()
+void Saklib::Qtlib::Attribute_Editor_Int::v_editing_finished()
 {
     if (is_vector_component())
         project_widget()->project_manager().undoable_attribute_vector_set_at<Int>(attributeid(), vector_index(), m_spinbox->value());
@@ -54,11 +54,25 @@ void Saklib::Qtlib::Attribute_Editor_Int::shared_construction()
 
     m_spinbox->setValue(attribute_value<Int>());
 
-    m_spinbox->setMinimum(std::numeric_limits<Int>::min());
-    m_spinbox->setMaximum(std::numeric_limits<Int>::max());
+    auto constraint = project_widget()->project_manager().attribute_type_cast<Int>(attributeid())->constraint();
+
+    if (constraint && constraint->has_min_value())
+        m_spinbox->setMinimum(constraint->min_value());
+    else
+        m_spinbox->setMinimum(std::numeric_limits<Int>::min());
+
+    if (constraint && constraint->has_max_value())
+        m_spinbox->setMaximum(constraint->max_value());
+    else
+        m_spinbox->setMaximum(std::numeric_limits<Int>::max());
+
+    if (constraint && constraint->has_step_size())
+        m_spinbox->setSingleStep(constraint->step_size());
+    else
+        m_spinbox->setSingleStep(1);
 
     QObject::connect(m_spinbox.get(), &QSpinBox::editingFinished,
-                     this, &Attribute_Editor_Int::slot_editingFinished);
+                     this, &Attribute_Editor_Int::v_editing_finished);
 
     //QString label_text{"Min: "};
     //label_text.append(to_QString(m_spinbox->minimum()));

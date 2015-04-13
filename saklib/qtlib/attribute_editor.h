@@ -32,16 +32,18 @@ namespace Saklib
         public:
             // Special 6
             //============================================================
-            Attribute_Editor(Project_Widget*const project_widget, AttributeID attributeid, QWidget* parent = nullptr);
-            Attribute_Editor(Project_Widget*const project_widget, AttributeID attributeid, size_type vector_index, QWidget* parent = nullptr);
+            Attribute_Editor(Project_Widget* project_widget, AttributeID attributeid, QWidget* parent = nullptr);
+            Attribute_Editor(Project_Widget* project_widget, AttributeID attributeid, size_type vector_index, QWidget* parent = nullptr);
             ~Attribute_Editor() override;
 
-            void refresh_data()                         { v_refresh_data(); }
-            Project_Widget*const project_widget() const { return mp_project_widget; }
-            AttributeID attributeid() const             { return m_attributeid; }
-            Type_Enum attribute_type_enum() const       { return m_attribute_type; }
-            bool is_vector_component() const            { return m_is_vector_component; }
-            size_type vector_index() const              { assert(m_is_vector_component); return m_vector_index; }
+            // Interface
+            //============================================================
+            void refresh_data()                     { v_refresh_data(); }
+            Project_Widget* project_widget() const  { return mp_project_widget; }
+            AttributeID attributeid() const         { return m_attributeid; }
+            Type_Enum attribute_type_enum() const   { return m_attribute_type; }
+            bool is_vector_component() const        { return m_is_vector_component; }
+            size_type vector_index() const          { assert(m_is_vector_component); return m_vector_index; }
 
             template <typename T>
             T const& attribute_value()
@@ -52,12 +54,16 @@ namespace Saklib
                     return mp_project_widget->project_manager().attribute_type_cast<T>(m_attributeid)->value();
             }
 
+        protected slots:
+            void editing_finished() { v_editing_finished(); }
+
         protected:
             // Require subclasses to match with the data they represent
             virtual void v_refresh_data() = 0;
+            virtual void v_editing_finished() {}//= 0;
 
         private:
-            Project_Widget*const mp_project_widget;
+            Project_Widget* mp_project_widget;
             AttributeID m_attributeid;
             Type_Enum m_attribute_type;
             size_type m_vector_index;
@@ -67,25 +73,26 @@ namespace Saklib
         class Attribute_Editor_Dummy :
                 public Attribute_Editor
         {
-            Q_OBJECT
         public:
             // Special 6
             //============================================================
-            Attribute_Editor_Dummy(Project_Widget*const project_widget, AttributeID attributeid, QWidget* parent = nullptr);
+            Attribute_Editor_Dummy(Project_Widget* project_widget, AttributeID attributeid, QWidget* parent = nullptr);
             ~Attribute_Editor_Dummy() override;
         protected:
             void v_refresh_data() override {}
+            void v_editing_finished() override {}
         private:
             QUptr<QLabel> m_label;
             QUptr<QHBoxLayout> m_layout;
         };
 
         // Function with a typeswitch
-        QUptr<Attribute_Editor> make_Attribute_Editor(Project_Widget*const project_widget, AttributeID attributeid);
+        QUptr<Attribute_Editor> make_Attribute_Editor(Project_Widget* project_widget, AttributeID attributeid);
 
         // Function with a typeswitch
-        QUptr<Attribute_Editor> make_Attribute_Editor(Project_Widget*const project_widget, AttributeID attributeid, size_type vector_index);
+        QUptr<Attribute_Editor> make_Attribute_Editor(Project_Widget* project_widget, AttributeID attributeid, size_type vector_index);
 
     } // namespace Qtlib
 } // namespace Saklib
+
 #endif // ATTRIBUTE_EDITOR_H

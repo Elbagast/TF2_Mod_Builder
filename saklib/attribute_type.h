@@ -25,6 +25,8 @@ namespace Saklib
 
         using definition_type = Attribute_Definition_Type < stored_type >;
 
+        using stored_type_constraint = Constraint < stored_type >;
+
         // Special 6
         //============================================================
         explicit Attribute_Type(Shptr<Attribute_Definition> const& definition) :
@@ -32,6 +34,7 @@ namespace Saklib
             m_definition(definition), // if this is nullptr the constructor will fail...
             mp_definition(dynamic_cast<definition_type*>(m_definition.get())),
             mr_name(m_definition->name()),
+            mp_constraint(mp_definition->constraint()),
             m_value()
         {
             assert(definition);                                 // there was actually a definition
@@ -60,12 +63,18 @@ namespace Saklib
             m_value = value;
         }
 
+        stored_type_constraint const* constraint() const
+        {
+            return mp_constraint;
+        }
+
     protected:
         // Virtuals
         //============================================================
         String const& v_name() const override final     { return mr_name; }
         Type_Enum v_type_enum() const override final    { return stored_type_traits::type_enum(); }
         String v_type_string() const override final     { return stored_type_traits::type_string(); }
+        bool v_is_constrained() const override final    { return mp_constraint != nullptr; }
 
     private:
         // shared_ptr ensures the definition's lifetime will be at least as long as this
@@ -73,8 +82,8 @@ namespace Saklib
 
         // locally cached and pre-cast references
         definition_type const*const mp_definition;  // lifetime is that of m_definition
-        String const& mr_name;                 // lifetime is that of m_definition
-        //constraint_type const*const mp_constraint;  // lifetime is that of m_definition
+        String const& mr_name;                      // lifetime is that of m_definition
+        stored_type_constraint const*const mp_constraint;  // lifetime is that of m_definition
 
         // stored data
         stored_type m_value;
@@ -100,6 +109,10 @@ namespace Saklib
         
         using definition_type = Attribute_Definition_Type < stored_type >;
 
+        using stored_type_constraint = Constraint < stored_type >;
+        using value_type_constraint = Constraint < value_type >;
+
+
         // Special 6
         //============================================================
         explicit Attribute_Type(Shptr<Attribute_Definition> const& definition) :
@@ -107,6 +120,8 @@ namespace Saklib
             m_definition(definition), // if this is nullptr the constructor will fail...
             mp_definition(dynamic_cast<definition_type*>(m_definition.get())),
             mr_name(m_definition->name()),
+            mp_vector_constraint(mp_definition->constraint()),
+            mp_value_constraint(mp_vector_constraint ? mp_vector_constraint->value_constraint() : nullptr ),
             m_vector()
         {
             assert(definition);                                 // there was actually a definition
@@ -121,8 +136,6 @@ namespace Saklib
 
         // Vector Interface
         //============================================================
-        // TESTING TEMP
-        //stored_type& vector()                                   { return m_vector; }
         stored_type const& vector() const                       { return m_vector; }
         void set_vector(stored_type const& vector_value)        { m_vector = vector_value; }
         void swap_vector(stored_type& vector_value)             { std::swap(m_vector, vector_value); }
@@ -159,14 +172,24 @@ namespace Saklib
             m_vector.erase(index_iterator);
         }
 
+        stored_type_constraint const* vector_constraint() const
+        {
+            return mp_vector_constraint;
+        }
+
+        value_type_constraint const* value_constraint() const
+        {
+            return mp_value_constraint;
+        }
+
     protected:
         // Virtuals
         //============================================================
         String const& v_name() const override final     { return mr_name; }
         Type_Enum v_type_enum() const override final    { return stored_type_traits::type_enum(); }
         String v_type_string() const override final     { return stored_type_traits::type_string(); }
+        bool v_is_constrained() const override final    { return mp_vector_constraint != nullptr; }
 
-        //bool v_is_constrained() const override final      { return mp_constraint != nullptr; }
 
     private:
         // shared_ptr ensures the definition's lifetime will be at least as long as this
@@ -174,7 +197,9 @@ namespace Saklib
 
         // locally cached and pre-cast references
         definition_type const*const mp_definition;  // lifetime is that of m_definition
-        String const& mr_name;                 // lifetime is that of m_definition
+        String const& mr_name;                      // lifetime is that of m_definition
+        stored_type_constraint const*const mp_vector_constraint;  // lifetime is that of m_definition
+        value_type_constraint const*const mp_value_constraint;  // lifetime is that of m_definition
 
         // stored data
         stored_type m_vector;
@@ -199,6 +224,10 @@ namespace Saklib
 
         using definition_type = Attribute_Definition_Type < stored_type >;
 
+        using stored_type_constraint = Constraint < stored_type >;
+        using value_type_constraint = Constraint < value_type >;
+
+
         // Special 6
         //============================================================
         explicit Attribute_Type(Shptr<Attribute_Definition> const& definition) :
@@ -206,6 +235,8 @@ namespace Saklib
             m_definition(definition), // if this is nullptr the constructor will fail...
             mp_definition(dynamic_cast<definition_type*>(m_definition.get())),
             mr_name(m_definition->name()),
+            mp_vector_constraint(mp_definition->constraint()),
+            mp_value_constraint(mp_vector_constraint ? mp_vector_constraint->value_constraint() : nullptr ),
             m_vector()
         {
             assert(definition);                                 // there was actually a definition
@@ -220,8 +251,6 @@ namespace Saklib
 
         // Vector Interface
         //============================================================
-        // TESTING TEMP
-        //stored_type& vector()                                   { return m_vector; }
         stored_type const& vector() const
         {
             static stored_type fake_vector;
@@ -279,14 +308,24 @@ namespace Saklib
             m_vector.erase(index_iterator);
         }
 
+        stored_type_constraint const* vector_constraint() const
+        {
+            return mp_vector_constraint;
+        }
+
+        value_type_constraint const* value_constraint() const
+        {
+            return mp_value_constraint;
+        }
+
     protected:
         // Virtuals
         //============================================================
         String const& v_name() const override final     { return mr_name; }
         Type_Enum v_type_enum() const override final    { return stored_type_traits::type_enum(); }
         String v_type_string() const override final     { return stored_type_traits::type_string(); }
+        bool v_is_constrained() const override final    { return mp_vector_constraint != nullptr; }
 
-        //bool v_is_constrained() const override final      { return mp_constraint != nullptr; }
 
     private:
         class Bool_Holder
@@ -310,7 +349,9 @@ namespace Saklib
 
         // locally cached and pre-cast references
         definition_type const*const mp_definition;  // lifetime is that of m_definition
-        String const& mr_name;                 // lifetime is that of m_definition
+        String const& mr_name;                      // lifetime is that of m_definition
+        stored_type_constraint const*const mp_vector_constraint;  // lifetime is that of m_definition
+        value_type_constraint const*const mp_value_constraint;  // lifetime is that of m_definition
 
         // stored data
         Vector<Bool_Holder> m_vector;
@@ -328,9 +369,9 @@ namespace Saklib
         return dynamic_cast<Attribute_Type<T>*>(attribute);
     }
     template <typename T>
-    Attribute_Type<T>const*const attribute_type_cast(Attribute const*const attribute)
+    Attribute_Type<T>const* attribute_type_cast(Attribute const* attribute)
     {
-        return dynamic_cast<Attribute_Type<T>const*const>(attribute);
+        return dynamic_cast<Attribute_Type<T>const*>(attribute);
     }
 
     template <Type_Enum TE>
@@ -339,9 +380,9 @@ namespace Saklib
         return dynamic_cast<Attribute_Type<TypeHolder_st<TE> >*>(attribute);
     }
     template <Type_Enum TE>
-    Attribute_Type<TypeHolder_st<TE> > const*const attribute_enum_cast(Attribute const*const attribute)
+    Attribute_Type<TypeHolder_st<TE> > const* attribute_enum_cast(Attribute const* attribute)
     {
-        return dynamic_cast<Attribute_Type<TypeHolder_st<TE> > const*const>(attribute);
+        return dynamic_cast<Attribute_Type<TypeHolder_st<TE> > const*>(attribute);
     }
 
 } // namespace Saklib
