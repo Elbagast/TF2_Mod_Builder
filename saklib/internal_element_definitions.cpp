@@ -60,6 +60,7 @@ Saklib::Element_Definition Saklib::internal_definition_of_Build()
 
     auto ad3 = make_Attribute_Definition_Type<ElementID>("Constrained ElementID");
     ad3->emplace_constraint(Vector_String{"Build", "SingleInt"});
+    definition.add_attribute_definition(ad3);
 
     return definition;
 }
