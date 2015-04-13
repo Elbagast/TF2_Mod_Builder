@@ -40,8 +40,13 @@ namespace Saklib
 
         // Access the parent of this ID
         bool has_parent(ElementID elementid) const;
-        AttributeID parent(ElementID elementid) const;
-        void set_parent(ElementID elementid, AttributeID new_parent);
+        AttributeID element_parent(ElementID elementid) const;
+        void set_element_parent(ElementID elementid, AttributeID new_parent);
+
+        // The name of a given Element
+        String const& element_name(ElementID elementid) const;
+        // Set an Element name, return true if the given name was unique
+        bool set_element_name(ElementID elementid, String const& name);
 
         // Whether this Element has Attribute links in or out
         //bool is_linked(ElementID elementid) const;
@@ -104,7 +109,7 @@ namespace Saklib
 
 
     private:
-        void make_name_unique(String& name);
+        String make_name_unique(String const& name);
 
         // Typedefs
         //============================================================

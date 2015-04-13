@@ -116,7 +116,8 @@ SOURCES += main.cpp\
     saklib/constraint_int.cpp \
     saklib/constraint_path.cpp \
     saklib/constraint_string.cpp \
-    saklib/constraint_vector.cpp
+    saklib/constraint_vector.cpp \
+    saklib/qtlib/element_name_editor.cpp
 
 HEADERS  += \
     saklib/all_attributes.h \
@@ -188,7 +189,8 @@ HEADERS  += \
     saklib/constraint_int.h \
     saklib/constraint_path.h \
     saklib/constraint_string.h \
-    saklib/constraint_vector.h
+    saklib/constraint_vector.h \
+    saklib/qtlib/element_name_editor.h
 
 FORMS    += \
     saklib/qtlib/consoledialog.ui \
@@ -199,4 +201,5 @@ OTHER_FILES += \
     dev_notes.txt
 
 DISTFILES += \
-    readme.txt
+    readme.txt \
+    README.md

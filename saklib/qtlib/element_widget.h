@@ -13,6 +13,7 @@ class QGridLayout;
 class QVBoxLayout;
 class QHBoxLayout;
 class QFormLayout;
+class QStackedWidget;
 
 namespace Saklib
 {
@@ -23,6 +24,7 @@ namespace Saklib
     namespace Qtlib
     {
         class Attribute_Editor;
+        class Element_Name_Editor;
         class Project_Widget;
         /*
         Element_Widget
@@ -52,6 +54,7 @@ namespace Saklib
             // Update the data displayed by this widget and its children
             void refresh_data();
             void refresh_data(size_type attribute_index);
+            void refresh_name();
 
             // Change the Element name?
             // Issue edit commands...
@@ -67,7 +70,7 @@ namespace Saklib
             // Widgets
             QUptr<QHBoxLayout> m_self_header_layout;
             QUptr<QLabel> m_element_type_label;
-            QUptr<QLabel> m_element_name_label;
+            QUptr<Element_Name_Editor> m_element_name_editor;
             QUptr<QLabel> m_element_id_label;
 
             QUptr<QLabel> m_parent_id_label;  // Label for the parent AttributeID

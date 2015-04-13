@@ -25,7 +25,7 @@ Saklib::ElementID Saklib::Element_Manager::make_element(Element_Definition const
     {
         final_name = definition.type();
     }
-    make_name_unique(final_name);
+    final_name = make_name_unique(final_name);
 
     m_map.emplace(newid, Element_Cache(definition, final_name));
     return newid;
@@ -50,7 +50,7 @@ bool Saklib::Element_Manager::has_parent(ElementID elementid) const
     auto found = m_map.find(elementid);
     return found != m_map.end() && found->second.m_parent.is_valid();
 }
-Saklib::AttributeID Saklib::Element_Manager::parent(ElementID elementid) const
+Saklib::AttributeID Saklib::Element_Manager::element_parent(ElementID elementid) const
 {
     auto found = m_map.find(elementid);
     if (found != m_map.end())
@@ -58,11 +58,29 @@ Saklib::AttributeID Saklib::Element_Manager::parent(ElementID elementid) const
     else
         return AttributeID();
 }
-void Saklib::Element_Manager::set_parent(ElementID elementid, AttributeID owner)
+void Saklib::Element_Manager::set_element_parent(ElementID elementid, AttributeID owner)
 {
     auto found = m_map.find(elementid);
     if (found != m_map.end())
         found->second.m_parent = owner;
+}
+
+// The name of a given Element
+Saklib::String const& Saklib::Element_Manager::element_name(ElementID elementid) const
+{
+    auto found = m_map.find(elementid);
+    assert(found != m_map.end());
+    return found->second.m_element.name();
+}
+
+// Set an Element name, return true if the given name was unique
+bool Saklib::Element_Manager::set_element_name(ElementID elementid, String const& name)
+{
+    auto found = m_map.find(elementid);
+    assert(found != m_map.end());
+    auto& found_element = found->second.m_element;
+    found_element.set_name(make_name_unique(name));
+    return name == found_element.name();
 }
 
 // Access the Element associated with this id
@@ -268,7 +286,7 @@ void Saklib::Element_Manager::decrement_command_ref_count(ElementID elementid)
     }
 }
 
-void Saklib::Element_Manager::make_name_unique(String& name)
+Saklib::String Saklib::Element_Manager::make_name_unique(String const& name)
 {
     // get all the names of Elements that currently exist
     auto all_names = all_element_names();
@@ -286,7 +304,7 @@ void Saklib::Element_Manager::make_name_unique(String& name)
         adjusted_name = name + std::to_string(count);
     }
 
-    name = adjusted_name;
+    return adjusted_name;
 }
 
 

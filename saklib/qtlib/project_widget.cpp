@@ -135,7 +135,16 @@ void Saklib::Qtlib::Project_Widget::data_changed(AttributeID attributeid)
 
 void Saklib::Qtlib::Project_Widget::element_name_changed(ElementID elementid)
 {
-    data_changed(elementid);
+    // if the ElementID is valid and editor is valid and is for a this ElementID
+    if (elementid.is_valid()
+        && project_manager().is_valid(elementid)
+        && m_editor
+        && m_editor->elementid() == elementid)
+    {
+        m_editor->refresh_name();
+        m_outliner_model->update_item(elementid);
+    }
+
 }
 
 void Saklib::Qtlib::Project_Widget::element_parent_changed(ElementID elementid)

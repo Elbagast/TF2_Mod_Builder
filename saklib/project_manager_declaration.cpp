@@ -204,9 +204,9 @@ Saklib::String const& Saklib::Project_Manager::element_name(ElementID elementid)
 void Saklib::Project_Manager::element_set_name(ElementID elementid, String const& value)
 {
     assert_element(elementid);
-    // maintaining unique names should have been done before getting here
-
-    m_element_manager.element(elementid).set_name(value);
+    // Element_Manager will adjust the name by adding a number to the end if it isn't unique.
+    m_element_manager.set_element_name(elementid, value);
+    //m_element_manager.element(elementid).set_name(value);
     observers_element_name_changed(elementid);
     set_unsaved_edits(true);
 }
@@ -220,7 +220,7 @@ bool Saklib::Project_Manager::element_can_be_root(ElementID elementid) const
 Saklib::AttributeID Saklib::Project_Manager::element_parent(ElementID elementid) const
 {
     assert_element(elementid);
-    return m_element_manager.parent(elementid);
+    return m_element_manager.element_parent(elementid);
 }
 
 void Saklib::Project_Manager::element_set_parent(ElementID elementid, AttributeID attributeid)
@@ -228,7 +228,7 @@ void Saklib::Project_Manager::element_set_parent(ElementID elementid, AttributeI
     if (elementid.is_valid())
     {
         assert_element(elementid);
-        m_element_manager.set_parent(elementid, attributeid);
+        m_element_manager.set_element_parent(elementid, attributeid);
 
         observers_element_parent_changed(elementid);
         set_unsaved_edits(true);
@@ -834,7 +834,7 @@ int Saklib::Project_Manager::outliner_row_count(AttributeID attributeid) const
 // What is the parent of this item?
 Saklib::AttributeID Saklib::Project_Manager::parent_of(ElementID elementid) const
 {
-    return m_element_manager.parent(elementid);
+    return m_element_manager.element_parent(elementid);
 }
 Saklib::ElementID Saklib::Project_Manager::parent_of(AttributeID attributeid) const
 {
