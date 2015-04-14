@@ -54,6 +54,7 @@ namespace Saklib
     class ElementID;
     class AttributeID;
     class ProxyID;
+    class NodeID;
 
     // String Conversions
     inline String to_String(size_type value)        { return std::to_string(value); }
@@ -84,6 +85,8 @@ namespace Saklib
     using Vector_ElementID = Vector < ElementID >;
     using Vector_AttributeID = Vector < AttributeID >;
     using Vector_ProxyID = Vector < ProxyID >;
+
+    using Vector_NodeID = Vector < NodeID >;
 
     // Smart Pointers
     template <typename T>
