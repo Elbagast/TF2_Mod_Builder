@@ -12,11 +12,8 @@ namespace Saklib
     class Project_Observer;
 
     /*
-    Project_Widget
+    Project_Manager
     ====================================================================================================
-    This widget is the root widget of an entire project and forms the central widget of the window
-    class that holds it. When something happens that needs to update the window (e.g. enable/disable
-    menu actions) it emits signals that will already have been connected as appropriate.
     */
     class Project_Manager
     {
@@ -324,20 +321,6 @@ namespace Saklib
 
         void decrement_command_ref_count(ElementID elementid);
         void decrement_command_ref_count(AttributeID attributeid);
-
-
-
-        // Element Widget
-        //------------------------------------------------------------
-        // Alter the Element currently being edited
-
-        // Make an Element_Widget for this ElementID
-        void open_editor(ElementID elementid);
-
-        // The ElementID of the Element that is currently being edited
-        ElementID currently_open_elementid() const;
-
-
 
     private:
         // Internal

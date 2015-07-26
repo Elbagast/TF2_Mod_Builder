@@ -56,3 +56,18 @@ Alternatively, Package could be flagged as Developer or Release
 
 Copy or Clone?
 ------------------------------
+
+
+
+Architecture
+------------------------------
+Simplifying the display, editing and serialisation of data requires breaking it down
+into the smallest individual components. To display data in a Qt model the data needs
+to be in chunks that can be indexed. This requires that the data inherently allows this
+or, there is an abstraction mechanism that translates the data to this format. Currently
+Element-Attribute data is edited via the latter using ProxyID to make different classes
+use a single identifier, then different behaviour comes from asking questions about the
+represented data.
+
+The alternative is to figure out how to represent the data structure with a system of
+nodes so that behaviour that is shared is

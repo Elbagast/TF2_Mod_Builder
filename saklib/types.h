@@ -48,12 +48,14 @@ namespace Saklib
     // Attribute Types
     using Bool = bool;
     using Int = int;
+    using Uint = size_type;
     using Double = double;
     using String = std::basic_string < Char >;  // can't forward declare
     using Path = boost::filesystem::path;
     class ElementID;
     class AttributeID;
     class ProxyID;
+    class DataID;
     class NodeID;
 
     // String Conversions
@@ -61,6 +63,7 @@ namespace Saklib
 
     inline String to_String(Bool value)             { return std::to_string(value); }
     inline String to_String(Int value)              { return std::to_string(value); }
+    inline String to_String(Uint value)             { return std::to_string(value); }
     inline String to_String(Double value)           { return std::to_string(value); }
     inline String to_String(String const& value)    { return value; }                   // kinda pointless, but here for consistency
     inline String to_String(Path const& value)      { return value.string(); }
@@ -68,6 +71,7 @@ namespace Saklib
 
     inline Bool to_Bool(String const& value)        { return std::stoi(value) > 0 ? true : false; }
     inline Int to_Int(String const& value)          { return std::stoi(value); }
+    inline Uint to_Uint(String const& value)        { return std::stoi(value); }
     inline Double to_Double(String const& value)    { return std::stod(value); }
     //inline String to_String(String const& value)    { return value; }
     inline Path to_Path(String const& value)        { return Path(value); }
@@ -79,6 +83,7 @@ namespace Saklib
 
     using Vector_Bool = Vector < Bool > ;
     using Vector_Int = Vector < Int >;
+    using Vector_Uint = Vector < Uint >;
     using Vector_Double = Vector < Double >;
     using Vector_String = Vector < String >;
     using Vector_Path = Vector < Path >;
@@ -108,20 +113,24 @@ namespace Saklib
         First_Simple_Type,
         Bool = First_Simple_Type,
         Int,
+        Uint,
         Double,
         String,
         Path,
         ElementID,
-        Last_Simple_Type = ElementID,
+        NodeID,
+        Last_Simple_Type = NodeID,
 
         First_Vector_Type,
         Vector_Bool = First_Vector_Type,
         Vector_Int,
+        Vector_Uint,
         Vector_Double,
         Vector_String,
         Vector_Path,
         Vector_ElementID,
-        Last_Vector_Type = Vector_ElementID
+        Vector_NodeID,
+        Last_Vector_Type = Vector_NodeID
     };
 
     inline bool is_simple_type(Type_Enum type) { return type >= Type_Enum::First_Simple_Type && type <= Type_Enum::Last_Simple_Type; }

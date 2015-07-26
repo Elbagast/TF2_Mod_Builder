@@ -9,5 +9,6 @@
 #include "type_traits_string.h"
 #include "type_traits_path.h"
 #include "type_traits_elementid.h"
+#include "type_traits_nodeid.h"
 
 #endif // ALL_TYPE_TRAITS_H

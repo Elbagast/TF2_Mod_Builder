@@ -4,6 +4,8 @@
 #include "saklib/project_manager.h"
 #include "saklib/internal_element_definitions.h"
 
+#include "saklib/all_nodes.h"
+
 void myMessageOutput(QtMsgType type, QMessageLogContext const& context, QString const& msg)
 {
     QByteArray localMsg = msg.toLocal8Bit();
@@ -34,6 +36,8 @@ void myMessageOutput(QtMsgType type, QMessageLogContext const& context, QString 
 
 int main(int argc, char *argv[])
 {
+    Saklib::test_nodes();
+
     //qInstallMessageHandler(myMessageOutput);
     Saklib::Project_Manager project_manager{};
     project_manager.register_element_definition( Saklib::internal_definition_of_Project());

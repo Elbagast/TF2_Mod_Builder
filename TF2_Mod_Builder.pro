@@ -118,8 +118,12 @@ SOURCES += main.cpp\
     saklib/constraint_string.cpp \
     saklib/constraint_vector.cpp \
     saklib/qtlib/element_name_editor.cpp \
-    saklib/node.cpp \
-    saklib/nodeid.cpp
+    saklib/nodeid.cpp \
+    saklib/node_manager.cpp \
+    saklib/all_nodes.cpp \
+    saklib/qtlib/node_outliner/node_outliner_model.cpp \
+    saklib/qtlib/node_outliner/node_model.cpp \
+    saklib/node_data_manager.cpp
 
 HEADERS  += \
     saklib/all_attributes.h \
@@ -193,8 +197,33 @@ HEADERS  += \
     saklib/constraint_string.h \
     saklib/constraint_vector.h \
     saklib/qtlib/element_name_editor.h \
-    saklib/node.h \
-    saklib/nodeid.h
+    saklib/nodeid.h \
+    saklib/node_manager.h \
+    saklib/limited_access_data.h \
+    saklib/inode.h \
+    saklib/node_shared_impl.h \
+    saklib/node_data_impl.h \
+    saklib/node_children_impl.h \
+    saklib/all_nodes.h \
+    saklib/attribute_node.h \
+    saklib/element_node.h \
+    saklib/data_node.h \
+    saklib/type_traits_nodeid.h \
+    saklib/idata.h \
+    saklib/node_project_manager_declaration.h \
+    saklib/qtlib/node_outliner/node_outliner_model.h \
+    saklib/qtlib/node_outliner/node_model.h \
+    saklib/node_project_manager.h \
+    saklib/inode_section.h \
+    saklib/data.h \
+    saklib/data_manager.h \
+    saklib/idata_manager.h \
+    saklib/idata_type.h \
+    saklib/data_type_manager.h \
+    saklib/idata_type_manager.h \
+    saklib/idata_access.h \
+    saklib/type_traits_uint.h \
+    saklib/dataid.h
 
 FORMS    += \
     saklib/qtlib/consoledialog.ui \
