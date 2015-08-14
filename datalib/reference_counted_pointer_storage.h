@@ -1,23 +1,23 @@
 #ifndef REFERENCE_COUNTED_POINTER_STORAGE_H
 #define REFERENCE_COUNTED_POINTER_STORAGE_H
 
+#include "handle.h"
 #include <map>
 #include <memory>
 #include <numeric>
 #include <cassert>
-
-#include "handle.h"
+#include <iostream>
 
 namespace datalib
 {
-    template <typename H, typename T>
+    template <typename T>
     class Reference_Counted_Pointer_Storage
     {
     public:
         // Typedefs
         //============================================================
         using data_type = T;
-        using handle_type = H;
+        using handle_type = Handle<T>;
 
         using data_stored_type = std::unique_ptr<data_type>;
         using data_return_type = data_type*;
@@ -97,7 +97,7 @@ namespace datalib
                 assert(found_iterator != m_map.end()); // must exist
                 if (found_iterator != m_map.end())
                 {
-                    assert(iterator_reference_count(found_iterator) != std::numeric_limits<reference_count_type>::max()); // must not be max when we get here...
+                    assert(iterator_reference_count(found_iterator) != reference_count_max()); // must not be max when we get here...
                     iterator_reference_count(found_iterator) += 1;
                 }
             }
@@ -111,16 +111,31 @@ namespace datalib
                 assert(found_iterator != m_map.end()); // must exist
                 if (found_iterator != m_map.end())
                 {
-                    assert(iterator_reference_count(found_iterator) != 0); // must not be zero when we get here...
+                    std::cout << "handle found: " << handle.underlying_value() << std::endl;
+                    assert(iterator_reference_count(found_iterator) != reference_count_zero()); // must not be zero when we get here...
                     iterator_reference_count(found_iterator) -= 1;
-                    if (iterator_reference_count(found_iterator) == 0)
+
+                    std::cout << "handle decremented: " << handle.underlying_value() << std::endl;
+                    if (iterator_reference_count(found_iterator) == reference_count_zero())
                     {
+                        std::cout << "handle erase: " << handle.underlying_value() << std::endl;
                         m_map.erase(handle);
+                        std::cout << "handle erased: " << handle.underlying_value() << std::endl;
                         return true;
                     }
                 }
             }
             return false;
+        }
+
+        static reference_count_type reference_count_max()
+        {
+            return std::numeric_limits<reference_count_type>::max();
+        }
+
+        static reference_count_type reference_count_zero()
+        {
+            return 0;
         }
 
     private:
@@ -151,6 +166,8 @@ namespace datalib
             assert(iterator != m_map.end());
             return std::get<1>(iterator->second);
         }
+
+
 
         map_type m_map;
     };

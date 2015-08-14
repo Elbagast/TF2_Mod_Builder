@@ -27,6 +27,11 @@ namespace datalib
 
         Handle(Handle const& handle) = default;
         Handle& operator=(Handle const& handle) = default;
+        Handle& operator=(Null_Handle_Type const& /*handle*/)
+        {
+            m_value = null_handle_value();
+            return *this;
+        }
 
         Handle(Handle && handle):
             m_value{std::move(handle.m_value)}

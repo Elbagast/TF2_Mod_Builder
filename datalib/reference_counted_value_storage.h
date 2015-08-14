@@ -8,14 +8,14 @@
 
 namespace datalib
 {
-    template <typename H, typename T>
+    template <typename T>
     class Reference_Counted_Value_Storage
     {
     public:
         // Typedefs
         //============================================================
         using data_type = T;
-        using handle_type = H;
+        using handle_type = Handle<T>;
 
         using data_stored_type = data_type;
         using data_return_type = data_type&;
@@ -89,7 +89,7 @@ namespace datalib
                 assert(found_iterator != m_map.end()); // must exist
                 if (found_iterator != m_map.end())
                 {
-                    assert(iterator_reference_count(found_iterator) != std::numeric_limits<reference_count_type>::max()); // must not be max when we get here...
+                    assert(iterator_reference_count(found_iterator) != reference_count_max()); // must not be max when we get here...
                     iterator_reference_count(found_iterator) += 1;
                 }
             }
@@ -103,9 +103,9 @@ namespace datalib
                 assert(found_iterator != m_map.end()); // must exist
                 if (found_iterator != m_map.end())
                 {
-                    assert(iterator_reference_count(found_iterator) != 0); // must not be zero when we get here...
+                    assert(iterator_reference_count(found_iterator) != reference_count_zero()); // must not be zero when we get here...
                     iterator_reference_count(found_iterator) -= 1;
-                    if (iterator_reference_count(found_iterator) == 0)
+                    if (iterator_reference_count(found_iterator) == reference_count_zero())
                     {
                         m_map.erase(handle);
                         return true;
@@ -113,6 +113,16 @@ namespace datalib
                 }
             }
             return false;
+        }
+
+        static reference_count_type reference_count_max()
+        {
+            return std::numeric_limits<reference_count_type>::max();
+        }
+
+        static reference_count_type reference_count_zero()
+        {
+            return 0;
         }
 
     private:

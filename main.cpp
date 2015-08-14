@@ -37,7 +37,8 @@ void myMessageOutput(QtMsgType type, QMessageLogContext const& context, QString 
 int main(int argc, char *argv[])
 {
     datalib::test();
-    datalib::test2();
+    //datalib::test2();
+    datalib::test3();
 
     //qInstallMessageHandler(myMessageOutput);
     Saklib::Project_Manager project_manager{};
