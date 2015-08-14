@@ -4,6 +4,8 @@
 #include "saklib/project_manager.h"
 #include "saklib/internal_element_definitions.h"
 
+#include "datalib/test.h"
+
 void myMessageOutput(QtMsgType type, QMessageLogContext const& context, QString const& msg)
 {
     QByteArray localMsg = msg.toLocal8Bit();
@@ -34,6 +36,9 @@ void myMessageOutput(QtMsgType type, QMessageLogContext const& context, QString 
 
 int main(int argc, char *argv[])
 {
+    datalib::test();
+    datalib::test2();
+
     //qInstallMessageHandler(myMessageOutput);
     Saklib::Project_Manager project_manager{};
     project_manager.register_element_definition( Saklib::internal_definition_of_Project());
@@ -41,9 +46,12 @@ int main(int argc, char *argv[])
     project_manager.register_element_definition( Saklib::internal_definition_of_SingleInt());
     project_manager.register_element_definition( Saklib::internal_definition_of_Build());
 
+/*
     QApplication a(argc, argv);
     Saklib::Qtlib::Project_Main_Window window(project_manager);
     window.show();
 
     return a.exec();
+*/
+    return 0;
 }

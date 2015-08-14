@@ -117,7 +117,8 @@ SOURCES += main.cpp\
     saklib/constraint_path.cpp \
     saklib/constraint_string.cpp \
     saklib/constraint_vector.cpp \
-    saklib/qtlib/element_name_editor.cpp
+    saklib/qtlib/element_name_editor.cpp \
+    datalib/test.cpp
 
 HEADERS  += \
     saklib/all_attributes.h \
@@ -190,7 +191,16 @@ HEADERS  += \
     saklib/constraint_path.h \
     saklib/constraint_string.h \
     saklib/constraint_vector.h \
-    saklib/qtlib/element_name_editor.h
+    saklib/qtlib/element_name_editor.h \
+    datalib/handle.h \
+    datalib/null_handle.h \
+    datalib/handle_factory.h \
+    datalib/smart_handle.h \
+    datalib/smart_handle_manager.h \
+    datalib/test.h \
+    datalib/smart_handle_pointer_manager.h \
+    datalib/reference_counted_value_storage.h \
+    datalib/reference_counted_pointer_storage.h
 
 FORMS    += \
     saklib/qtlib/consoledialog.ui \
