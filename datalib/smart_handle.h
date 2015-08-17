@@ -3,7 +3,7 @@
 
 #include "null_handle.h"
 #include <cassert>
-#include <iostream>
+//#include <iostream>
 
 
 namespace datalib
@@ -65,12 +65,12 @@ namespace datalib
 
         ~Smart_Handle()
         {
-            std::cout << "destructor: M=" << mp_manager << " H=" << m_handle.underlying_value() << " RC=" << reference_count() << std::endl;
+            //std::cout << "destructor: M=" << mp_manager << " H=" << m_handle.underlying_value() << " RC=" << reference_count() << std::endl;
             if (mp_manager != nullptr)
             {
                 mp_manager->decrement_reference_count(m_handle);
             }
-            std::cout << "destructor end" << std::endl;
+            //std::cout << "destructor end" << std::endl;
         }
 
         Smart_Handle(Smart_Handle const& other) :

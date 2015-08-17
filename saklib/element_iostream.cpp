@@ -7,63 +7,65 @@
 std::ostream& Saklib::operator<<(std::ostream& stream, Element const& element)
 {
     stream << "N: \"" << element.name() << "\" T: " << element.type() << std::endl;
-    for (auto const& attribute : element.attributes())
+    for (size_type attribute_index = 0, end = element.attribute_count(); attribute_index != end; ++attribute_index)
     {
-        stream << " N: \"" << attribute->name() << "\" T: \"" << attribute->type_string() << "\" V: \"";
-        switch (attribute->type_enum())
+        auto lp_attribute = element.cattribute(attribute_index);
+
+        stream << " N: \"" << lp_attribute->name() << "\" T: \"" << lp_attribute->type_string() << "\" V: \"";
+        switch (lp_attribute->type_enum())
         {
         case Type_Enum::Bool:
-            stream << attribute_enum_cast<Type_Enum::Bool>(attribute.get())->value();
+            stream << attribute_enum_cast<Type_Enum::Bool>(lp_attribute)->value();
             break;
         case Type_Enum::Int:
-            stream << attribute_enum_cast<Type_Enum::Int>(attribute.get())->value();
+            stream << attribute_enum_cast<Type_Enum::Int>(lp_attribute)->value();
             break;
         case Type_Enum::Double:
-            stream << attribute_enum_cast<Type_Enum::Double>(attribute.get())->value();
+            stream << attribute_enum_cast<Type_Enum::Double>(lp_attribute)->value();
             break;
         case Type_Enum::String:
-            stream << attribute_enum_cast<Type_Enum::String>(attribute.get())->value();
+            stream << attribute_enum_cast<Type_Enum::String>(lp_attribute)->value();
             break;
         case Type_Enum::Path:
-            stream << attribute_enum_cast<Type_Enum::Path>(attribute.get())->value().string();
+            stream << attribute_enum_cast<Type_Enum::Path>(lp_attribute)->value().string();
             break;
         case Type_Enum::ElementID:
-            stream << attribute_enum_cast<Type_Enum::ElementID>(attribute.get())->value();
+            stream << attribute_enum_cast<Type_Enum::ElementID>(lp_attribute)->value();
             break;
 
         case Type_Enum::Vector_Bool:
             stream << "[ ";
-            for (auto const& item : attribute_enum_cast<Type_Enum::Vector_Bool>(attribute.get())->vector())
+            for (auto const& item : attribute_enum_cast<Type_Enum::Vector_Bool>(lp_attribute)->vector())
                 stream << "\"" << item << "\", ";
             stream << " ]";
             break;
         case Type_Enum::Vector_Int:
             stream << "[ ";
-            for (auto const& item : attribute_enum_cast<Type_Enum::Vector_Int>(attribute.get())->vector())
+            for (auto const& item : attribute_enum_cast<Type_Enum::Vector_Int>(lp_attribute)->vector())
                 stream << "\"" << item << "\", ";
             stream << " ]";
             break;
         case Type_Enum::Vector_Double:
             stream << "[ ";
-            for (auto const& item : attribute_enum_cast<Type_Enum::Vector_Double>(attribute.get())->vector())
+            for (auto const& item : attribute_enum_cast<Type_Enum::Vector_Double>(lp_attribute)->vector())
                 stream << "\"" << item << "\", ";
             stream << " ]";
             break;
         case Type_Enum::Vector_String:
             stream << "[ ";
-            for (auto const& item : attribute_enum_cast<Type_Enum::Vector_String>(attribute.get())->vector())
+            for (auto const& item : attribute_enum_cast<Type_Enum::Vector_String>(lp_attribute)->vector())
                 stream << "\"" << item << "\", ";
             stream << " ]";
             break;
         case Type_Enum::Vector_Path:
             stream << "[ ";
-            for (auto const& item : attribute_enum_cast<Type_Enum::Vector_Path>(attribute.get())->vector())
+            for (auto const& item : attribute_enum_cast<Type_Enum::Vector_Path>(lp_attribute)->vector())
                 stream << "\"" << item.string() << "\", ";
             stream << " ]";
             break;
         case Type_Enum::Vector_ElementID:
             stream << "[ ";
-            for (auto const& item : attribute_enum_cast<Type_Enum::Vector_ElementID>(attribute.get())->vector())
+            for (auto const& item : attribute_enum_cast<Type_Enum::Vector_ElementID>(lp_attribute)->vector())
                 stream << "\"" << item << "\", ";
             stream << " ]";
             break;
@@ -96,9 +98,10 @@ std::ostream& Saklib::serialise_Element_as_key_values(std::ostream& stream, Elem
     lamda_indent(indent_level);
     stream << "{" << std::endl;
     auto attribute_indent_level = indent_level + 1;
-    for (auto const& attribute : element.attributes())
+    for (size_type attribute_index = 0, end = element.attribute_count(); attribute_index != end; ++attribute_index)
     {
-        serialise_Attribute_as_key_values(stream, attribute.get(), attribute_indent_level, indent);
+        auto lp_attribute = element.cattribute(attribute_index);
+        serialise_Attribute_as_key_values(stream, lp_attribute, attribute_indent_level, indent);
         stream << std::endl;
     }
     lamda_indent(indent_level);

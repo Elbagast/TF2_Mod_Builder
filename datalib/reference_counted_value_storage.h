@@ -8,7 +8,7 @@
 
 namespace datalib
 {
-    template <typename T>
+    template <typename T, typename Pre_Destructor>
     class Reference_Counted_Value_Storage
     {
     public:
@@ -16,6 +16,7 @@ namespace datalib
         //============================================================
         using data_type = T;
         using handle_type = Handle<T>;
+        using pre_destructor_type = Pre_Destructor;
 
         using data_stored_type = data_type;
         using data_return_type = data_type&;
@@ -107,6 +108,8 @@ namespace datalib
                     iterator_reference_count(found_iterator) -= 1;
                     if (iterator_reference_count(found_iterator) == reference_count_zero())
                     {
+                        pre_destructor_type::prepare_to_destroy(iterator_data(found_iterator));
+
                         m_map.erase(handle);
                         return true;
                     }

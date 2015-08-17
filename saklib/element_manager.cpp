@@ -122,15 +122,14 @@ Saklib::AttributeID Saklib::Element_Manager::attributeid(ElementID elementid, St
     auto found = m_map.find(elementid);
     if (found != m_map.end())
     {
-        auto const& attributes = found->second.m_element.attributes();
-        size_type index{0};
-        for (auto const& attribute : attributes)
+        auto const& found_element = found->second.m_element;
+        for (size_type attribute_index = 0, end = found_element.attribute_count(); attribute_index != end; ++attribute_index)
         {
-            if (attribute->name() == attribute_name)
+            auto lp_attribute = found_element.cattribute(attribute_index);
+            if (lp_attribute->name() == attribute_name)
             {
-                return AttributeID(elementid, index);
+                return AttributeID(elementid, attribute_index);
             }
-            ++index;
         }
     }
 
@@ -168,31 +167,31 @@ Saklib::Attribute* Saklib::Element_Manager::attribute(ElementID elementid, Strin
 }
 
 
-Saklib::Attribute const* Saklib::Element_Manager::attribute(AttributeID attributeid) const
+Saklib::Attribute const* Saklib::Element_Manager::cattribute(AttributeID attributeid) const
 {
     const_iterator found = m_map.find(attributeid.elementid());
     if (found != m_map.end()
         && attributeid.index() < found->second.m_element.attribute_count())
-        return found->second.m_element.attribute(attributeid.index());
+        return found->second.m_element.cattribute(attributeid.index());
     else
         return nullptr;
 }
 
-Saklib::Attribute const* Saklib::Element_Manager::attribute(ElementID elementid, size_type attribute_index) const
+Saklib::Attribute const* Saklib::Element_Manager::cattribute(ElementID elementid, size_type attribute_index) const
 {
     auto found = m_map.find(elementid);
     if (found != m_map.end()
         && attribute_index < found->second.m_element.attribute_count())
-        return found->second.m_element.attribute(attribute_index);
+        return found->second.m_element.cattribute(attribute_index);
     else
         return nullptr;
 }
 
-Saklib::Attribute const* Saklib::Element_Manager::attribute(ElementID elementid, String const& attribute_name) const
+Saklib::Attribute const* Saklib::Element_Manager::cattribute(ElementID elementid, String const& attribute_name) const
 {
     auto found = m_map.find(elementid);
     if (found != m_map.end())
-        return found->second.m_element.attribute(attribute_name);
+        return found->second.m_element.cattribute(attribute_name);
     else
         return nullptr;
 }

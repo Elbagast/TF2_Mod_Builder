@@ -355,9 +355,9 @@ QModelIndex Saklib::Qtlib::Outliner_Model::make_index_of(QModelIndex const& pare
 
     auto proxyid = ProxyID::unpack(proxyid_value);
     if (proxyid.is_element())
-        qDebug() << "ElementID not found: " << proxyid.elementid_value();
+        qDebug() << "Outliner_Model::make_index_of -> ElementID not found: " << proxyid.elementid_value();
     else if (proxyid.is_element())
-        qDebug() << "AttributeID not found: " << proxyid.elementid_value() << ":" << proxyid.attribute_index();
+        qDebug() << "Outliner_Model::make_index_of -> AttributeID not found: " << proxyid.elementid_value() << ":" << proxyid.attribute_index();
 
     return QModelIndex();
 }
@@ -432,7 +432,7 @@ void Saklib::Qtlib::Outliner_Model::update_children(AttributeID attributeid)
     auto type = mp_project_widget->project_manager().attribute_type_enum(attributeid);
     if (type == Type_Enum::ElementID)
     {
-        auto child_elementid = mp_project_widget->project_manager().attribute_type_cast<ElementID>(attributeid)->value();
+        auto child_elementid = mp_project_widget->project_manager().attribute_value<ElementID>(attributeid);
         if (child_elementid.is_valid())
         {
             auto child_index = make_index_of(child_elementid);
@@ -443,7 +443,7 @@ void Saklib::Qtlib::Outliner_Model::update_children(AttributeID attributeid)
     }
     else if (type == Type_Enum::Vector_ElementID)
     {
-        auto const& children = mp_project_widget->project_manager().attribute_type_cast<Vector_ElementID>(attributeid)->vector();
+        auto const& children = mp_project_widget->project_manager().attribute_vector_vector<ElementID>(attributeid);
 
         if (!children.empty())
         {

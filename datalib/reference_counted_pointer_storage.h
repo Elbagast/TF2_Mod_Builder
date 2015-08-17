@@ -6,11 +6,20 @@
 #include <memory>
 #include <numeric>
 #include <cassert>
-#include <iostream>
 
 namespace datalib
 {
     template <typename T>
+    class No_Pre_Destruction
+    {
+    public:
+        using data_type = T;
+
+        static void prepare_to_destroy(data_type& /*data*/) {}
+    };
+
+
+    template <typename T, typename Pre_Destructor = No_Pre_Destruction<T>>
     class Reference_Counted_Pointer_Storage
     {
     public:
@@ -18,6 +27,7 @@ namespace datalib
         //============================================================
         using data_type = T;
         using handle_type = Handle<T>;
+        using pre_destructor_type = Pre_Destructor;
 
         using data_stored_type = std::unique_ptr<data_type>;
         using data_return_type = data_type*;
@@ -111,16 +121,18 @@ namespace datalib
                 assert(found_iterator != m_map.end()); // must exist
                 if (found_iterator != m_map.end())
                 {
-                    std::cout << "handle found: " << handle.underlying_value() << std::endl;
                     assert(iterator_reference_count(found_iterator) != reference_count_zero()); // must not be zero when we get here...
                     iterator_reference_count(found_iterator) -= 1;
 
-                    std::cout << "handle decremented: " << handle.underlying_value() << std::endl;
                     if (iterator_reference_count(found_iterator) == reference_count_zero())
                     {
-                        std::cout << "handle erase: " << handle.underlying_value() << std::endl;
+                        // Due to how std::map works, we don't want the erase call to recurse. This means that
+                        // if the data to be destroyed will modify the map on destruction, we need to delay all
+                        // the map calls until the data is broken up...
+
+                        pre_destructor_type::prepare_to_destroy(*(iterator_data(found_iterator).get()));
+
                         m_map.erase(handle);
-                        std::cout << "handle erased: " << handle.underlying_value() << std::endl;
                         return true;
                     }
                 }

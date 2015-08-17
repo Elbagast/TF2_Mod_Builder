@@ -63,7 +63,7 @@ namespace Saklib
             m_value = value;
         }
 
-        stored_type_constraint const* constraint() const
+        stored_type_constraint const*const constraint() const
         {
             return mp_constraint;
         }

@@ -52,27 +52,38 @@ void Saklib::Qtlib::Attribute_Editor_Double::shared_construction()
     m_layout = make_quptr<QHBoxLayout>();
     m_spinbox->setValue(attribute_value<Double>());
 
-    auto constraint = project_widget()->project_manager().attribute_type_cast<Double>(attributeid())->constraint();
+    // And this is why sharing construction of two unrelated types is baaaad
 
-    if (constraint && constraint->has_min_value())
-        m_spinbox->setMinimum(constraint->min_value());
+    Attribute_Type<Double>::stored_type_constraint const* lp_constraint = nullptr;
+
+    if (is_vector_component())
+    {
+        lp_constraint = attribute_type_cast<Vector_Double>(project_widget()->project_manager().attribute(attributeid()))->value_constraint();
+    }
+    else
+    {
+        lp_constraint = attribute_type_cast<Double>(project_widget()->project_manager().attribute(attributeid()))->constraint();
+    }
+
+    if (lp_constraint && lp_constraint->has_min_value())
+        m_spinbox->setMinimum(lp_constraint->min_value());
     else
         m_spinbox->setMinimum(-1000000.00);
         //m_spinbox->setMinimum(std::numeric_limits<Double>::min());
 
-    if (constraint && constraint->has_max_value())
-        m_spinbox->setMaximum(constraint->max_value());
+    if (lp_constraint && lp_constraint->has_max_value())
+        m_spinbox->setMaximum(lp_constraint->max_value());
     else
         m_spinbox->setMaximum(1000000.00);
         //m_spinbox->setMaximum(std::numeric_limits<Double>::max());
 
-    if (constraint && constraint->has_step_size())
-        m_spinbox->setSingleStep(constraint->step_size());
+    if (lp_constraint && lp_constraint->has_step_size())
+        m_spinbox->setSingleStep(lp_constraint->step_size());
     else
         m_spinbox->setSingleStep(1);
 
-    if (constraint && constraint->has_decimal_places())
-        m_spinbox->setDecimals(constraint->decimal_places());
+    if (lp_constraint && lp_constraint->has_decimal_places())
+        m_spinbox->setDecimals(lp_constraint->decimal_places());
     else
         m_spinbox->setDecimals(2);
 

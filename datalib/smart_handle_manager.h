@@ -55,7 +55,8 @@ namespace datalib
 
     template <typename T,
               template <typename> class Member_Handle_Factory,
-              template <typename> class Member_Data_Storage>
+              template <typename, typename> class Member_Data_Storage,
+              typename Pre_Destructor>
     class Smart_Handle_Manager
     {
     public:
@@ -66,7 +67,8 @@ namespace datalib
 
         using handle_factory_type = Member_Handle_Factory<data_type>;
 
-        using data_storage_type = Member_Data_Storage<data_type>;
+        using data_storage_type = Member_Data_Storage<data_type, Pre_Destructor>;
+
         using data_stored_type = typename data_storage_type::data_stored_type;
         using data_return_type = typename data_storage_type::data_return_type;
         using data_const_return_type = typename data_storage_type::data_const_return_type;
@@ -76,7 +78,7 @@ namespace datalib
 
         ~Smart_Handle_Manager()
         {
-            std::cout << "manager destructor" << std::endl;
+            //std::cout << "manager destructor" << std::endl;
         }
 
 
@@ -131,12 +133,12 @@ namespace datalib
 
         void decrement_reference_count(handle_type const& handle)
         {
-            std::cout << "decrement: H=" << handle.underlying_value() << " RC=" << reference_count(handle) << std::endl;
+            //std::cout << "decrement: H=" << handle.underlying_value() << " RC=" << reference_count(handle) << std::endl;
             if (m_storage.decrement_reference_count(handle))
             {
                 m_id_factory.revoke_handle(handle);
             }
-            std::cout << "decrement end: H=" << handle.underlying_value() << " RC=" << reference_count(handle) << std::endl<< std::endl;
+            //std::cout << "decrement end: H=" << handle.underlying_value() << " RC=" << reference_count(handle) << std::endl<< std::endl;
         }
 
         //constexpr

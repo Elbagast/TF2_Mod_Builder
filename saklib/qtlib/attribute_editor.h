@@ -49,9 +49,9 @@ namespace Saklib
             T const& attribute_value()
             {
                 if (m_is_vector_component)
-                    return mp_project_widget->project_manager().attribute_type_cast<Vector<T>>(m_attributeid)->at(m_vector_index);
+                    return mp_project_widget->project_manager().attribute_vector_at<T>(m_attributeid, m_vector_index);
                 else
-                    return mp_project_widget->project_manager().attribute_type_cast<T>(m_attributeid)->value();
+                    return mp_project_widget->project_manager().attribute_value<T>(m_attributeid);
             }
 
         protected slots:

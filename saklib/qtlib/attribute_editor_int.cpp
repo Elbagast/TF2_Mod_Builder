@@ -54,20 +54,32 @@ void Saklib::Qtlib::Attribute_Editor_Int::shared_construction()
 
     m_spinbox->setValue(attribute_value<Int>());
 
-    auto constraint = project_widget()->project_manager().attribute_type_cast<Int>(attributeid())->constraint();
 
-    if (constraint && constraint->has_min_value())
-        m_spinbox->setMinimum(constraint->min_value());
+    // And this is why sharing construction of two unrelated types is baaaad
+
+    Attribute_Type<Int>::stored_type_constraint const* lp_constraint = nullptr;
+
+    if (is_vector_component())
+    {
+        lp_constraint = attribute_type_cast<Vector_Int>(project_widget()->project_manager().attribute(attributeid()))->value_constraint();
+    }
+    else
+    {
+        lp_constraint = attribute_type_cast<Int>(project_widget()->project_manager().attribute(attributeid()))->constraint();
+    }
+
+    if (lp_constraint && lp_constraint->has_min_value())
+        m_spinbox->setMinimum(lp_constraint->min_value());
     else
         m_spinbox->setMinimum(std::numeric_limits<Int>::min());
 
-    if (constraint && constraint->has_max_value())
-        m_spinbox->setMaximum(constraint->max_value());
+    if (lp_constraint && lp_constraint->has_max_value())
+        m_spinbox->setMaximum(lp_constraint->max_value());
     else
         m_spinbox->setMaximum(std::numeric_limits<Int>::max());
 
-    if (constraint && constraint->has_step_size())
-        m_spinbox->setSingleStep(constraint->step_size());
+    if (lp_constraint && lp_constraint->has_step_size())
+        m_spinbox->setSingleStep(lp_constraint->step_size());
     else
         m_spinbox->setSingleStep(1);
 

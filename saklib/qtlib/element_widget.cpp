@@ -80,12 +80,14 @@ Saklib::Qtlib::Element_Widget::Element_Widget(Project_Widget* project_widget, El
     m_layout->addLayout(m_attribute_layout.get());
     {
         // scope to expire this reference
-        Vector<Uptr<Attribute>> const& attributes = mp_project_widget->project_manager().element(m_elementid).attributes();
-        for (size_type attribute_index = 0, end = attributes.size(); attribute_index != end; ++attribute_index)
+        //Vector<Uptr<Attribute>> const& attributes = mp_project_widget->project_manager().element(m_elementid).attributes();
+
+        Element const& lr_element{mp_project_widget->project_manager().element(m_elementid)};
+        for (size_type attribute_index = 0, end = lr_element.attribute_count(); attribute_index != end; ++attribute_index)
         {
             // The Attribute we're working with
-            Attribute const*const attribute{attributes.at(attribute_index).get()};
-            // Make a AttributeID that refers to this Attribute
+            auto lp_attribute = lr_element.cattribute(attribute_index);
+            // Make an AttributeID that refers to this Attribute
             AttributeID attributeid{m_elementid, attribute_index};
 
             // make and add editors
@@ -98,7 +100,7 @@ Saklib::Qtlib::Element_Widget::Element_Widget(Project_Widget* project_widget, El
             // Add it to the grid
             //m_layout->addWidget(editor.get(), grid_row, 2);
 
-            m_attribute_layout->addRow(to_QString(attribute->name()), layout.get());
+            m_attribute_layout->addRow(to_QString(lp_attribute->name()), layout.get());
 
             // Store it
             m_attribute_editors.push_back(std::move(editor));

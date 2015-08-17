@@ -98,7 +98,7 @@ Saklib::ElementID Saklib::Project_Manager::project_elementid() const
 }
 Saklib::Path const& Saklib::Project_Manager::project_filepath() const
 {
-    return Saklib::attribute_type_cast<Path>(m_element_manager.attribute(m_project_filepath))->value();
+    return Saklib::attribute_type_cast<Path>(m_element_manager.cattribute(m_project_filepath))->value();
 }
 void Saklib::Project_Manager::set_project_filepath(Path const& filepath)
 {
@@ -159,49 +159,49 @@ Saklib::ElementID Saklib::Project_Manager::make_element(String const& type)
 }
 
 // Destory an Element and everything associated with it
-void Saklib::Project_Manager::destroy_element(ElementID elementid)
+void Saklib::Project_Manager::destroy_element(ElementID const& elementid)
 {
     m_element_manager.destroy_element(elementid);
     observers_element_destroyed(elementid);
 }
 
 // Does this refer to something in this? - rename these to has(blah) ?
-bool Saklib::Project_Manager::is_valid(ElementID elementid) const
+bool Saklib::Project_Manager::is_valid(ElementID const& elementid) const
 {
     return m_element_manager.is_valid(elementid);
 }
-bool Saklib::Project_Manager::is_valid(AttributeID attributeid) const
+bool Saklib::Project_Manager::is_valid(AttributeID const& attributeid) const
 {
     return m_element_manager.is_valid(attributeid);
 }
 
 // Elements
 //------------------------------------------------------------
-Saklib::Element& Saklib::Project_Manager::element(ElementID elementid)
+Saklib::Element& Saklib::Project_Manager::element(ElementID const& elementid)
 {
     assert_element(elementid);
     return m_element_manager.element(elementid);
 }
 
-Saklib::Element const& Saklib::Project_Manager::element(ElementID elementid) const
+Saklib::Element const& Saklib::Project_Manager::element(ElementID const& elementid) const
 {
     assert_element(elementid);
     return m_element_manager.element(elementid);
 }
 
-Saklib::String const& Saklib::Project_Manager::element_type(ElementID elementid) const
+Saklib::String const& Saklib::Project_Manager::element_type(ElementID const& elementid) const
 {
     assert_element(elementid);
     return m_element_manager.element(elementid).type();
 }
 
-Saklib::String const& Saklib::Project_Manager::element_name(ElementID elementid) const
+Saklib::String const& Saklib::Project_Manager::element_name(ElementID const& elementid) const
 {
     assert_element(elementid);
     return m_element_manager.element(elementid).name();
 }
 
-void Saklib::Project_Manager::element_set_name(ElementID elementid, String const& value)
+void Saklib::Project_Manager::element_set_name(ElementID const& elementid, String const& value)
 {
     assert_element(elementid);
     // Element_Manager will adjust the name by adding a number to the end if it isn't unique.
@@ -211,19 +211,19 @@ void Saklib::Project_Manager::element_set_name(ElementID elementid, String const
     set_unsaved_edits(true);
 }
 
-bool Saklib::Project_Manager::element_can_be_root(ElementID elementid) const
+bool Saklib::Project_Manager::element_can_be_root(ElementID const& elementid) const
 {
     assert_element(elementid);
     return m_element_manager.element(elementid).can_be_root();
 }
 
-Saklib::AttributeID Saklib::Project_Manager::element_parent(ElementID elementid) const
+Saklib::AttributeID Saklib::Project_Manager::element_parent(ElementID const& elementid) const
 {
     assert_element(elementid);
     return m_element_manager.element_parent(elementid);
 }
 
-void Saklib::Project_Manager::element_set_parent(ElementID elementid, AttributeID attributeid)
+void Saklib::Project_Manager::element_set_parent(ElementID const& elementid, AttributeID attributeid)
 {
     if (elementid.is_valid())
     {
@@ -237,53 +237,53 @@ void Saklib::Project_Manager::element_set_parent(ElementID elementid, AttributeI
 
 // Attributes
 //------------------------------------------------------------
-Saklib::AttributeID Saklib::Project_Manager::attributeid(ElementID elementid, String const& attribute_name) const
+Saklib::AttributeID Saklib::Project_Manager::attributeid(ElementID const& elementid, String const& attribute_name) const
 {
     return m_element_manager.attributeid(elementid, attribute_name);
 }
 
-Saklib::Attribute* Saklib::Project_Manager::attribute(AttributeID attributeid)
+Saklib::Attribute* Saklib::Project_Manager::attribute(AttributeID const& attributeid)
 {
     return m_element_manager.attribute(attributeid);
 }
-Saklib::Attribute* Saklib::Project_Manager::attribute(ElementID elementid, size_type attribute_index)
+Saklib::Attribute* Saklib::Project_Manager::attribute(ElementID const& elementid, size_type attribute_index)
 {
     return m_element_manager.attribute(elementid, attribute_index);
 }
-Saklib::Attribute* Saklib::Project_Manager::attribute(ElementID elementid, String const& attribute_name)
+Saklib::Attribute* Saklib::Project_Manager::attribute(ElementID const& elementid, String const& attribute_name)
 {
     return m_element_manager.attribute(elementid, attribute_name);
 }
 
 
-Saklib::Attribute const* Saklib::Project_Manager::attribute(AttributeID attributeid) const
+Saklib::Attribute const* Saklib::Project_Manager::attribute(AttributeID const& attributeid) const
 {
-    return m_element_manager.attribute(attributeid);
+    return m_element_manager.cattribute(attributeid);
 }
-Saklib::Attribute const* Saklib::Project_Manager::attribute(ElementID elementid, size_type attribute_index) const
+Saklib::Attribute const* Saklib::Project_Manager::attribute(ElementID const& elementid, size_type attribute_index) const
 {
-    return m_element_manager.attribute(elementid, attribute_index);
+    return m_element_manager.cattribute(elementid, attribute_index);
 }
-Saklib::Attribute const* Saklib::Project_Manager::attribute(ElementID elementid, String const& attribute_name) const
+Saklib::Attribute const* Saklib::Project_Manager::attribute(ElementID const& elementid, String const& attribute_name) const
 {
-    return m_element_manager.attribute(elementid, attribute_name);
+    return m_element_manager.cattribute(elementid, attribute_name);
 }
 
-Saklib::String const& Saklib::Project_Manager::attribute_name(AttributeID attributeid) const
+Saklib::String const& Saklib::Project_Manager::attribute_name(AttributeID const& attributeid) const
 {
-    return m_element_manager.attribute(attributeid)->name();
+    return m_element_manager.cattribute(attributeid)->name();
 }
-Saklib::Type_Enum Saklib::Project_Manager::attribute_type_enum(AttributeID attributeid) const
+Saklib::Type_Enum Saklib::Project_Manager::attribute_type_enum(AttributeID const& attributeid) const
 {
-    return m_element_manager.attribute(attributeid)->type_enum();
+    return m_element_manager.cattribute(attributeid)->type_enum();
 }
-Saklib::String Saklib::Project_Manager::attribute_type_string(AttributeID attributeid) const
+Saklib::String Saklib::Project_Manager::attribute_type_string(AttributeID const& attributeid) const
 {
-    return m_element_manager.attribute(attributeid)->type_string();
+    return m_element_manager.cattribute(attributeid)->type_string();
 }
-bool Saklib::Project_Manager::attribute_is_constrained(AttributeID attributeid) const
+bool Saklib::Project_Manager::attribute_is_constrained(AttributeID const& attributeid) const
 {
-    return m_element_manager.attribute(attributeid)->is_constrained();
+    return m_element_manager.cattribute(attributeid)->is_constrained();
 }
 
 
@@ -291,16 +291,16 @@ bool Saklib::Project_Manager::attribute_is_constrained(AttributeID attributeid) 
 //------------------------------------------------------------
 // These functions set the data without question, and tell the model and widget to update.
 template <>
-void Saklib::Project_Manager::attribute_set_value<Saklib::ElementID>(AttributeID attributeid, ElementID const& value)
+void Saklib::Project_Manager::attribute_set_value<Saklib::ElementID>(AttributeID const& attributeid, ElementID const& value)
 {
     assert_attribute<ElementID>(attributeid);
     observers_begin_model_reset();
 
-    auto attribute = attribute_type_cast<ElementID>(attributeid);
-    ElementID old_value = attribute->value();
+    auto lp_attribute = attribute_type_cast<ElementID>(attribute(attributeid));
+    ElementID old_value = lp_attribute->value();
     ElementID new_value = value;
 
-    attribute->set_value(new_value);
+    lp_attribute->set_value(new_value);
     element_set_parent(new_value, attributeid);
     element_set_parent(old_value, invalid_attributeid());
 
@@ -318,7 +318,7 @@ void Saklib::Project_Manager::attribute_set_value<Saklib::ElementID>(AttributeID
 
 
 // if the attribute is a vector, return it's size, otherwise 0
-Saklib::size_type Saklib::Project_Manager::any_attribute_vector_size(AttributeID attributeid) const
+Saklib::size_type Saklib::Project_Manager::any_attribute_vector_size(AttributeID const& attributeid) const
 {
     auto attribute_type = attribute_type_enum(attributeid);
     switch(attribute_type)
@@ -334,7 +334,7 @@ Saklib::size_type Saklib::Project_Manager::any_attribute_vector_size(AttributeID
 }
 
 // if the attribute is a vector, return it's size, otherwise 0
-bool Saklib::Project_Manager::any_attribute_vector_empty(AttributeID attributeid) const
+bool Saklib::Project_Manager::any_attribute_vector_empty(AttributeID const& attributeid) const
 {
     auto attribute_type = attribute_type_enum(attributeid);
     switch(attribute_type)
@@ -350,7 +350,7 @@ bool Saklib::Project_Manager::any_attribute_vector_empty(AttributeID attributeid
 }
 
 
-void Saklib::Project_Manager::any_attribute_vector_clear(AttributeID attributeid)
+void Saklib::Project_Manager::any_attribute_vector_clear(AttributeID const& attributeid)
 {
     auto attribute_type = attribute(attributeid)->type_enum();
     switch(attribute_type)
@@ -365,7 +365,7 @@ void Saklib::Project_Manager::any_attribute_vector_clear(AttributeID attributeid
     }
 }
 
-void Saklib::Project_Manager::any_attribute_vector_pop_back(AttributeID attributeid)
+void Saklib::Project_Manager::any_attribute_vector_pop_back(AttributeID const& attributeid)
 {
     auto attribute_type = attribute(attributeid)->type_enum();
     switch(attribute_type)
@@ -379,7 +379,7 @@ void Saklib::Project_Manager::any_attribute_vector_pop_back(AttributeID attribut
     default: assert(false); // called on the wrong type
     }
 }
-void Saklib::Project_Manager::any_attribute_vector_swap_at(AttributeID attributeid, size_type index, size_type other_index)
+void Saklib::Project_Manager::any_attribute_vector_swap_at(AttributeID const& attributeid, size_type index, size_type other_index)
 {
     auto attribute_type = attribute(attributeid)->type_enum();
     switch(attribute_type)
@@ -400,15 +400,15 @@ void Saklib::Project_Manager::any_attribute_vector_swap_at(AttributeID attribute
 // explicitly so that the ElementID overload can be used (specialisation for it doesn't work).
 
 template <>
-void Saklib::Project_Manager::attribute_vector_set_vector<Saklib::ElementID>(AttributeID attributeid, Vector<ElementID> const& other_vector)
+void Saklib::Project_Manager::attribute_vector_set_vector<Saklib::ElementID>(AttributeID const& attributeid, Vector<ElementID> const& other_vector)
 {
     assert_attribute<Vector_ElementID>(attributeid);
     observers_begin_model_reset();
 
-    auto attribute = attribute_type_cast<Vector_ElementID>(attributeid);
-    Vector_ElementID old_vector = attribute->vector();
+    auto lp_attribute = attribute_type_cast<Vector_ElementID>(attribute(attributeid));
+    Vector_ElementID old_vector = lp_attribute->vector();
 
-    attribute->set_vector(other_vector);
+    lp_attribute->set_vector(other_vector);
 
     for (auto elementid : old_vector)
     {
@@ -425,15 +425,15 @@ void Saklib::Project_Manager::attribute_vector_set_vector<Saklib::ElementID>(Att
 }
 
 template <>
-void Saklib::Project_Manager::attribute_vector_clear<Saklib::ElementID>(AttributeID attributeid)
+void Saklib::Project_Manager::attribute_vector_clear<Saklib::ElementID>(AttributeID const& attributeid)
 {
     assert_attribute<Vector_ElementID>(attributeid);
     observers_begin_model_reset();
 
-    auto attribute = attribute_type_cast<Vector_ElementID>(attributeid);
-    Vector_ElementID old_vector = attribute->vector();
+    auto lp_attribute = attribute_type_cast<Vector_ElementID>(attribute(attributeid));
+    Vector_ElementID old_vector = lp_attribute->vector();
 
-    attribute->clear();
+    lp_attribute->clear();
 
     for (auto elementid : old_vector)
     {
@@ -446,16 +446,16 @@ void Saklib::Project_Manager::attribute_vector_clear<Saklib::ElementID>(Attribut
 }
 
 template <>
-void Saklib::Project_Manager::attribute_vector_set_at<Saklib::ElementID>(AttributeID attributeid, size_type index, ElementID const& value)
+void Saklib::Project_Manager::attribute_vector_set_at<Saklib::ElementID>(AttributeID const& attributeid, size_type index, ElementID const& value)
 {
     assert_attribute<Vector_ElementID>(attributeid);
     observers_begin_model_reset();
 
-    auto attribute = attribute_type_cast<Vector_ElementID>(attributeid);
-    ElementID old_value = attribute->at(index);
+    auto lp_attribute = attribute_type_cast<Vector_ElementID>(attribute(attributeid));
+    ElementID old_value = lp_attribute->at(index);
     ElementID new_value = value;
 
-    attribute->set_at(index, new_value);
+    lp_attribute->set_at(index, new_value);
     element_set_parent(new_value, attributeid);
     element_set_parent(old_value, invalid_attributeid());
 
@@ -465,16 +465,16 @@ void Saklib::Project_Manager::attribute_vector_set_at<Saklib::ElementID>(Attribu
 }
 
 template<>
-void Saklib::Project_Manager::attribute_vector_set_front<Saklib::ElementID>(AttributeID attributeid, ElementID const& value)
+void Saklib::Project_Manager::attribute_vector_set_front<Saklib::ElementID>(AttributeID const& attributeid, ElementID const& value)
 {
     assert_attribute<Vector_ElementID>(attributeid);
     observers_begin_model_reset();
 
-    auto attribute = attribute_type_cast<Vector_ElementID>(attributeid);
-    ElementID old_value = attribute->front();
+    auto lp_attribute = attribute_type_cast<Vector_ElementID>(attribute(attributeid));
+    ElementID old_value = lp_attribute->front();
     ElementID new_value = value;
 
-    attribute->set_front(new_value);
+    lp_attribute->set_front(new_value);
     element_set_parent(new_value, attributeid);
     element_set_parent(old_value, invalid_attributeid());
 
@@ -484,16 +484,16 @@ void Saklib::Project_Manager::attribute_vector_set_front<Saklib::ElementID>(Attr
 }
 
 template<>
-void Saklib::Project_Manager::attribute_vector_set_back<Saklib::ElementID>(AttributeID attributeid, ElementID const& value)
+void Saklib::Project_Manager::attribute_vector_set_back<Saklib::ElementID>(AttributeID const& attributeid, ElementID const& value)
 {
     assert_attribute<Vector_ElementID>(attributeid);
     observers_begin_model_reset();
 
-    auto attribute = attribute_type_cast<Vector_ElementID>(attributeid);
-    ElementID old_value = attribute->front();
+    auto lp_attribute = attribute_type_cast<Vector_ElementID>(attribute(attributeid));
+    ElementID old_value = lp_attribute->front();
     ElementID new_value = value;
 
-    attribute->set_back(new_value);
+    lp_attribute->set_back(new_value);
     element_set_parent(new_value, attributeid);
     element_set_parent(old_value, invalid_attributeid());
 
@@ -503,13 +503,13 @@ void Saklib::Project_Manager::attribute_vector_set_back<Saklib::ElementID>(Attri
 }
 
 template <>
-void Saklib::Project_Manager::attribute_vector_swap_at<Saklib::ElementID>(AttributeID attributeid, size_type index, size_type other_index)
+void Saklib::Project_Manager::attribute_vector_swap_at<Saklib::ElementID>(AttributeID const& attributeid, size_type index, size_type other_index)
 {
     assert_attribute<Vector_ElementID>(attributeid);
     observers_begin_model_reset();
 
-    auto attribute = attribute_type_cast<Vector_ElementID>(attributeid);
-    attribute->swap_at(index, other_index);
+    auto lp_attribute = attribute_type_cast<Vector_ElementID>(attribute(attributeid));
+    lp_attribute->swap_at(index, other_index);
 
     observers_end_model_reset();
     observers_attribute_value_changed(attributeid);
@@ -517,14 +517,14 @@ void Saklib::Project_Manager::attribute_vector_swap_at<Saklib::ElementID>(Attrib
 }
 
 template<>
-void Saklib::Project_Manager::attribute_vector_push_back<Saklib::ElementID>(AttributeID attributeid, ElementID const& value)
+void Saklib::Project_Manager::attribute_vector_push_back<Saklib::ElementID>(AttributeID const& attributeid, ElementID const& value)
 {
     assert_attribute<Vector_ElementID>(attributeid);
     observers_begin_model_reset();
 
-    auto attribute = this->attribute_type_cast<Vector_ElementID>(attributeid);
+    auto lp_attribute = attribute_type_cast<Vector_ElementID>(attribute(attributeid));
 
-    attribute->push_back(value);
+    lp_attribute->push_back(value);
     element_set_parent(value, attributeid);
 
     observers_end_model_reset();
@@ -532,15 +532,15 @@ void Saklib::Project_Manager::attribute_vector_push_back<Saklib::ElementID>(Attr
     set_unsaved_edits(true);
 }
 template<>
-void Saklib::Project_Manager::attribute_vector_pop_back<Saklib::ElementID>(AttributeID attributeid)
+void Saklib::Project_Manager::attribute_vector_pop_back<Saklib::ElementID>(AttributeID const& attributeid)
 {
     assert_attribute<Vector_ElementID>(attributeid);
     observers_begin_model_reset();
 
-    auto attribute = this->attribute_type_cast<Vector_ElementID>(attributeid);
+    auto lp_attribute = attribute_type_cast<Vector_ElementID>(attribute(attributeid));
 
-    ElementID back_value = attribute->back();
-    attribute->pop_back();
+    ElementID back_value = lp_attribute->back();
+    lp_attribute->pop_back();
     element_set_parent(back_value, invalid_attributeid());
 
     observers_end_model_reset();
@@ -549,14 +549,14 @@ void Saklib::Project_Manager::attribute_vector_pop_back<Saklib::ElementID>(Attri
 }
 
 template<>
-void Saklib::Project_Manager::attribute_vector_insert_at<Saklib::ElementID>(AttributeID attributeid, size_type index, ElementID const& value)
+void Saklib::Project_Manager::attribute_vector_insert_at<Saklib::ElementID>(AttributeID const& attributeid, size_type index, ElementID const& value)
 {
     assert_attribute<Vector_ElementID>(attributeid);
     observers_begin_model_reset();
 
-    auto attribute = this->attribute_type_cast<Vector_ElementID>(attributeid);
+    auto lp_attribute = attribute_type_cast<Vector_ElementID>(attribute(attributeid));
 
-    attribute->insert_at(index, value);
+    lp_attribute->insert_at(index, value);
     element_set_parent(value, invalid_attributeid());
 
     observers_end_model_reset();
@@ -565,16 +565,16 @@ void Saklib::Project_Manager::attribute_vector_insert_at<Saklib::ElementID>(Attr
 }
 
 template<>
-void Saklib::Project_Manager::attribute_vector_remove_at<Saklib::ElementID>(AttributeID attributeid, size_type index)
+void Saklib::Project_Manager::attribute_vector_remove_at<Saklib::ElementID>(AttributeID const& attributeid, size_type index)
 {
     assert_attribute<Vector_ElementID>(attributeid);
 
-    auto attribute = this->attribute_type_cast<Vector_ElementID>(attributeid);
-    ElementID removed_value = attribute->at(index);
+    auto lp_attribute = attribute_type_cast<Vector_ElementID>(attribute(attributeid));
+    ElementID removed_value = lp_attribute->at(index);
 
     observers_begin_model_reset();
 
-    attribute->remove_at(index);
+    lp_attribute->remove_at(index);
     element_set_parent(removed_value, invalid_attributeid());
 
     observers_end_model_reset();
@@ -585,7 +585,7 @@ void Saklib::Project_Manager::attribute_vector_remove_at<Saklib::ElementID>(Attr
 // Attribute_Type<T> Constraint Stuff
 //------------------------------------------------------------
 // Get a vector of possible Element types for this attributeid
-Saklib::Vector_String Saklib::Project_Manager::attribute_element_types(AttributeID attributeid) const
+Saklib::Vector_String Saklib::Project_Manager::attribute_element_types(AttributeID const& attributeid) const
 {
     Vector_String result{};
     auto type = attribute_type_enum(attributeid);
@@ -593,11 +593,11 @@ Saklib::Vector_String Saklib::Project_Manager::attribute_element_types(Attribute
 
     if (is_constrained && type == Type_Enum::ElementID)
     {
-        result = attribute_type_cast<ElementID>(attributeid)->constraint()->element_types();
+        result = attribute_type_cast<ElementID>(attribute(attributeid))->constraint()->element_types();
     }
     else if (is_constrained && type == Type_Enum::Vector_ElementID)
     {
-        result = attribute_type_cast<Vector_ElementID>(attributeid)->value_constraint()->element_types();
+        result = attribute_type_cast<Vector_ElementID>(attribute(attributeid))->value_constraint()->element_types();
     }
     else
     {
@@ -612,7 +612,7 @@ Saklib::Vector_String Saklib::Project_Manager::attribute_element_types(Attribute
 //------------------------------------------------------------
 // To support undoing edits use these functions to edit data from the outliner/widgets.
 
-bool Saklib::Project_Manager::undoable_element_set_name(ElementID elementid, String const& value)
+bool Saklib::Project_Manager::undoable_element_set_name(ElementID const& elementid, String const& value)
 {
     // if conditions are right to issue a command
     if(elementid.is_valid()
@@ -630,7 +630,7 @@ bool Saklib::Project_Manager::undoable_element_set_name(ElementID elementid, Str
     }
 }
 
-bool Saklib::Project_Manager::undoable_any_attribute_vector_clear(AttributeID attributeid)
+bool Saklib::Project_Manager::undoable_any_attribute_vector_clear(AttributeID const& attributeid)
 {
     auto attribute_type = attribute(attributeid)->type_enum();
     switch(attribute_type)
@@ -646,7 +646,7 @@ bool Saklib::Project_Manager::undoable_any_attribute_vector_clear(AttributeID at
     return false;
 }
 
-bool Saklib::Project_Manager::undoable_any_attribute_vector_swap_at(AttributeID attributeid, size_type index, size_type other_index)
+bool Saklib::Project_Manager::undoable_any_attribute_vector_swap_at(AttributeID const& attributeid, size_type index, size_type other_index)
 {
     auto attribute_type = attribute(attributeid)->type_enum();
     switch(attribute_type)
@@ -662,7 +662,7 @@ bool Saklib::Project_Manager::undoable_any_attribute_vector_swap_at(AttributeID 
     return false;
 }
 
-bool Saklib::Project_Manager::undoable_any_attribute_vector_pop_back(AttributeID attributeid)
+bool Saklib::Project_Manager::undoable_any_attribute_vector_pop_back(AttributeID const& attributeid)
 {
     auto attribute_type = attribute(attributeid)->type_enum();
     switch(attribute_type)
@@ -678,7 +678,7 @@ bool Saklib::Project_Manager::undoable_any_attribute_vector_pop_back(AttributeID
     return false;
 }
 
-bool Saklib::Project_Manager::undoable_any_attribute_vector_remove_at(AttributeID attributeid, size_type index)
+bool Saklib::Project_Manager::undoable_any_attribute_vector_remove_at(AttributeID const& attributeid, size_type index)
 {
     auto attribute_type = attribute(attributeid)->type_enum();
     switch(attribute_type)
@@ -712,18 +712,18 @@ Saklib::Vector_ElementID Saklib::Project_Manager::root_elementids() const
 // Functions that provide data to the outliner model
 
 // What are this item's children?
-Saklib::Vector_AttributeID Saklib::Project_Manager::outliner_children(ElementID elementid) const
+Saklib::Vector_AttributeID Saklib::Project_Manager::outliner_children(ElementID const& elementid) const
 {
     // Assuming a valid ElementID...
     Vector_AttributeID results{};
 
     // For each Attribute by index
-    auto const& attributes = element(elementid).attributes();
-    for(size_type index = 0, end = attributes.size(); index != end; ++index)
+    auto const& lr_element = element(elementid);
+    for (size_type attribute_index = 0, end = lr_element.attribute_count(); attribute_index != end; ++attribute_index)
     {
-        AttributeID attributeid{elementid, index};
+        AttributeID attributeid{elementid, attribute_index};
         // If the type is of interest
-        Type_Enum type{attributes.at(index)->type_enum()};
+        Type_Enum type{lr_element.cattribute(attribute_index)->type_enum()};
 
         if (type == Type_Enum::ElementID || type == Type_Enum::Vector_ElementID)
         {
@@ -748,7 +748,7 @@ Saklib::Vector_AttributeID Saklib::Project_Manager::outliner_children(ElementID 
 
     return results;
 }
-Saklib::Vector_ElementID Saklib::Project_Manager::outliner_children(AttributeID attributeid) const
+Saklib::Vector_ElementID Saklib::Project_Manager::outliner_children(AttributeID const& attributeid) const
 {
     // Assuming a valid AttributeID...
     Vector_ElementID results{};
@@ -763,7 +763,7 @@ Saklib::Vector_ElementID Saklib::Project_Manager::outliner_children(AttributeID 
     if (type == Type_Enum::ElementID)
     {
         // Get the ElementID held
-        ElementID held_elementid = attribute_type_cast<ElementID>(attributeid)->value();
+        ElementID held_elementid = attribute_type_cast<ElementID>(attribute(attributeid))->value();
         if (held_elementid.is_valid())
         {
             results.push_back(held_elementid);
@@ -772,7 +772,7 @@ Saklib::Vector_ElementID Saklib::Project_Manager::outliner_children(AttributeID 
     else if (type == Type_Enum::Vector_ElementID)
     {
         // For each stored ElementID
-        auto const& elementid_vector = attribute_type_cast<Vector_ElementID>(attributeid)->vector();
+        auto const& elementid_vector = attribute_type_cast<Vector_ElementID>(attribute(attributeid))->vector();
         for(auto elementid : elementid_vector)
         {
             if (elementid.is_valid())
@@ -790,7 +790,7 @@ Saklib::Vector_ElementID Saklib::Project_Manager::outliner_children(AttributeID 
 }
 
 // What item is the child at row?
-Saklib::AttributeID Saklib::Project_Manager::outliner_child_at_row(ElementID elementid, int row) const
+Saklib::AttributeID Saklib::Project_Manager::outliner_child_at_row(ElementID const& elementid, int row) const
 {
     auto children = outliner_children(elementid);
     auto unsigned_row = static_cast<size_type>(row);
@@ -803,7 +803,7 @@ Saklib::AttributeID Saklib::Project_Manager::outliner_child_at_row(ElementID ele
         return invalid_attributeid();
     }
 }
-Saklib::ElementID Saklib::Project_Manager::outliner_child_at_row(AttributeID attributeid, int row) const
+Saklib::ElementID Saklib::Project_Manager::outliner_child_at_row(AttributeID const& attributeid, int row) const
 {
     auto children = outliner_children(attributeid);
     auto unsigned_row = static_cast<size_type>(row);
@@ -822,27 +822,27 @@ int Saklib::Project_Manager::outliner_row_count_root() const
 {
     return root_elementids().size();
 }
-int Saklib::Project_Manager::outliner_row_count(ElementID elementid) const
+int Saklib::Project_Manager::outliner_row_count(ElementID const& elementid) const
 {
     return outliner_children(elementid).size();
 }
-int Saklib::Project_Manager::outliner_row_count(AttributeID attributeid) const
+int Saklib::Project_Manager::outliner_row_count(AttributeID const& attributeid) const
 {
     return outliner_children(attributeid).size();
 }
 
 // What is the parent of this item?
-Saklib::AttributeID Saklib::Project_Manager::parent_of(ElementID elementid) const
+Saklib::AttributeID Saklib::Project_Manager::parent_of(ElementID const& elementid) const
 {
     return m_element_manager.element_parent(elementid);
 }
-Saklib::ElementID Saklib::Project_Manager::parent_of(AttributeID attributeid) const
+Saklib::ElementID Saklib::Project_Manager::parent_of(AttributeID const& attributeid) const
 {
     return attributeid.elementid();
 }
 
 // What row is this in its parent as far as the model is concerned?
-int Saklib::Project_Manager::outliner_row_in_parent(ElementID elementid) const
+int Saklib::Project_Manager::outliner_row_in_parent(ElementID const& elementid) const
 {
     auto parent = parent_of(elementid);
     auto siblings = outliner_children(parent);
@@ -857,7 +857,7 @@ int Saklib::Project_Manager::outliner_row_in_parent(ElementID elementid) const
     }
     return 0;
 }
-int Saklib::Project_Manager::outliner_row_in_parent(AttributeID attributeid) const
+int Saklib::Project_Manager::outliner_row_in_parent(AttributeID const& attributeid) const
 {
     auto parent = parent_of(attributeid);
     auto siblings = outliner_children(parent);
@@ -925,24 +925,24 @@ void Saklib::Project_Manager::clear_history()
     command_history_changed();
 }
 
-Saklib::size_type Saklib::Project_Manager::command_ref_count(ElementID elementid) const
+Saklib::size_type Saklib::Project_Manager::command_ref_count(ElementID const& elementid) const
 {
     return m_element_manager.command_ref_count(elementid);
 }
 
-void Saklib::Project_Manager::increment_command_ref_count(ElementID elementid)
+void Saklib::Project_Manager::increment_command_ref_count(ElementID const& elementid)
 {
     if (elementid.is_valid() && is_valid(elementid))
     {
         m_element_manager.increment_command_ref_count(elementid);
     }
 }
-void Saklib::Project_Manager::increment_command_ref_count(AttributeID attributeid)
+void Saklib::Project_Manager::increment_command_ref_count(AttributeID const& attributeid)
 {
     increment_command_ref_count(attributeid.elementid());
 }
 
-void Saklib::Project_Manager::decrement_command_ref_count(ElementID elementid)
+void Saklib::Project_Manager::decrement_command_ref_count(ElementID const& elementid)
 {
     if (elementid.is_valid() && is_valid(elementid))
     {
@@ -955,7 +955,7 @@ void Saklib::Project_Manager::decrement_command_ref_count(ElementID elementid)
         }
     }
 }
-void Saklib::Project_Manager::decrement_command_ref_count(AttributeID attributeid)
+void Saklib::Project_Manager::decrement_command_ref_count(AttributeID const& attributeid)
 {
     decrement_command_ref_count(attributeid.elementid());
 }
@@ -972,10 +972,16 @@ void Saklib::Project_Manager::command_history_changed()
 
 // Internal
 //============================================================
-void Saklib::Project_Manager::assert_element(ElementID elementid) const
+void Saklib::Project_Manager::assert_element(ElementID const& elementid) const
 {
     assert(elementid.is_valid());
     assert(this->is_valid(elementid));
+}
+
+void Saklib::Project_Manager::attribute_changed(AttributeID const& attributeid)
+{
+    observers_attribute_value_changed(attributeid);
+    set_unsaved_edits(true);
 }
 
 void Saklib::Project_Manager::set_unsaved_edits(bool state)
@@ -998,21 +1004,21 @@ void Saklib::Project_Manager::observers_end_model_reset() const
     all_observers_function(&Project_Observer::end_model_reset);
 }
 
-void Saklib::Project_Manager::observers_element_name_changed(ElementID elementid) const
+void Saklib::Project_Manager::observers_element_name_changed(ElementID const& elementid) const
 {
     all_observers_function(&Project_Observer::element_name_changed, elementid);
 }
-void Saklib::Project_Manager::observers_element_parent_changed(ElementID elementid) const
+void Saklib::Project_Manager::observers_element_parent_changed(ElementID const& elementid) const
 {
     all_observers_function(&Project_Observer::element_parent_changed, elementid);
 }
-void Saklib::Project_Manager::observers_element_destroyed(ElementID elementid) const
+void Saklib::Project_Manager::observers_element_destroyed(ElementID const& elementid) const
 {
     all_observers_function(&Project_Observer::element_destroyed, elementid);
 }
 
 
-void Saklib::Project_Manager::observers_attribute_value_changed(AttributeID attributeid) const
+void Saklib::Project_Manager::observers_attribute_value_changed(AttributeID const& attributeid) const
 {
     all_observers_function(&Project_Observer::attribute_value_changed, attributeid);
 }

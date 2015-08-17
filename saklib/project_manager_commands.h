@@ -7,6 +7,138 @@
 namespace Saklib
 {
     /*
+    Command_Value<T>
+    ====================================================================================================
+    Wrapper class for storing values inside commands. By using this the increment/decrementing of ref
+    counts for Elements is dealt with in the specialisations of this class rather than inside
+    specialisations of Command classes.
+    */
+    template <typename T>
+    class Command_Value
+    {
+    public:
+        Command_Value(Project_Manager* /*project_manager*/, T const& value) :
+            m_value(value)
+      {}
+        ~Command_Value() = default;
+
+        T& value ()                             { return m_value; }
+        T const& cvalue() const                 { return m_value; }
+
+        operator T& ()                          { return m_value; }
+        operator T const& () const              { return m_value; }
+    private:
+        T m_value;
+    };
+
+    /*
+    Command_Value<ElementID>
+    ====================================================================================================
+    */
+    template <>
+    class Command_Value<ElementID>
+    {
+    public:
+        Command_Value(Project_Manager* project_manager, ElementID const& value) :
+              mp_project_manager{project_manager},
+              m_value{value}
+        {
+            assert(mp_project_manager);
+            mp_project_manager->increment_command_ref_count(m_value);
+        }
+        ~Command_Value()
+        {
+            mp_project_manager->decrement_command_ref_count(m_value);
+        }
+
+        ElementID& value ()                     { return m_value; }
+        ElementID const& cvalue() const         { return m_value; }
+
+        operator ElementID& ()                  { return m_value; }
+        operator ElementID const& () const      { return m_value; }
+
+        Project_Manager* project_manager()      { return mp_project_manager; }
+
+    private:
+        Project_Manager* mp_project_manager;
+        ElementID m_value;
+    };
+
+
+    /*
+    Command_Value<Vector<ElementID>>
+    ====================================================================================================
+    */
+    template <>
+    class Command_Value<Vector<ElementID>>
+    {
+    public:
+        Command_Value(Project_Manager* project_manager, Vector<ElementID> const& value) :
+              mp_project_manager{project_manager},
+              m_value(value)
+        {
+            assert(mp_project_manager);
+            for (auto const& value : m_value)
+            {
+                mp_project_manager->increment_command_ref_count(value);
+            }
+        }
+        ~Command_Value()
+        {
+            for (auto const& value : m_value)
+            {
+                mp_project_manager->increment_command_ref_count(value);
+            }
+        }
+
+        Vector<ElementID>& value ()                 { return m_value; }
+        Vector<ElementID> const& cvalue() const     { return m_value; }
+
+        operator Vector<ElementID>& ()              { return m_value; }
+        operator Vector<ElementID> const& () const  { return m_value; }
+
+        Project_Manager* project_manager()          { return mp_project_manager; }
+
+    private:
+        Project_Manager* mp_project_manager;
+        Vector<ElementID> m_value;
+    };
+
+    /*
+    Command_Value<AttributeID>
+    ====================================================================================================
+    */
+    template <>
+    class Command_Value<AttributeID>
+    {
+    public:
+        Command_Value(Project_Manager* project_manager, AttributeID const& value) :
+              mp_project_manager{project_manager},
+              m_value{value}
+        {
+            assert(mp_project_manager);
+            mp_project_manager->increment_command_ref_count(m_value);
+        }
+        ~Command_Value()
+        {
+            mp_project_manager->decrement_command_ref_count(m_value);
+        }
+
+        AttributeID& value ()                   { return m_value; }
+        AttributeID const& cvalue() const       { return m_value; }
+
+        operator AttributeID& ()                { return m_value; }
+        operator AttributeID const& () const    { return m_value; }
+
+        Project_Manager* project_manager()      { return mp_project_manager; }
+
+    private:
+        Project_Manager* mp_project_manager;
+        AttributeID m_value;
+    };
+
+
+    /*
     Project_Manager_Command_Element
     ====================================================================================================
     Shared garbage collection modifications go here
@@ -15,30 +147,21 @@ namespace Saklib
             public Command
     {
     public:
-        Project_Manager_Command_Element(Project_Manager* project_widget, ElementID elementid):
+        Project_Manager_Command_Element(Project_Manager* project_manager, ElementID const& elementid):
             Command(),
-            mp_project_widget(project_widget),
-            m_elementid(elementid)
+            m_elementid(project_manager, elementid)
         {
-            assert(mp_project_widget);
-            assert(mp_project_widget->is_valid(m_elementid));
-
-            mp_project_widget->increment_command_ref_count(m_elementid);
         }
-        ~Project_Manager_Command_Element() override
-        {
-            mp_project_widget->decrement_command_ref_count(m_elementid);
-        }
+        ~Project_Manager_Command_Element() override = default;
 
-        Project_Manager* project_widget() const { return mp_project_widget; }
-        ElementID elementid() const             { return m_elementid; }
+        Project_Manager* project_manager()          { return m_elementid.project_manager(); }
+        ElementID const& elementid() const          { return m_elementid; }
 
     protected:
         void v_execute() override = 0;
         void v_unexecute() override = 0;
     private:
-        Project_Manager* mp_project_widget;
-        ElementID m_elementid;
+        Command_Value<ElementID> m_elementid;
     };
 
     /*
@@ -50,34 +173,23 @@ namespace Saklib
             public Command
     {
     public:
-        Project_Manager_Command_Attribute(Project_Manager* project_widget, AttributeID attributeid):
+        Project_Manager_Command_Attribute(Project_Manager* project_manager, AttributeID const& attributeid):
             Command(),
-            mp_project_widget(project_widget),
-            m_attributeid(attributeid)
+            m_attributeid(project_manager, attributeid)
         {
-            assert(mp_project_widget);
-            assert(mp_project_widget->is_valid(m_attributeid));
-
-            mp_project_widget->increment_command_ref_count(m_attributeid);
         }
-        ~Project_Manager_Command_Attribute() override
-        {
-            mp_project_widget->decrement_command_ref_count(m_attributeid);
-        }
+        ~Project_Manager_Command_Attribute() override = default;
 
-        Project_Manager* project_widget() const { return mp_project_widget; }
-        ElementID elementid() const             { return m_attributeid.elementid(); }
-        AttributeID attributeid() const         { return m_attributeid; }
+        Project_Manager* project_manager()          { return m_attributeid.project_manager(); }
+        ElementID const& elementid() const          { return m_attributeid.cvalue().elementid(); }
+        AttributeID const& attributeid() const      { return m_attributeid; }
 
     protected:
         void v_execute() override = 0;
         void v_unexecute() override = 0;
     private:
-        Project_Manager* mp_project_widget;
-        AttributeID m_attributeid;
+        Command_Value<AttributeID> m_attributeid;
     };
-
-
 
     /*
     PMC_Element_Set_Name
@@ -87,25 +199,25 @@ namespace Saklib
             public Project_Manager_Command_Element
     {
     public:
-        PMC_Element_Set_Name(Project_Manager* project_widget, ElementID elementid, String const& name):
-            Project_Manager_Command_Element(project_widget, elementid),
-            m_old_name(project_widget->element_name(elementid)),
-            m_new_name(name)
+        PMC_Element_Set_Name(Project_Manager* project_manager, ElementID const& elementid, String const& name):
+            Project_Manager_Command_Element(project_manager, elementid),
+            m_old_name(project_manager, project_manager->element_name(elementid)),
+            m_new_name(project_manager, name)
         {}
         ~PMC_Element_Set_Name() override = default;
 
     protected:
         void v_execute() override
         {
-            project_widget()->element_set_name(elementid(), m_new_name);
+            project_manager()->element_set_name(elementid(), m_new_name);
         }
         void v_unexecute() override
         {
-            project_widget()->element_set_name(elementid(), m_old_name);
+            project_manager()->element_set_name(elementid(), m_old_name);
         }
     private:
-        String m_old_name;
-        String m_new_name;
+        Command_Value<String> m_old_name;
+        Command_Value<String> m_new_name;
     };
 
     /*
@@ -117,61 +229,26 @@ namespace Saklib
             public Project_Manager_Command_Attribute
     {
     public:
-        PMC_Attribute_Set_Value(Project_Manager* project_widget, AttributeID attributeid, T const& value):
-            Project_Manager_Command_Attribute(project_widget, attributeid),
-            m_old_value(project_widget->attribute_type_cast<T>(attributeid)->value()),
-            m_new_value(value)
+        PMC_Attribute_Set_Value(Project_Manager* project_manager, AttributeID const& attributeid, T const& value):
+            Project_Manager_Command_Attribute(project_manager, attributeid),
+            m_old_value(project_manager, project_manager->template attribute_value<T>(attributeid)),
+            m_new_value(project_manager, value)
         {}
         ~PMC_Attribute_Set_Value() override = default;
 
     protected:
         void v_execute() override
         {
-            project_widget()->template attribute_set_value<T>(attributeid(), m_new_value);
+            project_manager()->template attribute_set_value<T>(attributeid(), m_new_value);
         }
         void v_unexecute() override
         {
-            project_widget()->template attribute_set_value<T>(attributeid(), m_old_value);
+            project_manager()->template attribute_set_value<T>(attributeid(), m_old_value);
         }
     private:
-        T m_old_value;
-        T m_new_value;
+        Command_Value<T> m_old_value;
+        Command_Value<T> m_new_value;
     };
-
-    template <>
-    class PMC_Attribute_Set_Value<ElementID>:
-            public Project_Manager_Command_Attribute
-    {
-    public:
-        PMC_Attribute_Set_Value(Project_Manager* project_widget, AttributeID attributeid, ElementID const& value):
-            Project_Manager_Command_Attribute(project_widget, attributeid),
-            m_old_value(project_widget->attribute_type_cast<ElementID>(attributeid)->value()),
-            m_new_value(value)
-        {
-            this->project_widget()->increment_command_ref_count(m_old_value);
-            this->project_widget()->increment_command_ref_count(m_new_value);
-        }
-        ~PMC_Attribute_Set_Value() override
-        {
-            this->project_widget()->decrement_command_ref_count(m_old_value);
-            this->project_widget()->decrement_command_ref_count(m_new_value);
-        }
-
-    protected:
-        void v_execute() override
-        {
-            project_widget()->attribute_set_value<ElementID>(attributeid(), m_new_value);
-        }
-        void v_unexecute() override
-        {
-            project_widget()->attribute_set_value<ElementID>(attributeid(), m_old_value);
-        }
-    private:
-        ElementID m_old_value;
-        ElementID m_new_value;
-    };
-
-
 
     /*
     PMC_Attribute_Vector_Clear<T>
@@ -182,58 +259,23 @@ namespace Saklib
             public Project_Manager_Command_Attribute
     {
     public:
-        PMC_Attribute_Vector_Clear(Project_Manager* project_widget, AttributeID attributeid):
-            Project_Manager_Command_Attribute(project_widget, attributeid),
-            m_old_vector(project_widget->attribute_type_cast<Vector<T>>(attributeid)->vector())
+        PMC_Attribute_Vector_Clear(Project_Manager* project_manager, AttributeID const& attributeid):
+            Project_Manager_Command_Attribute(project_manager, attributeid),
+            m_old_vector(project_manager, project_manager->template attribute_vector_vector<T>(attributeid))
         {}
         ~PMC_Attribute_Vector_Clear() override = default;
 
     protected:
         void v_execute() override
         {
-            project_widget()->template attribute_vector_clear<T>(attributeid());
+            project_manager()->template attribute_vector_clear<T>(attributeid());
         }
         void v_unexecute() override
         {
-            project_widget()->template attribute_vector_set_vector<T>(attributeid(), m_old_vector);
+            project_manager()->template attribute_vector_set_vector<T>(attributeid(), m_old_vector);
         }
     private:
-        Vector<T> m_old_vector;
-    };
-
-    template <>
-    class PMC_Attribute_Vector_Clear<ElementID>:
-            public Project_Manager_Command_Attribute
-    {
-    public:
-        PMC_Attribute_Vector_Clear(Project_Manager* project_widget, AttributeID attributeid):
-            Project_Manager_Command_Attribute(project_widget, attributeid),
-            m_old_vector(project_widget->attribute_type_cast<Vector<ElementID>>(attributeid)->vector())
-        {
-            for (auto elementid : m_old_vector)
-            {
-                this->project_widget()->increment_command_ref_count(elementid);
-            }
-        }
-        ~PMC_Attribute_Vector_Clear() override
-        {
-            for (auto elementid : m_old_vector)
-            {
-                this->project_widget()->decrement_command_ref_count(elementid);
-            }
-        }
-
-    protected:
-        void v_execute() override
-        {
-            project_widget()->attribute_vector_clear<ElementID>(attributeid());
-        }
-        void v_unexecute() override
-        {
-            project_widget()->attribute_vector_set_vector<ElementID>(attributeid(), m_old_vector);
-        }
-    private:
-        Vector<ElementID> m_old_vector;
+        Command_Value<Vector<T>> m_old_vector;
     };
 
     /*
@@ -245,62 +287,27 @@ namespace Saklib
             public Project_Manager_Command_Attribute
     {
     public:
-        PMC_Attribute_Vector_Set_At(Project_Manager* project_widget, AttributeID attributeid, size_type index, T const& value):
-            Project_Manager_Command_Attribute(project_widget, attributeid),
+        PMC_Attribute_Vector_Set_At(Project_Manager* project_manager, AttributeID const& attributeid, size_type index, T const& value):
+            Project_Manager_Command_Attribute(project_manager, attributeid),
             m_index(index),
-            m_new_value(value),
-            m_old_value(project_widget->attribute_type_cast<Vector<T>>(attributeid)->at(index))
+            m_new_value(project_manager, value),
+            m_old_value(project_manager, project_manager->template attribute_vector_at<T>(attributeid, index))
         {}
         ~PMC_Attribute_Vector_Set_At() override = default;
 
     protected:
         void v_execute() override
         {
-            project_widget()->template attribute_vector_set_at<T>(attributeid(), m_index, m_new_value);
+            project_manager()->template attribute_vector_set_at<T>(attributeid(), m_index, m_new_value);
         }
         void v_unexecute() override
         {
-            project_widget()->template attribute_vector_set_at<T>(attributeid(), m_index, m_old_value);
+            project_manager()->template attribute_vector_set_at<T>(attributeid(), m_index, m_old_value);
         }
     private:
         size_type m_index;
-        T m_new_value;
-        T m_old_value;
-    };
-
-    template <>
-    class PMC_Attribute_Vector_Set_At<ElementID>:
-            public Project_Manager_Command_Attribute
-    {
-    public:
-        PMC_Attribute_Vector_Set_At(Project_Manager* project_widget, AttributeID attributeid, size_type index, ElementID const& value):
-            Project_Manager_Command_Attribute(project_widget, attributeid),
-            m_index(index),
-            m_new_value(value),
-            m_old_value(project_widget->attribute_type_cast<Vector<ElementID>>(attributeid)->at(index))
-        {
-            this->project_widget()->increment_command_ref_count(m_old_value);
-            this->project_widget()->increment_command_ref_count(m_new_value);
-        }
-        ~PMC_Attribute_Vector_Set_At() override
-        {
-            this->project_widget()->decrement_command_ref_count(m_old_value);
-            this->project_widget()->decrement_command_ref_count(m_new_value);
-        }
-
-    protected:
-        void v_execute() override
-        {
-            project_widget()->attribute_vector_set_at<ElementID>(attributeid(), m_index, m_new_value);
-        }
-        void v_unexecute() override
-        {
-            project_widget()->attribute_vector_set_at<ElementID>(attributeid(), m_index, m_old_value);
-        }
-    private:
-        size_type m_index;
-        ElementID m_new_value;
-        ElementID m_old_value;
+        Command_Value<T> m_new_value;
+        Command_Value<T> m_old_value;
     };
 
     /*
@@ -312,58 +319,25 @@ namespace Saklib
             public Project_Manager_Command_Attribute
     {
     public:
-        PMC_Attribute_Vector_Set_Front(Project_Manager* project_widget, AttributeID attributeid, T const& value):
-            Project_Manager_Command_Attribute(project_widget, attributeid),
-            m_new_value(value),
-            m_old_value(project_widget->attribute_type_cast<Vector<T>>(attributeid)->front())
+        PMC_Attribute_Vector_Set_Front(Project_Manager* project_manager, AttributeID const& attributeid, T const& value):
+            Project_Manager_Command_Attribute(project_manager, attributeid),
+            m_new_value(project_manager, value),
+            m_old_value(project_manager, project_manager->attribute_vector_front<T>(attributeid))
         {}
         ~PMC_Attribute_Vector_Set_Front() override = default;
 
     protected:
         void v_execute() override
         {
-            project_widget()->template attribute_vector_set_front<T>(attributeid(), m_new_value);
+            project_manager()->template attribute_vector_set_front<T>(attributeid(), m_new_value);
         }
         void v_unexecute() override
         {
-            project_widget()->template attribute_vector_set_front<T>(attributeid(), m_old_value);
+            project_manager()->template attribute_vector_set_front<T>(attributeid(), m_old_value);
         }
     private:
-        T m_new_value;
-        T m_old_value;
-    };
-
-    template <>
-    class PMC_Attribute_Vector_Set_Front<ElementID>:
-            public Project_Manager_Command_Attribute
-    {
-    public:
-        PMC_Attribute_Vector_Set_Front(Project_Manager* project_widget, AttributeID attributeid, ElementID const& value):
-            Project_Manager_Command_Attribute(project_widget, attributeid),
-            m_new_value(value),
-            m_old_value(project_widget->attribute_type_cast<Vector<ElementID>>(attributeid)->front())
-        {
-            this->project_widget()->increment_command_ref_count(m_old_value);
-            this->project_widget()->increment_command_ref_count(m_new_value);
-        }
-        ~PMC_Attribute_Vector_Set_Front() override
-        {
-            this->project_widget()->decrement_command_ref_count(m_old_value);
-            this->project_widget()->decrement_command_ref_count(m_new_value);
-        }
-
-    protected:
-        void v_execute() override
-        {
-            project_widget()->attribute_vector_set_front<ElementID>(attributeid(), m_new_value);
-        }
-        void v_unexecute() override
-        {
-            project_widget()->attribute_vector_set_front<ElementID>(attributeid(), m_old_value);
-        }
-    private:
-        ElementID m_new_value;
-        ElementID m_old_value;
+        Command_Value<T> m_new_value;
+        Command_Value<T> m_old_value;
     };
 
     /*
@@ -375,58 +349,25 @@ namespace Saklib
             public Project_Manager_Command_Attribute
     {
     public:
-        PMC_Attribute_Vector_Set_Back(Project_Manager* project_widget, AttributeID attributeid, T const& value):
-            Project_Manager_Command_Attribute(project_widget, attributeid),
-            m_new_value(value),
-            m_old_value(project_widget->attribute_type_cast<Vector<T>>(attributeid)->front())
+        PMC_Attribute_Vector_Set_Back(Project_Manager* project_manager, AttributeID const& attributeid, T const& value):
+            Project_Manager_Command_Attribute(project_manager, attributeid),
+            m_new_value(project_manager, value),
+            m_old_value(project_manager, project_manager->attribute_vector_back<T>(attributeid))
         {}
         ~PMC_Attribute_Vector_Set_Back() override = default;
 
     protected:
         void v_execute() override
         {
-            project_widget()->template attribute_vector_set_back<T>(attributeid(), m_new_value);
+            project_manager()->template attribute_vector_set_back<T>(attributeid(), m_new_value);
         }
         void v_unexecute() override
         {
-            project_widget()->template attribute_vector_set_back<T>(attributeid(), m_old_value);
+            project_manager()->template attribute_vector_set_back<T>(attributeid(), m_old_value);
         }
     private:
-        T m_new_value;
-        T m_old_value;
-    };
-
-    template <>
-    class PMC_Attribute_Vector_Set_Back<ElementID>:
-            public Project_Manager_Command_Attribute
-    {
-    public:
-        PMC_Attribute_Vector_Set_Back(Project_Manager* project_widget, AttributeID attributeid, ElementID const& value):
-            Project_Manager_Command_Attribute(project_widget, attributeid),
-            m_new_value(value),
-            m_old_value(project_widget->attribute_type_cast<Vector<ElementID>>(attributeid)->front())
-        {
-            this->project_widget()->increment_command_ref_count(m_old_value);
-            this->project_widget()->increment_command_ref_count(m_new_value);
-        }
-        ~PMC_Attribute_Vector_Set_Back() override
-        {
-            this->project_widget()->decrement_command_ref_count(m_old_value);
-            this->project_widget()->decrement_command_ref_count(m_new_value);
-        }
-
-    protected:
-        void v_execute() override
-        {
-            project_widget()->attribute_vector_set_back<ElementID>(attributeid(), m_new_value);
-        }
-        void v_unexecute() override
-        {
-            project_widget()->attribute_vector_set_back<ElementID>(attributeid(), m_old_value);
-        }
-    private:
-        ElementID m_new_value;
-        ElementID m_old_value;
+        Command_Value<T> m_new_value;
+        Command_Value<T> m_old_value;
     };
 
     /*
@@ -438,8 +379,8 @@ namespace Saklib
             public Project_Manager_Command_Attribute
     {
     public:
-        PMC_Attribute_Vector_Swap_At(Project_Manager* project_widget, AttributeID attributeid, size_type index, size_type other_index):
-            Project_Manager_Command_Attribute(project_widget, attributeid),
+        PMC_Attribute_Vector_Swap_At(Project_Manager* project_manager, AttributeID const& attributeid, size_type index, size_type other_index):
+            Project_Manager_Command_Attribute(project_manager, attributeid),
             m_index(index),
             m_other_index(other_index)
         {}
@@ -448,11 +389,11 @@ namespace Saklib
     protected:
         void v_execute() override
         {
-            project_widget()->template attribute_vector_swap_at<T>(attributeid(), m_index, m_other_index);
+            project_manager()->template attribute_vector_swap_at<T>(attributeid(), m_index, m_other_index);
         }
         void v_unexecute() override
         {
-            project_widget()->template attribute_vector_swap_at<T>(attributeid(), m_index, m_other_index);
+            project_manager()->template attribute_vector_swap_at<T>(attributeid(), m_index, m_other_index);
         }
     private:
         size_type m_index;
@@ -468,51 +409,22 @@ namespace Saklib
             public Project_Manager_Command_Attribute
     {
     public:
-        PMC_Attribute_Vector_Push_Back(Project_Manager* project_widget, AttributeID attributeid, T const& value):
-            Project_Manager_Command_Attribute(project_widget, attributeid),
-            m_new_value(value)
+        PMC_Attribute_Vector_Push_Back(Project_Manager* project_manager, AttributeID const& attributeid, T const& value):
+            Project_Manager_Command_Attribute(project_manager, attributeid),
+            m_new_value(project_manager, value)
         {}
         ~PMC_Attribute_Vector_Push_Back() override = default;
     protected:
         void v_execute() override
         {
-            project_widget()->template attribute_vector_push_back<T>(attributeid(), m_new_value);
+            project_manager()->template attribute_vector_push_back<T>(attributeid(), m_new_value);
         }
         void v_unexecute() override
         {
-            project_widget()->template attribute_vector_pop_back<T>(attributeid());
+            project_manager()->template attribute_vector_pop_back<T>(attributeid());
         }
     private:
-        T m_new_value;
-    };
-
-    template <>
-    class PMC_Attribute_Vector_Push_Back<ElementID>:
-            public Project_Manager_Command_Attribute
-    {
-    public:
-        PMC_Attribute_Vector_Push_Back(Project_Manager* project_widget, AttributeID attributeid, ElementID const& value):
-            Project_Manager_Command_Attribute(project_widget, attributeid),
-            m_new_value(value)
-        {
-            this->project_widget()->increment_command_ref_count(m_new_value);
-        }
-        ~PMC_Attribute_Vector_Push_Back() override
-        {
-            this->project_widget()->decrement_command_ref_count(m_new_value);
-        }
-
-    protected:
-        void v_execute() override
-        {
-            project_widget()->attribute_vector_push_back<ElementID>(attributeid(), m_new_value);
-        }
-        void v_unexecute() override
-        {
-            project_widget()->attribute_vector_pop_back<ElementID>(attributeid());
-        }
-    private:
-        ElementID m_new_value;
+        Command_Value<T> m_new_value;
     };
 
     /*
@@ -524,52 +436,23 @@ namespace Saklib
             public Project_Manager_Command_Attribute
     {
     public:
-        PMC_Attribute_Vector_Pop_Back(Project_Manager* project_widget, AttributeID attributeid):
-            Project_Manager_Command_Attribute(project_widget, attributeid),
-            m_old_value(project_widget->attribute_type_cast<Vector<T>>(attributeid)->back())
+        PMC_Attribute_Vector_Pop_Back(Project_Manager* project_manager, AttributeID const& attributeid):
+            Project_Manager_Command_Attribute(project_manager, attributeid),
+            m_old_value(project_manager, project_manager->attribute_vector_back<T>(attributeid))
         {}
         ~PMC_Attribute_Vector_Pop_Back() override = default;
 
     protected:
         void v_execute() override
         {
-            project_widget()->template attribute_vector_pop_back<T>(attributeid());
+            project_manager()->template attribute_vector_pop_back<T>(attributeid());
         }
         void v_unexecute() override
         {
-            project_widget()->template attribute_vector_push_back<T>(attributeid(), m_old_value);
+            project_manager()->template attribute_vector_push_back<T>(attributeid(), m_old_value);
         }
     private:
-        T m_old_value;
-    };
-
-    template <>
-    class PMC_Attribute_Vector_Pop_Back<ElementID>:
-            public Project_Manager_Command_Attribute
-    {
-    public:
-        PMC_Attribute_Vector_Pop_Back(Project_Manager* project_widget, AttributeID attributeid):
-            Project_Manager_Command_Attribute(project_widget, attributeid),
-            m_old_value(project_widget->attribute_type_cast<Vector<ElementID>>(attributeid)->back())
-        {
-            this->project_widget()->increment_command_ref_count(m_old_value);
-        }
-        ~PMC_Attribute_Vector_Pop_Back() override
-        {
-            this->project_widget()->decrement_command_ref_count(m_old_value);
-        }
-
-    protected:
-        void v_execute() override
-        {
-            project_widget()->attribute_vector_pop_back<ElementID>(attributeid());
-        }
-        void v_unexecute() override
-        {
-            project_widget()->attribute_vector_push_back<ElementID>(attributeid(), m_old_value);
-        }
-    private:
-        ElementID m_old_value;
+        Command_Value<T> m_old_value;
     };
 
     /*
@@ -581,56 +464,25 @@ namespace Saklib
             public Project_Manager_Command_Attribute
     {
     public:
-        PMC_Attribute_Vector_Insert_At(Project_Manager* project_widget, AttributeID attributeid, size_type index, T const& value):
-            Project_Manager_Command_Attribute(project_widget, attributeid),
+        PMC_Attribute_Vector_Insert_At(Project_Manager* project_manager, AttributeID const& attributeid, size_type index, T const& value):
+            Project_Manager_Command_Attribute(project_manager, attributeid),
             m_index(index),
-            m_value(value)
+            m_value(project_manager, value)
         {}
         ~PMC_Attribute_Vector_Insert_At() override = default;
 
     protected:
         void v_execute() override
         {
-            project_widget()->template attribute_vector_insert_at<T>(attributeid(), m_index, m_value);
+            project_manager()->template attribute_vector_insert_at<T>(attributeid(), m_index, m_value);
         }
         void v_unexecute() override
         {
-            project_widget()->template attribute_vector_remove_at<T>(attributeid(), m_index);
+            project_manager()->template attribute_vector_remove_at<T>(attributeid(), m_index);
         }
     private:
         size_type m_index;
-        T m_value;
-    };
-
-    template <>
-    class PMC_Attribute_Vector_Insert_At<ElementID>:
-            public Project_Manager_Command_Attribute
-    {
-    public:
-        PMC_Attribute_Vector_Insert_At(Project_Manager* project_widget, AttributeID attributeid, size_type index, ElementID const& value):
-            Project_Manager_Command_Attribute(project_widget, attributeid),
-            m_index(index),
-            m_value(value)
-        {
-            this->project_widget()->increment_command_ref_count(m_value);
-        }
-        ~PMC_Attribute_Vector_Insert_At() override
-        {
-            this->project_widget()->decrement_command_ref_count(m_value);
-        }
-
-    protected:
-        void v_execute() override
-        {
-            project_widget()->attribute_vector_insert_at<ElementID>(attributeid(), m_index, m_value);
-        }
-        void v_unexecute() override
-        {
-            project_widget()->attribute_vector_remove_at<ElementID>(attributeid(), m_index);
-        }
-    private:
-        size_type m_index;
-        ElementID m_value;
+        Command_Value<T> m_value;
     };
 
     /*
@@ -642,56 +494,25 @@ namespace Saklib
             public Project_Manager_Command_Attribute
     {
     public:
-        PMC_Attribute_Vector_Remove_At(Project_Manager* project_widget, AttributeID attributeid, size_type index):
-            Project_Manager_Command_Attribute(project_widget, attributeid),
+        PMC_Attribute_Vector_Remove_At(Project_Manager* project_manager, AttributeID const& attributeid, size_type index):
+            Project_Manager_Command_Attribute(project_manager, attributeid),
             m_index(index),
-            m_value(project_widget->attribute_vector_at<T>(attributeid, index))
+            m_value(project_manager, project_manager->attribute_vector_at<T>(attributeid, index))
         {}
         ~PMC_Attribute_Vector_Remove_At() override = default;
 
     protected:
         void v_execute() override
         {
-            project_widget()->template attribute_vector_remove_at<T>(attributeid(), m_index);
+            project_manager()->template attribute_vector_remove_at<T>(attributeid(), m_index);
         }
         void v_unexecute() override
         {
-            project_widget()->template attribute_vector_insert_at<T>(attributeid(), m_index, m_value);
+            project_manager()->template attribute_vector_insert_at<T>(attributeid(), m_index, m_value);
         }
     private:
         size_type m_index;
-        T m_value;
-    };
-
-    template <>
-    class PMC_Attribute_Vector_Remove_At<ElementID>:
-            public Project_Manager_Command_Attribute
-    {
-    public:
-        PMC_Attribute_Vector_Remove_At(Project_Manager* project_widget, AttributeID attributeid, size_type index):
-            Project_Manager_Command_Attribute(project_widget, attributeid),
-            m_index(index),
-            m_value(project_widget->attribute_vector_at<ElementID>(attributeid, index))
-        {
-            this->project_widget()->increment_command_ref_count(m_value);
-        }
-        ~PMC_Attribute_Vector_Remove_At() override
-        {
-            this->project_widget()->decrement_command_ref_count(m_value);
-        }
-
-    protected:
-        void v_execute() override
-        {
-            project_widget()->attribute_vector_remove_at<ElementID>(attributeid(), m_index);
-        }
-        void v_unexecute() override
-        {
-            project_widget()->attribute_vector_insert_at<ElementID>(attributeid(), m_index, m_value);
-        }
-    private:
-        size_type m_index;
-        ElementID m_value;
+        Command_Value<T> m_value;
     };
 
 }  // namespace Saklib

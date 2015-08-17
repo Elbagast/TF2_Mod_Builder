@@ -28,15 +28,15 @@ namespace
         std::string m_value;
     };
 
+
+
     using Thing_H = datalib::Handle < Thing >;
     using Thing_H_Factory = datalib::Handle_Factory < Thing >;
 
-    //using Thing_Manager = datalib::Smart_Handle_Pointer_Manager < Thing >;
-    //using Thing_Manager = datalib::Smart_Handle_Manager < Thing , datalib::Handle_Pointer_Storage<Thing>, datalib::Handle_Factory<Thing> >;
-    using Thing_Manager = datalib::Smart_Handle_Manager < Thing , datalib::Handle_Factory, datalib::Reference_Counted_Pointer_Storage >;
+    using Thing_Manager = datalib::Smart_Handle_Manager < Thing , datalib::Handle_Factory, datalib::Reference_Counted_Pointer_Storage, datalib::No_Pre_Destruction<Thing> >;
     using Thing_SH = datalib::Smart_Handle<Thing_Manager>;
 
-    using Thing_Manager_Alt = datalib::Smart_Handle_Manager < Thing , datalib::Handle_Factory, datalib::Reference_Counted_Value_Storage >;
+    using Thing_Manager_Alt = datalib::Smart_Handle_Manager < Thing , datalib::Handle_Factory, datalib::Reference_Counted_Value_Storage, datalib::No_Pre_Destruction<Thing> >;
 
 
     using Thing_SH_Alt = datalib::Smart_Handle<Thing_Manager_Alt>;
@@ -181,8 +181,11 @@ namespace
 {
     class Link;
 
+    struct Link_Pre_Destructor;
+
+
     using Link_H = datalib::Handle < Link >;
-    using Link_Manager = datalib::Smart_Handle_Manager < Link , datalib::Handle_Factory, datalib::Reference_Counted_Pointer_Storage >;
+    using Link_Manager = datalib::Smart_Handle_Manager < Link , datalib::Handle_Factory, datalib::Reference_Counted_Pointer_Storage, Link_Pre_Destructor >;
     using Link_SH = datalib::Smart_Handle < Link_Manager >;
 
     class Link
@@ -197,6 +200,16 @@ namespace
     private:
         Link_SH m_child;
     };
+
+    struct Link_Pre_Destructor
+    {
+        using data_type = Link;
+
+        static void prepare_to_destroy(Link& value) { value.set_child(Link_SH()); }
+    };
+
+
+
 
     std::ostream& operator<<(std::ostream& os, Link_H const& handle)
     {
@@ -232,29 +245,28 @@ void datalib::test3()
     Link_Manager manager{};
 
     Link_SH link0{ manager.emplace_data(std::make_unique<Link>()) };
-    //Link_SH link1{ manager.emplace_data(std::make_unique<Link>()) };
-    //Link_SH link2{ manager.emplace_data(std::make_unique<Link>()) };
+    Link_SH link1{ manager.emplace_data(std::make_unique<Link>()) };
+    Link_SH link2{ manager.emplace_data(std::make_unique<Link>()) };
 
     std::cout << "link0: " << link0 << std::endl; // H = 1, child = 0
-    //std::cout << "link1: " << link1 << std::endl; // H = 2, child = 0
-    //std::cout << "link2: " << link2 << std::endl; // H = 3, child = 0
+    std::cout << "link1: " << link1 << std::endl; // H = 2, child = 0
+    std::cout << "link2: " << link2 << std::endl; // H = 3, child = 0
 
     std::cout << std::endl;
 
-    link0.data()->set_child(manager.emplace_data(std::make_unique<Link>()));
-    //link0.data()->set_child(link1);
-    //link1.data()->set_child(link2);
+    //link0.data()->set_child(manager.emplace_data(std::make_unique<Link>()));
+    link0.data()->set_child(link1);
+    link1.data()->set_child(link2);
 
     std::cout << "link0: " << link0 << std::endl; // H = 1, child = 2
-    //std::cout << "link1: " << link1 << std::endl; // H = 2, child = 0
-    std::cout << "link1: " << link0.cdata()->cget_child() << std::endl; // H = 2, child = 0
-    //std::cout << "link2: " << link2 << std::endl; // H = 3, child = 0
+    std::cout << "link1: " << link1 << std::endl; // H = 2, child = 0
+    std::cout << "link2: " << link2 << std::endl; // H = 3, child = 0
 
     // currently the storage does not like recursive removal calls...
-    link0.data()->set_child(manager.make_null_handle());
+    //link0.data()->set_child(manager.make_null_handle());
 
     std::cout << std::endl;
-/*
+
     {
         Link_SH link3{ manager.emplace_data(std::make_unique<Link>()) };
         link2.data()->set_child(link3);
@@ -270,6 +282,17 @@ void datalib::test3()
     std::cout << "link1: " << link1 << std::endl; // H = 2, child = 3
     std::cout << "link2: " << link2 << std::endl; // H = 3, child = 4
 
+    std::cout << "link3: " << link2.cdata()->cget_child() << std::endl; // H = 4, child = 0
+
+    std::cout << std::endl;
+
+    // we can make a circular reference that will break things on destruction....
+    /*
+    link1.data()->set_child(link0);
+
+    std::cout << "link0: " << link0 << std::endl; // H = 1, child = 2
+    std::cout << "link1: " << link1 << std::endl; // H = 2, child = 1
+    std::cout << "link2: " << link2 << std::endl; // H = 3, child = 4
     std::cout << "link3: " << link2.cdata()->cget_child() << std::endl; // H = 4, child = 0
     */
 

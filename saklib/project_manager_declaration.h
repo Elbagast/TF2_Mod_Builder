@@ -68,92 +68,71 @@ namespace Saklib
         // Make a new Element and return all info about it
         ElementID make_element(String const& type);
         // Destory an Element and everything associated with it
-        void destroy_element(ElementID elementid);
+        void destroy_element(ElementID const& elementid);
 
         // Does this refer to something in this? - rename these to has(blah) ?
-        bool is_valid(ElementID elementid) const;
-        bool is_valid(AttributeID attributeid) const;
+        bool is_valid(ElementID const& elementid) const;
+        bool is_valid(AttributeID const& attributeid) const;
 
         // Elements
         //------------------------------------------------------------
-        Element& element(ElementID elementid);
-        Element const& element(ElementID elementid) const; // return a pointer?
+        Element& element(ElementID const& elementid);
+        Element const& element(ElementID const& elementid) const; // return a pointer?
 
-        String const& element_type(ElementID elementid) const;
+        String const& element_type(ElementID const& elementid) const;
 
-        String const& element_name(ElementID elementid) const;
-        void element_set_name(ElementID elementid, String const& value);
+        String const& element_name(ElementID const& elementid) const;
+        void element_set_name(ElementID const& elementid, String const& value);
 
-        bool element_can_be_root(ElementID elementid) const;
+        bool element_can_be_root(ElementID const& elementid) const;
 
-        AttributeID element_parent(ElementID elementid) const;
-        void element_set_parent(ElementID elementid, AttributeID attributeid = invalid_attributeid());
+        AttributeID element_parent(ElementID const& elementid) const;
+        void element_set_parent(ElementID const& elementid, AttributeID attributeid = invalid_attributeid());
 
 
         // Attributes
         //------------------------------------------------------------
-        AttributeID attributeid(ElementID elementid, String const& attribute_name) const;
+        AttributeID attributeid(ElementID const& elementid, String const& attribute_name) const;
 
-        Attribute* attribute(AttributeID attributeid);
-        Attribute* attribute(ElementID elementid, size_type attribute_index);
-        Attribute* attribute(ElementID elementid, String const& attribute_name);
+        Attribute* attribute(AttributeID const& attributeid);
+        Attribute* attribute(ElementID const& elementid, size_type attribute_index);
+        Attribute* attribute(ElementID const& elementid, String const& attribute_name);
 
-        Attribute const* attribute(AttributeID attributeid) const;
-        Attribute const* attribute(ElementID elementid, size_type attribute_index) const;
-        Attribute const* attribute(ElementID elementid, String const& attribute_name) const;
+        Attribute const* attribute(AttributeID const& attributeid) const;
+        Attribute const* attribute(ElementID const& elementid, size_type attribute_index) const;
+        Attribute const* attribute(ElementID const& elementid, String const& attribute_name) const;
 
 
         // Attribute forwarding functions
         //------------------------------------------------------------
-        String const& attribute_name(AttributeID attributeid) const;
-        Type_Enum attribute_type_enum(AttributeID attributeid) const;
-        String attribute_type_string(AttributeID attributeid) const;
-        bool attribute_is_constrained(AttributeID attributeid) const;
-
-        // Attribute_Type<T> casting
-        //------------------------------------------------------------
-
-        template <typename T>
-        Attribute_Type<T>* attribute_type_cast(AttributeID attributeid);
-
-        template <typename T>
-        Attribute_Type<T>* attribute_type_cast(ElementID elementid, size_type attribute_index);
-
-        template <typename T>
-        Attribute_Type<T>* attribute_type_cast(ElementID elementid, String const& attribute_name);
-
-        template <typename T>
-        Attribute_Type<T> const* attribute_type_cast(AttributeID attributeid) const;
-
-        template <typename T>
-        Attribute_Type<T> const* attribute_type_cast(ElementID elementid, size_type attribute_index) const;
-
-        template <typename T>
-        Attribute_Type<T> const* attribute_type_cast(ElementID elementid, String const& attribute_name) const;
+        String const& attribute_name(AttributeID const& attributeid) const;
+        Type_Enum attribute_type_enum(AttributeID const& attributeid) const;
+        String attribute_type_string(AttributeID const& attributeid) const;
+        bool attribute_is_constrained(AttributeID const& attributeid) const;
 
         // Attribute_Type<T> forwarding functions
         //------------------------------------------------------------
         // These functions set the data without question, and tell the model and widget to update.
 
         template <typename T>
-        T const& attribute_value(AttributeID attributeid) const;
+        T const& attribute_value(AttributeID const& attributeid) const;
 
         template <typename T>
-        void attribute_set_value(AttributeID attributeid, T const& value);
+        void attribute_set_value(AttributeID const& attributeid, T const& value);
 
         // Attribute_Type<Vector<T>> Type-Anonymous Functions
         //------------------------------------------------------------
         // We do not need to know the underlying type to call these functions, but this must figure
         // it out and act appropriately.
 
-        bool any_attribute_vector_empty(AttributeID attributeid) const;
-        size_type any_attribute_vector_size(AttributeID attributeid) const;
+        bool any_attribute_vector_empty(AttributeID const& attributeid) const;
+        size_type any_attribute_vector_size(AttributeID const& attributeid) const;
 
-        void any_attribute_vector_clear(AttributeID attributeid);
-        void any_attribute_vector_pop_back(AttributeID attributeid);
-        void any_attribute_vector_swap_at(AttributeID attributeid, size_type index, size_type other_index);
+        void any_attribute_vector_clear(AttributeID const& attributeid);
+        void any_attribute_vector_pop_back(AttributeID const& attributeid);
+        void any_attribute_vector_swap_at(AttributeID const& attributeid, size_type index, size_type other_index);
 
-        void any_attribute_vector_remove_at(AttributeID attributeid, size_type index);
+        void any_attribute_vector_remove_at(AttributeID const& attributeid, size_type index);
 
         // Attribute_Type<Vector<T>> forwarding functions
         //------------------------------------------------------------
@@ -161,103 +140,106 @@ namespace Saklib
         // explicitly so that the ElementID overload can be used (specialisation for it doesn't work).
 
         template <typename T>
-        void attribute_vector_set_vector(AttributeID attributeid, Vector<T> const& other_vector);
+        Vector<T> const& attribute_vector_vector(AttributeID const& attributeid);
 
         template <typename T>
-        bool attribute_vector_empty(AttributeID attributeid) const;
+        void attribute_vector_set_vector(AttributeID const& attributeid, Vector<T> const& other_vector);
 
         template <typename T>
-        size_type attribute_vector_size(AttributeID attributeid) const;
+        bool attribute_vector_empty(AttributeID const& attributeid) const;
 
         template <typename T>
-        void attribute_vector_clear(AttributeID attributeid);
+        size_type attribute_vector_size(AttributeID const& attributeid) const;
+
+        template <typename T>
+        void attribute_vector_clear(AttributeID const& attributeid);
 
 
 
         template <typename T>
-        T const& attribute_vector_at(AttributeID attributeid, size_type index) const;
+        T const& attribute_vector_at(AttributeID const& attributeid, size_type index) const;
 
         template <typename T>
-        T const& attribute_vector_front(AttributeID attributeid) const;
+        T const& attribute_vector_front(AttributeID const& attributeid) const;
 
         template <typename T>
-        T const& attribute_vector_back(AttributeID attributeid) const;
+        T const& attribute_vector_back(AttributeID const& attributeid) const;
 
         template <typename T>
-        void attribute_vector_set_at(AttributeID attributeid, size_type index, T const& value);
+        void attribute_vector_set_at(AttributeID const& attributeid, size_type index, T const& value);
 
         template <typename T>
-        void attribute_vector_set_front(AttributeID attributeid, T const& value);
+        void attribute_vector_set_front(AttributeID const& attributeid, T const& value);
 
         template <typename T>
-        void attribute_vector_set_back(AttributeID attributeid, T const& value);
+        void attribute_vector_set_back(AttributeID const& attributeid, T const& value);
 
         template <typename T>
-        void attribute_vector_swap_at(AttributeID attributeid, size_type index, size_type other_index);
+        void attribute_vector_swap_at(AttributeID const& attributeid, size_type index, size_type other_index);
 
         template <typename T>
-        void attribute_vector_push_back(AttributeID attributeid, T const& value);
+        void attribute_vector_push_back(AttributeID const& attributeid, T const& value);
 
         template <typename T>
-        void attribute_vector_pop_back(AttributeID attributeid);
+        void attribute_vector_pop_back(AttributeID const& attributeid);
 
         template <typename T>
-        void attribute_vector_insert_at(AttributeID attributeid, size_type index, T const& value);
+        void attribute_vector_insert_at(AttributeID const& attributeid, size_type index, T const& value);
 
         template <typename T>
-        void attribute_vector_remove_at(AttributeID attributeid, size_type index);
+        void attribute_vector_remove_at(AttributeID const& attributeid, size_type index);
 
         // Attribute_Type<T> Constraint Stuff
         //------------------------------------------------------------
         // Get a vector of possible Element types for this attributeid
-        Vector_String attribute_element_types(AttributeID attributeid) const;
+        Vector_String attribute_element_types(AttributeID const& attributeid) const;
 
 
         // Attribute_Type<T>
         //------------------------------------------------------------
-        bool undoable_element_set_name(ElementID elementid, String const& value);
+        bool undoable_element_set_name(ElementID const& elementid, String const& value);
 
         template <typename T>
-        bool undoable_attribute_set_value(AttributeID attributeid, T const& value);
+        bool undoable_attribute_set_value(AttributeID const& attributeid, T const& value);
 
 
         // Attribute_Type<Vector<T>>
         //------------------------------------------------------------
         // any type
 
-        bool undoable_any_attribute_vector_clear(AttributeID attributeid);
-        bool undoable_any_attribute_vector_swap_at(AttributeID attributeid, size_type index, size_type other_index);
-        bool undoable_any_attribute_vector_pop_back(AttributeID attributeid);
-        bool undoable_any_attribute_vector_remove_at(AttributeID attributeid, size_type index);
+        bool undoable_any_attribute_vector_clear(AttributeID const& attributeid);
+        bool undoable_any_attribute_vector_swap_at(AttributeID const& attributeid, size_type index, size_type other_index);
+        bool undoable_any_attribute_vector_pop_back(AttributeID const& attributeid);
+        bool undoable_any_attribute_vector_remove_at(AttributeID const& attributeid, size_type index);
 
         // specific type
 
         template <typename T>
-        bool undoable_attribute_vector_clear(AttributeID attributeid);
+        bool undoable_attribute_vector_clear(AttributeID const& attributeid);
 
         template <typename T>
-        bool undoable_attribute_vector_set_at(AttributeID attributeid, size_type index, T const& value);
+        bool undoable_attribute_vector_set_at(AttributeID const& attributeid, size_type index, T const& value);
 
         template <typename T>
-        bool undoable_attribute_vector_set_front(AttributeID attributeid, T const& value);
+        bool undoable_attribute_vector_set_front(AttributeID const& attributeid, T const& value);
 
         template <typename T>
-        bool undoable_attribute_vector_set_back(AttributeID attributeid, T const& value);
+        bool undoable_attribute_vector_set_back(AttributeID const& attributeid, T const& value);
 
         template <typename T>
-        bool undoable_attribute_vector_swap_at(AttributeID attributeid, size_type index, size_type other_index);
+        bool undoable_attribute_vector_swap_at(AttributeID const& attributeid, size_type index, size_type other_index);
 
         template <typename T>
-        bool undoable_attribute_vector_push_back(AttributeID attributeid, T const& value);
+        bool undoable_attribute_vector_push_back(AttributeID const& attributeid, T const& value);
 
         template <typename T>
-        bool undoable_attribute_vector_pop_back(AttributeID attributeid);
+        bool undoable_attribute_vector_pop_back(AttributeID const& attributeid);
 
         template <typename T>
-        bool undoable_attribute_vector_insert_at(AttributeID attributeid, size_type index, T const& value);
+        bool undoable_attribute_vector_insert_at(AttributeID const& attributeid, size_type index, T const& value);
 
         template <typename T>
-        bool undoable_attribute_vector_remove_at(AttributeID attributeid, size_type index);
+        bool undoable_attribute_vector_remove_at(AttributeID const& attributeid, size_type index);
 
         // Flat Access
         //------------------------------------------------------------
@@ -269,25 +251,25 @@ namespace Saklib
         // Functions that provide data to the outliner model
 
         // What are this item's children?
-        Vector_AttributeID outliner_children(ElementID elementid) const;
-        Vector_ElementID outliner_children(AttributeID attributeid) const;
+        Vector_AttributeID outliner_children(ElementID const& elementid) const;
+        Vector_ElementID outliner_children(AttributeID const& attributeid) const;
 
         // What item is the child at row?
-        AttributeID outliner_child_at_row(ElementID elementid, int row) const;
-        ElementID outliner_child_at_row(AttributeID attributeid, int row) const;
+        AttributeID outliner_child_at_row(ElementID const& elementid, int row) const;
+        ElementID outliner_child_at_row(AttributeID const& attributeid, int row) const;
 
         // How many rows does this item have?
         int outliner_row_count_root() const;
-        int outliner_row_count(ElementID elementid) const;
-        int outliner_row_count(AttributeID attributeid) const;
+        int outliner_row_count(ElementID const& elementid) const;
+        int outliner_row_count(AttributeID const& attributeid) const;
 
         // What is the parent of this item?
-        AttributeID parent_of(ElementID elementid) const;
-        ElementID parent_of(AttributeID attributeid) const; // duh
+        AttributeID parent_of(ElementID const& elementid) const;
+        ElementID parent_of(AttributeID const& attributeid) const; // duh
 
         // What row is this in its parent as far as the model is concerned?
-        int outliner_row_in_parent(ElementID elementid) const;
-        int outliner_row_in_parent(AttributeID attributeid) const;
+        int outliner_row_in_parent(ElementID const& elementid) const;
+        int outliner_row_in_parent(AttributeID const& attributeid) const;
 
 
 
@@ -317,13 +299,13 @@ namespace Saklib
         // Call whenever commands are issued or called
         void command_history_changed();
 
-        size_type command_ref_count(ElementID elementid) const;
+        size_type command_ref_count(ElementID const& elementid) const;
 
-        void increment_command_ref_count(ElementID elementid);
-        void increment_command_ref_count(AttributeID attributeid);
+        void increment_command_ref_count(ElementID const& elementid);
+        void increment_command_ref_count(AttributeID const& attributeid);
 
-        void decrement_command_ref_count(ElementID elementid);
-        void decrement_command_ref_count(AttributeID attributeid);
+        void decrement_command_ref_count(ElementID const& elementid);
+        void decrement_command_ref_count(AttributeID const& attributeid);
 
 
 
@@ -332,7 +314,7 @@ namespace Saklib
         // Alter the Element currently being edited
 
         // Make an Element_Widget for this ElementID
-        void open_editor(ElementID elementid);
+        void open_editor(ElementID const& elementid);
 
         // The ElementID of the Element that is currently being edited
         ElementID currently_open_elementid() const;
@@ -343,13 +325,12 @@ namespace Saklib
         // Internal
         //============================================================
         // make sure an operation will work
-        void assert_element(ElementID elementid) const;
+        void assert_element(ElementID const& elementid) const;
 
         template <typename T>
-        void assert_attribute(AttributeID attributeid) const;
+        void assert_attribute(AttributeID const& attributeid) const;
 
-        template <typename T, typename Func, typename... Args>
-        void attribute_function(AttributeID attributeid, Func member_function, Args... args);
+        void attribute_changed(AttributeID const& attributeid);
 
         void set_unsaved_edits(bool state);
 
@@ -358,11 +339,11 @@ namespace Saklib
         void observers_begin_model_reset() const;
         void observers_end_model_reset() const;
 
-        void observers_element_name_changed(ElementID elementid) const;
-        void observers_element_parent_changed(ElementID elementid) const;
-        void observers_element_destroyed(ElementID elementid) const;
+        void observers_element_name_changed(ElementID const& elementid) const;
+        void observers_element_parent_changed(ElementID const& elementid) const;
+        void observers_element_destroyed(ElementID const& elementid) const;
 
-        void observers_attribute_value_changed(AttributeID attributeid) const;
+        void observers_attribute_value_changed(AttributeID const& attributeid) const;
 
         void observers_unsaved_edits_changed(bool state) const;
         void observers_undo_counts_changed(size_type undo_count, size_type redo_count) const;
@@ -392,29 +373,29 @@ namespace Saklib
     // Templated member function specialisations must be declared outside of the class...
 
     template <>
-    void Project_Manager::attribute_set_value<ElementID>(AttributeID attributeid, ElementID const& value);
+    void Project_Manager::attribute_set_value<ElementID>(AttributeID const& attributeid, ElementID const& value);
 
 
     template <>
-    void Project_Manager::attribute_vector_set_vector<ElementID>(AttributeID attributeid, Vector<ElementID> const& other_vector);
+    void Project_Manager::attribute_vector_set_vector<ElementID>(AttributeID const& attributeid, Vector<ElementID> const& other_vector);
     template <>
-    void Project_Manager::attribute_vector_clear<ElementID>(AttributeID attributeid);
+    void Project_Manager::attribute_vector_clear<ElementID>(AttributeID const& attributeid);
     template <>
-    void Project_Manager::attribute_vector_set_at<ElementID>(AttributeID attributeid, size_type index, ElementID const& value);
+    void Project_Manager::attribute_vector_set_at<ElementID>(AttributeID const& attributeid, size_type index, ElementID const& value);
     template <>
-    void Project_Manager::attribute_vector_set_front<ElementID>(AttributeID attributeid, ElementID const& value);
+    void Project_Manager::attribute_vector_set_front<ElementID>(AttributeID const& attributeid, ElementID const& value);
     template <>
-    void Project_Manager::attribute_vector_set_back<ElementID>(AttributeID attributeid, ElementID const& value);
+    void Project_Manager::attribute_vector_set_back<ElementID>(AttributeID const& attributeid, ElementID const& value);
     template <>
-    void Project_Manager::attribute_vector_swap_at<ElementID>(AttributeID attributeid, size_type index, size_type other_index);
+    void Project_Manager::attribute_vector_swap_at<ElementID>(AttributeID const& attributeid, size_type index, size_type other_index);
     template <>
-    void Project_Manager::attribute_vector_push_back<ElementID>(AttributeID attributeid, ElementID const& value);
+    void Project_Manager::attribute_vector_push_back<ElementID>(AttributeID const& attributeid, ElementID const& value);
     template <>
-    void Project_Manager::attribute_vector_pop_back<ElementID>(AttributeID attributeid);
+    void Project_Manager::attribute_vector_pop_back<ElementID>(AttributeID const& attributeid);
     template <>
-    void Project_Manager::attribute_vector_insert_at<ElementID>(AttributeID attributeid, size_type index, ElementID const& value);
+    void Project_Manager::attribute_vector_insert_at<ElementID>(AttributeID const& attributeid, size_type index, ElementID const& value);
     template <>
-    void Project_Manager::attribute_vector_remove_at<ElementID>(AttributeID attributeid, size_type index);
+    void Project_Manager::attribute_vector_remove_at<ElementID>(AttributeID const& attributeid, size_type index);
 
 }  // namespace Saklib
 

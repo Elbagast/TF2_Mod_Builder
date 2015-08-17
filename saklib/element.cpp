@@ -65,12 +65,14 @@ Saklib::size_type Saklib::Element::attribute_count() const
 {
     return m_attributes.size();
 }
+
 bool Saklib::Element::has_attribute(String const& name) const
 {
     // probably want an Attribute typematching functor here
     return std::find_if(m_attributes.cbegin(), m_attributes.cend(), [&name](Uptr<Attribute> const& a){ assert(a != nullptr); return a->name() == name; }) != m_attributes.cend();
 }
-Saklib::Attribute* Saklib::Element::attribute(String const& name) const
+
+Saklib::Attribute* Saklib::Element::attribute(String const& name)
 {
     auto found = std::find_if(m_attributes.begin(), m_attributes.end(), [&name](Uptr<Attribute> const& a){ assert(a != nullptr); return a->name() == name; });
     if (found != m_attributes.end())
@@ -81,7 +83,30 @@ Saklib::Attribute* Saklib::Element::attribute(String const& name) const
     else
         return nullptr;
 }
-Saklib::Attribute* Saklib::Element::attribute(size_type index) const
+
+Saklib::Attribute const* Saklib::Element::cattribute(String const& name) const
+{
+    auto found = std::find_if(m_attributes.cbegin(), m_attributes.cend(), [&name](Uptr<Attribute> const& a){ assert(a != nullptr); return a->name() == name; });
+    if (found != m_attributes.cend())
+    {
+        // break if we got here and found an invalid attribute
+        return found->get();
+    }
+    else
+        return nullptr;
+}
+
+Saklib::Attribute* Saklib::Element::attribute(size_type index)
+{
+    if (index < m_attributes.size())
+    {
+        return m_attributes.at(index).get();
+    }
+    else
+        return nullptr;
+}
+
+Saklib::Attribute const* Saklib::Element::cattribute(size_type index) const
 {
     if (index < m_attributes.size())
     {
@@ -97,9 +122,4 @@ Saklib::Vector_String Saklib::Element::attribute_names() const
     for (auto const& attribute : m_attributes)
         result.push_back(attribute->name());
     return result;
-}
-
-Saklib::Vector<Saklib::Uptr<Saklib::Attribute>> const& Saklib::Element::attributes() const
-{
-    return m_attributes;
 }

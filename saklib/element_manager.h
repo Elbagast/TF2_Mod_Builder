@@ -6,6 +6,7 @@
 #include "elementid.h"
 #include "attributeid.h"
 #include <map>
+//#include <tuple>
 
 namespace Saklib
 {
@@ -80,9 +81,9 @@ namespace Saklib
         Attribute* attribute(ElementID elementid, size_type attribute_index);
         Attribute* attribute(ElementID elementid, String const& attribute_name);
 
-        Attribute const* attribute(AttributeID attributeid) const;
-        Attribute const* attribute(ElementID elementid, size_type attribute_index) const;
-        Attribute const* attribute(ElementID elementid, String const& attribute_name) const;
+        Attribute const* cattribute(AttributeID attributeid) const;
+        Attribute const* cattribute(ElementID elementid, size_type attribute_index) const;
+        Attribute const* cattribute(ElementID elementid, String const& attribute_name) const;
 
         // Typed Access to Attributes
 
@@ -154,9 +155,33 @@ namespace Saklib
             // Attribute stats that we compute once?
         };
 
+
+        //using tuple_type = std::tuple<Element, AttributeID, Vector_AttributeID, size_type>;
         using map_type = std::map < ElementID, Element_Cache >;
+
+
         using iterator = map_type::iterator;
         using const_iterator = map_type::const_iterator;
+
+        /*
+        iterator find(ElementID elementid);
+        const_iterator cfind(ElementID elementid) const;
+
+        enum Data_Index : size_type
+        {
+            Element = 0,
+            Parent = 1,
+            Linked = 2,
+            Command_Ref_Count = 3
+        };
+
+        template <std::size_t I>
+        static
+        typename std::tuple_element<I, tuple_type>::type& get_iterator(iterator it)
+        {
+            return std::get<I>(it->second);
+        }
+*/
 
         // Helpers
         //============================================================

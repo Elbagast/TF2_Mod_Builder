@@ -72,7 +72,7 @@ void Saklib::Qtlib::Element_Name_Editor::slot_end_editing()
     if (m_line_edit->text() != m_label->text())
     {
         // Set the Element name, this will loop back to tell this widget to update.
-        mp_project_widget->project_manager().element_set_name(m_elementid, to_String(m_line_edit->text()));
+        mp_project_widget->project_manager().undoable_element_set_name(m_elementid, to_String(m_line_edit->text()));
     }
     m_layout->setCurrentIndex(0);
 }

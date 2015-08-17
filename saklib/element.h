@@ -69,17 +69,17 @@ namespace Saklib
         bool has_attribute(String const& name) const;
 
         // Get the Attribute with this name, nullptr if not found
-        Attribute* attribute(String const& name) const;
+        Attribute* attribute(String const& name);
+        Attribute const* cattribute(String const& name) const;
 
         // Get the Attribute at this index, nullptr if not found
-        Attribute* attribute(size_type index) const;
+        Attribute* attribute(size_type index);
+        Attribute const* cattribute(size_type index) const;
 
         // Get a Vector of all the Attribute names
         Vector_String attribute_names() const;
-
-        // Access to all of the Attributes - since std::unique_ptr::get() is const we can edit Attributes via this function
-        Vector<Uptr<Attribute>> const& attributes() const;
         
+        /*
         // Get a pointer to a derived Attribute type for the Attribute specified by name
         template <typename Stored_Type>
         Attribute_Type<Stored_Type>* attribute_type_cast(String const& name) const
@@ -101,7 +101,7 @@ namespace Saklib
         {
             return dynamic_cast<Attribute_Type<TypeHolder_st<TE> >*>(m_attributes.at(index).get());
         }
-        
+        */
 
     private:
         // Data
