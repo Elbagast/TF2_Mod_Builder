@@ -1,0 +1,60 @@
+#include "attribute_editor_string.h"
+
+#include "project_widget.h"
+#include "../project_manager.h"
+
+#include "qstring_traits.h"
+
+#include <QLineEdit>
+#include <QHBoxLayout>
+
+
+// Special 6
+//============================================================
+saklib::Qtlib::Attribute_Editor_String::Attribute_Editor_String(Project_Widget* project_widget, AttributeID attributeid, QWidget* parent):
+    Attribute_Editor(project_widget, attributeid, parent),
+    m_line_edit(),
+    m_layout()
+{
+    shared_construction();
+}
+saklib::Qtlib::Attribute_Editor_String::Attribute_Editor_String(Project_Widget* project_widget, AttributeID attributeid, size_type vector_index, QWidget* parent):
+    Attribute_Editor(project_widget, attributeid, vector_index, parent),
+    m_line_edit(),
+    m_layout()
+{
+    shared_construction();
+}
+saklib::Qtlib::Attribute_Editor_String::~Attribute_Editor_String() = default;
+
+
+void saklib::Qtlib::Attribute_Editor_String::v_refresh_data()
+{
+    m_line_edit->setText(to_qstring(attribute_value<String>()));
+}
+
+// Slot used to capture the signal editingFinished() from the QLineEdit
+void saklib::Qtlib::Attribute_Editor_String::v_editing_finished()
+{
+    if (is_vector_component())
+        project_widget()->project_manager().undoable_attribute_vector_set_at<String>(attributeid(), vector_index(), from_qstring<String>(m_line_edit->text()));
+    else
+        project_widget()->project_manager().undoable_attribute_set_value<String>(attributeid(), from_qstring<String>(m_line_edit->text()));
+}
+
+void saklib::Qtlib::Attribute_Editor_String::shared_construction()
+{
+    m_line_edit = make_quptr<QLineEdit>();
+    m_layout = make_quptr<QHBoxLayout>();
+
+    m_line_edit->setText(to_qstring(attribute_value<String>()));
+
+    QObject::connect(m_line_edit.get(), &QLineEdit::editingFinished,
+                     this, &Attribute_Editor_String::v_editing_finished);
+
+    m_layout->addWidget(m_line_edit.get());
+    m_layout->setSpacing(0);
+    m_layout->setContentsMargins(0,0,0,0);
+    this->setLayout(m_layout.get());
+    this->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
+}
