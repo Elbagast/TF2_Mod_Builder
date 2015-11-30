@@ -13,16 +13,17 @@
 #include "null_handle.h"
 #endif
 
+#include "reference_counter.h"
+#include <boost/bind.hpp>
 
 namespace saklib
 {
     namespace internal
     {
 
-        /*
-        Smart_Handle < Manager >
-        ====================================================================================================
-        */
+        //---------------------------------------------------------------------------
+        // Smart_Handle<Storage>
+        //---------------------------------------------------------------------------
 
         template <typename Storage>
         class Smart_Handle
@@ -40,7 +41,8 @@ namespace saklib
             // Special 6
             //============================================================
             // Only a manager can make these that have data.
-            Smart_Handle(storage_type& a_manager, handle_type const& a_handle);
+            Smart_Handle(storage_type& a_storage, handle_type const& a_handle);
+
             explicit Smart_Handle(Null_Handle_Type const& null_handle);
 
             explicit Smart_Handle(Null_Handle_Type && null_handle);
@@ -64,23 +66,26 @@ namespace saklib
 
             bool is_valid() const;
 
-            handle_type get_handle() const;
+            handle_type cget_handle() const;
 
-            Handle_Value_Type get_handle_value() const;
+            Handle_Value_Type cget_handle_value() const;
 
-            reference_count_type get_reference_count() const;
+            reference_count_type cget_reference_count() const;
 
-            storage_type* get_storage();
+            storage_type* get_manager();
 
-            storage_type const* cget_storage() const;
+            storage_type const* cget_manager() const;
 
         private:
             Smart_Handle& nullify();
 
             // Data Members
             //============================================================
-            storage_type* mp_storage; // must be pointer to enable assignment
-            handle_type m_handle;
+            //storage_type* mp_storage; // must be pointer to enable assignment
+            //handle_type m_handle;
+            using reference_counter_type = Member_Reference_Counter<storage_type, handle_type, &storage_type::increment_reference_count, &storage_type::decrement_reference_count>;
+
+            reference_counter_type m_reference_counter;
         };
 
         // Comparison Operators

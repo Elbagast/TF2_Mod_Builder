@@ -2,7 +2,12 @@
 
 #include <iostream>
 
-// Initialise as if calling set_range(a_bound1, a_bound2, a_initial)
+//---------------------------------------------------------------------------
+// Constraint_Boolean_Type<T>
+//---------------------------------------------------------------------------
+
+// Special 6
+//============================================================
 template <typename T>
 saklib::internal::Constraint_Boolean_Type<T>::Constraint_Boolean_Type(boolean_type a_initial):
     m_initial_value{a_initial}
@@ -10,6 +15,8 @@ saklib::internal::Constraint_Boolean_Type<T>::Constraint_Boolean_Type(boolean_ty
     set_initial_value(a_initial);
 }
 
+// Interface
+//============================================================
 template <typename T>
 bool saklib::internal::Constraint_Boolean_Type<T>::can_set_value_to(boolean_type /*a_value*/) const
 {
@@ -44,10 +51,29 @@ saklib::internal::Constraint_Boolean_Type<T>::default_initial_value()
     return boolean_type{false};
 }
 
+// Non-Member Operators
+//============================================================
+template <typename T>
+std::ostream& saklib::internal::operator << (std::ostream& a_ostream, Constraint_Boolean_Type<T> const& a_constraint)
+{
+    a_ostream << "Constraint_Bool { ";
+    a_ostream << "initial=\"" << std::boolalpha << a_constraint.get_initial_value() << std::noboolalpha ;
+    a_ostream << "\" } ";
+    return a_ostream;
+}
+
+// Forced Instantiation
+//============================================================
 template saklib::internal::Constraint_Boolean_Type<bool>;
+template std::ostream& saklib::internal::operator << <bool>(std::ostream& a_ostream, Constraint_Boolean_Type<bool> const& a_constraint);
 
 
+//---------------------------------------------------------------------------
+// Constrained_Boolean_Type<T>
+//---------------------------------------------------------------------------
 
+// Special 6
+//============================================================
 template <typename T>
 saklib::internal::Constrained_Boolean_Type<T>::Constrained_Boolean_Type(constraint_type const& ar_constraint):
     mr_constraint{ar_constraint},
@@ -55,6 +81,8 @@ saklib::internal::Constrained_Boolean_Type<T>::Constrained_Boolean_Type(constrai
 {
 }
 
+// Interface
+//============================================================
 // Get the stored value
 template <typename T>
 typename saklib::internal::Constrained_Boolean_Type<T>::boolean_type saklib::internal::Constrained_Boolean_Type<T>::get_value() const
@@ -92,20 +120,8 @@ bool saklib::internal::Constrained_Boolean_Type<T>::try_set_value(boolean_type a
     }
 }
 
-template saklib::internal::Constrained_Boolean_Type<bool>;
-
-
-template <typename T>
-std::ostream& saklib::internal::operator << (std::ostream& a_ostream, Constraint_Boolean_Type<T> const& a_constraint)
-{
-    a_ostream << "Constraint_Bool { ";
-    a_ostream << "initial=\"" << std::boolalpha << a_constraint.get_initial_value() << std::noboolalpha ;
-    a_ostream << "\" } ";
-    return a_ostream;
-}
-
-template std::ostream& saklib::internal::operator << <bool>(std::ostream& a_ostream, Constraint_Boolean_Type<bool> const& a_constraint);
-
+// Non-Member Operators
+//============================================================
 template <typename T>
 std::ostream& saklib::internal::operator << (std::ostream& a_ostream, Constrained_Boolean_Type<T> const& a_constrained)
 {
@@ -115,5 +131,8 @@ std::ostream& saklib::internal::operator << (std::ostream& a_ostream, Constraine
     return a_ostream;
 }
 
+// Forced Instantiation
+//============================================================
+template saklib::internal::Constrained_Boolean_Type<bool>;
 template std::ostream& saklib::internal::operator << <bool>(std::ostream& a_ostream, Constrained_Boolean_Type<bool> const& a_constraint);
 

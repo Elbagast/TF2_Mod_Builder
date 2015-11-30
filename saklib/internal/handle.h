@@ -13,10 +13,16 @@ namespace saklib
 {
     namespace internal
     {
+        //---------------------------------------------------------------------------
+        // Handle<T>
+        //---------------------------------------------------------------------------
+
         template <typename T>
         class Handle
         {
         public:
+            // Typedefs
+            //============================================================
             using data_type = T;
 
             // Special 6
@@ -26,11 +32,11 @@ namespace saklib
             explicit Handle(Handle_Value_Type a_value);
             ~Handle();
 
-            Handle(Handle const& handle);
-            Handle& operator=(Handle const& a_handle);
+            Handle(Handle const& a_other);
+            Handle& operator=(Handle const& a_other);
 
-            Handle(Handle && handle);
-            Handle& operator=(Handle && a_handle);
+            Handle(Handle && a_other);
+            Handle& operator=(Handle && a_other);
 
             // Interface
             //============================================================

@@ -3,6 +3,12 @@
 #include <limits>
 #include <iostream>
 
+//---------------------------------------------------------------------------
+// Constraint_Integral_Type<T>
+//---------------------------------------------------------------------------
+
+// Special 6
+//============================================================
 // Initialise with the default lowest, highest and initial values.
 template <typename T>
 saklib::internal::Constraint_Integral_Type<T>::Constraint_Integral_Type():
@@ -26,6 +32,8 @@ saklib::internal::Constraint_Integral_Type<T>::Constraint_Integral_Type(integer_
     set_to_only_value(a_value);
 }
 
+// Interface
+//============================================================
 template <typename T>
 bool saklib::internal::Constraint_Integral_Type<T>::can_set_value_to(integer_type a_value) const
 {
@@ -191,6 +199,21 @@ saklib::internal::Constraint_Integral_Type<T>::default_highest_value()
     return std::numeric_limits<integer_type>::max();
 }
 
+// Non-Member Operators
+//============================================================
+template <typename T>
+std::ostream& saklib::internal::operator << (std::ostream& a_ostream, Constraint_Integral_Type<T> const& a_constraint)
+{
+    a_ostream << "Constraint_Int {";
+    a_ostream << " initial=\"" << a_constraint.get_initial_value();
+    a_ostream << "\" lowest=\"" << a_constraint.get_lowest_value();
+    a_ostream << "\" highest=\"" << a_constraint.get_highest_value();
+    a_ostream << "\" } ";
+    return a_ostream;
+}
+
+// Forced Instantiation
+//============================================================
 // include char types?
 template saklib::internal::Constraint_Integral_Type<short>;
 template saklib::internal::Constraint_Integral_Type<unsigned short>;
@@ -201,9 +224,22 @@ template saklib::internal::Constraint_Integral_Type<unsigned long int>;
 template saklib::internal::Constraint_Integral_Type<long long int>;
 template saklib::internal::Constraint_Integral_Type<unsigned long long int>;
 
+template std::ostream& saklib::internal::operator << <short>(std::ostream& a_ostream, Constraint_Integral_Type<short> const& a_constraint);
+template std::ostream& saklib::internal::operator << <unsigned short>(std::ostream& a_ostream, Constraint_Integral_Type<unsigned short> const& a_constraint);
+template std::ostream& saklib::internal::operator << <int>(std::ostream& a_ostream, Constraint_Integral_Type<int> const& a_constraint);
+template std::ostream& saklib::internal::operator << <unsigned int>(std::ostream& a_ostream, Constraint_Integral_Type<unsigned int> const& a_constraint);
+template std::ostream& saklib::internal::operator << <long>(std::ostream& a_ostream, Constraint_Integral_Type<long> const& a_constraint);
+template std::ostream& saklib::internal::operator << <unsigned long>(std::ostream& a_ostream, Constraint_Integral_Type<unsigned long> const& a_constraint);
+template std::ostream& saklib::internal::operator << <long long>(std::ostream& a_ostream, Constraint_Integral_Type<long long> const& a_constraint);
+template std::ostream& saklib::internal::operator << <unsigned long long>(std::ostream& a_ostream, Constraint_Integral_Type<unsigned long long> const& a_constraint);
 
 
+//---------------------------------------------------------------------------
+// Constrained_Integral_Type<T>
+//---------------------------------------------------------------------------
 
+// Special 6
+//============================================================
 template <typename T>
 saklib::internal::Constrained_Integral_Type<T>::Constrained_Integral_Type(constraint_type const& ar_constraint):
     mr_constraint{ar_constraint},
@@ -211,6 +247,8 @@ saklib::internal::Constrained_Integral_Type<T>::Constrained_Integral_Type(constr
 {
 }
 
+// Interface
+//============================================================
 // Get the stored value
 template <typename T>
 typename saklib::internal::Constrained_Integral_Type<T>::integer_type saklib::internal::Constrained_Integral_Type<T>::get_value() const
@@ -269,40 +307,8 @@ saklib::internal::Constrained_Integral_Type<T>::get_highest_value() const
     return mr_constraint.get_highest_value();
 }
 
-// include char types?
-template saklib::internal::Constrained_Integral_Type<short>;
-template saklib::internal::Constrained_Integral_Type<unsigned short>;
-template saklib::internal::Constrained_Integral_Type<int>;
-template saklib::internal::Constrained_Integral_Type<unsigned int>;
-template saklib::internal::Constrained_Integral_Type<long>;
-template saklib::internal::Constrained_Integral_Type<unsigned long>;
-template saklib::internal::Constrained_Integral_Type<long long>;
-template saklib::internal::Constrained_Integral_Type<unsigned long long>;
-
-
-
-template <typename T>
-std::ostream& saklib::internal::operator << (std::ostream& a_ostream, Constraint_Integral_Type<T> const& a_constraint)
-{
-    a_ostream << "Constraint_Int {";
-    a_ostream << " initial=\"" << a_constraint.get_initial_value();
-    a_ostream << "\" lowest=\"" << a_constraint.get_lowest_value();
-    a_ostream << "\" highest=\"" << a_constraint.get_highest_value();
-    a_ostream << "\" } ";
-    return a_ostream;
-}
-
-template std::ostream& saklib::internal::operator << <short>(std::ostream& a_ostream, Constraint_Integral_Type<short> const& a_constraint);
-template std::ostream& saklib::internal::operator << <unsigned short>(std::ostream& a_ostream, Constraint_Integral_Type<unsigned short> const& a_constraint);
-template std::ostream& saklib::internal::operator << <int>(std::ostream& a_ostream, Constraint_Integral_Type<int> const& a_constraint);
-template std::ostream& saklib::internal::operator << <unsigned int>(std::ostream& a_ostream, Constraint_Integral_Type<unsigned int> const& a_constraint);
-template std::ostream& saklib::internal::operator << <long>(std::ostream& a_ostream, Constraint_Integral_Type<long> const& a_constraint);
-template std::ostream& saklib::internal::operator << <unsigned long>(std::ostream& a_ostream, Constraint_Integral_Type<unsigned long> const& a_constraint);
-template std::ostream& saklib::internal::operator << <long long>(std::ostream& a_ostream, Constraint_Integral_Type<long long> const& a_constraint);
-template std::ostream& saklib::internal::operator << <unsigned long long>(std::ostream& a_ostream, Constraint_Integral_Type<unsigned long long> const& a_constraint);
-
-
-
+// Non-Member Operators
+//============================================================
 template <typename T>
 std::ostream& saklib::internal::operator << (std::ostream& a_ostream, Constrained_Integral_Type<T> const& a_constrained)
 {
@@ -313,6 +319,18 @@ std::ostream& saklib::internal::operator << (std::ostream& a_ostream, Constraine
     a_ostream << "\" } ";
     return a_ostream;
 }
+
+// Forced Instantiation
+//============================================================
+// include char types?
+template saklib::internal::Constrained_Integral_Type<short>;
+template saklib::internal::Constrained_Integral_Type<unsigned short>;
+template saklib::internal::Constrained_Integral_Type<int>;
+template saklib::internal::Constrained_Integral_Type<unsigned int>;
+template saklib::internal::Constrained_Integral_Type<long>;
+template saklib::internal::Constrained_Integral_Type<unsigned long>;
+template saklib::internal::Constrained_Integral_Type<long long>;
+template saklib::internal::Constrained_Integral_Type<unsigned long long>;
 
 template std::ostream& saklib::internal::operator << <short>(std::ostream& a_ostream, Constrained_Integral_Type<short> const& a_constrained);
 template std::ostream& saklib::internal::operator << <unsigned short>(std::ostream& a_ostream, Constrained_Integral_Type<unsigned short> const& a_constrained);

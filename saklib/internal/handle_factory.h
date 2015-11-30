@@ -9,13 +9,24 @@
 #include "handle.h"
 #endif
 
+#ifndef INCLUDE_STD_QUEUE
+#define INCLUDE_STD_QUEUE
 #include <queue>
+#endif
+
+#ifndef INCLUDE_STD_FUNCTIONAL
+#define INCLUDE_STD_FUNCTIONAL
 #include <functional>
+#endif
 
 namespace saklib
 {
     namespace internal
     {
+        //---------------------------------------------------------------------------
+        // Handle_Factory<T>
+        //---------------------------------------------------------------------------
+
         template <typename T>
         class Handle_Factory
         {
@@ -46,6 +57,10 @@ namespace saklib
             queue_type m_revoked_handles;
             Handle_Value_Type m_next_value;
         };
+
+        //---------------------------------------------------------------------------
+        // Sequential_Handle_Factory<T>
+        //---------------------------------------------------------------------------
 
         template <typename T>
         class Sequential_Handle_Factory

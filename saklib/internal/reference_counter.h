@@ -1,20 +1,47 @@
-#ifndef REFERENCE_COUNTER_H
-#define REFERENCE_COUNTER_H
+#ifndef SAKLIB_INTERNAL_REFERENCE_COUNTER_H
+#define SAKLIB_INTERNAL_REFERENCE_COUNTER_H
 
+#ifndef SAKLIB_INTERNAL_REFERENCE_COUNTER__FWD_H
+#include "reference_counter__fwd.h"
+#endif
 
 namespace saklib
 {
     namespace internal
     {
-        template <typename T>
+
+        //---------------------------------------------------------------------------
+        // Reference_Counter<T_Manager, T_Handle, F_Incrementor, F_Decrementor>
+        //---------------------------------------------------------------------------
+
+        template <typename T_Manager, typename T_Handle, typename F_Incrementor, typename F_Decrementor>
         class Reference_Counter
         {
+            // static_assert( F_Incrementor is void operator()(manager_type*, handle_type const&));
+            // static_assert( F_Decrementor is void operator()(manager_type*, handle_type const&));
+
+            template <typename F>
+            struct Function_Caller
+            {
+                void operator()(T_Manager* ap_manager, T_Handle const& ar_handle)
+                {
+                    F()(ap_manager, ar_handle);
+                }
+            };
+
+            using incrementor_type = typename Function_Caller<F_Incrementor>;
+            using decrementor_type = typename Function_Caller<F_Decrementor>;
+
         public:
-            using traits_type = T;
+            // Typedefs
+            //============================================================
+            using manager_type = T_Manager;
+            using handle_type = T_Handle;
 
             // Special 6
             //============================================================
-            explicit Reference_Counter(traits_type const& a_traits);
+            Reference_Counter();
+            Reference_Counter(manager_type* ap_manager, handle_type const& a_handle);
 
             ~Reference_Counter();
 
@@ -24,75 +51,78 @@ namespace saklib
             Reference_Counter(Reference_Counter && other);
             Reference_Counter& operator=(Reference_Counter && other);
 
+            // Interface
+            //============================================================
+            bool is_valid() const;
+            bool is_null() const;
+
+            manager_type* get_manager();
+            manager_type const* cget_manager() const;
+            handle_type const& cget_handle() const;
+
         private:
-            traits_type m_traits;
+            manager_type* mp_manager;
+            handle_type m_handle;
         };
+
+        //---------------------------------------------------------------------------
+        // Reference_Counter<T_Manager, T_Handle, F_Incrementor, F_Decrementor>
+        //---------------------------------------------------------------------------
+
+        template <typename T_Manager, typename T_Handle, void(T_Manager::*F_Incrementor)(T_Handle const&), void(T_Manager::*F_Decrementor)(T_Handle const&)>
+        class Member_Reference_Counter
+        {
+            // static_assert( F_Incrementor is void operator()(manager_type*, handle_type const&));
+            // static_assert( F_Decrementor is void operator()(manager_type*, handle_type const&));
+
+            template <void(T_Manager::*F)(T_Handle const&)>
+            struct Function_Caller
+            {
+                void operator()(T_Manager* ap_manager, T_Handle const& ar_handle)
+                {
+                    (ap_manager->*F)(ar_handle);
+                }
+            };
+
+            using incrementor = Function_Caller<F_Incrementor>;
+            using decrementor = Function_Caller<F_Decrementor>;
+        public:
+            // Typedefs
+            //============================================================
+            using manager_type = T_Manager;
+            using handle_type = T_Handle;
+
+            // Special 6
+            //============================================================
+            Member_Reference_Counter();
+            Member_Reference_Counter(manager_type* ap_manager, handle_type const& a_handle);
+
+            ~Member_Reference_Counter();
+
+            Member_Reference_Counter(Member_Reference_Counter const& other);
+            Member_Reference_Counter& operator=(Member_Reference_Counter const& other);
+
+            Member_Reference_Counter(Member_Reference_Counter && other);
+            Member_Reference_Counter& operator=(Member_Reference_Counter && other);
+
+            // Interface
+            //============================================================
+            bool is_valid() const;
+            bool is_null() const;
+
+            manager_type* get_manager();
+            manager_type const* cget_manager() const;
+            handle_type const& cget_handle() const;
+
+        private:
+            Reference_Counter<manager_type, handle_type, incrementor, decrementor> m_reference_counter;
+        };
+
     } // namespace internal
 } // namespace saklib
 
+#ifndef SAKLIB_INTERNAL_REFERENCE_COUNTER__INLINE_H
+#include "reference_counter__inline.h"
+#endif
 
 #endif // REFERENCE_COUNTER_H
-
-
-// Special 6
-//============================================================
-template <typename T>
-saklib::internal::Reference_Counter<T>::Reference_Counter(traits_type const& a_traits) :
-    m_traits{ a_traits }
-{
-    m_traits.increment();
-}
-
-
-template <typename T>
-saklib::internal::Reference_Counter<T>::~Reference_Counter()
-{
-    if (mp_manager != nullptr)
-    {
-        mp_manager->decrement_reference_count(m_handle);
-    }
-}
-
-template <typename T>
-saklib::internal::Reference_Counter<T>::Reference_Counter(Reference_Counter const& other) :
-    mp_manager{ other.mp_manager },
-    m_handle{ (mp_manager != nullptr ? other.m_handle : handle_type(null_handle())) }
-{
-    if (mp_manager != nullptr)
-    {
-        mp_manager->increment_reference_count(m_handle);
-    }
-}
-
-template <typename T>
-saklib::internal::Reference_Counter<T>& saklib::internal::Reference_Counter<T>::operator=(Reference_Counter const& other)
-{
-    if (&other != this)
-    {
-        manager_type* old_manager{ mp_manager };
-        handle_type old_handle{ m_handle };
-
-        mp_manager = other.mp_manager;
-        m_handle = other.m_handle;
-
-        if (mp_manager)
-        {
-            mp_manager->increment_reference_count(m_handle); // this is a new holder of this value so increment
-        }
-        if (old_manager)
-        {
-            old_manager->decrement_reference_count(old_handle); // decrement after as this may trigger destruction
-        }
-    }
-    return *this;
-}
-
-template <typename T>
-saklib::internal::Reference_Counter<T>::Reference_Counter(Reference_Counter && other) :
-    mp_manager{ std::move(other.mp_manager) },
-    m_handle{ std::move(other.m_handle) }
-{
-    // no reference count change
-    other.mp_manager = nullptr;
-    other.m_handle = null_handle();
-}

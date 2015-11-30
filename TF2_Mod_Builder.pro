@@ -35,6 +35,7 @@ BOOST_INCLUDE_DIR = D:/Programming/C++/Boost/boost_1_57_0
 BOOST_LIBRARY_DIR = $${BOOST_INCLUDE_DIR}/stage/lib
 BOOST_LIBRARIES += boost_filesystem
 BOOST_LIBRARIES += boost_any
+BOOST_LIBRARIES += boost_bind
 
 BOOST_COMPILER = -mgw49
 BOOST_VERSION = -1_57
@@ -83,13 +84,16 @@ SOURCES += main.cpp\
     saklib/internal/constraint_integral_type.cpp \
     saklib/internal/constraint_floating_point_type.cpp \
     saklib/internal/type_string.cpp \
-    saklib/internal/attribute.cpp \
-    saklib/internal/attribute__test.cpp \
-    saklib/internal/element.cpp \
-    saklib/internal/element__test.cpp \
-    saklib/internal/element_manager.cpp \
-    saklib/internal/exceptions/bad_element_type.cpp \
-    saklib/internal/exceptions/bad_attribute_type.cpp
+    saklib/internal/exceptions/bad_attribute_data_type.cpp \
+    saklib/internal/attribute_data.cpp \
+    saklib/internal/exceptions/bad_element_data_type.cpp \
+    saklib/internal/attribute_data__test.cpp \
+    saklib/internal/element_data.cpp \
+    saklib/internal/element_data__test.cpp \
+    saklib/internal/element_data_manager__test.cpp \
+    saklib/internal/element_data_manager.cpp \
+    saklib/internal/undoable_element_data_manager.cpp \
+    saklib/element.cpp
 
 HEADERS  += \
     saklib/zzz_refactoring.h \
@@ -123,19 +127,25 @@ HEADERS  += \
     saklib/internal/all_constraint.h \
     saklib/internal/all_constraint__fwd.h \
     saklib/internal/type_string.h \
-    saklib/internal/string.h \
     saklib/internal/type_string__fwd.h \
-    saklib/internal/attribute.h \
-    saklib/internal/attribute__fwd.h \
-    saklib/internal/attribute__test.h \
-    saklib/internal/element.h \
-    saklib/internal/element__fwd.h \
-    saklib/internal/element__test.h \
-    saklib/internal/element_manager.h \
-    saklib/internal/size_type.h \
-    saklib/internal/exceptions/bad_element_type.h \
-    saklib/internal/exceptions/bad_attribute_type.h \
-    saklib/internal/reference_counter.h
+    saklib/internal/reference_counter.h \
+    saklib/internal/exceptions/bad_attribute_data_type.h \
+    saklib/internal/attribute_data.h \
+    saklib/internal/attribute_data__fwd.h \
+    saklib/internal/attribute_data__test.h \
+    saklib/internal/element_data.h \
+    saklib/internal/element_data__fwd.h \
+    saklib/internal/element_data__test.h \
+    saklib/internal/element_data_manager.h \
+    saklib/internal/element_data_manager__fwd.h \
+    saklib/internal/element_data_manager__test.h \
+    saklib/internal/exceptions/bad_element_data_type.h \
+    saklib/internal/undoable_element_data_manager.h \
+    saklib/internal/undoable_element_data_manager__fwd.h \
+    saklib/internal/reference_counter__fwd.h \
+    saklib/internal/reference_counter__inline.h \
+    saklib/element.h \
+    saklib/element__fwd.h
 
 FORMS
 

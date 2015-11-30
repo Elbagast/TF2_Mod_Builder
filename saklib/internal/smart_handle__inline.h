@@ -13,16 +13,17 @@
 #include "handle.h"
 #endif
 
+#ifndef INCLUDE_STD_CASSERT
+#define INCLUDE_STD_CASSERT
 #include <cassert>
+#endif
 
 // Special 6
 //============================================================
 template <typename S>
 saklib::internal::Smart_Handle<S>::Smart_Handle(storage_type& ar_storage, handle_type const& a_handle) :
-    mp_storage{ &ar_storage },
-    m_handle{ a_handle }
+    m_reference_counter{&ar_storage, a_handle}
 {
-    mp_storage->increment_reference_count(m_handle);
 }
 
 template <typename S>
@@ -39,137 +40,83 @@ saklib::internal::Smart_Handle<S>::Smart_Handle(Null_Handle_Type && /*null_handl
 
 template <typename S>
 saklib::internal::Smart_Handle<S>::Smart_Handle() :
-    mp_storage{ nullptr },
-    m_handle{ null_handle() }
+    m_reference_counter{}
 {
 }
 
 template <typename S>
-saklib::internal::Smart_Handle<S>::~Smart_Handle()
-{
-    if (mp_storage != nullptr)
-    {
-        mp_storage->decrement_reference_count(m_handle);
-    }
-}
+saklib::internal::Smart_Handle<S>::~Smart_Handle() = default;
 
 template <typename S>
-saklib::internal::Smart_Handle<S>::Smart_Handle(Smart_Handle const& other) :
-    mp_storage{ other.mp_storage },
-    m_handle{ (mp_storage != nullptr ? other.m_handle : handle_type(null_handle())) }
-{
-    if (mp_storage != nullptr)
-    {
-        mp_storage->increment_reference_count(m_handle);
-    }
-}
+saklib::internal::Smart_Handle<S>::Smart_Handle(Smart_Handle const& other) = default;
 
 template <typename S>
-saklib::internal::Smart_Handle<S>& saklib::internal::Smart_Handle<S>::operator=(Smart_Handle const& other)
-{
-    if (&other != this)
-    {
-        storage_type* old_manager{ mp_storage };
-        handle_type old_handle{ m_handle };
-
-        mp_storage = other.mp_storage;
-        m_handle = other.m_handle;
-
-        if (mp_storage)
-        {
-            mp_storage->increment_reference_count(m_handle); // this is a new holder of this value so increment
-        }
-        if (old_manager)
-        {
-            old_manager->decrement_reference_count(old_handle); // decrement after as this may trigger destruction
-        }
-    }
-    return *this;
-}
+saklib::internal::Smart_Handle<S>& saklib::internal::Smart_Handle<S>::operator=(Smart_Handle const& other) = default;
 
 template <typename S>
 saklib::internal::Smart_Handle<S>::Smart_Handle(Smart_Handle && other) :
-    mp_storage{ std::move(other.mp_storage) },
-    m_handle{ std::move(other.m_handle) }
+    m_reference_counter{ std::move(other.m_reference_counter) }
 {
-    // no reference count change
-    other.mp_storage = nullptr;
-    other.m_handle = null_handle();
 }
 
 template <typename S>
 saklib::internal::Smart_Handle<S>& saklib::internal::Smart_Handle<S>::operator=(Smart_Handle && other)
 {
-    storage_type* old_manager{ mp_storage };
-    handle_type old_handle{ m_handle };
-
-    mp_storage = std::move(other.mp_storage);
-    m_handle = std::move(other.m_handle);
-
-    other.mp_storage = nullptr;
-    other.m_handle = null_handle();
-
-    if (old_manager != nullptr)
+    if (&other != this)
     {
-        old_manager->decrement_reference_count(old_handle); // decrement after as this may trigger destruction
+        m_reference_counter = std::move(other.m_reference_counter);
     }
     return *this;
 }
 
-/*
-Smart_Handle& operator=(Null_Handle_Type const&)
-{
-    return nullify();
-}
-Smart_Handle& operator=(Null_Handle_Type &&)
-{
-    return nullify();
-}
-*/
 // Interface
 //============================================================
 template <typename S>
 typename saklib::internal::Smart_Handle<S>::data_return_type saklib::internal::Smart_Handle<S>::get_data()
 {
-    return mp_storage->get_data(m_handle);
+    return get_manager()->get_data(cget_handle());
+    //return mp_storage->get_data(m_handle);
 }
 
 template <typename S>
 typename saklib::internal::Smart_Handle<S>::data_const_return_type saklib::internal::Smart_Handle<S>::cget_data() const
 {
-    return mp_storage->cget_data(m_handle);
+    return cget_manager()->cget_data(cget_handle());
+    //return mp_storage->cget_data(m_handle);
 }
 
 template <typename S>
 bool saklib::internal::Smart_Handle<S>::is_null() const
 {
-    return mp_storage == nullptr || m_handle == null_handle();
+    return m_reference_counter.is_null();
+    //return mp_storage == nullptr || m_handle == null_handle();
 }
 
 template <typename S>
 bool saklib::internal::Smart_Handle<S>::is_valid() const
 {
-    return !is_null() && mp_storage->is_valid(m_handle);
+    return m_reference_counter.is_valid();
+    //return !is_null() && mp_storage->is_valid(m_handle);
 }
 
 template <typename S>
-typename saklib::internal::Smart_Handle<S>::handle_type saklib::internal::Smart_Handle<S>::get_handle() const
+typename saklib::internal::Smart_Handle<S>::handle_type saklib::internal::Smart_Handle<S>::cget_handle() const
 {
-    return m_handle;
+    return m_reference_counter.cget_handle();
 }
 
 template <typename S>
-saklib::internal::Handle_Value_Type saklib::internal::Smart_Handle<S>::get_handle_value() const
+saklib::internal::Handle_Value_Type saklib::internal::Smart_Handle<S>::cget_handle_value() const
 {
-    return m_handle.get_value();
+    return cget_handle().get_value();
 }
 
 template <typename S>
-typename saklib::internal::Smart_Handle<S>::reference_count_type saklib::internal::Smart_Handle<S>::get_reference_count() const
+typename saklib::internal::Smart_Handle<S>::reference_count_type saklib::internal::Smart_Handle<S>::cget_reference_count() const
 {
-    if (mp_storage)
+    if (cget_manager())
     {
-        return mp_storage->get_reference_count(m_handle);
+        return cget_manager()->get_reference_count(cget_handle());
     }
     else
     {
@@ -178,35 +125,22 @@ typename saklib::internal::Smart_Handle<S>::reference_count_type saklib::interna
 }
 
 template <typename S>
-template <std::size_t I>
-typename std::tuple_element<I, typename saklib::internal::Smart_Handle<S>::storage_type::tuple_type >::type const&
-saklib::internal::Smart_Handle<S>::get_extra_property() const
+typename saklib::internal::Smart_Handle<S>::storage_type* saklib::internal::Smart_Handle<S>::get_manager()
 {
-    return mp_storage->get_extra_property<I>(m_handle);
+    return m_reference_counter.get_manager();
 }
 
 template <typename S>
-template <std::size_t I>
-void saklib::internal::Smart_Handle<S>::set_extra_property(typename std::tuple_element<I, typename saklib::internal::Smart_Handle<S>::storage_type::tuple_type >::type const& a_value)
+typename saklib::internal::Smart_Handle<S>::storage_type const* saklib::internal::Smart_Handle<S>::cget_manager() const
 {
-    mp_storage->set_extra_property<I>(m_handle, a_value);
-}
-
-template <typename S>
-typename saklib::internal::Smart_Handle<S>::storage_type* saklib::internal::Smart_Handle<S>::get_storage()
-{
-    return mp_storage;
-}
-
-template <typename S>
-typename saklib::internal::Smart_Handle<S>::storage_type const* saklib::internal::Smart_Handle<S>::cget_storage() const
-{
-    return mp_storage;
+    return m_reference_counter.cget_manager();
 }
 
 template <typename S>
 saklib::internal::Smart_Handle<S>& saklib::internal::Smart_Handle<S>::nullify()
 {
+    m_reference_counter = reference_counter_type();
+    /*
     storage_type* old_manager{ mp_storage };
     handle_type old_handle{ m_handle };
 
@@ -216,7 +150,7 @@ saklib::internal::Smart_Handle<S>& saklib::internal::Smart_Handle<S>::nullify()
     if (old_manager)
     {
         old_manager->decrement_reference_count(old_handle); // decrement after as this may trigger destruction
-    }
+    }*/
     return *this;
 }
 
@@ -225,7 +159,7 @@ saklib::internal::Smart_Handle<S>& saklib::internal::Smart_Handle<S>::nullify()
 template <typename S>
 bool saklib::internal::operator==(Smart_Handle<S> const& lhs, Smart_Handle<S> const& rhs)
 {
-    return (lhs.cget_storage() == rhs.cget_storage()) && (lhs.get_handle() == rhs.get_handle());
+    return (lhs.cget_manager() == rhs.cget_manager()) && (lhs.cget_handle() == rhs.cget_handle());
 }
 template <typename S>
 bool saklib::internal::operator!=(Smart_Handle<S> const& lhs, Smart_Handle<S> const& rhs)
@@ -235,7 +169,7 @@ bool saklib::internal::operator!=(Smart_Handle<S> const& lhs, Smart_Handle<S> co
 template <typename S>
 bool saklib::internal::operator<(Smart_Handle<S> const& lhs, Smart_Handle<S> const& rhs)
 {
-    return (lhs.cget_storage() < rhs.cget_storage()) && (lhs.get_handle() < rhs.get_handle());
+    return (lhs.cget_manager() < rhs.cget_manager()) && (lhs.cget_handle() < rhs.cget_handle());
 }
 template <typename S>
 bool saklib::internal::operator>(Smart_Handle<S> const& lhs, Smart_Handle<S> const& rhs)

@@ -5,6 +5,12 @@
 #include "null_handle.h"
 #endif
 
+//---------------------------------------------------------------------------
+// Handle_Value_Type
+//---------------------------------------------------------------------------
+
+// Factory Functions
+//============================================================
 // constexpr
 inline
 saklib::internal::Null_Handle_Type saklib::internal::null_handle()
@@ -12,6 +18,12 @@ saklib::internal::Null_Handle_Type saklib::internal::null_handle()
     return Null_Handle_Type();
 }
 
+//---------------------------------------------------------------------------
+// Null_Handle_Type
+//---------------------------------------------------------------------------
+
+// Factory Functions
+//============================================================
 // constexpr
 inline
 saklib::internal::Handle_Value_Type saklib::internal::null_handle_value()

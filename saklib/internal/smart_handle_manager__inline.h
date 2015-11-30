@@ -9,6 +9,9 @@
 #include "smart_handle.h"
 #endif
 
+//---------------------------------------------------------------------------
+// Smart_Handle_Manager<T, F_Pre_Destructor>
+//---------------------------------------------------------------------------
 
 // Special 6
 //============================================================
@@ -31,6 +34,23 @@ typename saklib::internal::Smart_Handle_Manager<T, FPD>::smart_handle_type sakli
 {
     handle_type new_handle = m_storage.emplace_data(std::forward<data_stored_type>(a_data));
     return smart_handle_type(m_storage, new_handle);
+}
+
+template <typename T, typename FPD>
+std::vector<typename saklib::internal::Smart_Handle_Manager<T, FPD>::smart_handle_type>
+saklib::internal::Smart_Handle_Manager<T, FPD>::get_all_handles()
+{
+    std::vector<handle_type> l_dumb_handles{ m_storage.get_all_handles() };
+
+    std::vector<smart_handle_type> l_result{};
+    l_result.reserve(l_dumb_handles.size());
+
+    for (auto const& dumb_handle : l_dumb_handles)
+    {
+        l_result.push_back(smart_handle_type(m_storage, dumb_handle));
+    }
+
+    return l_result;
 }
 
 

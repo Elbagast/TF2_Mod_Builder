@@ -5,13 +5,19 @@
 #include "handle_factory.h"
 #endif
 
+#ifndef INCLUDE_STD_CASSERT
+#define INCLUDE_STD_CASSERT
 #include <cassert>
-#include <numeric>
+#endif
 
-//============================================================
-//template <typename T>
-//class Handle_Factory;
-//============================================================
+#ifndef INCLUDE_STD_NUMERIC
+#define INCLUDE_STD_NUMERIC
+#include <numeric>
+#endif
+
+//---------------------------------------------------------------------------
+// Handle_Factory<T>
+//---------------------------------------------------------------------------
 
 // Special 6
 //============================================================
@@ -56,10 +62,9 @@ void saklib::internal::Handle_Factory<T>::revoke_handle(handle_type const& handl
 }
 
 
-//============================================================
-//template <typename T>
-//class Sequential_Handle_Factory;
-//============================================================
+//---------------------------------------------------------------------------
+// Sequential_Handle_Factory<T>
+//---------------------------------------------------------------------------
 
 //Special 6
 //============================================================

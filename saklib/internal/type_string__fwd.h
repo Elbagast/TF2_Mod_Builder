@@ -6,6 +6,9 @@ namespace saklib
     namespace internal
     {
         template <typename T>
+        struct Type_C_String;
+
+        template <typename T>
         struct Type_String;
 
         using Type_String_Bool = Type_String<bool>;

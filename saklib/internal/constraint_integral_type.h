@@ -5,20 +5,34 @@
 #include "constraint_integral_type__fwd.h"
 #endif
 
+#ifndef INCLUDE_STD_TYPE_TRAITS
+#define INCLUDE_STD_TYPE_TRAITS
 #include <type_traits>
-#include <iosfwd>
+#endif
 
+#ifndef INCLUDE_STD_IOSFWD
+#define INCLUDE_STD_IOSFWD
+#include <iosfwd>
+#endif
 namespace saklib
 {
     namespace internal
     {
+        //---------------------------------------------------------------------------
+        // Constraint_Integral_Type<T>
+        //---------------------------------------------------------------------------
+
         template <typename T>
         class Constraint_Integral_Type
         {
             static_assert(std::is_integral<T>::value, "Can only use integral types.");
         public:
+            // Typedefs
+            //============================================================
             using integer_type = T;
 
+            // Special 6
+            //============================================================
             // Initialise with the default lowest, highest and initial values.
             Constraint_Integral_Type();
             // Initialise as if calling set_range(a_bound1, a_bound2, a_initial)
@@ -26,6 +40,8 @@ namespace saklib
             // Initialise as if calling set_to_only_value(a_bound1, a_bound2, a_initial)
             explicit Constraint_Integral_Type(integer_type a_value);
 
+            // Interface
+            //============================================================
             // Ask if a given value is within the range [lowest, highest], return true if
             // it is, otherwise return false.
             bool can_set_value_to(integer_type a_value) const;
@@ -91,22 +107,39 @@ namespace saklib
             static integer_type default_lowest_value();
             static integer_type default_highest_value();
         private:
+            // Data Members
+            //============================================================
             integer_type m_initial_value;
             integer_type m_lowest_value;
             integer_type m_highest_value;
         };
 
+        // Non-Member Operators
+        //============================================================
+        template <typename T>
+        std::ostream& operator << (std::ostream& a_ostream, Constraint_Integral_Type<T> const& a_constraint);
+
+
+        //---------------------------------------------------------------------------
+        // Constrained_Integral_Type<T>
+        //---------------------------------------------------------------------------
 
         template <typename T>
         class Constrained_Integral_Type
         {
             static_assert(std::is_integral<T>::value, "Can only use integral types.");
         public:
+            // Typedefs
+            //============================================================
             using constraint_type = Constraint_Integral_Type<T>;
             using integer_type = typename constraint_type::integer_type;
 
+            // Special 6
+            //============================================================
             explicit Constrained_Integral_Type(constraint_type const& ar_constraint);
 
+            // Interface
+            //============================================================
             // Get the stored value
             integer_type get_value() const;
 
@@ -122,12 +155,14 @@ namespace saklib
             integer_type get_highest_value() const;
 
         private:
+            // Data Members
+            //============================================================
             constraint_type const& mr_constraint;
             integer_type m_value;
         };
 
-        template <typename T>
-        std::ostream& operator << (std::ostream& a_ostream, Constraint_Integral_Type<T> const& a_constraint);
+        // Non-Member Operators
+        //============================================================
         template <typename T>
         std::ostream& operator << (std::ostream& a_ostream, Constrained_Integral_Type<T> const& a_constrained);
     } // namespace internal

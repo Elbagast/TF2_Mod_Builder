@@ -5,7 +5,17 @@
 #include "reference_counted_storage.h"
 #endif
 
+#ifndef INCLUDE_STD_CASSERT
+#define INCLUDE_STD_CASSERT
 #include <cassert>
+#endif
+
+//---------------------------------------------------------------------------
+// Reference_Counted_Storage<T, F_Pre_Destructor>::Internal<T>
+//---------------------------------------------------------------------------
+
+// Interface
+//============================================================
 
 template <typename T, typename FPD>
 template <typename T_Again>
@@ -36,6 +46,13 @@ typename saklib::internal::Reference_Counted_Storage<T, FPD>::Internal<T_Again>:
 }
 
 
+//---------------------------------------------------------------------------
+// Reference_Counted_Storage<T, F_Pre_Destructor>::Internal<T*>
+//---------------------------------------------------------------------------
+
+// Interface
+//============================================================
+
 template <typename T, typename FPD>
 template <typename T_Again>
 typename saklib::internal::Reference_Counted_Storage<T, FPD>::Internal<T_Again*>::data_return_type saklib::internal::Reference_Counted_Storage<T, FPD>::Internal<T_Again*>::get_data_fail()
@@ -65,6 +82,10 @@ typename saklib::internal::Reference_Counted_Storage<T, FPD>::Internal<T_Again*>
 }
 
 
+//---------------------------------------------------------------------------
+// Reference_Counted_Storage<T, F_Pre_Destructor>
+//---------------------------------------------------------------------------
+
 // Special 6
 //============================================================
 template <typename T, typename FPD>
@@ -75,6 +96,9 @@ saklib::internal::Reference_Counted_Storage<T, FPD>::Reference_Counted_Storage(p
     m_erase_queue(),
     m_pre_destructor(a_pre_destructor)
 {}
+
+// Interface
+//============================================================
 
 template <typename T, typename FPD>
 typename saklib::internal::Reference_Counted_Storage<T, FPD>::handle_type
@@ -91,6 +115,19 @@ saklib::internal::Reference_Counted_Storage<T, FPD>::emplace_data(data_stored_ty
     assert(!has_data(l_handle));
     m_map.emplace(l_handle, tuple_type(std::forward<data_stored_type>(a_data), 0));
     return l_handle;
+}
+
+template <typename T, typename FPD>
+std::vector<typename saklib::internal::Reference_Counted_Storage<T, FPD>::handle_type>
+saklib::internal::Reference_Counted_Storage<T, FPD>::get_all_handles() const
+{
+    std::vector<handle_type> l_result{};
+    l_result.reserve(m_map.size());
+    for (auto const& pair : m_map)
+    {
+        l_result.push_back(pair.first);
+    }
+    return l_result;
 }
 
 template <typename T, typename FPD>
@@ -176,7 +213,7 @@ void saklib::internal::Reference_Counted_Storage<T, FPD>::decrement_reference_co
                 // which needs care because we cannot call std::map::erase from inside an incomplete erase
                 // call. That means we use a a queue and lock access to it.
 
-                // Add the handle to the erase queue. The data wil be destiyed before this function returns.
+                // Add the handle to the erase queue. The data wil be destroyed before this function returns.
                 m_erase_queue.push(a_handle);
 
                 // while
@@ -185,7 +222,7 @@ void saklib::internal::Reference_Counted_Storage<T, FPD>::decrement_reference_co
                 while(!m_currently_erasing && !m_erase_queue.empty())
                 {
                     // lock erasing - subsequent decrement_reference_count calls that result in the
-                    // destruction of handles will not entre this block.
+                    // destruction of handles will not enter this block.
                     m_currently_erasing = true;
 
                     // call the pre_destructor on this value

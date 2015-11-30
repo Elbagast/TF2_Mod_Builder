@@ -10,7 +10,7 @@ Thinking up the required interfaces, remember:
 namespace saklib
 {
     class Char;
-    class Size_Type;
+    class std::size_t;
     class Index;
 
     class TypeID;
@@ -117,7 +117,7 @@ namespace saklib
         bool unlock_editing();
 
         bool is_being_used() const;
-        Size_Type count_of_dependent_elements() const;
+        std::size_t count_of_dependent_elements() const;
 
     };
 
@@ -144,7 +144,7 @@ namespace saklib
         // Typed Attribute gets?
 
         // The number of Attributes
-        Size_Type get_attribute_count() const;
+        std::size_t get_attribute_count() const;
 
         // typed Attribute Counts?
         //Size_Type get_attribute_bool_count() const;
@@ -156,7 +156,7 @@ namespace saklib
         //Vector<Attribute_Bool> get_all_attribute_bool() const;
 
 
-        Size_Type get_child_element_count() const;
+        std::size_t get_child_element_count() const;
     };
 
 
@@ -176,7 +176,7 @@ namespace saklib
         // Only true if has_parent_element_definition() is true
         bool has_index() const;
         //
-        Size_Type get_index() const;
+        std::size_t get_index() const;
 
         String get_name() const;
         void set_name(String const& a_value);
@@ -415,9 +415,9 @@ namespace saklib
         void set_initial_value(String const& a_value);
         static String get_default_initial_value();
 
-        Size_Type get_maximum_length() const;
-        void set_maximum_length(Size_Type a_value);
-        static Size_Type get_default_maximum_length();
+        std::size_t get_maximum_length() const;
+        void set_maximum_length(std::size_t a_value);
+        static std::size_t get_default_maximum_length();
 
         bool can_have_char(Char a_char) const;
         bool has_char_constraints() const;
@@ -489,8 +489,8 @@ namespace saklib
         static String get_default_initial_element_type();
 
         bool has_element_type_constraints() const;
-        Vector<String> get_valid_element_types() const;
-        void set_valid_element_types(Vector<String> const& a_value);
+        Vector<std::string> get_valid_element_types() const;
+        void set_valid_element_types(Vector<std::string> const& a_value);
 
         bool is_valid_element_type(String const& a_value) const;
         void add_valid_element_type(String const& a_value);
@@ -516,8 +516,8 @@ namespace saklib
         static String get_default_initial_element_type();
 
         bool has_element_type_constraints() const;
-        Vector<String> get_valid_element_types() const;
-        void set_valid_element_types(Vector<String> const& a_value);
+        Vector<std::string> get_valid_element_types() const;
+        void set_valid_element_types(Vector<std::string> const& a_value);
 
         bool is_valid_element(Element const& a_value) const;
         bool is_valid_element_type(String const& a_value) const;

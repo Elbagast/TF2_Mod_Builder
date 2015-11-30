@@ -5,6 +5,10 @@
 #include "handle.h"
 #endif
 
+//---------------------------------------------------------------------------
+// Handle<T>
+//---------------------------------------------------------------------------
+
 // Special 6
 //============================================================
 template <typename T>
@@ -26,24 +30,24 @@ template <typename T>
 saklib::internal::Handle<T>::~Handle() = default;
 
 template <typename T>
-saklib::internal::Handle<T>::Handle(Handle const& handle) = default;
+saklib::internal::Handle<T>::Handle(Handle const& a_other) = default;
 
 template <typename T>
-saklib::internal::Handle<T>& saklib::internal::Handle<T>::operator=(Handle const& a_handle) = default;
+saklib::internal::Handle<T>& saklib::internal::Handle<T>::operator=(Handle const& a_other) = default;
 
 
 template <typename T>
-saklib::internal::Handle<T>::Handle(Handle && a_handle):
-    m_value{std::move(a_handle.m_value)}
+saklib::internal::Handle<T>::Handle(Handle && a_other):
+    m_value{std::move(a_other.m_value)}
 {
-    a_handle.m_value = null_handle_value();
+    a_other.m_value = null_handle_value();
 }
 
 template <typename T>
-saklib::internal::Handle<T>& saklib::internal::Handle<T>::operator=(Handle && a_handle)
+saklib::internal::Handle<T>& saklib::internal::Handle<T>::operator=(Handle && a_other)
 {
-    m_value = std::move(a_handle.m_value);
-    a_handle.m_value = null_handle_value();
+    m_value = std::move(a_other.m_value);
+    a_other.m_value = null_handle_value();
     return *this;
 }
 

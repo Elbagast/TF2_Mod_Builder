@@ -5,8 +5,15 @@
 #include "constraint_floating_point_type__fwd.h"
 #endif
 
+#ifndef INCLUDE_STD_TYPE_TRAITS
+#define INCLUDE_STD_TYPE_TRAITS
 #include <type_traits>
+#endif
 
+#ifndef INCLUDE_STD_IOSFWD
+#define INCLUDE_STD_IOSFWD
+#include <iosfwd>
+#endif
 
 namespace saklib
 {

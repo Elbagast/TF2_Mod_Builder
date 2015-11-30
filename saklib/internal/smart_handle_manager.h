@@ -1,7 +1,6 @@
 #ifndef SAKLIB_INTERNAL_SMART_HANDLE_MANAGER_H
 #define SAKLIB_INTERNAL_SMART_HANDLE_MANAGER_H
 
-
 #ifndef SAKLIB_INTERNAL_SMART_HANDLE_MANAGER__FWD_H
 #include "smart_handle_manager__fwd.h"
 #endif
@@ -18,10 +17,19 @@
 #include "reference_counted_storage.h"
 #endif
 
+#ifndef INCLUDE_STD_VECTOR
+#define INCLUDE_STD_VECTOR
+#include <vector>
+#endif
+
 namespace saklib
 {
     namespace internal
     {
+        //---------------------------------------------------------------------------
+        // Smart_Handle_Manager<T, F_Pre_Destructor>
+        //---------------------------------------------------------------------------
+
         template <typename T, typename F_Pre_Destructor = No_Pre_Destructor<T>>
         class Smart_Handle_Manager
         {
@@ -51,6 +59,8 @@ namespace saklib
             smart_handle_type make_null_handle();
 
             smart_handle_type emplace_data(data_stored_type&& a_data);
+
+            std::vector<smart_handle_type> get_all_handles();
 
             pre_destructor_type const& get_pre_destructor() const;
 

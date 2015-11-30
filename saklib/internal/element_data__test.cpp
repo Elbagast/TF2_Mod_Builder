@@ -1,6 +1,6 @@
-#include "element__test.h"
+#include "element_data__test.h"
 
-#include "element.h"
+#include "element_data.h"
 #include "type_string.h"
 
 #include <iostream>
@@ -9,8 +9,8 @@ void saklib::internal::test_element()
 {
     std::cout << "test_element()" << std::endl;
 
-    using ED = Element_Definition;
-    using AD = Attribute_Definition;
+    using ED = Element_Data_Definition;
+    using AD = Attribute_Data_Definition;
 
     ED ed1
     {
@@ -25,11 +25,11 @@ void saklib::internal::test_element()
 
     std::cout << ed1 << std::endl;
 
-    Element e1{ed1, "Test Element"};
+    Element_Data e1{ed1, "Test Element"};
 
     std::cout << e1 << std::endl;
 
-    Element e2{e1};
+    Element_Data e2{e1};
     std::cout << e2 << std::endl;
 
     std::cout << "----------------------------" << std::endl;

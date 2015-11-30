@@ -13,16 +13,44 @@
 #include "handle_factory.h"
 #endif
 
+#ifndef INCLUDE_STD_MAP
+#define INCLUDE_STD_MAP
 #include <map>
+#endif
+
+#ifndef INCLUDE_STD_TUPLE
+#define INCLUDE_STD_TUPLE
 #include <tuple>
+#endif
+
+#ifndef INCLUDE_STD_VECTOR
+#define INCLUDE_STD_VECTOR
+#include <vector>
+#endif
+
+#ifndef INCLUDE_STD_QUEUE
+#define INCLUDE_STD_QUEUE
 #include <queue>
+#endif
+
+#ifndef INCLUDE_STD_FUNCTIONAL
+#define INCLUDE_STD_FUNCTIONAL
 #include <functional>
+#endif
+
+#ifndef INCLUDE_STD_MEMORY
+#define INCLUDE_STD_MEMORY
 #include <memory>
+#endif
 
 namespace saklib
 {
     namespace internal
     {
+        //---------------------------------------------------------------------------
+        // No_Pre_Destructor<T>
+        //---------------------------------------------------------------------------
+
         template <typename T>
         class No_Pre_Destructor
         {
@@ -30,10 +58,19 @@ namespace saklib
             void operator()(T& /*a_to_be_destroyed*/) {}
         };
 
+        //---------------------------------------------------------------------------
+        // Reference_Counted_Storage<T, F_Pre_Destructor>
+        //---------------------------------------------------------------------------
+
         template <typename T, typename F_Pre_Destructor = No_Pre_Destructor<T>>
         class Reference_Counted_Storage
         {
+            // Probably want to static assert the functor
         private:
+            //---------------------------------------------------------------------------
+            // Internal<T>
+            //---------------------------------------------------------------------------
+
             template <typename T_Again>
             struct Internal
             {
@@ -48,12 +85,18 @@ namespace saklib
                 using data_const_return_type = data_type const&;
                 using reference_count_type = std::size_t;
 
+                // Interface
+                //============================================================
                 static data_return_type get_data_fail();
                 static data_const_return_type cget_data_fail();
 
                 static data_return_type get_data_return_from_stored(data_stored_type& a_stored);
                 static data_const_return_type cget_data_return_from_stored(data_stored_type const& a_stored);
             };
+
+            //---------------------------------------------------------------------------
+            // Internal<T*>
+            //---------------------------------------------------------------------------
 
             template <typename T_Again>
             struct Internal<T_Again*>
@@ -69,6 +112,8 @@ namespace saklib
                 using data_const_return_type = data_type const*;
                 using reference_count_type = std::size_t;
 
+                // Interface
+                //============================================================
                 static data_return_type get_data_fail();
                 static data_const_return_type cget_data_fail();
 
@@ -79,8 +124,6 @@ namespace saklib
             using internal_type = Internal<T>;
 
         public:
-            // Probably want to static assert the functor
-
             // Typedefs
             //============================================================
             using data_type = typename internal_type::data_type;
@@ -107,6 +150,8 @@ namespace saklib
             handle_type make_null_handle() const;
 
             handle_type emplace_data(data_stored_type&& a_data);
+
+            std::vector<handle_type> get_all_handles() const;
 
             bool is_null(handle_type const& a_handle) const;
 
@@ -146,6 +191,8 @@ namespace saklib
 
             reference_count_type const& cget_iterator_reference_count(typename map_type::const_iterator a_iterator) const;
 
+            // Data Members
+            //============================================================
             map_type m_map;
             handle_factory_type m_handle_factory;
             bool m_currently_erasing;

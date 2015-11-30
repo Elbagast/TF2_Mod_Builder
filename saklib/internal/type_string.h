@@ -5,8 +5,9 @@
 #include "type_string__fwd.h"
 #endif
 
-#ifndef SAKLIB_INTERNAL_STRING_H
-#include "string.h"
+#ifndef INCLUDE_STD_STRING
+#define INCLUDE_STD_STRING
+#include <string>
 #endif
 
 namespace saklib
@@ -14,31 +15,32 @@ namespace saklib
     namespace internal
     {
         template <typename T>
+        struct Type_C_String
+        {
+            char const* operator()() const { return "Undefined"; }
+        };
+
+        template <typename T>
         struct Type_String
         {
-            static char const* c_string()       { return "Undefined"; }
-            static wchar_t const* wc_string()   { return L"Undefined"; }
-
-            String operator()() const   { return String(c_string()); }
+            std::string const& operator()() const
+            {
+                static std::string const s_value{Type_C_String<T>()()};
+                return s_value;
+            }
         };
 
 
         template <>
-        struct Type_String<bool>
+        struct Type_C_String<bool>
         {
-            static char const* c_string()       { return "Bool"; }
-            static wchar_t const* wc_string()   { return L"Bool"; }
-
-            String operator()() const   { return String(c_string()); }
+            char const* operator()() const { return "Bool"; }
         };
 
         template <>
-        struct Type_String<int>
+        struct Type_C_String<int>
         {
-            static char const* c_string()       { return "Int"; }
-            static wchar_t const* wc_string()   { return L"Int"; }
-
-            String operator()() const   { return String(c_string()); }
+            char const* operator()() const { return "Int"; }
         };
 
     } // namespace internal
