@@ -13,6 +13,8 @@ namespace saklib
 {
     namespace internal
     {
+        class Command_Manager;
+        /*
         //---------------------------------------------------------------------------
         // Undoable_Element_Data_Manager
         //---------------------------------------------------------------------------
@@ -20,9 +22,27 @@ namespace saklib
         class Undoable_Element_Data_Manager
         {
         public:
+            // Typedefs
+            //============================================================
+            using handle_type = Element_Data_Manager::handle_type;
 
+            // Interface
+            //============================================================
+            // definition stuff
+
+            // command stuff
+
+            // handle making stuff
+
+            Undoable_Element_Data_Handle make_null_handle() const;
+            Undoable_Element_Data_Handle make_element(std::string const& a_type);
+            Undoable_Element_Data_Handle make_element_handle(handle_type const& a_handle);
+
+            std::vector<handle_type> cget_all_handles() const;
+            std::vector<Undoable_Element_Data_Handle> make_all_element_handles();
         private:
             Element_Data_Manager m_data_manager;
+            //Command_Manager m_command_manager;
         };
 
         class Undoable_Attribute_Data_Handle;
@@ -84,10 +104,10 @@ namespace saklib
         private:
             // Data Members
             //============================================================
-            Undoable_Element_Data_Manager* mp_manager;
+            //Command_Manager* mp_command_manager;
             Element_Data_Handle m_data_handle;
         };
-
+        */
     } // namespace internal
 } // namespace saklib
 

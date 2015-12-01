@@ -9,8 +9,8 @@
 #include "handle.h"
 #endif
 
-#ifndef SAKLIB_INTERNAL_HANDLE_FACTORY_H
-#include "handle_factory.h"
+#ifndef SAKLIB_INTERNAL_STORAGE_TRAITS_H
+#include "storage_traits.h"
 #endif
 
 #ifndef INCLUDE_STD_MAP
@@ -42,164 +42,151 @@
 #define INCLUDE_STD_MEMORY
 #include <memory>
 #endif
+/*
+#ifndef INCLUDE_BOOST_SIGNALS2
+#define INCLUDE_BOOST_SIGNALS2
+#include <boost/signals2.hpp>
+#endif
+*/
+#ifndef SAKLIB_INTERNAL_REFERENCE_COUNTER_H
+#include "reference_counter.h"
+#endif
 
 namespace saklib
 {
     namespace internal
     {
-        //---------------------------------------------------------------------------
-        // No_Pre_Destructor<T>
-        //---------------------------------------------------------------------------
-
-        template <typename T>
-        class No_Pre_Destructor
+        template <typename H>
+        class Reference_Counted_Storage__Slot_Box
         {
         public:
-            void operator()(T& /*a_to_be_destroyed*/) {}
+            using handle_type = H;
+
+            virtual ~Reference_Counted_Storage__Slot_Box() = default;
+
+            virtual void slot_new_data(handle_type const& a_handle) = 0;
+            virtual void slot_destruction_start(handle_type const& a_handle) = 0;
+            virtual void slot_destruction_end(handle_type const& a_handle) = 0;
         };
 
         //---------------------------------------------------------------------------
-        // Reference_Counted_Storage<T, F_Pre_Destructor>
+        // Reference_Counted_Storage<H, Args...>
         //---------------------------------------------------------------------------
+        // Arbitrarily extend to N data types, with at least one. This version gives up the pre_destructor
+        // so right now there is no informing anything of changes.
 
-        template <typename T, typename F_Pre_Destructor = No_Pre_Destructor<T>>
+        template <typename H, typename... Args>
         class Reference_Counted_Storage
         {
-            // Probably want to static assert the functor
-        private:
-            //---------------------------------------------------------------------------
-            // Internal<T>
-            //---------------------------------------------------------------------------
-
-            template <typename T_Again>
-            struct Internal
-            {
-                // Typedefs
-                //============================================================
-                using data_type = T_Again;
-                using handle_type = Handle<data_type>;
-                using handle_factory_type = Handle_Factory<data_type>;
-
-                using data_stored_type = data_type;
-                using data_return_type = data_type&;
-                using data_const_return_type = data_type const&;
-                using reference_count_type = std::size_t;
-
-                // Interface
-                //============================================================
-                static data_return_type get_data_fail();
-                static data_const_return_type cget_data_fail();
-
-                static data_return_type get_data_return_from_stored(data_stored_type& a_stored);
-                static data_const_return_type cget_data_return_from_stored(data_stored_type const& a_stored);
-            };
-
-            //---------------------------------------------------------------------------
-            // Internal<T*>
-            //---------------------------------------------------------------------------
-
-            template <typename T_Again>
-            struct Internal<T_Again*>
-            {
-                // Typedefs
-                //============================================================
-                using data_type = T_Again;
-                using handle_type = Handle<data_type>;
-                using handle_factory_type = Handle_Factory<data_type>;
-
-                using data_stored_type = std::unique_ptr<data_type>;
-                using data_return_type = data_type*;
-                using data_const_return_type = data_type const*;
-                using reference_count_type = std::size_t;
-
-                // Interface
-                //============================================================
-                static data_return_type get_data_fail();
-                static data_const_return_type cget_data_fail();
-
-                static data_return_type get_data_return_from_stored(data_stored_type& a_stored);
-                static data_const_return_type cget_data_return_from_stored(data_stored_type const& a_stored);
-            };
-
-            using internal_type = Internal<T>;
+            static_assert(std::tuple_size<std::tuple<Args...>>::value > 0, "Cannot instantiate with no types, would mean it stores no data");
 
         public:
             // Typedefs
             //============================================================
-            using data_type = typename internal_type::data_type;
-            using handle_type = typename internal_type::handle_type;
-            using handle_factory_type = typename internal_type::handle_factory_type;
+            // this is the data that is stored in the map...
+            using data_tuple_type = std::tuple<Args...>;
+            using stored_tuple_type = std::tuple <typename Storage_Traits<Args>::stored_type...>;
+            using handle_type = H;
 
-            using data_stored_type = typename internal_type::data_stored_type;
-            using data_return_type = typename internal_type::data_return_type;
-            using data_const_return_type = typename internal_type::data_const_return_type;
-            using reference_count_type = typename internal_type::reference_count_type;
+            // The map stores the reference count and data seperately since this object is responsible for
+            // the reference count.
+            using map_type = std::map < handle_type, std::pair<std::size_t, stored_tuple_type> >;
 
-            using pre_destructor_type = F_Pre_Destructor;
-
-            using tuple_type = std::tuple < data_stored_type, reference_count_type>;
-            using map_type = std::map < handle_type, tuple_type >;
+            // Type for the erase queue
             using queue_type = std::priority_queue<handle_type, std::vector<handle_type>, std::greater<handle_type>>;
+
+            // Need to figure out how I want to have this class inform others that data is being destroyed
+            //using signal_destruction_start_type = boost::signals2::signal<void(handle_type const&)>;
+            //using slot_destruction_start_type = typename signal_destruction_start_type::slot_type;
+
+            //using signal_destruction_end_type = boost::signals2::signal<void(handle_type const&)>;
+            //using signal_destruction_end_type = typename signal_destruction_start_type::slot_type;
+
+            //---------------------------------------------------------------------------
+            // Data<N>
+            //---------------------------------------------------------------------------
+            // Convenience access to the relevent types for a given part of the data tuple.
+            template <std::size_t N>
+            class Data
+            {
+                // Typedefs
+                //============================================================
+            public:
+                using template_arg_type = typename std::tuple_element<N, data_tuple_type>::type;
+                using storage_traits_type = Storage_Traits<template_arg_type>;
+                using stored_type = typename storage_traits_type::stored_type;
+                using return_type = typename storage_traits_type::return_type;
+                using const_return_type = typename storage_traits_type::const_return_type;
+            };
 
             // Special 6
             //============================================================
-            explicit Reference_Counted_Storage(pre_destructor_type const& a_pre_destructor = pre_destructor_type());
+            Reference_Counted_Storage();
 
             // Interface
             //============================================================
-            handle_type make_null_handle() const;
-
-            handle_type emplace_data(data_stored_type&& a_data);
-
-            std::vector<handle_type> get_all_handles() const;
-
-            bool is_null(handle_type const& a_handle) const;
-
-            bool is_valid(handle_type const& a_handle) const;
 
             bool has_data(handle_type const& a_handle) const;
 
-            data_return_type get_data(handle_type const& a_handle);
+            // constexpr
+            static std::size_t data_types_count(); // return N
 
-            data_const_return_type cget_data(handle_type const& a_handle) const;
+            template <std::size_t N = 0>
+            typename Data<N>::return_type get_data(handle_type const& a_handle);
+            template <std::size_t N = 0>
+            typename Data<N>::const_return_type cget_data(handle_type const& a_handle) const;
 
-            reference_count_type get_reference_count(handle_type const& a_handle) const;
+            std::size_t cget_reference_count(handle_type const& a_handle) const;
 
             void increment_reference_count(handle_type const& a_handle);
 
             void decrement_reference_count(handle_type const& a_handle);
 
-            static reference_count_type reference_count_max();
+            // constexpr
+            static std::size_t reference_count_max();
 
-            static reference_count_type reference_count_zero();
+            // constexpr
+            static std::size_t reference_count_zero();
 
-            pre_destructor_type const& get_pre_destructor() const;
+            // must declare this after the functions it will use
+            using reference_counter_type = Member_Reference_Counter <
+                                                                     Reference_Counted_Storage<H, Args...>,
+                                                                     H,
+                                                                     &Reference_Counted_Storage<H, Args...>::increment_reference_count,
+                                                                     &Reference_Counted_Storage<H, Args...>::decrement_reference_count
+                                                                     >;
 
-            void set_pre_destructor(pre_destructor_type const& a_pre_destructor);
+            // Emplace the given data using the given handle, return true if succeeded. The handle
+            // supplied must not already be in use (i.e. has_data(a_handle) == false) and it is not
+            // this object's responsibility to ensure that.
+            reference_counter_type emplace_data(handle_type const& a_handle, typename Storage_Traits<Args>::stored_type&&... a_data);
+            reference_counter_type emplace_data_tuple(handle_type const& a_handle, stored_tuple_type&& a_tuple);
+
+            reference_counter_type make_handle(handle_type const& a_handle);
+
+            std::vector<handle_type> cget_all_handles() const;
+
+
+            // currently unimplemented.
+            void signal_new_data(handle_type const& a_handle);
+            void signal_destruction_start(handle_type const& a_handle);
+            void signal_destruction_end(handle_type const& a_handle);
 
         private:
-            // By using a tuple the manager can potentially be extended
-            //using tuple_type = std::tuple < data_stored_type, reference_count_type, Args...>;
-           // using map_type = std::map < handle_type, tuple_type >;
-            //using queue_type = std::priority_queue<handle_type, std::vector<handle_type>, std::greater<handle_type>>;
+            std::size_t& get_iterator_reference_count(typename map_type::iterator a_iterator);
+            std::size_t cget_iterator_reference_count(typename map_type::const_iterator a_iterator) const;
 
-            data_return_type get_iterator_data(typename map_type::iterator a_iterator);
-
-            data_const_return_type cget_iterator_data(typename map_type::const_iterator a_iterator) const;
-
-            reference_count_type& get_iterator_reference_count(typename map_type::iterator a_iterator);
-
-            reference_count_type const& cget_iterator_reference_count(typename map_type::const_iterator a_iterator) const;
+            template <std::size_t N>
+            typename Data<N>::return_type get_iterator_data(typename map_type::iterator a_iterator);
+            template <std::size_t N>
+            typename Data<N>::const_return_type cget_iterator_data(typename map_type::const_iterator a_iterator) const;
 
             // Data Members
             //============================================================
             map_type m_map;
-            handle_factory_type m_handle_factory;
             bool m_currently_erasing;
             queue_type m_erase_queue;
-            pre_destructor_type m_pre_destructor;
         };
-
 
     } // namespace internal
 } // namespace saklib
@@ -209,4 +196,3 @@ namespace saklib
 #endif
 
 #endif // SAKLIB_INTERNAL_REFERENCE_COUNTED_STORAGE_H
-

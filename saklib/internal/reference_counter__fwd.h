@@ -5,10 +5,10 @@ namespace saklib
 {
     namespace internal
     {
-        template <typename T_Manager, typename T_Handle, typename F_Incrementor, typename F_Decrementor>
+        template <typename T_Storage, typename T_Handle, typename F_Incrementor, typename F_Decrementor>
         class Reference_Counter;
 
-        template <typename T_Manager, typename T_Handle, void(T_Manager::*F_Incrementor)(T_Handle const&), void(T_Manager::*F_Decrementor)(T_Handle const&)>
+        template <typename T_Storage, typename T_Handle, void(T_Storage::*F_Incrementor)(T_Handle const&), void(T_Storage::*F_Decrementor)(T_Handle const&)>
         class Member_Reference_Counter;
 
     } // namespace internal

@@ -36,6 +36,7 @@ BOOST_LIBRARY_DIR = $${BOOST_INCLUDE_DIR}/stage/lib
 BOOST_LIBRARIES += boost_filesystem
 BOOST_LIBRARIES += boost_any
 BOOST_LIBRARIES += boost_bind
+BOOST_LIBRARIES += boost_signals2
 
 BOOST_COMPILER = -mgw49
 BOOST_VERSION = -1_57
@@ -93,15 +94,15 @@ SOURCES += main.cpp\
     saklib/internal/element_data_manager__test.cpp \
     saklib/internal/element_data_manager.cpp \
     saklib/internal/undoable_element_data_manager.cpp \
-    saklib/element.cpp
+    saklib/element.cpp \
+    saklib/internal/exceptions/bad_data_handle.cpp \
+    saklib/internal/element_data_definition_manager.cpp
 
 HEADERS  += \
     saklib/zzz_refactoring.h \
     saklib/internal/handle.h \
     saklib/internal/null_handle.h \
     saklib/internal/handle_factory.h \
-    saklib/internal/smart_handle.h \
-    saklib/internal/smart_handle_manager.h \
     saklib/internal/test.h \
     saklib/internal/handle__inline.h \
     saklib/internal/handle__fwd.h \
@@ -109,13 +110,6 @@ HEADERS  += \
     saklib/internal/handle_factory__inline.h \
     saklib/internal/null_handle__inline.h \
     saklib/internal/handle_factory__fwd.h \
-    saklib/internal/reference_counted_storage__fwd.h \
-    saklib/internal/reference_counted_storage.h \
-    saklib/internal/reference_counted_storage__inline.h \
-    saklib/internal/smart_handle_manager__fwd.h \
-    saklib/internal/smart_handle_manager__inline.h \
-    saklib/internal/smart_handle__fwd.h \
-    saklib/internal/smart_handle__inline.h \
     saklib/internal/constraint_boolean_type.h \
     saklib/internal/constraint_boolean_type__fwd.h \
     saklib/internal/constraint_boolean_type__test.h \
@@ -145,7 +139,16 @@ HEADERS  += \
     saklib/internal/reference_counter__fwd.h \
     saklib/internal/reference_counter__inline.h \
     saklib/element.h \
-    saklib/element__fwd.h
+    saklib/element__fwd.h \
+    saklib/internal/storage_traits.h \
+    saklib/internal/storage_traits__fwd.h \
+    saklib/internal/storage_traits__inline.h \
+    saklib/internal/exceptions/bad_data_handle.h \
+    saklib/internal/element_data_definition_manager.h \
+    saklib/internal/element_data_definition_manager__fwd.h \
+    saklib/internal/reference_counted_storage__inline.h \
+    saklib/internal/reference_counted_storage.h \
+    saklib/internal/reference_counted_storage__fwd.h
 
 FORMS
 

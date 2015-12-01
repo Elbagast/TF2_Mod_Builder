@@ -16,7 +16,7 @@ void saklib::internal::test_element_manager()
     using ED = Element_Data_Definition;
     using AD = Attribute_Data_Definition;
 
-    Element_Data_Manager edm{};
+    Element_Data_Definition_Manager eddm{};
 
     {
         ED ed1
@@ -30,47 +30,52 @@ void saklib::internal::test_element_manager()
             }
         };
 
-        edm.add_definition(ed1);
+        eddm.add_definition(std::move(ed1));
     }
-    assert(edm.has_definition("Moooo"));
-    assert(edm.get_definition_usage_count("Moooo") == 0);
+    assert(eddm.has_definition("Moooo"));
+    assert(eddm.get_definition_usage_count("Moooo") == 0);
 
+    Element_Data_Manager edm{};
+
+    Element_Data_Definition_Handle eddh1 = eddm.make_definition_handle("Moooo");
+    assert(eddh1.is_valid());
+    assert(eddh1.cget_reference_count() == 2); // should be this and the one extra increment
+    assert(eddm.get_definition_usage_count("Moooo") == 1);
+
+    Element_Data_Handle edh1 = edm.make_element(eddm.make_definition_handle("Moooo"));
+
+    assert(edh1.is_valid());
+    assert(edh1.cget_reference_count() == 1);
+    assert(eddm.get_definition_usage_count("Moooo") == 2);
+
+    std::cout << edh1.cget_element() << std::endl;
+
+    Element_Data_Handle edh2 = edm.make_element(eddm.make_definition_handle("Moooo"));
+    assert(edh2.cget_reference_count() == 1);
+    assert(eddm.get_definition_usage_count("Moooo") == 3);
     {
-        ED ed1
-        {
-            "Poop",
-            {
-                AD("First", TS_Int(), -100, 100, 0),
-                AD("Second", TS_Int(), -20, 20, 0)
-            }
-        };
+        Element_Data_Handle edh3 = edm.make_element(eddm.make_definition_handle("Moooo"));
+        assert(edh3.cget_reference_count() == 1);
+        assert(eddm.get_definition_usage_count("Moooo") == 4);
 
-        edm.add_definition(ed1);
+        Element_Data_Handle edh2_copy{edh2};
+        assert(edh2 == edh2_copy);
+        assert(edh2.cget_reference_count() == 2);
+        assert(edh2_copy.cget_reference_count() == 2);
     }
-    assert(edm.has_definition("Poop"));
-    assert(edm.get_definition_usage_count("Poop") == 0);
+    assert(eddm.get_definition_usage_count("Moooo") == 3);
 
-    Element_Data_Handle eh0 = edm.make_null_handle();
-    assert(eh0.is_null());
-    assert(!eh0.is_valid());
+    // destroy a usage of this type by assigning this handle to null
+    eddh1 = Element_Data_Definition_Handle();
+    assert(eddm.get_definition_usage_count("Moooo") == 2);
 
-    Element_Data_Handle eh1 = edm.make_element_handle("Moooo");
-    assert(!eh1.is_null());
-    assert(eh1.is_valid());
-    assert(edm.get_definition_usage_count("Moooo") == 1);
+    edh2 = Element_Data_Handle();
+    assert(eddm.get_definition_usage_count("Moooo") == 1);
 
-    Element_Data_Handle eh2{eh1};
-    assert(eh1.get_reference_count() == 2);
-    assert(eh2.get_reference_count() == 2);
-    assert(edm.get_definition_usage_count("Moooo") == 1);
+    edh1 = Element_Data_Handle();
+    assert(eddm.get_definition_usage_count("Moooo") == 0);
 
-    Element_Data_Handle eh3 = edm.make_element_handle("Moooo");
-    assert(eh1.get_reference_count() == 2);
-    assert(eh2.get_reference_count() == 2);
-    assert(eh3.get_reference_count() == 1);
-    assert(edm.get_definition_usage_count("Moooo") == 2);
 
-    std::cout << eh1.cget_element() << std::endl;
 
     std::cout << "----------------------------" << std::endl;
 }

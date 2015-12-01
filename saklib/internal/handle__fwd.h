@@ -7,6 +7,8 @@ namespace saklib
     {
         template <typename T>
         class Handle;
+
+        using Any_Handle = Handle<void>;
     } // namespace internal
 } // namespace saklib
 

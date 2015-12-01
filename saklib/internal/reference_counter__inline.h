@@ -6,63 +6,63 @@
 #endif
 
 //---------------------------------------------------------------------------
-// Member_Reference_Counter<T_Manager, T_Handle, F_Incrementor, F_Decrementor>
+// Member_Reference_Counter<T_Storage, T_Handle, F_Incrementor, F_Decrementor>
 //---------------------------------------------------------------------------
 
 // Special 6
 //============================================================
-template <typename T_M, typename T_H, typename F_I, typename F_D>
-saklib::internal::Reference_Counter<T_M, T_H, F_I, F_D>::Reference_Counter() :
-    mp_manager(nullptr),
+template <typename S, typename H, typename I, typename D>
+saklib::internal::Reference_Counter<S, H, I, D>::Reference_Counter() :
+    mp_storage(nullptr),
     m_handle()
 {
 }
 
-template <typename T_M, typename T_H, typename F_I, typename F_D>
-saklib::internal::Reference_Counter<T_M, T_H, F_I, F_D>::Reference_Counter(manager_type* ap_manager, handle_type const& a_handle) :
-    mp_manager(ap_manager),
+template <typename S, typename H, typename I, typename D>
+saklib::internal::Reference_Counter<S, H, I, D>::Reference_Counter(storage_type& ar_storage, handle_type const& a_handle) :
+    mp_storage(&ar_storage),
     m_handle(a_handle)
 {
     if (is_valid())
     {
-        incrementor_type()(mp_manager, m_handle);
+        incrementor_type()(mp_storage, m_handle);
     }
 }
 
-template <typename T_M, typename T_H, typename F_I, typename F_D>
-saklib::internal::Reference_Counter<T_M, T_H, F_I, F_D>::~Reference_Counter()
+template <typename S, typename H, typename I, typename D>
+saklib::internal::Reference_Counter<S, H, I, D>::~Reference_Counter()
 {
     if (is_valid())
     {
-        decrementor_type()(mp_manager, m_handle);
+        decrementor_type()(mp_storage, m_handle);
     }
 }
 
-template <typename T_M, typename T_H, typename F_I, typename F_D>
-saklib::internal::Reference_Counter<T_M, T_H, F_I, F_D>::Reference_Counter(Reference_Counter const& other) :
-    mp_manager(other.mp_manager),
+template <typename S, typename H, typename I, typename D>
+saklib::internal::Reference_Counter<S, H, I, D>::Reference_Counter(Reference_Counter const& other) :
+    mp_storage(other.mp_storage),
     m_handle(other.m_handle)
 {
     if (is_valid())
     {
-        incrementor_type()(mp_manager, m_handle);
+        incrementor_type()(mp_storage, m_handle);
     }
 }
 
-template <typename T_M, typename T_H, typename F_I, typename F_D>
-saklib::internal::Reference_Counter<T_M, T_H, F_I, F_D>& saklib::internal::Reference_Counter<T_M, T_H, F_I, F_D>::operator=(Reference_Counter const& other)
+template <typename S, typename H, typename I, typename D>
+saklib::internal::Reference_Counter<S, H, I, D>& saklib::internal::Reference_Counter<S, H, I, D>::operator=(Reference_Counter const& other)
 {
     if (&other != this)
     {
-        manager_type* old_mp_manager{mp_manager};
+        storage_type* old_mp_manager{mp_storage};
         handle_type old_m_handle{m_handle};
 
-        mp_manager = other.mp_manager;
+        mp_storage = other.mp_storage;
         m_handle = other.m_handle;
 
         if (is_valid())
         {
-            incrementor_type()(mp_manager, m_handle);
+            incrementor_type()(mp_storage, m_handle);
         }
         if (old_mp_manager != nullptr)
         {
@@ -72,24 +72,24 @@ saklib::internal::Reference_Counter<T_M, T_H, F_I, F_D>& saklib::internal::Refer
     return *this;
 }
 
-template <typename T_M, typename T_H, typename F_I, typename F_D>
-saklib::internal::Reference_Counter<T_M, T_H, F_I, F_D>::Reference_Counter(Reference_Counter && other):
-    mp_manager(other.mp_manager),
+template <typename S, typename H, typename I, typename D>
+saklib::internal::Reference_Counter<S, H, I, D>::Reference_Counter(Reference_Counter && other):
+    mp_storage(other.mp_storage),
     m_handle(other.m_handle)
 {
-    other.mp_manager = nullptr;
+    other.mp_storage = nullptr;
     other.m_handle = handle_type();
 }
 
-template <typename T_M, typename T_H, typename F_I, typename F_D>
-saklib::internal::Reference_Counter<T_M, T_H, F_I, F_D>& saklib::internal::Reference_Counter<T_M, T_H, F_I, F_D>::operator=(Reference_Counter && other)
+template <typename S, typename H, typename I, typename D>
+saklib::internal::Reference_Counter<S, H, I, D>& saklib::internal::Reference_Counter<S, H, I, D>::operator=(Reference_Counter && other)
 {
     if (&other != this)
     {
-        manager_type* old_mp_manager{mp_manager};
+        storage_type* old_mp_manager{mp_storage};
         handle_type old_m_handle{m_handle};
 
-        mp_manager = std::move(other.mp_manager);
+        mp_storage = std::move(other.mp_storage);
         m_handle = std::move(other.m_handle);
 
         if (old_mp_manager != nullptr)
@@ -103,71 +103,140 @@ saklib::internal::Reference_Counter<T_M, T_H, F_I, F_D>& saklib::internal::Refer
 // Interface
 //============================================================
 
-template <typename T_M, typename T_H, typename F_I, typename F_D>
-bool saklib::internal::Reference_Counter<T_M, T_H, F_I, F_D>::is_valid() const
+template <typename S, typename H, typename I, typename D>
+bool saklib::internal::Reference_Counter<S, H, I, D>::is_valid() const
 {
-    return mp_manager != nullptr; // && mp_manager->is_valid(m_handle); //?
+    return mp_storage != nullptr;// && mp_manager->is_valid(m_handle); //?
 }
 
-template <typename T_M, typename T_H, typename F_I, typename F_D>
-bool saklib::internal::Reference_Counter<T_M, T_H, F_I, F_D>::is_null() const
+template <typename S, typename H, typename I, typename D>
+bool saklib::internal::Reference_Counter<S, H, I, D>::is_null() const
 {
-    return mp_manager == nullptr;
+    return mp_storage == nullptr;
 }
 
-template <typename T_M, typename T_H, typename F_I, typename F_D>
-typename saklib::internal::Reference_Counter<T_M, T_H, F_I, F_D>::manager_type* saklib::internal::Reference_Counter<T_M, T_H, F_I, F_D>::get_manager()
+template <typename S, typename H, typename I, typename D>
+typename saklib::internal::Reference_Counter<S, H, I, D>::storage_type* saklib::internal::Reference_Counter<S, H, I, D>::get_storage()
 {
-    return mp_manager;
+    return mp_storage;
 }
 
-template <typename T_M, typename T_H, typename F_I, typename F_D>
-typename saklib::internal::Reference_Counter<T_M, T_H, F_I, F_D>::manager_type const* saklib::internal::Reference_Counter<T_M, T_H, F_I, F_D>::cget_manager() const
+template <typename S, typename H, typename I, typename D>
+typename saklib::internal::Reference_Counter<S, H, I, D>::storage_type const* saklib::internal::Reference_Counter<S, H, I, D>::cget_storage() const
 {
-    return mp_manager;
+    return mp_storage;
 }
 
-template <typename T_M, typename T_H, typename F_I, typename F_D>
-typename saklib::internal::Reference_Counter<T_M, T_H, F_I, F_D>::handle_type const& saklib::internal::Reference_Counter<T_M, T_H, F_I, F_D>::cget_handle() const
+template <typename S, typename H, typename I, typename D>
+typename saklib::internal::Reference_Counter<S, H, I, D>::handle_type const& saklib::internal::Reference_Counter<S, H, I, D>::cget_handle() const
 {
     return m_handle;
 }
 
+// Comparison Operators
+//============================================================
+template <typename S, typename H, typename I, typename D>
+bool saklib::internal::operator==(Reference_Counter<S, H, I, D> const& lhs, Reference_Counter<S, H, I, D> const& rhs)
+{
+    return (lhs.cget_storage() == rhs.cget_storage()) && (lhs.cget_handle() == rhs.cget_handle());
+}
+
+template <typename S, typename H, typename I, typename D>
+bool saklib::internal::operator!=(Reference_Counter<S, H, I, D> const& lhs, Reference_Counter<S, H, I, D> const& rhs)
+{
+    return !operator==(lhs, rhs);
+}
+
+template <typename S, typename H, typename I, typename D>
+bool saklib::internal::operator<(Reference_Counter<S, H, I, D> const& lhs, Reference_Counter<S, H, I, D> const& rhs)
+{
+    return lhs.cget_handle() < rhs.cget_handle();
+    //return (lhs.cget_storage() < rhs.cget_storage()) && (lhs.cget_handle() < rhs.cget_handle());
+}
+
+template <typename S, typename H, typename I, typename D>
+bool saklib::internal::operator>(Reference_Counter<S, H, I, D> const& lhs, Reference_Counter<S, H, I, D> const& rhs)
+{
+    return operator<(rhs, lhs);
+}
+
+template <typename S, typename H, typename I, typename D>
+bool saklib::internal::operator<=(Reference_Counter<S, H, I, D> const& lhs, Reference_Counter<S, H, I, D> const& rhs)
+{
+    return !operator>(lhs, rhs);
+}
+
+template <typename S, typename H, typename I, typename D>
+bool saklib::internal::operator>=(Reference_Counter<S, H, I, D> const& lhs, Reference_Counter<S, H, I, D> const& rhs)
+{
+    return !operator<(lhs, rhs);
+}
+
+
+// Comparison Operators for compare to the null handle
+//============================================================
+template <typename S, typename H, typename I, typename D>
+bool saklib::internal::operator==(Reference_Counter<S, H, I, D> const& lhs, Null_Handle_Type const& rhs)
+{
+    return lhs.is_null();
+}
+
+template <typename S, typename H, typename I, typename D>
+bool saklib::internal::operator!=(Reference_Counter<S, H, I, D> const& lhs, Null_Handle_Type const& rhs)
+{
+    return !operator==(lhs, rhs);
+}
+
+template <typename S, typename H, typename I, typename D>
+bool saklib::internal::operator==(Null_Handle_Type const& lhs, Reference_Counter<S, H, I, D> const& rhs)
+{
+    return operator==(rhs, lhs);
+}
+
+template <typename S, typename H, typename I, typename D>
+bool saklib::internal::operator!=(Null_Handle_Type const& lhs, Reference_Counter<S, H, I, D> const& rhs)
+{
+    return !operator==(rhs, lhs);
+}
+
+
+
+
 //---------------------------------------------------------------------------
-// Member_Reference_Counter<T_Manager, T_Handle, void(T_Manager::*F_Incrementor)(T_Handle const&), void(T_Manager::*F_Decrementor)(T_Handle const&)>
+// Member_Reference_Counter<T_Storage, T_Handle, void(T_Storage::*F_Incrementor)(T_Handle const&), void(T_Storage::*F_Decrementor)(T_Handle const&)>
 //---------------------------------------------------------------------------
 
 // Special 6
 //============================================================
-template <typename T_M, typename T_H, void(T_M::*F_I)(T_H const&), void(T_M::*F_D)(T_H const&) >
-saklib::internal::Member_Reference_Counter<T_M, T_H, F_I, F_D >::Member_Reference_Counter() :
+template <typename S, typename H, void(S::*I)(H const&), void(S::*D)(H const&) >
+saklib::internal::Member_Reference_Counter<S, H, I, D>::Member_Reference_Counter() :
     m_reference_counter()
 {
 }
 
-template <typename T_M, typename T_H, void(T_M::*F_I)(T_H const&), void(T_M::*F_D)(T_H const&) >
-saklib::internal::Member_Reference_Counter<T_M, T_H, F_I, F_D >::Member_Reference_Counter(manager_type* ap_manager, handle_type const& a_handle) :
-    m_reference_counter(ap_manager, (a_handle))
+template <typename S, typename H, void(S::*I)(H const&), void(S::*D)(H const&) >
+saklib::internal::Member_Reference_Counter<S, H, I, D>::Member_Reference_Counter(storage_type& ar_storage, handle_type const& a_handle) :
+    m_reference_counter(ar_storage, a_handle)
 {
 }
 
-template <typename T_M, typename T_H, void(T_M::*F_I)(T_H const&), void(T_M::*F_D)(T_H const&) >
-saklib::internal::Member_Reference_Counter<T_M, T_H, F_I, F_D >::~Member_Reference_Counter() = default;
+template <typename S, typename H, void(S::*I)(H const&), void(S::*D)(H const&) >
+saklib::internal::Member_Reference_Counter<S, H, I, D>::~Member_Reference_Counter() = default;
 
-template <typename T_M, typename T_H, void(T_M::*F_I)(T_H const&), void(T_M::*F_D)(T_H const&) >
-saklib::internal::Member_Reference_Counter<T_M, T_H, F_I, F_D >::Member_Reference_Counter(Member_Reference_Counter const& other) = default;
+template <typename S, typename H, void(S::*I)(H const&), void(S::*D)(H const&) >
+saklib::internal::Member_Reference_Counter<S, H, I, D>::Member_Reference_Counter(Member_Reference_Counter const& other) = default;
 
-template <typename T_M, typename T_H, void(T_M::*F_I)(T_H const&), void(T_M::*F_D)(T_H const&) >
-saklib::internal::Member_Reference_Counter<T_M, T_H, F_I, F_D >& saklib::internal::Member_Reference_Counter<T_M, T_H, F_I, F_D >::operator=(Member_Reference_Counter const& other) = default;
+template <typename S, typename H, void(S::*I)(H const&), void(S::*D)(H const&) >
+saklib::internal::Member_Reference_Counter<S, H, I, D>& saklib::internal::Member_Reference_Counter<S, H, I, D>::operator=(Member_Reference_Counter const& other) = default;
 
-template <typename T_M, typename T_H, void(T_M::*F_I)(T_H const&), void(T_M::*F_D)(T_H const&) >
-saklib::internal::Member_Reference_Counter<T_M, T_H, F_I, F_D >::Member_Reference_Counter(Member_Reference_Counter && other):
+template <typename S, typename H, void(S::*I)(H const&), void(S::*D)(H const&) >
+saklib::internal::Member_Reference_Counter<S, H, I, D>::Member_Reference_Counter(Member_Reference_Counter && other):
     m_reference_counter(std::move(other.m_reference_counter))
 {
 }
 
-template <typename T_M, typename T_H, void(T_M::*F_I)(T_H const&), void(T_M::*F_D)(T_H const&) >
-saklib::internal::Member_Reference_Counter<T_M, T_H, F_I, F_D >& saklib::internal::Member_Reference_Counter<T_M, T_H, F_I, F_D >::operator=(Member_Reference_Counter && other)
+template <typename S, typename H, void(S::*I)(H const&), void(S::*D)(H const&) >
+saklib::internal::Member_Reference_Counter<S, H, I, D>& saklib::internal::Member_Reference_Counter<S, H, I, D>::operator=(Member_Reference_Counter && other)
 {
     if (&other != this)
     {
@@ -179,36 +248,100 @@ saklib::internal::Member_Reference_Counter<T_M, T_H, F_I, F_D >& saklib::interna
 // Interface
 //============================================================
 
-template <typename T_M, typename T_H, void(T_M::*F_I)(T_H const&), void(T_M::*F_D)(T_H const&) >
-bool saklib::internal::Member_Reference_Counter<T_M, T_H, F_I, F_D >::is_valid() const
+template <typename S, typename H, void(S::*I)(H const&), void(S::*D)(H const&) >
+bool saklib::internal::Member_Reference_Counter<S, H, I, D>::is_valid() const
 {
     return m_reference_counter.is_valid();
 }
 
-template <typename T_M, typename T_H, void(T_M::*F_I)(T_H const&), void(T_M::*F_D)(T_H const&) >
-bool saklib::internal::Member_Reference_Counter<T_M, T_H, F_I, F_D >::is_null() const
+template <typename S, typename H, void(S::*I)(H const&), void(S::*D)(H const&) >
+bool saklib::internal::Member_Reference_Counter<S, H, I, D>::is_null() const
 {
     return m_reference_counter.is_null();
 }
 
-template <typename T_M, typename T_H, void(T_M::*F_I)(T_H const&), void(T_M::*F_D)(T_H const&) >
-typename saklib::internal::Member_Reference_Counter<T_M, T_H, F_I, F_D >::manager_type* saklib::internal::Member_Reference_Counter<T_M, T_H, F_I, F_D >::get_manager()
+template <typename S, typename H, void(S::*I)(H const&), void(S::*D)(H const&) >
+typename saklib::internal::Member_Reference_Counter<S, H, I, D>::storage_type* saklib::internal::Member_Reference_Counter<S, H, I, D>::get_storage()
 {
-    return m_reference_counter.get_manager();
+    return m_reference_counter.get_storage();
 }
 
-template <typename T_M, typename T_H, void(T_M::*F_I)(T_H const&), void(T_M::*F_D)(T_H const&) >
-typename saklib::internal::Member_Reference_Counter<T_M, T_H, F_I, F_D >::manager_type const* saklib::internal::Member_Reference_Counter<T_M, T_H, F_I, F_D >::cget_manager() const
+template <typename S, typename H, void(S::*I)(H const&), void(S::*D)(H const&) >
+typename saklib::internal::Member_Reference_Counter<S, H, I, D>::storage_type const* saklib::internal::Member_Reference_Counter<S, H, I, D>::cget_storage() const
 {
-    return m_reference_counter.cget_manager();
+    return m_reference_counter.cget_storage();
 }
 
-template <typename T_M, typename T_H, void(T_M::*F_I)(T_H const&), void(T_M::*F_D)(T_H const&) >
-typename saklib::internal::Member_Reference_Counter<T_M, T_H, F_I, F_D >::handle_type const& saklib::internal::Member_Reference_Counter<T_M, T_H, F_I, F_D >::cget_handle() const
+template <typename S, typename H, void(S::*I)(H const&), void(S::*D)(H const&) >
+typename saklib::internal::Member_Reference_Counter<S, H, I, D>::handle_type const& saklib::internal::Member_Reference_Counter<S, H, I, D>::cget_handle() const
 {
     return m_reference_counter.cget_handle();
 }
 
+// Comparison Operators
+//============================================================
+template <typename S, typename H, void(S::*I)(H const&), void(S::*D)(H const&)>
+bool saklib::internal::operator==(Member_Reference_Counter<S, H, I, D> const& lhs, Member_Reference_Counter<S, H, I, D> const& rhs)
+{
+    return (lhs.cget_storage() == rhs.cget_storage()) && (lhs.cget_handle() == rhs.cget_handle());
+}
+
+template <typename S, typename H, void(S::*I)(H const&), void(S::*D)(H const&)>
+bool saklib::internal::operator!=(Member_Reference_Counter<S, H, I, D> const& lhs, Member_Reference_Counter<S, H, I, D> const& rhs)
+{
+    return !operator==(lhs, rhs);
+}
+
+template <typename S, typename H, void(S::*I)(H const&), void(S::*D)(H const&)>
+bool saklib::internal::operator<(Member_Reference_Counter<S, H, I, D> const& lhs, Member_Reference_Counter<S, H, I, D> const& rhs)
+{
+    return lhs.cget_handle() < rhs.cget_handle();
+    //return (lhs.cget_storage() < rhs.cget_storage()) && (lhs.cget_handle() < rhs.cget_handle());
+}
+
+template <typename S, typename H, void(S::*I)(H const&), void(S::*D)(H const&)>
+bool saklib::internal::operator>(Member_Reference_Counter<S, H, I, D> const& lhs, Member_Reference_Counter<S, H, I, D> const& rhs)
+{
+    return operator<(rhs, lhs);
+}
+
+template <typename S, typename H, void(S::*I)(H const&), void(S::*D)(H const&)>
+bool saklib::internal::operator<=(Member_Reference_Counter<S, H, I, D> const& lhs, Member_Reference_Counter<S, H, I, D> const& rhs)
+{
+    return !operator>(lhs, rhs);
+}
+
+template <typename S, typename H, void(S::*I)(H const&), void(S::*D)(H const&)>
+bool saklib::internal::operator>=(Member_Reference_Counter<S, H, I, D> const& lhs, Member_Reference_Counter<S, H, I, D> const& rhs)
+{
+    return !operator<(lhs, rhs);
+}
+
+// Comparison Operators for compare to the null handle
+//============================================================
+template <typename S, typename H, void(S::*I)(H const&), void(S::*D)(H const&)>
+bool saklib::internal::operator==(Member_Reference_Counter<S, H, I, D> const& lhs, Null_Handle_Type const& )
+{
+    return lhs.is_null();
+}
+
+template <typename S, typename H, void(S::*I)(H const&), void(S::*D)(H const&)>
+bool saklib::internal::operator!=(Member_Reference_Counter<S, H, I, D> const& lhs, Null_Handle_Type const& rhs)
+{
+    return !operator==(lhs, rhs);
+}
+
+template <typename S, typename H, void(S::*I)(H const&), void(S::*D)(H const&)>
+bool saklib::internal::operator==(Null_Handle_Type const& lhs, Member_Reference_Counter<S, H, I, D> const& rhs)
+{
+    return operator==(rhs, lhs);
+}
+
+template <typename S, typename H, void(S::*I)(H const&), void(S::*D)(H const&)>
+bool saklib::internal::operator!=(Null_Handle_Type const& lhs, Member_Reference_Counter<S, H, I, D> const& rhs)
+{
+    return !operator==(rhs, lhs);
+}
 
 
 #endif // SAKLIB_INTERNAL_REFERENCE_COUNTER__INLINE_H

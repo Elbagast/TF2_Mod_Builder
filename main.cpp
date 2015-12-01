@@ -46,9 +46,6 @@ int main(int argc, char *argv[])
 {
     saklib::internal::test_handle();
     saklib::internal::test_handle_factory();
-    saklib::internal::test_reference_counted_storage();
-    saklib::internal::test_smart_handle_manager();
-    saklib::internal::test_smart_handle_manager__handle_owning_data();
 
     //saklib::internal::test_constraint_boolean_type();
     //saklib::internal::test_constrained_boolean_type();
