@@ -55,7 +55,7 @@ namespace saklib
             // Data Members
             //============================================================
             storage_type m_storage;
-            handle_factory_type m_handle_factory;
+            handle_factory_type m_handle_factory; // right now this does not know when a handle is revoked
         };
 
 
@@ -91,6 +91,8 @@ namespace saklib
             bool is_valid() const;
             bool is_null() const;
 
+            handle_type cget_handle() const;
+
             std::size_t cget_reference_count() const;
 
             // probably don't want to expose the Element here...
@@ -100,8 +102,8 @@ namespace saklib
 
             /*
             // probably don't want to expose this either?..
-            Element_Data_Manager* get_manager();
-            Element_Data_Manager const* cget_manager() const;
+            Element_Data_Manager& get_manager();
+            Element_Data_Manager const& cget_manager() const;
 
 
             // Element_Data Wrapper Interface
@@ -127,7 +129,6 @@ namespace saklib
             bool operator>(Element_Data_Handle const& rhs);
             bool operator<=(Element_Data_Handle const& rhs);
             bool operator>=(Element_Data_Handle const& rhs);
-
 
             // Comparison Operators for compare to the null handle
             //============================================================

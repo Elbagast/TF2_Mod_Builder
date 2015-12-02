@@ -96,7 +96,9 @@ SOURCES += main.cpp\
     saklib/internal/undoable_element_data_manager.cpp \
     saklib/element.cpp \
     saklib/internal/exceptions/bad_data_handle.cpp \
-    saklib/internal/element_data_definition_manager.cpp
+    saklib/internal/element_data_definition_manager.cpp \
+    saklib/internal/command_history.cpp \
+    saklib/internal/command.cpp
 
 HEADERS  += \
     saklib/zzz_refactoring.h \
@@ -148,7 +150,11 @@ HEADERS  += \
     saklib/internal/element_data_definition_manager__fwd.h \
     saklib/internal/reference_counted_storage__inline.h \
     saklib/internal/reference_counted_storage.h \
-    saklib/internal/reference_counted_storage__fwd.h
+    saklib/internal/reference_counted_storage__fwd.h \
+    saklib/internal/command.h \
+    saklib/internal/command_history.h \
+    saklib/internal/command__fwd.h \
+    saklib/internal/command_history__fwd.h
 
 FORMS
 

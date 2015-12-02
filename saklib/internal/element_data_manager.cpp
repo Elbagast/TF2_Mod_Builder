@@ -103,6 +103,11 @@ bool saklib::internal::Element_Data_Handle::is_null() const
     return m_reference_counter.is_null();
 }
 
+saklib::internal::Element_Data_Handle::handle_type saklib::internal::Element_Data_Handle::cget_handle() const
+{
+    return m_reference_counter.cget_handle();
+}
+
 std::size_t saklib::internal::Element_Data_Handle::cget_reference_count() const
 {
     return m_reference_counter.cget_storage()->cget_reference_count(m_reference_counter.cget_handle());

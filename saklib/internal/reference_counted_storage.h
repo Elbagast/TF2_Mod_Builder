@@ -78,7 +78,7 @@ namespace saklib
         template <typename H, typename... Args>
         class Reference_Counted_Storage
         {
-            static_assert(std::tuple_size<std::tuple<Args...>>::value > 0, "Cannot instantiate with no types, would mean it stores no data");
+            static_assert(std::tuple_size<std::tuple<Args...>>::value != 0, "Cannot instantiate with no types, would mean it stores no data");
 
         public:
             // Typedefs
@@ -96,11 +96,14 @@ namespace saklib
             using queue_type = std::priority_queue<handle_type, std::vector<handle_type>, std::greater<handle_type>>;
 
             // Need to figure out how I want to have this class inform others that data is being destroyed
+            //using signal_new_data_type = boost::signals2::signal<void(handle_type const&)>;
+            //using slot_new_data_type = typename signal_new_data_type::slot_type;
+
             //using signal_destruction_start_type = boost::signals2::signal<void(handle_type const&)>;
             //using slot_destruction_start_type = typename signal_destruction_start_type::slot_type;
 
             //using signal_destruction_end_type = boost::signals2::signal<void(handle_type const&)>;
-            //using signal_destruction_end_type = typename signal_destruction_start_type::slot_type;
+            //using slot_destruction_end_type = typename signal_destruction_start_type::slot_type;
 
             //---------------------------------------------------------------------------
             // Data<N>

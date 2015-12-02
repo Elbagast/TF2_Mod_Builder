@@ -22,6 +22,7 @@ namespace saklib
     public:
         // Special 6
         //============================================================
+        // How will these be made...
         Element();
         ~Element();
 
@@ -30,6 +31,9 @@ namespace saklib
 
         Element(Element && a_other);
         Element& operator=(Element && a_other);
+
+        // Interface
+        //============================================================
 
     private:
         // Data Members

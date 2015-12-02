@@ -65,7 +65,6 @@ namespace saklib
         template <typename T>
         bool operator>=(Handle<T> const& lhs, Handle<T> const& rhs);
 
-
         // Comparison Operators for compare to the null handle
         //============================================================
         template <typename T>

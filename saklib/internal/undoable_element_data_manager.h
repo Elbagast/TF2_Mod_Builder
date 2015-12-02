@@ -9,12 +9,14 @@
 #include "element_data_manager.h"
 #endif
 
+#ifndef SAKLIB_INTERNAL_COMMAND_HISTORY_H
+#include "command_history.h"
+#endif
+
 namespace saklib
 {
     namespace internal
     {
-        class Command_Manager;
-        /*
         //---------------------------------------------------------------------------
         // Undoable_Element_Data_Manager
         //---------------------------------------------------------------------------
@@ -28,21 +30,20 @@ namespace saklib
 
             // Interface
             //============================================================
-            // definition stuff
-
-            // command stuff
-
-            // handle making stuff
-
-            Undoable_Element_Data_Handle make_null_handle() const;
-            Undoable_Element_Data_Handle make_element(std::string const& a_type);
+            bool has_element(handle_type const& a_handle) const;
             Undoable_Element_Data_Handle make_element_handle(handle_type const& a_handle);
+            Undoable_Element_Data_Handle make_element(Element_Data_Definition_Handle&& a_definition_handle);
 
             std::vector<handle_type> cget_all_handles() const;
             std::vector<Undoable_Element_Data_Handle> make_all_element_handles();
+
+            // We must wrap all calls to Element_Data and Attribute_Data functions that change data so that
+            // those changes can be undone. Do we put them ALL in here? Or spread them across the different
+            // Undoable_X_Handle types?
+
         private:
             Element_Data_Manager m_data_manager;
-            //Command_Manager m_command_manager;
+            Command_History m_command_history;
         };
 
         class Undoable_Attribute_Data_Handle;
@@ -55,19 +56,15 @@ namespace saklib
 
         class Undoable_Element_Data_Handle
         {
-            friend class Undoable_Element_Data_Manager;
         public:
             // Typedefs
             //============================================================
-            using smart_handle_type = Element_Data_Handle::smart_handle_type;
             using handle_type = Element_Data_Handle::handle_type;
-            using reference_count_type = Element_Data_Handle::reference_count_type;
 
             // Special 6
             //============================================================
         private:
             Undoable_Element_Data_Handle(Undoable_Element_Data_Manager& ar_manager, Element_Data_Handle&& a_data_handle);
-        public:
             Undoable_Element_Data_Handle();
             ~Undoable_Element_Data_Handle();
 
@@ -82,14 +79,13 @@ namespace saklib
             bool is_valid() const;
             bool is_null() const;
 
-            handle_type get_handle() const;
+            handle_type cget_handle() const;
 
-            Handle_Value_Type get_handle_value() const;
-
-            reference_count_type get_reference_count() const;
+            std::size_t cget_reference_count() const;
 
             // Element_Data Wrapper Interface
             //============================================================
+            /*
             std::string const& cget_type() const;
 
             std::string const& cget_name() const;
@@ -100,14 +96,31 @@ namespace saklib
             Undoable_Attribute_Data_Handle get_attribute_at(std::size_t a_index);
 
             std::vector<Undoable_Attribute_Data_Handle> get_attributes();
+            */
+
+            // Comparison Operators
+            //============================================================
+            bool operator==(Undoable_Element_Data_Handle const& rhs);
+            bool operator!=(Undoable_Element_Data_Handle const& rhs);
+            bool operator<(Undoable_Element_Data_Handle const& rhs);
+            bool operator>(Undoable_Element_Data_Handle const& rhs);
+            bool operator<=(Undoable_Element_Data_Handle const& rhs);
+            bool operator>=(Undoable_Element_Data_Handle const& rhs);
+
+            // Comparison Operators for compare to the null handle
+            //============================================================
+            bool operator==(Null_Handle_Type const& rhs);
+            bool operator!=(Null_Handle_Type const& rhs);
 
         private:
             // Data Members
             //============================================================
-            //Command_Manager* mp_command_manager;
             Element_Data_Handle m_data_handle;
+
+            // This or one to the Command_History? Depends where Commands will be issued
+            Undoable_Element_Data_Manager* mp_manager;
         };
-        */
+
     } // namespace internal
 } // namespace saklib
 
