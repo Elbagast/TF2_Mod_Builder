@@ -58,6 +58,35 @@ namespace saklib
 
             State m_state;
         };
+
+        /*
+        //---------------------------------------------------------------------------
+        // Omni_Command
+        //---------------------------------------------------------------------------
+        template <typename H, typename V, void(H::*Get_Current)()>
+        class Reversable_Command
+        {
+        public:
+            using handle_type;
+            using value_type;
+            using old_value_getter;
+            using value_setter;
+
+            // Special 6
+            //============================================================
+            Omni_Command();
+            ~Omni_Command() override;
+        protected:
+            // Virtuals
+            //============================================================
+            void v_execute() override;
+            void v_unexecute() override;
+
+        private:
+            // Data Members
+            //============================================================
+        };
+        */
     } // namespace internal
 } // namespace saklib
 

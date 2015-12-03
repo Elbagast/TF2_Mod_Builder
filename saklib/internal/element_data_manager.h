@@ -9,23 +9,21 @@
 #include "element_data_definition_manager.h"
 #endif
 
-#ifndef SAKLIB_INTERNAL_ELEMENT_DATA_H
-#include "element_data.h"
-#endif
-
 #ifndef SAKLIB_INTERNAL_HANDLE_FACTORY_H
 #include "handle_factory.h"
+#endif
+
+#ifndef SAKLIB_INTERNAL_ELEMENT_DATA_HANDLE__FWD_H
+#include "element_data_handle__fwd.h"
 #endif
 
 namespace saklib
 {
     namespace internal
     {
-
         //---------------------------------------------------------------------------
         // Element_Data_Manager
         //---------------------------------------------------------------------------
-
         class Element_Data_Manager
         {
         public:
@@ -58,91 +56,7 @@ namespace saklib
             handle_factory_type m_handle_factory; // right now this does not know when a handle is revoked
         };
 
-
-        //---------------------------------------------------------------------------
-        // Element_Data_Handle
-        //---------------------------------------------------------------------------
-
-
-        // undo support has to go in here or in an object that holds this...
-        class Element_Data_Handle
-        {
-        public:
-            // Typedefs
-            //============================================================
-            using handle_type = Element_Data_Manager::handle_type;
-            using storage_type = Element_Data_Manager::storage_type;
-            using reference_counter_type = Element_Data_Manager::reference_counter_type;
-
-            // Special 6
-            //============================================================
-            Element_Data_Handle();
-            Element_Data_Handle(reference_counter_type&& a_reference_counter);
-            ~Element_Data_Handle();
-
-            Element_Data_Handle(Element_Data_Handle const& other);
-            Element_Data_Handle& operator=(Element_Data_Handle const& other);
-
-            Element_Data_Handle(Element_Data_Handle && other);
-            Element_Data_Handle& operator=(Element_Data_Handle && other);
-
-            // Interface
-            //============================================================
-            bool is_valid() const;
-            bool is_null() const;
-
-            handle_type cget_handle() const;
-
-            std::size_t cget_reference_count() const;
-
-            // probably don't want to expose the Element here...
-            // need to supply wrapper handles for Attributes....
-            Element_Data& get_element();
-            Element_Data const& cget_element() const;
-
-            /*
-            // probably don't want to expose this either?..
-            Element_Data_Manager& get_manager();
-            Element_Data_Manager const& cget_manager() const;
-
-
-            // Element_Data Wrapper Interface
-            //============================================================
-            std::string const& cget_type() const;
-
-            std::string const& cget_name() const;
-            void set_name(std::string const& a_name);
-
-            std::size_t get_attribute_count() const;
-
-            Attribute_Data_Handle get_attribute_at(std::size_t a_index);
-
-            std::vector<Attribute_Data_Handle> get_attributes();
-
-            */
-
-            // Comparison Operators
-            //============================================================
-            bool operator==(Element_Data_Handle const& rhs);
-            bool operator!=(Element_Data_Handle const& rhs);
-            bool operator<(Element_Data_Handle const& rhs);
-            bool operator>(Element_Data_Handle const& rhs);
-            bool operator<=(Element_Data_Handle const& rhs);
-            bool operator>=(Element_Data_Handle const& rhs);
-
-            // Comparison Operators for compare to the null handle
-            //============================================================
-            bool operator==(Null_Handle_Type const& rhs);
-            bool operator!=(Null_Handle_Type const& rhs);
-
-        private:
-            // Data Members
-            //============================================================
-            reference_counter_type m_reference_counter;
-        };
-
     } // namespace internal
 } // namespace saklib
-
 
 #endif // ELEMENT_DATA_MANAGER_H

@@ -9,7 +9,7 @@ saklib::internal::Command_History::Command_History():
     m_next_redo(m_container.end())
 {}
 
-saklib::Command_History::~Command_History() = default;
+saklib::internal::Command_History::~Command_History() = default;
 
 // Interface
 //============================================================
@@ -149,22 +149,22 @@ void saklib::internal::Command_History::clear()
 }
 
 // Signals that are currently all dummies
-void signal_command_added()
+void saklib::internal::Command_History::signal_command_added()
 {
 
 }
 
-void signal_undo()
+void saklib::internal::Command_History::signal_undo()
 {
 
 }
 
-void signal_redo()
+void saklib::internal::Command_History::signal_redo()
 {
 
 }
 
-void signal_clear()
+void saklib::internal::Command_History::signal_clear()
 {
 
 }

@@ -1,7 +1,9 @@
 #include "element_data_manager__test.h"
 
-#include "element_data_manager.h"
 #include "element_data.h"
+#include "element_data_manager.h"
+#include "element_data_handle.h"
+
 #include "attribute_data.h"
 #include "type_string.h"
 
@@ -19,6 +21,10 @@ void saklib::internal::test_element_manager()
     Element_Data_Definition_Manager eddm{};
 
     {
+        AD thing{"Default Bool", TS_Bool()};
+        thing.set_to_int();
+        assert(thing.is_int());
+
         ED ed1
         {
             "Moooo",
@@ -49,7 +55,7 @@ void saklib::internal::test_element_manager()
     assert(edh1.cget_reference_count() == 1);
     assert(eddm.get_definition_usage_count("Moooo") == 2);
 
-    std::cout << edh1.cget_element() << std::endl;
+    //std::cout << edh1 << std::endl;
 
     Element_Data_Handle edh2 = edm.make_element(eddm.make_definition_handle("Moooo"));
     assert(edh2.is_valid());

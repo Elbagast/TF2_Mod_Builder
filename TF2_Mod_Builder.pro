@@ -79,11 +79,6 @@ DEPENDPATH += $${BOOST_LIBRARY_DIR}
 SOURCES += main.cpp\
     saklib/internal/test.cpp \
     saklib/internal/null_handle.cpp \
-    saklib/internal/constraint_boolean_type.cpp \
-    saklib/internal/constraint_boolean_type__test.cpp \
-    saklib/internal/constraint_integral_type__test.cpp \
-    saklib/internal/constraint_integral_type.cpp \
-    saklib/internal/constraint_floating_point_type.cpp \
     saklib/internal/type_string.cpp \
     saklib/internal/exceptions/bad_attribute_data_type.cpp \
     saklib/internal/attribute_data.cpp \
@@ -98,7 +93,21 @@ SOURCES += main.cpp\
     saklib/internal/exceptions/bad_data_handle.cpp \
     saklib/internal/element_data_definition_manager.cpp \
     saklib/internal/command_history.cpp \
-    saklib/internal/command.cpp
+    saklib/internal/command.cpp \
+    saklib/internal/attribute_data_handle.cpp \
+    saklib/internal/element_data_handle.cpp \
+    saklib/internal/attribute_data_boolean_type.cpp \
+    saklib/internal/attribute_data_boolean_type__test.cpp \
+    saklib/internal/attribute_data_floating_point_type.cpp \
+    saklib/internal/attribute_data_integral_type.cpp \
+    saklib/internal/attribute_data_integral_type__test.cpp \
+    saklib/internal/attribute_data_handle_bool.cpp \
+    saklib/internal/attribute_data_handle_int.cpp \
+    saklib/internal/undoable_element_data_handle.cpp \
+    saklib/internal/undoable_attribute_data_handle.cpp \
+    saklib/internal/undoable_attribute_data_handle_bool.cpp \
+    saklib/internal/undoable_attribute_data_handle_int.cpp \
+    saklib/internal/undoable_element_data_manager__test.cpp
 
 HEADERS  += \
     saklib/zzz_refactoring.h \
@@ -112,16 +121,6 @@ HEADERS  += \
     saklib/internal/handle_factory__inline.h \
     saklib/internal/null_handle__inline.h \
     saklib/internal/handle_factory__fwd.h \
-    saklib/internal/constraint_boolean_type.h \
-    saklib/internal/constraint_boolean_type__fwd.h \
-    saklib/internal/constraint_boolean_type__test.h \
-    saklib/internal/constraint_integral_type.h \
-    saklib/internal/constraint_integral_type__test.h \
-    saklib/internal/constraint_integral_type__fwd.h \
-    saklib/internal/constraint_floating_point_type.h \
-    saklib/internal/constraint_floating_point_type__fwd.h \
-    saklib/internal/all_constraint.h \
-    saklib/internal/all_constraint__fwd.h \
     saklib/internal/type_string.h \
     saklib/internal/type_string__fwd.h \
     saklib/internal/reference_counter.h \
@@ -154,7 +153,38 @@ HEADERS  += \
     saklib/internal/command.h \
     saklib/internal/command_history.h \
     saklib/internal/command__fwd.h \
-    saklib/internal/command_history__fwd.h
+    saklib/internal/command_history__fwd.h \
+    saklib/internal/attribute_data_handle.h \
+    saklib/internal/attribute_data_handle__fwd.h \
+    saklib/internal/element_data_handle.h \
+    saklib/internal/attribute_data_boolean_type.h \
+    saklib/internal/attribute_data_boolean_type__fwd.h \
+    saklib/internal/attribute_data_boolean_type__test.h \
+    saklib/internal/attribute_data_floating_point_type.h \
+    saklib/internal/attribute_data_floating_point_type__fwd.h \
+    saklib/internal/attribute_data_integral_type.h \
+    saklib/internal/attribute_data_integral_type__fwd.h \
+    saklib/internal/attribute_data_integral_type__test.h \
+    saklib/internal/all_attribute_data_.h \
+    saklib/internal/all_attribute_data__fwd.h \
+    saklib/internal/attribute_data_handle_bool.h \
+    saklib/internal/attribute_data_handle_bool__fwd.h \
+    saklib/internal/attribute_data_handle_int.h \
+    saklib/internal/attribute_data_handle_int__fwd.h \
+    saklib/internal/all_attribute_data_handle__fwd.h \
+    saklib/internal/all_attribute_data_handle.h \
+    saklib/internal/element_data_handle__fwd.h \
+    saklib/internal/undoable_element_data_handle.h \
+    saklib/internal/undoable_element_data_handle__fwd.h \
+    saklib/internal/undoable_attribute_data_handle.h \
+    saklib/internal/undoable_attribute_data_handle__fwd.h \
+    saklib/internal/undoable_attribute_data_handle_bool.h \
+    saklib/internal/undoable_attribute_data_handle_bool__fwd.h \
+    saklib/internal/undoable_attribute_data_handle_int.h \
+    saklib/internal/undoable_attribute_data_handle_int__fwd.h \
+    saklib/internal/undoable_element_data_manager__test.h \
+    saklib/internal/all_undoable_attribute_data_handle.h \
+    saklib/internal/all_undoable_attribute_data_handle__fwd.h
 
 FORMS
 

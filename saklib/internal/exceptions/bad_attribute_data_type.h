@@ -25,6 +25,7 @@ namespace saklib
         public:
             // Special 6
             //============================================================
+            explicit Bad_Attribute_Data_Type(std::string const& a_attempted_type);
             Bad_Attribute_Data_Type(std::string const& a_attempted_type, std::string const& a_actual_type);
             ~Bad_Attribute_Data_Type() override;
 

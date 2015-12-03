@@ -12,5 +12,5 @@ namespace saklib
     } // namespace internal
 } // namespace saklib
 
-#endif // SAKLIB_INTERNAL_ATTRIBUTE_DATA_DEFINITION__FWD_H
+#endif // SAKLIB_INTERNAL_ATTRIBUTE_DATA__FWD_H
 

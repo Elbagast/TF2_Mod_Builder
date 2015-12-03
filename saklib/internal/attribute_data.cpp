@@ -1,7 +1,7 @@
 #include "attribute_data.h"
 
-#ifndef SAKLIB_INTERNAL_ALL_CONSTRAINT_H
-#include "all_constraint.h"
+#ifndef SAKLIB_INTERNAL_ALL_ATTRIBUTE_DATA_H
+#include "all_attribute_data_.h"
 #endif
 
 #ifndef SAKLIB_INTERNAL_TYPE_STRING_H
@@ -20,23 +20,48 @@ namespace saklib
     {
         namespace
         {
-            boost::any make_any_constrained_from_any_constraint(boost::any const& a_any)
+            boost::any make_any_data_from_any_definition(boost::any const& a_any)
             {
                 auto l_type = std::type_index(a_any.type());
 
-                if (l_type == typeid(Constraint_Bool))
+                if (l_type == typeid(Attribute_Data_Definition_Bool))
                 {
-                    return boost::any(Constrained_Bool(boost::any_cast<Constraint_Bool const&>(a_any)));
+                    return boost::any(Attribute_Data_Bool(boost::any_cast<Attribute_Data_Definition_Bool const&>(a_any)));
                 }
-                else if (l_type == typeid(Constraint_Int))
+                else if (l_type == typeid(Attribute_Data_Definition_Int))
                 {
-                    return boost::any(Constrained_Int(boost::any_cast<Constraint_Int const&>(a_any)));
+                    return boost::any(Attribute_Data_Int(boost::any_cast<Attribute_Data_Definition_Int const&>(a_any)));
                 }
                 else
                 {
                     return boost::any();
                 }
             }
+
+            template <typename T>
+            std::string const& get_name_from_any(boost::any const& a_any)
+            {
+                return boost::any_cast<T const&>(a_any).cget_name();
+            }
+
+            template <typename T>
+            void set_name_from_any(boost::any& a_any, std::string const& a_name)
+            {
+                return boost::any_cast<T &>(a_any).set_name(a_name);
+            }
+
+            template <typename T>
+            std::string const& get_type_from_any(boost::any const& a_any)
+            {
+                return boost::any_cast<T const&>(a_any).cget_type();
+            }
+
+            template <typename T>
+            std::string get_value_string_from_any(boost::any const& a_any)
+            {
+                return boost::any_cast<T const&>(a_any).cget_value_string();
+            }
+
         }
     }
 }
@@ -53,8 +78,7 @@ namespace saklib
 // Construct based on the given type string. If the type string is invalid then the type
 // will be bool.
 saklib::internal::Attribute_Data_Definition::Attribute_Data_Definition(std::string const& a_name, std::string const& a_type):
-    m_name(a_name),
-    m_any_constraint(Constraint_Bool())
+    Attribute_Data_Definition(a_name, TS_Bool())
 {
     // If the type is invalid set_type() won't change the type.
     // This means an invalid type will reult in a type of bool.
@@ -62,26 +86,38 @@ saklib::internal::Attribute_Data_Definition::Attribute_Data_Definition(std::stri
 }
 
 saklib::internal::Attribute_Data_Definition::Attribute_Data_Definition(std::string const& a_name, TS_Bool&&):
-    m_name(a_name),
-    m_any_constraint(Constraint_Bool())
+    m_any_definition(Attribute_Data_Definition_Bool(a_name)),
+    mf_name_getter( get_name_from_any<Attribute_Data_Definition_Bool> ),
+    mf_name_setter( set_name_from_any<Attribute_Data_Definition_Bool> ),
+    mf_type_getter( get_type_from_any<Attribute_Data_Definition_Bool> ),
+    mf_value_getter( get_value_string_from_any<Attribute_Data_Bool> )
 {
 }
 
 saklib::internal::Attribute_Data_Definition::Attribute_Data_Definition(std::string const& a_name, TS_Bool&&, bool a_initial):
-    m_name(a_name),
-    m_any_constraint(Constraint_Bool(a_initial))
+    m_any_definition(Attribute_Data_Definition_Bool(a_name, a_initial)),
+    mf_name_getter( get_name_from_any<Attribute_Data_Definition_Bool> ),
+    mf_name_setter( set_name_from_any<Attribute_Data_Definition_Bool> ),
+    mf_type_getter( get_type_from_any<Attribute_Data_Definition_Bool> ),
+    mf_value_getter( get_value_string_from_any<Attribute_Data_Bool> )
 {
 }
 
 saklib::internal::Attribute_Data_Definition::Attribute_Data_Definition(std::string const& a_name, TS_Int&&):
-    m_name(a_name),
-    m_any_constraint(Constraint_Int())
+    m_any_definition(Attribute_Data_Definition_Int(a_name)),
+    mf_name_getter( get_name_from_any<Attribute_Data_Definition_Int> ),
+    mf_name_setter( set_name_from_any<Attribute_Data_Definition_Int> ),
+    mf_type_getter( get_type_from_any<Attribute_Data_Definition_Int> ),
+    mf_value_getter( get_value_string_from_any<Attribute_Data_Int> )
 {
 }
 
 saklib::internal::Attribute_Data_Definition::Attribute_Data_Definition(std::string const& a_name, TS_Int&&, int a_bound1, int a_bound2, int a_intiial):
-    m_name(a_name),
-    m_any_constraint(Constraint_Int(a_bound1, a_bound2, a_intiial))
+    m_any_definition(Attribute_Data_Definition_Int(a_name, a_bound1, a_bound2, a_intiial)),
+    mf_name_getter( get_name_from_any<Attribute_Data_Definition_Int> ),
+    mf_name_setter( set_name_from_any<Attribute_Data_Definition_Int> ),
+    mf_type_getter( get_type_from_any<Attribute_Data_Definition_Int> ),
+    mf_value_getter( get_value_string_from_any<Attribute_Data_Int> )
 {
 }
 
@@ -89,25 +125,17 @@ saklib::internal::Attribute_Data_Definition::Attribute_Data_Definition(std::stri
 //============================================================
 std::string const& saklib::internal::Attribute_Data_Definition::cget_name() const
 {
-    return m_name;
+    return mf_name_getter(m_any_definition);
 }
 
 void saklib::internal::Attribute_Data_Definition::set_name(std::string const& a_name)
 {
-    m_name = a_name;
+    mf_name_setter(m_any_definition, a_name);
 }
 
 std::string const& saklib::internal::Attribute_Data_Definition::cget_type() const
 {
-    if (is_bool())      return TS_Bool()();
-    else if (is_int())  return TS_Int()();
-    else
-    {
-        // Shouldn't get here...
-        assert(false);
-        static std::string const type_fail{};
-        return type_fail;
-    }
+    return mf_type_getter(m_any_definition);
 }
 
 void saklib::internal::Attribute_Data_Definition::set_type(std::string const& a_type)
@@ -118,19 +146,19 @@ void saklib::internal::Attribute_Data_Definition::set_type(std::string const& a_
 
 bool saklib::internal::Attribute_Data_Definition::is_bool() const
 {
-    return m_any_constraint.type() == typeid(Constraint_Bool);
+    return m_any_definition.type() == typeid(Attribute_Data_Definition_Bool);
 }
 
 bool saklib::internal::Attribute_Data_Definition::is_int() const
 {
-    return m_any_constraint.type() == typeid(Constraint_Int);
+    return m_any_definition.type() == typeid(Attribute_Data_Definition_Int);
 }
 
 void saklib::internal::Attribute_Data_Definition::set_to_bool()
 {
     if(!is_bool())
     {
-        m_any_constraint = boost::any(Constraint_Bool());
+        *this = Attribute_Data_Definition(mf_name_getter(m_any_definition), TS_Bool());
     }
 }
 
@@ -138,15 +166,15 @@ void saklib::internal::Attribute_Data_Definition::set_to_int()
 {
     if(!is_int())
     {
-        m_any_constraint = boost::any(Constraint_Int());
+        *this = Attribute_Data_Definition(mf_name_getter(m_any_definition), TS_Int());
     }
 }
 
-saklib::internal::Constraint_Bool& saklib::internal::Attribute_Data_Definition::get_constraint_bool()
+saklib::internal::Attribute_Data_Definition_Bool& saklib::internal::Attribute_Data_Definition::get_bool()
 {
     if(is_bool())
     {
-        return boost::any_cast<Constraint_Bool&>(m_any_constraint);
+        return boost::any_cast<Attribute_Data_Definition_Bool&>(m_any_definition);
     }
     else
     {
@@ -154,11 +182,11 @@ saklib::internal::Constraint_Bool& saklib::internal::Attribute_Data_Definition::
     }
 }
 
-saklib::internal::Constraint_Int& saklib::internal::Attribute_Data_Definition::get_constraint_int()
+saklib::internal::Attribute_Data_Definition_Int& saklib::internal::Attribute_Data_Definition::get_int()
 {
     if(is_int())
     {
-        return boost::any_cast<Constraint_Int&>(m_any_constraint);
+        return boost::any_cast<Attribute_Data_Definition_Int&>(m_any_definition);
     }
     else
     {
@@ -166,11 +194,11 @@ saklib::internal::Constraint_Int& saklib::internal::Attribute_Data_Definition::g
     }
 }
 
-saklib::internal::Constraint_Bool const& saklib::internal::Attribute_Data_Definition::cget_constraint_bool() const
+saklib::internal::Attribute_Data_Definition_Bool const& saklib::internal::Attribute_Data_Definition::cget_bool() const
 {
     if(is_bool())
     {
-        return boost::any_cast<Constraint_Bool const&>(m_any_constraint);
+        return boost::any_cast<Attribute_Data_Definition_Bool const&>(m_any_definition);
     }
     else
     {
@@ -178,21 +206,16 @@ saklib::internal::Constraint_Bool const& saklib::internal::Attribute_Data_Defini
     }
 }
 
-saklib::internal::Constraint_Int const& saklib::internal::Attribute_Data_Definition::cget_constraint_int() const
+saklib::internal::Attribute_Data_Definition_Int const& saklib::internal::Attribute_Data_Definition::cget_int() const
 {
     if(is_int())
     {
-        return boost::any_cast<Constraint_Int const&>(m_any_constraint);
+        return boost::any_cast<Attribute_Data_Definition_Int const&>(m_any_definition);
     }
     else
     {
         throw Bad_Attribute_Data_Type(TS_Int()(), cget_type());
     }
-}
-
-boost::any const& saklib::internal::Attribute_Data_Definition::cget_any_constraint() const
-{
-    return m_any_constraint;
 }
 
 // Factory Functions
@@ -226,8 +249,8 @@ std::ostream& saklib::internal::operator << (std::ostream& a_ostream, Attribute_
     a_ostream << " name=\"" << a_definitition.cget_name();
     a_ostream << "\" type=\"" << a_definitition.cget_type();
     a_ostream << "\" ";
-    if (a_definitition.is_bool()) a_ostream << a_definitition.cget_constraint_bool();
-    else if (a_definitition.is_int()) a_ostream << a_definitition.cget_constraint_int();
+    if (a_definitition.is_bool()) a_ostream << a_definitition.cget_bool();
+    else if (a_definitition.is_int()) a_ostream << a_definitition.cget_int();
 
     a_ostream << " } ";
     return a_ostream;
@@ -241,8 +264,9 @@ std::ostream& saklib::internal::operator << (std::ostream& a_ostream, Attribute_
 // Special 6
 //============================================================
 saklib::internal::Attribute_Data::Attribute_Data(Attribute_Data_Definition const& a_definition):
-    mr_definition{a_definition},
-    m_any_constrained{make_any_constrained_from_any_constraint(mr_definition.cget_any_constraint())}
+    mr_definition(a_definition),
+    m_any_attribute(make_any_data_from_any_definition(mr_definition.m_any_definition)),
+    mf_value_string_getter(mr_definition.mf_value_getter)
 {
 }
 
@@ -259,21 +283,26 @@ std::string const& saklib::internal::Attribute_Data::cget_type() const
     return mr_definition.cget_type();
 }
 
+std::string saklib::internal::Attribute_Data::cget_value_string() const
+{
+    return mf_value_string_getter(m_any_attribute);
+}
+
 bool saklib::internal::Attribute_Data::is_bool() const
 {
-    return m_any_constrained.type() == typeid(Constrained_Bool);
+    return m_any_attribute.type() == typeid(Attribute_Data_Bool);
 }
 
 bool saklib::internal::Attribute_Data::is_int() const
 {
-    return m_any_constrained.type() == typeid(Constrained_Int);
+    return m_any_attribute.type() == typeid(Attribute_Data_Int);
 }
 
-saklib::internal::Constrained_Bool& saklib::internal::Attribute_Data::get_value_bool()
+saklib::internal::Attribute_Data_Bool& saklib::internal::Attribute_Data::get_bool()
 {
     if(is_bool())
     {
-        return boost::any_cast<Constrained_Bool&>(m_any_constrained);
+        return boost::any_cast<Attribute_Data_Bool&>(m_any_attribute);
     }
     else
     {
@@ -281,11 +310,11 @@ saklib::internal::Constrained_Bool& saklib::internal::Attribute_Data::get_value_
     }
 }
 
-saklib::internal::Constrained_Int& saklib::internal::Attribute_Data::get_value_int()
+saklib::internal::Attribute_Data_Int& saklib::internal::Attribute_Data::get_int()
 {
     if(is_int())
     {
-        return boost::any_cast<Constrained_Int&>(m_any_constrained);
+        return boost::any_cast<Attribute_Data_Int&>(m_any_attribute);
     }
     else
     {
@@ -293,11 +322,11 @@ saklib::internal::Constrained_Int& saklib::internal::Attribute_Data::get_value_i
     }
 }
 
-saklib::internal::Constrained_Bool const& saklib::internal::Attribute_Data::cget_value_bool() const
+saklib::internal::Attribute_Data_Bool const& saklib::internal::Attribute_Data::cget_bool() const
 {
     if(is_bool())
     {
-        return boost::any_cast<Constrained_Bool const&>(m_any_constrained);
+        return boost::any_cast<Attribute_Data_Bool const&>(m_any_attribute);
     }
     else
     {
@@ -305,11 +334,11 @@ saklib::internal::Constrained_Bool const& saklib::internal::Attribute_Data::cget
     }
 }
 
-saklib::internal::Constrained_Int const& saklib::internal::Attribute_Data::cget_value_int() const
+saklib::internal::Attribute_Data_Int const& saklib::internal::Attribute_Data::cget_int() const
 {
     if(is_int())
     {
-        return boost::any_cast<Constrained_Int const&>(m_any_constrained);
+        return boost::any_cast<Attribute_Data_Int const&>(m_any_attribute);
     }
     else
     {
@@ -324,10 +353,7 @@ std::ostream& saklib::internal::operator << (std::ostream& a_ostream, Attribute_
     a_ostream << "Attribute {";
     a_ostream << " name=\"" << a_attribute.cget_name();
     a_ostream << "\" type=\"" << a_attribute.cget_type();
-    a_ostream << "\" ";
-    if (a_attribute.is_bool())      a_ostream << a_attribute.cget_value_bool();
-    else if (a_attribute.is_int())  a_ostream << a_attribute.cget_value_int();
-
-    a_ostream << " } ";
+    a_ostream << "\" value=\"" << a_attribute.cget_value_string();
+    a_ostream << "\" } ";
     return a_ostream;
 }

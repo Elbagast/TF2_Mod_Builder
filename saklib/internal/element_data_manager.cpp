@@ -1,5 +1,6 @@
 #include "element_data_manager.h"
 
+#include "element_data_handle.h"
 #include "exceptions/bad_element_data_type.h"
 #include <limits>
 
@@ -36,6 +37,7 @@ saklib::internal::Element_Data_Handle saklib::internal::Element_Data_Manager::ma
     {
         auto new_handle = m_handle_factory.make_new_handle();
         auto new_reference_counter = m_storage.emplace_data(new_handle, Element_Data(a_definition_handle.cget_definition()), std::move(a_definition_handle));
+        assert(new_reference_counter.is_valid());
         return Element_Data_Handle(std::move(new_reference_counter));
     }
     else
@@ -61,119 +63,3 @@ std::vector<saklib::internal::Element_Data_Handle> saklib::internal::Element_Dat
     return l_result;
 }
 
-//---------------------------------------------------------------------------
-// Element_Data_Handle
-//---------------------------------------------------------------------------
-// Special 6
-//============================================================
-saklib::internal::Element_Data_Handle::Element_Data_Handle() = default;
-
-saklib::internal::Element_Data_Handle::Element_Data_Handle(reference_counter_type&& a_reference_counter):
-    m_reference_counter(std::move(a_reference_counter))
-{
-}
-saklib::internal::Element_Data_Handle::~Element_Data_Handle() = default;
-
-saklib::internal::Element_Data_Handle::Element_Data_Handle(Element_Data_Handle const& other) = default;
-saklib::internal::Element_Data_Handle& saklib::internal::Element_Data_Handle::operator=(Element_Data_Handle const& other) = default;
-
-saklib::internal::Element_Data_Handle::Element_Data_Handle(Element_Data_Handle && other):
-    m_reference_counter(std::move(other.m_reference_counter))
-{
-}
-
-saklib::internal::Element_Data_Handle& saklib::internal::Element_Data_Handle::operator=(Element_Data_Handle && other)
-{
-    if (&other != this)
-    {
-        m_reference_counter = std::move(other.m_reference_counter);
-    }
-    return *this;
-}
-
-// Interface
-//============================================================
-bool saklib::internal::Element_Data_Handle::is_valid() const
-{
-    return m_reference_counter.is_valid();
-}
-
-bool saklib::internal::Element_Data_Handle::is_null() const
-{
-    return m_reference_counter.is_null();
-}
-
-saklib::internal::Element_Data_Handle::handle_type saklib::internal::Element_Data_Handle::cget_handle() const
-{
-    return m_reference_counter.cget_handle();
-}
-
-std::size_t saklib::internal::Element_Data_Handle::cget_reference_count() const
-{
-    return m_reference_counter.cget_storage()->cget_reference_count(m_reference_counter.cget_handle());
-}
-
-
-// probably don't want to expose the Element here...
-// need to supply wrapper handles for Attributes....
-saklib::internal::Element_Data& saklib::internal::Element_Data_Handle::get_element()
-{
-    if(is_null())
-    {
-        throw Bad_Data_Handle();
-    }
-    return m_reference_counter.get_storage()->get_data(m_reference_counter.cget_handle());
-}
-
-saklib::internal::Element_Data const& saklib::internal::Element_Data_Handle::cget_element() const
-{
-    if(is_null())
-    {
-        throw Bad_Data_Handle();
-    }
-    return m_reference_counter.cget_storage()->cget_data(m_reference_counter.cget_handle());
-}
-
-// Comparison Operators
-//============================================================
-bool saklib::internal::Element_Data_Handle::operator==(Element_Data_Handle const& rhs)
-{
-    return m_reference_counter == rhs.m_reference_counter;
-}
-
-bool saklib::internal::Element_Data_Handle::operator!=(Element_Data_Handle const& rhs)
-{
-    return m_reference_counter != rhs.m_reference_counter;
-}
-
-bool saklib::internal::Element_Data_Handle::operator<(Element_Data_Handle const& rhs)
-{
-    return m_reference_counter < rhs.m_reference_counter;
-}
-
-bool saklib::internal::Element_Data_Handle::operator>(Element_Data_Handle const& rhs)
-{
-    return m_reference_counter > rhs.m_reference_counter;
-}
-
-bool saklib::internal::Element_Data_Handle::operator<=(Element_Data_Handle const& rhs)
-{
-    return m_reference_counter <= rhs.m_reference_counter;
-}
-
-bool saklib::internal::Element_Data_Handle::operator>=(Element_Data_Handle const& rhs)
-{
-    return m_reference_counter >= rhs.m_reference_counter;
-}
-
-// Comparison Operators for compare to the null handle
-//============================================================
-bool saklib::internal::Element_Data_Handle::operator==(Null_Handle_Type const& rhs)
-{
-    return m_reference_counter == rhs;
-}
-
-bool saklib::internal::Element_Data_Handle::operator!=(Null_Handle_Type const& rhs)
-{
-    return m_reference_counter != rhs;
-}

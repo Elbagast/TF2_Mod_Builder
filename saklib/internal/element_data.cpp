@@ -170,7 +170,7 @@ void saklib::internal::Element_Data::set_name(std::string const& a_name)
     m_name = a_name;
 }
 
-std::size_t saklib::internal::Element_Data::get_attribute_count() const
+std::size_t saklib::internal::Element_Data::cget_attribute_count() const
 {
     return m_attributes.size();
 }

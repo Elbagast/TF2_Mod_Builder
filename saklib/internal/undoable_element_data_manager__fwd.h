@@ -6,9 +6,6 @@ namespace saklib
     namespace internal
     {
         class Undoable_Element_Data_Manager;
-
-        class Undoable_Element_Data_Handle;
-
     } // namespace internal
 } // namespace saklib
 

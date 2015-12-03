@@ -5,8 +5,8 @@
 #include "attribute_data__fwd.h"
 #endif
 
-#ifndef SAKLIB_INTERNAL_ALL_CONSTRAINT__FWD_H
-#include "all_constraint__fwd.h"
+#ifndef SAKLIB_INTERNAL_ALL_ATTRIBUTE_DATA__FWD_H
+#include "all_attribute_data__fwd.h"
 #endif
 
 #ifndef SAKLIB_INTERNAL_TYPE_STRING__FWD_H
@@ -28,6 +28,16 @@
 #include <boost/any.hpp>
 #endif
 
+#ifndef INCLUDE_STD_MEMORY
+#define INCLUDE_STD_MEMORY
+#include <memory>
+#endif
+
+#ifndef INCLUDE_STD_FUNCTIONAL
+#define INCLUDE_STD_FUNCTIONAL
+#include <functional>
+#endif
+
 namespace saklib
 {
     namespace internal
@@ -38,6 +48,7 @@ namespace saklib
 
         class Attribute_Data_Definition
         {
+            friend class Attribute_Data;
         public:
             // Special 6
             //============================================================
@@ -63,18 +74,28 @@ namespace saklib
             void set_to_bool();
             void set_to_int();
 
-            Constraint_Bool& get_constraint_bool();
-            Constraint_Int& get_constraint_int();
+            Attribute_Data_Definition_Bool& get_bool();
+            Attribute_Data_Definition_Int& get_int();
 
-            Constraint_Bool const& cget_constraint_bool() const;
-            Constraint_Int const& cget_constraint_int() const;
+            Attribute_Data_Definition_Bool const& cget_bool() const;
+            Attribute_Data_Definition_Int const& cget_int() const;
 
-            boost::any const& cget_any_constraint() const;
         private:
             // Data Members
             //============================================================
-            std::string m_name;
-            boost::any m_any_constraint;
+            boost::any m_any_definition;
+
+            using name_getter_type = std::function<std::string const&(boost::any const&)>;
+            using name_setter_type = std::function<void (boost::any&, std::string const&)>;
+            using type_getter_type = std::function<std::string const& (boost::any const&)>;
+            using value_string_getter_type = std::function<std::string (boost::any const&)>;
+
+            name_getter_type mf_name_getter;
+            name_setter_type mf_name_setter;
+            type_getter_type mf_type_getter;
+
+            // not used here, given to Attribute_Data built with this
+            value_string_getter_type mf_value_getter;
         };
 
         // Factory Functions
@@ -106,20 +127,25 @@ namespace saklib
 
             std::string const& cget_type() const;
 
+            std::string cget_value_string() const;
+
             bool is_bool() const;
             bool is_int() const;
 
-            Constrained_Bool& get_value_bool();
-            Constrained_Int& get_value_int();
+            Attribute_Data_Bool& get_bool();
+            Attribute_Data_Int& get_int();
 
-            Constrained_Bool const& cget_value_bool() const;
-            Constrained_Int const& cget_value_int() const;
+            Attribute_Data_Bool const& cget_bool() const;
+            Attribute_Data_Int const& cget_int() const;
 
         private:
+            using value_string_getter_type = std::function<std::string (boost::any const&)>;
+
             // Data Members
             //============================================================
             Attribute_Data_Definition const& mr_definition;
-            boost::any m_any_constrained;
+            boost::any m_any_attribute;
+            value_string_getter_type mf_value_string_getter;
         };
 
         // Non-Member Operators

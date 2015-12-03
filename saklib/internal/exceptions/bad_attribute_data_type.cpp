@@ -6,6 +6,18 @@
 
 // Special 6
 //============================================================
+saklib::internal::Bad_Attribute_Data_Type::Bad_Attribute_Data_Type(std::string const& a_attempted_type):
+    std::bad_cast(),
+    m_attempted_type(a_attempted_type),
+    m_actual_type(),
+    m_what()
+{
+    m_what += "Bad_Attribute_Type attempted=\"";
+    m_what += m_attempted_type;
+    m_what += "\"";
+}
+
+
 saklib::internal::Bad_Attribute_Data_Type::Bad_Attribute_Data_Type(std::string const& a_attempted_type, std::string const& a_actual_type):
     std::bad_cast(),
     m_attempted_type(a_attempted_type),

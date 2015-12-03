@@ -5,14 +5,7 @@ namespace saklib
 {
     namespace internal
     {
-        class Element_Definition_Data_Manager;
-
-        class Element_Definition_Data_Release;
-
         class Element_Data_Manager;
-
-        class Element_Data_Handle;
-
     } // namespace internal
 } // namespace saklib
 

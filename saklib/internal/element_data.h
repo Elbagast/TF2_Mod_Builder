@@ -107,7 +107,7 @@ namespace saklib
             std::string const& cget_name() const;
             void set_name(std::string const& a_name);
 
-            std::size_t get_attribute_count() const;
+            std::size_t cget_attribute_count() const;
 
             Attribute_Data& get_attribute_at(std::size_t a_index);
             Attribute_Data const& cget_attribute_at(std::size_t a_index) const;
