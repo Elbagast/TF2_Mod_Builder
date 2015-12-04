@@ -1,4 +1,4 @@
-#include "attribute_data_integral_type.h"
+#include "attribute_data_int.h"
 #include "type_string.h"
 
 
@@ -22,14 +22,14 @@ saklib::internal::Attribute_Data_Definition_Integral_Type<T>::Attribute_Data_Def
 
 // Initialise as if calling set_range(a_bound1, a_bound2, a_initial)
 template <typename T>
-saklib::internal::Attribute_Data_Definition_Integral_Type<T>::Attribute_Data_Definition_Integral_Type(std::string const& a_name, integer_type a_bound1, integer_type a_bound2, integer_type a_initial):
+saklib::internal::Attribute_Data_Definition_Integral_Type<T>::Attribute_Data_Definition_Integral_Type(std::string const& a_name, int_type a_bound1, int_type a_bound2, int_type a_initial):
     Attribute_Data_Definition_Integral_Type(a_name)
 {
     set_range(a_bound1, a_bound2, a_initial);
 }
 
 template <typename T>
-saklib::internal::Attribute_Data_Definition_Integral_Type<T>::Attribute_Data_Definition_Integral_Type(std::string const& a_name, integer_type a_value):
+saklib::internal::Attribute_Data_Definition_Integral_Type<T>::Attribute_Data_Definition_Integral_Type(std::string const& a_name, int_type a_value):
     Attribute_Data_Definition_Integral_Type(a_name)
 {
     set_to_only_value(a_value);
@@ -56,27 +56,27 @@ std::string const& saklib::internal::Attribute_Data_Definition_Integral_Type<T>:
 }
 
 template <typename T>
-bool saklib::internal::Attribute_Data_Definition_Integral_Type<T>::can_set_value_to(integer_type a_value) const
+bool saklib::internal::Attribute_Data_Definition_Integral_Type<T>::can_set_value_to(int_type a_value) const
 {
     return a_value >= m_lowest_value && a_value <= m_highest_value;
 }
 
 template <typename T>
-typename saklib::internal::Attribute_Data_Definition_Integral_Type<T>::integer_type
+typename saklib::internal::Attribute_Data_Definition_Integral_Type<T>::int_type
 saklib::internal::Attribute_Data_Definition_Integral_Type<T>::get_initial_value() const
 {
     return m_initial_value;
 }
 
 template <typename T>
-typename saklib::internal::Attribute_Data_Definition_Integral_Type<T>::integer_type
+typename saklib::internal::Attribute_Data_Definition_Integral_Type<T>::int_type
 saklib::internal::Attribute_Data_Definition_Integral_Type<T>::get_lowest_value() const
 {
     return m_lowest_value;
 }
 
 template <typename T>
-typename saklib::internal::Attribute_Data_Definition_Integral_Type<T>::integer_type
+typename saklib::internal::Attribute_Data_Definition_Integral_Type<T>::int_type
 saklib::internal::Attribute_Data_Definition_Integral_Type<T>::get_highest_value() const
 {
     return m_highest_value;
@@ -89,7 +89,7 @@ saklib::internal::Attribute_Data_Definition_Integral_Type<T>::get_highest_value(
 // set_initial_value(-1) -> lowest = 0, highest = 10, initial = 0
 // set_initial_value(11) -> lowest = 0, highest = 10, initial = 10
 template <typename T>
-void saklib::internal::Attribute_Data_Definition_Integral_Type<T>::set_initial_value(integer_type a_value)
+void saklib::internal::Attribute_Data_Definition_Integral_Type<T>::set_initial_value(int_type a_value)
 {
     if (a_value > m_highest_value)
     {
@@ -112,7 +112,7 @@ void saklib::internal::Attribute_Data_Definition_Integral_Type<T>::set_initial_v
 // set_lowest_value(6) -> lowest = 5, highest = 10, initial = 5
 // set_lowest_value(11) -> lowest = 5, highest = 10, initial = 5
 template <typename T>
-void saklib::internal::Attribute_Data_Definition_Integral_Type<T>::set_lowest_value(integer_type a_value)
+void saklib::internal::Attribute_Data_Definition_Integral_Type<T>::set_lowest_value(int_type a_value)
 {
     if (a_value > m_initial_value)
     {
@@ -131,7 +131,7 @@ void saklib::internal::Attribute_Data_Definition_Integral_Type<T>::set_lowest_va
 // set_highest_value(4) -> lowest = 1, highest = 5, initial = 5
 // set_highest_value(11) -> lowest = 1, highest = 11, initial = 5
 template <typename T>
-void saklib::internal::Attribute_Data_Definition_Integral_Type<T>::set_highest_value(integer_type a_value)
+void saklib::internal::Attribute_Data_Definition_Integral_Type<T>::set_highest_value(int_type a_value)
 {
     if (a_value < m_initial_value)
     {
@@ -159,7 +159,7 @@ void saklib::internal::Attribute_Data_Definition_Integral_Type<T>::set_highest_v
 // set_range(120,0,-20) -> lowest = 0, highest = 120, initial = 0
 // set_range(120,0,140) -> lowest = 0, highest = 120, initial = 120
 template <typename T>
-void saklib::internal::Attribute_Data_Definition_Integral_Type<T>::set_range(integer_type a_bound1, integer_type a_bound2, integer_type a_initial)
+void saklib::internal::Attribute_Data_Definition_Integral_Type<T>::set_range(int_type a_bound1, int_type a_bound2, int_type a_initial)
 {
     if (a_bound1 <= a_bound2)
     {
@@ -181,7 +181,7 @@ void saklib::internal::Attribute_Data_Definition_Integral_Type<T>::set_range(int
 // set_to_only_value(1234) -> lowest = 1234, highest = 1234, initial = 1234
 // set_to_only_value(-5678) -> lowest = -5678, highest = -5678, initial = -5678
 template <typename T>
-void saklib::internal::Attribute_Data_Definition_Integral_Type<T>::set_to_only_value(integer_type a_value)
+void saklib::internal::Attribute_Data_Definition_Integral_Type<T>::set_to_only_value(int_type a_value)
 {
     m_initial_value = a_value;
     m_lowest_value = a_value;
@@ -200,24 +200,24 @@ void saklib::internal::Attribute_Data_Definition_Integral_Type<T>::set_to_defaul
 
 
 template <typename T>
-typename saklib::internal::Attribute_Data_Definition_Integral_Type<T>::integer_type
+typename saklib::internal::Attribute_Data_Definition_Integral_Type<T>::int_type
 saklib::internal::Attribute_Data_Definition_Integral_Type<T>::default_initial_value()
 {
-    return integer_type{0};
+    return int_type{0};
 }
 
 template <typename T>
-typename saklib::internal::Attribute_Data_Definition_Integral_Type<T>::integer_type
+typename saklib::internal::Attribute_Data_Definition_Integral_Type<T>::int_type
 saklib::internal::Attribute_Data_Definition_Integral_Type<T>::default_lowest_value()
 {
-    return std::numeric_limits<integer_type>::lowest();
+    return std::numeric_limits<int_type>::lowest();
 }
 
 template <typename T>
-typename saklib::internal::Attribute_Data_Definition_Integral_Type<T>::integer_type
+typename saklib::internal::Attribute_Data_Definition_Integral_Type<T>::int_type
 saklib::internal::Attribute_Data_Definition_Integral_Type<T>::default_highest_value()
 {
-    return std::numeric_limits<integer_type>::max();
+    return std::numeric_limits<int_type>::max();
 }
 
 // Non-Member Operators
@@ -291,7 +291,7 @@ std::string saklib::internal::Attribute_Data_Integral_Type<T>::cget_value_string
 
 // Get the stored value
 template <typename T>
-typename saklib::internal::Attribute_Data_Integral_Type<T>::integer_type saklib::internal::Attribute_Data_Integral_Type<T>::cget_value() const
+typename saklib::internal::Attribute_Data_Integral_Type<T>::int_type saklib::internal::Attribute_Data_Integral_Type<T>::cget_value() const
 {
     return m_value;
 }
@@ -299,7 +299,7 @@ typename saklib::internal::Attribute_Data_Integral_Type<T>::integer_type saklib:
 // Can the value be set to this? Returns true if it can, but returns false if the
 // value is already set to this since there would be no change.
 template <typename T>
-bool saklib::internal::Attribute_Data_Integral_Type<T>::can_set_value_to(integer_type a_value) const
+bool saklib::internal::Attribute_Data_Integral_Type<T>::can_set_value_to(int_type a_value) const
 {
     if (a_value != m_value && mr_definition.can_set_value_to(a_value))
     {
@@ -313,7 +313,7 @@ bool saklib::internal::Attribute_Data_Integral_Type<T>::can_set_value_to(integer
 
 // If can_set_value_to() then set the value to this and return true, else false.
 template <typename T>
-bool saklib::internal::Attribute_Data_Integral_Type<T>::try_set_value(integer_type a_value)
+bool saklib::internal::Attribute_Data_Integral_Type<T>::try_set_value(int_type a_value)
 {
     if (can_set_value_to(a_value))
     {
@@ -327,7 +327,7 @@ bool saklib::internal::Attribute_Data_Integral_Type<T>::try_set_value(integer_ty
 }
 
 template <typename T>
-void saklib::internal::Attribute_Data_Integral_Type<T>::set_value(integer_type a_value)
+void saklib::internal::Attribute_Data_Integral_Type<T>::set_value(int_type a_value)
 {
     m_value = a_value;
 }
@@ -341,14 +341,14 @@ saklib::internal::Attribute_Data_Integral_Type<T>::get_initial_value() const
 }
 */
 template <typename T>
-typename saklib::internal::Attribute_Data_Integral_Type<T>::integer_type
+typename saklib::internal::Attribute_Data_Integral_Type<T>::int_type
 saklib::internal::Attribute_Data_Integral_Type<T>::cget_lowest_value() const
 {
     return mr_definition.get_lowest_value();
 }
 
 template <typename T>
-typename saklib::internal::Attribute_Data_Integral_Type<T>::integer_type
+typename saklib::internal::Attribute_Data_Integral_Type<T>::int_type
 saklib::internal::Attribute_Data_Integral_Type<T>::cget_highest_value() const
 {
     return mr_definition.get_highest_value();
@@ -388,3 +388,14 @@ template std::ostream& saklib::internal::operator << <long>(std::ostream& a_ostr
 template std::ostream& saklib::internal::operator << <unsigned long>(std::ostream& a_ostream, Attribute_Data_Integral_Type<unsigned long> const& a_constrained);
 template std::ostream& saklib::internal::operator << <long long>(std::ostream& a_ostream, Attribute_Data_Integral_Type<long long> const& a_constrained);
 template std::ostream& saklib::internal::operator << <unsigned long long>(std::ostream& a_ostream, Attribute_Data_Integral_Type<unsigned long long> const& a_constrained);
+
+/*
+template saklib::internal::Type_Integral_Type<short>;
+template saklib::internal::Type_Integral_Type<unsigned short>;
+template saklib::internal::Type_Integral_Type<int>;
+template saklib::internal::Type_Integral_Type<unsigned int>;
+template saklib::internal::Type_Integral_Type<long>;
+template saklib::internal::Type_Integral_Type<unsigned long>;
+template saklib::internal::Type_Integral_Type<long long>;
+template saklib::internal::Type_Integral_Type<unsigned long long>;
+*/

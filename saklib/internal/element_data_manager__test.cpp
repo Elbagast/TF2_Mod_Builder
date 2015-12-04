@@ -21,7 +21,7 @@ void saklib::internal::test_element_manager()
     Element_Data_Definition_Manager eddm{};
 
     {
-        AD thing{"Default Bool", TS_Bool()};
+        AD thing{"Default Bool", Type_Bool()};
         thing.set_to_int();
         assert(thing.is_int());
 
@@ -29,10 +29,10 @@ void saklib::internal::test_element_manager()
         {
             "Moooo",
             {
-                AD("Default Bool", TS_Bool()),
-                AD("Constrained Bool",TS_Bool(), true),
-                AD("Default Int", TS_Int()),
-                AD("Constrained Int", TS_Int(), 0, 10, 5)
+                AD("Default Bool", Type_Bool()),
+                AD("Constrained Bool",Type_Bool(), true),
+                AD("Default Int", Type_Int()),
+                AD("Constrained Int", Type_Int(), 0, 10, 5)
             }
         };
 

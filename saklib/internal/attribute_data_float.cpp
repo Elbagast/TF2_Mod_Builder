@@ -1,4 +1,4 @@
-#include "attribute_data_floating_point_type.h"
+#include "attribute_data_float.h"
 
 //template saklib::internal::Attribute_Data_Definition_Floating_Point_Type<float>;
 //template saklib::internal::Attribute_Data_Definition_Floating_Point_Type<double>;

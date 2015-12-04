@@ -1,6 +1,6 @@
-#include "attribute_data_boolean_type__test.h"
+#include "attribute_data_bool__test.h"
 
-#include "attribute_data_boolean_type.h"
+#include "attribute_data_bool.h"
 
 #include <iostream>
 #include <cassert>

@@ -1,6 +1,6 @@
-#include "attribute_data_integral_type__test.h"
+#include "attribute_data_int__test.h"
 
-#include "attribute_data_integral_type.h"
+#include "attribute_data_int.h"
 
 #include <iostream>
 #include <cassert>

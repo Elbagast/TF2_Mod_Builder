@@ -16,7 +16,8 @@ namespace saklib
         //---------------------------------------------------------------------------
         // Attribute_Data_Handle_Int
         //---------------------------------------------------------------------------
-        class Attribute_Data_Handle_Int
+        template <typename T = int>
+        class Attribute_Data_Handle_Integral_Type
         {
         public:
             // Typedefs
@@ -25,18 +26,21 @@ namespace saklib
             using handle_type = reference_counter_type::handle_type;
             using storage_type = reference_counter_type::storage_type;
 
+            using int_type = T;
+            using attribute_data_type = Attribute_Data_Integral_Type<int_type>;
+
             // Special 6
             //============================================================
-            Attribute_Data_Handle_Int();
-            Attribute_Data_Handle_Int(reference_counter_type const& a_reference_counter, std::size_t a_index);
-            Attribute_Data_Handle_Int(reference_counter_type&& a_reference_counter, std::size_t a_index);
-            ~Attribute_Data_Handle_Int();
+            Attribute_Data_Handle_Integral_Type();
+            Attribute_Data_Handle_Integral_Type(reference_counter_type const& a_reference_counter, std::size_t a_index);
+            Attribute_Data_Handle_Integral_Type(reference_counter_type&& a_reference_counter, std::size_t a_index);
+            ~Attribute_Data_Handle_Integral_Type();
 
-            Attribute_Data_Handle_Int(Attribute_Data_Handle_Int const& other);
-            Attribute_Data_Handle_Int& operator=(Attribute_Data_Handle_Int const& other);
+            Attribute_Data_Handle_Integral_Type(Attribute_Data_Handle_Integral_Type const& other);
+            Attribute_Data_Handle_Integral_Type& operator=(Attribute_Data_Handle_Integral_Type const& other);
 
-            Attribute_Data_Handle_Int(Attribute_Data_Handle_Int && other);
-            Attribute_Data_Handle_Int& operator=(Attribute_Data_Handle_Int && other);
+            Attribute_Data_Handle_Integral_Type(Attribute_Data_Handle_Integral_Type && other);
+            Attribute_Data_Handle_Integral_Type& operator=(Attribute_Data_Handle_Integral_Type && other);
 
             // Interface
             //============================================================
@@ -56,26 +60,26 @@ namespace saklib
 
             std::string cget_value_string() const;
 
-            int cget_value() const;
+            int_type cget_value() const;
 
-            bool can_set_value_to(int a_value) const;
+            bool can_set_value_to(int_type a_value) const;
 
-            bool try_set_value(int a_value);
+            bool try_set_value(int_type a_value);
 
-            void set_value(int a_value);
+            void set_value(int_type a_value);
 
-            int cget_lowest_value() const;
+            int_type cget_lowest_value() const;
 
-            int cget_highest_value() const;
+            int_type cget_highest_value() const;
 
             // Comparison Operators
             //============================================================
-            bool operator==(Attribute_Data_Handle_Int const& rhs);
-            bool operator!=(Attribute_Data_Handle_Int const& rhs);
-            bool operator<(Attribute_Data_Handle_Int const& rhs);
-            bool operator>(Attribute_Data_Handle_Int const& rhs);
-            bool operator<=(Attribute_Data_Handle_Int const& rhs);
-            bool operator>=(Attribute_Data_Handle_Int const& rhs);
+            bool operator==(Attribute_Data_Handle_Integral_Type const& rhs);
+            bool operator!=(Attribute_Data_Handle_Integral_Type const& rhs);
+            bool operator<(Attribute_Data_Handle_Integral_Type const& rhs);
+            bool operator>(Attribute_Data_Handle_Integral_Type const& rhs);
+            bool operator<=(Attribute_Data_Handle_Integral_Type const& rhs);
+            bool operator>=(Attribute_Data_Handle_Integral_Type const& rhs);
 
             // Comparison Operators to Untyped Handle
             //============================================================
@@ -96,8 +100,8 @@ namespace saklib
             Element_Data& get_element();
             Element_Data const& cget_element() const;
 
-            Attribute_Data_Int& get_attribute();
-            Attribute_Data_Int const& cget_attribute() const;
+            attribute_data_type& get_attribute();
+            attribute_data_type const& cget_attribute() const;
 
         private:
             // Data Members

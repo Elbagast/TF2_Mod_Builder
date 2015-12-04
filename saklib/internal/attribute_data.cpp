@@ -24,6 +24,9 @@ namespace saklib
             {
                 auto l_type = std::type_index(a_any.type());
 
+                // How the hell can we expand this...
+                // Might need a custom holder rather than boost::any
+
                 if (l_type == typeid(Attribute_Data_Definition_Bool))
                 {
                     return boost::any(Attribute_Data_Bool(boost::any_cast<Attribute_Data_Definition_Bool const&>(a_any)));
@@ -37,6 +40,7 @@ namespace saklib
                     return boost::any();
                 }
             }
+
 
             template <typename T>
             std::string const& get_name_from_any(boost::any const& a_any)
@@ -78,23 +82,26 @@ namespace saklib
 // Construct based on the given type string. If the type string is invalid then the type
 // will be bool.
 saklib::internal::Attribute_Data_Definition::Attribute_Data_Definition(std::string const& a_name, std::string const& a_type):
-    Attribute_Data_Definition(a_name, TS_Bool())
+    Attribute_Data_Definition(a_name, Type_Bool())
 {
     // If the type is invalid set_type() won't change the type.
     // This means an invalid type will reult in a type of bool.
     set_type(a_type);
 }
 
-saklib::internal::Attribute_Data_Definition::Attribute_Data_Definition(std::string const& a_name, TS_Bool&&):
-    m_any_definition(Attribute_Data_Definition_Bool(a_name)),
-    mf_name_getter( get_name_from_any<Attribute_Data_Definition_Bool> ),
-    mf_name_setter( set_name_from_any<Attribute_Data_Definition_Bool> ),
-    mf_type_getter( get_type_from_any<Attribute_Data_Definition_Bool> ),
-    mf_value_getter( get_value_string_from_any<Attribute_Data_Bool> )
+template <typename T>
+saklib::internal::Attribute_Data_Definition::Attribute_Data_Definition(std::string const& a_name, Type_Boolean_Type<T>&& ):
+    m_any_definition(Attribute_Data_Definition_Boolean_Type<T>(a_name)),
+    mf_name_getter( get_name_from_any<Attribute_Data_Definition_Boolean_Type<T>> ),
+    mf_name_setter( set_name_from_any<Attribute_Data_Definition_Boolean_Type<T>> ),
+    mf_type_getter( get_type_from_any<Attribute_Data_Definition_Boolean_Type<T>> ),
+    mf_value_getter( get_value_string_from_any<Attribute_Data_Boolean_Type<T>> )
 {
 }
 
-saklib::internal::Attribute_Data_Definition::Attribute_Data_Definition(std::string const& a_name, TS_Bool&&, bool a_initial):
+template <typename T>
+saklib::internal::Attribute_Data_Definition::Attribute_Data_Definition(std::string const& a_name, Type_Boolean_Type<T>&& ,
+                          typename Type_Boolean_Type<T>::bool_type a_initial):
     m_any_definition(Attribute_Data_Definition_Bool(a_name, a_initial)),
     mf_name_getter( get_name_from_any<Attribute_Data_Definition_Bool> ),
     mf_name_setter( set_name_from_any<Attribute_Data_Definition_Bool> ),
@@ -103,23 +110,30 @@ saklib::internal::Attribute_Data_Definition::Attribute_Data_Definition(std::stri
 {
 }
 
-saklib::internal::Attribute_Data_Definition::Attribute_Data_Definition(std::string const& a_name, TS_Int&&):
-    m_any_definition(Attribute_Data_Definition_Int(a_name)),
-    mf_name_getter( get_name_from_any<Attribute_Data_Definition_Int> ),
-    mf_name_setter( set_name_from_any<Attribute_Data_Definition_Int> ),
-    mf_type_getter( get_type_from_any<Attribute_Data_Definition_Int> ),
-    mf_value_getter( get_value_string_from_any<Attribute_Data_Int> )
+
+template <typename T>
+saklib::internal::Attribute_Data_Definition::Attribute_Data_Definition(std::string const& a_name, Type_Integral_Type<T>&& ):
+    m_any_definition(Attribute_Data_Definition_Integral_Type<T>(a_name)),
+    mf_name_getter( get_name_from_any<Attribute_Data_Definition_Integral_Type<T>> ),
+    mf_name_setter( set_name_from_any<Attribute_Data_Definition_Integral_Type<T>> ),
+    mf_type_getter( get_type_from_any<Attribute_Data_Definition_Integral_Type<T>> ),
+    mf_value_getter( get_value_string_from_any<Attribute_Data_Integral_Type<T>> )
 {
 }
 
-saklib::internal::Attribute_Data_Definition::Attribute_Data_Definition(std::string const& a_name, TS_Int&&, int a_bound1, int a_bound2, int a_intiial):
-    m_any_definition(Attribute_Data_Definition_Int(a_name, a_bound1, a_bound2, a_intiial)),
-    mf_name_getter( get_name_from_any<Attribute_Data_Definition_Int> ),
-    mf_name_setter( set_name_from_any<Attribute_Data_Definition_Int> ),
-    mf_type_getter( get_type_from_any<Attribute_Data_Definition_Int> ),
-    mf_value_getter( get_value_string_from_any<Attribute_Data_Int> )
+template <typename T>
+saklib::internal::Attribute_Data_Definition::Attribute_Data_Definition(std::string const& a_name, Type_Integral_Type<T>&& ,
+                          typename Type_Integral_Type<T>::int_type a_bound1,
+                          typename Type_Integral_Type<T>::int_type a_bound2,
+                          typename Type_Integral_Type<T>::int_type a_intiial):
+    m_any_definition(Attribute_Data_Definition_Integral_Type<T>(a_name, a_bound1, a_bound2, a_intiial)),
+    mf_name_getter( get_name_from_any<Attribute_Data_Definition_Integral_Type<T>> ),
+    mf_name_setter( set_name_from_any<Attribute_Data_Definition_Integral_Type<T>> ),
+    mf_type_getter( get_type_from_any<Attribute_Data_Definition_Integral_Type<T>> ),
+    mf_value_getter( get_value_string_from_any<Attribute_Data_Integral_Type<T>> )
 {
 }
+
 
 // Interface
 //============================================================
@@ -146,75 +160,128 @@ void saklib::internal::Attribute_Data_Definition::set_type(std::string const& a_
 
 bool saklib::internal::Attribute_Data_Definition::is_bool() const
 {
-    return m_any_definition.type() == typeid(Attribute_Data_Definition_Bool);
+    return is_bool_type<bool>();
 }
 
 bool saklib::internal::Attribute_Data_Definition::is_int() const
 {
-    return m_any_definition.type() == typeid(Attribute_Data_Definition_Int);
+    return is_int_type<int>();
 }
 
 void saklib::internal::Attribute_Data_Definition::set_to_bool()
 {
-    if(!is_bool())
-    {
-        *this = Attribute_Data_Definition(mf_name_getter(m_any_definition), TS_Bool());
-    }
+    set_to_bool_type<bool>();
 }
 
 void saklib::internal::Attribute_Data_Definition::set_to_int()
 {
-    if(!is_int())
-    {
-        *this = Attribute_Data_Definition(mf_name_getter(m_any_definition), TS_Int());
-    }
+    set_to_int_type<int>();
 }
 
 saklib::internal::Attribute_Data_Definition_Bool& saklib::internal::Attribute_Data_Definition::get_bool()
 {
-    if(is_bool())
-    {
-        return boost::any_cast<Attribute_Data_Definition_Bool&>(m_any_definition);
-    }
-    else
-    {
-        throw Bad_Attribute_Data_Type(TS_Bool()(), cget_type());
-    }
+    return get_bool_type<bool>();
 }
 
 saklib::internal::Attribute_Data_Definition_Int& saklib::internal::Attribute_Data_Definition::get_int()
 {
-    if(is_int())
-    {
-        return boost::any_cast<Attribute_Data_Definition_Int&>(m_any_definition);
-    }
-    else
-    {
-        throw Bad_Attribute_Data_Type(TS_Int()(), cget_type());
-    }
+    return get_int_type<int>();
 }
 
 saklib::internal::Attribute_Data_Definition_Bool const& saklib::internal::Attribute_Data_Definition::cget_bool() const
 {
-    if(is_bool())
-    {
-        return boost::any_cast<Attribute_Data_Definition_Bool const&>(m_any_definition);
-    }
-    else
-    {
-        throw Bad_Attribute_Data_Type(TS_Bool()(), cget_type());
-    }
+    return cget_bool_type<bool>();
 }
 
 saklib::internal::Attribute_Data_Definition_Int const& saklib::internal::Attribute_Data_Definition::cget_int() const
 {
-    if(is_int())
+    return cget_int_type<int>();
+}
+
+
+template <typename T>
+bool saklib::internal::Attribute_Data_Definition::is_bool_type() const
+{
+    return m_any_definition.type() == typeid(Attribute_Data_Definition_Boolean_Type<T>);
+}
+
+template <typename T>
+bool saklib::internal::Attribute_Data_Definition::is_int_type() const
+{
+    return m_any_definition.type() == typeid(Attribute_Data_Definition_Integral_Type<T>);
+}
+
+template <typename T>
+void saklib::internal::Attribute_Data_Definition::set_to_bool_type()
+{
+    if(!is_bool())
     {
-        return boost::any_cast<Attribute_Data_Definition_Int const&>(m_any_definition);
+        *this = Attribute_Data_Definition(cget_name(), Type_Boolean_Type<T>());
+    }
+}
+
+template <typename T>
+void saklib::internal::Attribute_Data_Definition::set_to_int_type()
+{
+    if(!is_int())
+    {
+        *this = Attribute_Data_Definition(cget_name(), Type_Integral_Type<T>());
+    }
+}
+
+template <typename T>
+saklib::internal::Attribute_Data_Definition_Boolean_Type<T>& saklib::internal::Attribute_Data_Definition::get_bool_type()
+{
+    if(is_bool_type<T>())
+    {
+        return boost::any_cast<Attribute_Data_Definition_Boolean_Type<T>&>(m_any_definition);
     }
     else
     {
-        throw Bad_Attribute_Data_Type(TS_Int()(), cget_type());
+        throw Bad_Attribute_Data_Type();
+        //throw Bad_Attribute_Data_Type(TS_Bool()(), cget_type());
+    }
+}
+
+template <typename T>
+saklib::internal::Attribute_Data_Definition_Integral_Type<T>& saklib::internal::Attribute_Data_Definition::get_int_type()
+{
+    if(is_int_type<T>())
+    {
+        return boost::any_cast<Attribute_Data_Definition_Integral_Type<T>&>(m_any_definition);
+    }
+    else
+    {
+        throw Bad_Attribute_Data_Type();
+        //throw Bad_Attribute_Data_Type(TS_Int()(), cget_type());
+    }
+}
+
+template <typename T>
+saklib::internal::Attribute_Data_Definition_Boolean_Type<T> const& saklib::internal::Attribute_Data_Definition::cget_bool_type() const
+{
+    if(is_bool_type<T>())
+    {
+        return boost::any_cast<Attribute_Data_Definition_Boolean_Type<T> const&>(m_any_definition);
+    }
+    else
+    {
+        throw Bad_Attribute_Data_Type();
+        //throw Bad_Attribute_Data_Type(TS_Bool()(), cget_type());
+    }
+}
+
+template <typename T>
+saklib::internal::Attribute_Data_Definition_Integral_Type<T> const& saklib::internal::Attribute_Data_Definition::cget_int_type() const
+{
+    if(is_int_type<T>())
+    {
+        return boost::any_cast<Attribute_Data_Definition_Integral_Type<T> const&>(m_any_definition);
+    }
+    else
+    {
+        throw Bad_Attribute_Data_Type();
+        //throw Bad_Attribute_Data_Type(TS_Int()(), cget_type());
     }
 }
 
@@ -223,22 +290,22 @@ saklib::internal::Attribute_Data_Definition_Int const& saklib::internal::Attribu
 
 saklib::internal::Attribute_Data_Definition saklib::internal::make_attribute_definition_bool__default(std::string const& a_name)
 {
-    return Attribute_Data_Definition(a_name, TS_Bool());
+    return Attribute_Data_Definition(a_name, Type_Bool());
 }
 
 saklib::internal::Attribute_Data_Definition saklib::internal::make_attribute_definition_bool(std::string const& a_name, bool a_initial)
 {
-    return Attribute_Data_Definition(a_name, TS_Bool(), a_initial);
+    return Attribute_Data_Definition(a_name, Type_Bool(), a_initial);
 }
 
 saklib::internal::Attribute_Data_Definition saklib::internal::make_attribute_definition_int__default(std::string const& a_name)
 {
-    return Attribute_Data_Definition(a_name, TS_Int());
+    return Attribute_Data_Definition(a_name, Type_Int());
 }
 
 saklib::internal::Attribute_Data_Definition saklib::internal::make_attribute_definition_int(std::string const& a_name, int a_bound1, int a_bound2, int a_intiial)
 {
-    return Attribute_Data_Definition(a_name, TS_Int(), a_bound1, a_bound2, a_intiial);
+    return Attribute_Data_Definition(a_name, Type_Int(), a_bound1, a_bound2, a_intiial);
 }
 
 // Non-Member Operators
@@ -255,6 +322,55 @@ std::ostream& saklib::internal::operator << (std::ostream& a_ostream, Attribute_
     a_ostream << " } ";
     return a_ostream;
 }
+
+// Forced Instantiation
+//============================================================
+
+template bool saklib::internal::Attribute_Data_Definition::is_bool_type<bool>() const;
+template void saklib::internal::Attribute_Data_Definition::set_to_bool_type<bool>();
+template saklib::internal::Attribute_Data_Definition_Boolean_Type<bool>& saklib::internal::Attribute_Data_Definition::get_bool_type<bool>();
+template saklib::internal::Attribute_Data_Definition_Boolean_Type<bool> const& saklib::internal::Attribute_Data_Definition::cget_bool_type<bool>() const;
+
+
+template bool saklib::internal::Attribute_Data_Definition::is_int_type<short>() const;
+template void saklib::internal::Attribute_Data_Definition::set_to_int_type<short>();
+template saklib::internal::Attribute_Data_Definition_Integral_Type<short>& saklib::internal::Attribute_Data_Definition::get_int_type<short>();
+template saklib::internal::Attribute_Data_Definition_Integral_Type<short> const& saklib::internal::Attribute_Data_Definition::cget_int_type<short>() const;
+
+template bool saklib::internal::Attribute_Data_Definition::is_int_type<unsigned short>() const;
+template void saklib::internal::Attribute_Data_Definition::set_to_int_type<unsigned short>();
+template saklib::internal::Attribute_Data_Definition_Integral_Type<unsigned short>& saklib::internal::Attribute_Data_Definition::get_int_type<unsigned short>();
+template saklib::internal::Attribute_Data_Definition_Integral_Type<unsigned short> const& saklib::internal::Attribute_Data_Definition::cget_int_type<unsigned short>() const;
+
+template bool saklib::internal::Attribute_Data_Definition::is_int_type<int>() const;
+template void saklib::internal::Attribute_Data_Definition::set_to_int_type<int>();
+template saklib::internal::Attribute_Data_Definition_Integral_Type<int>& saklib::internal::Attribute_Data_Definition::get_int_type<int>();
+template saklib::internal::Attribute_Data_Definition_Integral_Type<int> const& saklib::internal::Attribute_Data_Definition::cget_int_type<int>() const;
+
+template bool saklib::internal::Attribute_Data_Definition::is_int_type<unsigned int>() const;
+template void saklib::internal::Attribute_Data_Definition::set_to_int_type<unsigned int>();
+template saklib::internal::Attribute_Data_Definition_Integral_Type<unsigned int>& saklib::internal::Attribute_Data_Definition::get_int_type<unsigned int>();
+template saklib::internal::Attribute_Data_Definition_Integral_Type<unsigned int> const& saklib::internal::Attribute_Data_Definition::cget_int_type<unsigned int>() const;
+
+template bool saklib::internal::Attribute_Data_Definition::is_int_type<long>() const;
+template void saklib::internal::Attribute_Data_Definition::set_to_int_type<long>();
+template saklib::internal::Attribute_Data_Definition_Integral_Type<long>& saklib::internal::Attribute_Data_Definition::get_int_type<long>();
+template saklib::internal::Attribute_Data_Definition_Integral_Type<long> const& saklib::internal::Attribute_Data_Definition::cget_int_type<long>() const;
+
+template bool saklib::internal::Attribute_Data_Definition::is_int_type<unsigned long>() const;
+template void saklib::internal::Attribute_Data_Definition::set_to_int_type<unsigned long>();
+template saklib::internal::Attribute_Data_Definition_Integral_Type<unsigned long>& saklib::internal::Attribute_Data_Definition::get_int_type<unsigned long>();
+template saklib::internal::Attribute_Data_Definition_Integral_Type<unsigned long> const& saklib::internal::Attribute_Data_Definition::cget_int_type<unsigned long>() const;
+
+template bool saklib::internal::Attribute_Data_Definition::is_int_type<long long>() const;
+template void saklib::internal::Attribute_Data_Definition::set_to_int_type<long long>();
+template saklib::internal::Attribute_Data_Definition_Integral_Type<long long>& saklib::internal::Attribute_Data_Definition::get_int_type<long long>();
+template saklib::internal::Attribute_Data_Definition_Integral_Type<long long> const& saklib::internal::Attribute_Data_Definition::cget_int_type<long long>() const;
+
+template bool saklib::internal::Attribute_Data_Definition::is_int_type<unsigned long long>() const;
+template void saklib::internal::Attribute_Data_Definition::set_to_int_type<unsigned long long>();
+template saklib::internal::Attribute_Data_Definition_Integral_Type<unsigned long long>& saklib::internal::Attribute_Data_Definition::get_int_type<unsigned long long>();
+template saklib::internal::Attribute_Data_Definition_Integral_Type<unsigned long long> const& saklib::internal::Attribute_Data_Definition::cget_int_type<unsigned long long>() const;
 
 
 //---------------------------------------------------------------------------
@@ -290,59 +406,99 @@ std::string saklib::internal::Attribute_Data::cget_value_string() const
 
 bool saklib::internal::Attribute_Data::is_bool() const
 {
-    return m_any_attribute.type() == typeid(Attribute_Data_Bool);
+    return is_bool_type<bool>();
 }
 
 bool saklib::internal::Attribute_Data::is_int() const
 {
-    return m_any_attribute.type() == typeid(Attribute_Data_Int);
+    return is_int_type<int>();
 }
 
 saklib::internal::Attribute_Data_Bool& saklib::internal::Attribute_Data::get_bool()
 {
-    if(is_bool())
-    {
-        return boost::any_cast<Attribute_Data_Bool&>(m_any_attribute);
-    }
-    else
-    {
-        throw Bad_Attribute_Data_Type(TS_Bool()(), cget_type());
-    }
+    return get_bool_type<bool>();
 }
 
 saklib::internal::Attribute_Data_Int& saklib::internal::Attribute_Data::get_int()
 {
-    if(is_int())
-    {
-        return boost::any_cast<Attribute_Data_Int&>(m_any_attribute);
-    }
-    else
-    {
-        throw Bad_Attribute_Data_Type(TS_Int()(), cget_type());
-    }
+    return get_int_type<int>();
 }
 
 saklib::internal::Attribute_Data_Bool const& saklib::internal::Attribute_Data::cget_bool() const
 {
-    if(is_bool())
-    {
-        return boost::any_cast<Attribute_Data_Bool const&>(m_any_attribute);
-    }
-    else
-    {
-        throw Bad_Attribute_Data_Type(TS_Bool()(), cget_type());
-    }
+    return cget_bool_type<bool>();
 }
 
 saklib::internal::Attribute_Data_Int const& saklib::internal::Attribute_Data::cget_int() const
 {
-    if(is_int())
+    return cget_int_type<int>();
+}
+
+template <typename T>
+bool saklib::internal::Attribute_Data::is_bool_type() const
+{
+    return m_any_attribute.type() == typeid(Attribute_Data_Boolean_Type<T>);
+}
+
+template <typename T>
+bool saklib::internal::Attribute_Data::is_int_type() const
+{
+    return m_any_attribute.type() == typeid(Attribute_Data_Integral_Type<T>);
+}
+
+template <typename T>
+saklib::internal::Attribute_Data_Boolean_Type<T>& saklib::internal::Attribute_Data::get_bool_type()
+{
+    if(is_bool_type<T>())
     {
-        return boost::any_cast<Attribute_Data_Int const&>(m_any_attribute);
+        return boost::any_cast<Attribute_Data_Boolean_Type<T>&>(m_any_attribute);
     }
     else
     {
-        throw Bad_Attribute_Data_Type(TS_Int()(), cget_type());
+        throw Bad_Attribute_Data_Type();
+        //throw Bad_Attribute_Data_Type(TS_Bool()(), cget_type());
+    }
+}
+
+template <typename T>
+saklib::internal::Attribute_Data_Integral_Type<T>& saklib::internal::Attribute_Data::get_int_type()
+{
+    if(is_int_type<T>())
+    {
+        return boost::any_cast<Attribute_Data_Integral_Type<T>&>(m_any_attribute);
+    }
+    else
+    {
+        throw Bad_Attribute_Data_Type();
+        //throw Bad_Attribute_Data_Type(TS_Int()(), cget_type());
+    }
+}
+
+template <typename T>
+saklib::internal::Attribute_Data_Boolean_Type<T> const& saklib::internal::Attribute_Data::cget_bool_type() const
+{
+    if(is_bool_type<T>())
+    {
+        return boost::any_cast<Attribute_Data_Boolean_Type<T> const&>(m_any_attribute);
+    }
+    else
+    {
+        throw Bad_Attribute_Data_Type();
+        //throw Bad_Attribute_Data_Type(TS_Bool()(), cget_type());
+    }
+}
+
+template <typename T>
+saklib::internal::Attribute_Data_Integral_Type<T> const& saklib::internal::Attribute_Data::cget_int_type() const
+{
+    if(is_int_type<T>())
+    {
+        return boost::any_cast<Attribute_Data_Integral_Type<T> const&>(m_any_attribute);
+    }
+    else
+    {
+        throw Bad_Attribute_Data_Type();
+        //throw Bad_Attribute_Data_Type(TS_Int()(), cget_type());
     }
 }
 
@@ -357,3 +513,43 @@ std::ostream& saklib::internal::operator << (std::ostream& a_ostream, Attribute_
     a_ostream << "\" } ";
     return a_ostream;
 }
+
+// Forced Instantiation
+//============================================================
+// Boolean Type
+template bool saklib::internal::Attribute_Data::is_bool_type<bool>() const;
+template saklib::internal::Attribute_Data_Boolean_Type<bool>& saklib::internal::Attribute_Data::get_bool_type<bool>();
+template saklib::internal::Attribute_Data_Boolean_Type<bool> const& saklib::internal::Attribute_Data::cget_bool_type<bool>() const;
+
+// Integral Type
+template bool saklib::internal::Attribute_Data::is_int_type<short>() const;
+template saklib::internal::Attribute_Data_Integral_Type<short>& saklib::internal::Attribute_Data::get_int_type<short>();
+template saklib::internal::Attribute_Data_Integral_Type<short> const& saklib::internal::Attribute_Data::cget_int_type<short>() const;
+
+template bool saklib::internal::Attribute_Data::is_int_type<unsigned short>() const;
+template saklib::internal::Attribute_Data_Integral_Type<unsigned short>& saklib::internal::Attribute_Data::get_int_type<unsigned short>();
+template saklib::internal::Attribute_Data_Integral_Type<unsigned short> const& saklib::internal::Attribute_Data::cget_int_type<unsigned short>() const;
+
+template bool saklib::internal::Attribute_Data::is_int_type<int>() const;
+template saklib::internal::Attribute_Data_Integral_Type<int>& saklib::internal::Attribute_Data::get_int_type<int>();
+template saklib::internal::Attribute_Data_Integral_Type<int> const& saklib::internal::Attribute_Data::cget_int_type<int>() const;
+
+template bool saklib::internal::Attribute_Data::is_int_type<unsigned int>() const;
+template saklib::internal::Attribute_Data_Integral_Type<unsigned int>& saklib::internal::Attribute_Data::get_int_type<unsigned int>();
+template saklib::internal::Attribute_Data_Integral_Type<unsigned int> const& saklib::internal::Attribute_Data::cget_int_type<unsigned int>() const;
+
+template bool saklib::internal::Attribute_Data::is_int_type<long>() const;
+template saklib::internal::Attribute_Data_Integral_Type<long>& saklib::internal::Attribute_Data::get_int_type<long>();
+template saklib::internal::Attribute_Data_Integral_Type<long> const& saklib::internal::Attribute_Data::cget_int_type<long>() const;
+
+template bool saklib::internal::Attribute_Data::is_int_type<unsigned long>() const;
+template saklib::internal::Attribute_Data_Integral_Type<unsigned long>& saklib::internal::Attribute_Data::get_int_type<unsigned long>();
+template saklib::internal::Attribute_Data_Integral_Type<unsigned long> const& saklib::internal::Attribute_Data::cget_int_type<unsigned long>() const;
+
+template bool saklib::internal::Attribute_Data::is_int_type<long long>() const;
+template saklib::internal::Attribute_Data_Integral_Type<long long>& saklib::internal::Attribute_Data::get_int_type<long long>();
+template saklib::internal::Attribute_Data_Integral_Type<long long> const& saklib::internal::Attribute_Data::cget_int_type<long long>() const;
+
+template bool saklib::internal::Attribute_Data::is_int_type<unsigned long long>() const;
+template saklib::internal::Attribute_Data_Integral_Type<unsigned long long>& saklib::internal::Attribute_Data::get_int_type<unsigned long long>();
+template saklib::internal::Attribute_Data_Integral_Type<unsigned long long> const& saklib::internal::Attribute_Data::cget_int_type<unsigned long long>() const;

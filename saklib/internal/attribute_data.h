@@ -55,10 +55,20 @@ namespace saklib
             // Construct based on the given type string. If the type string is invalid then the type
             // will be bool.
             Attribute_Data_Definition(std::string const& a_name, std::string const& a_type);
-            Attribute_Data_Definition(std::string const& a_name, TS_Bool&& a_type);
-            Attribute_Data_Definition(std::string const& a_name, TS_Bool&& a_type, bool a_initial);
-            Attribute_Data_Definition(std::string const& a_name, TS_Int&& a_type);
-            Attribute_Data_Definition(std::string const& a_name, TS_Int&& a_type, int a_bound1, int a_bound2, int a_intiial = 0);
+
+            template <typename T>
+            Attribute_Data_Definition(std::string const& a_name, Type_Boolean_Type<T>&& a_type);
+            template <typename T>
+            Attribute_Data_Definition(std::string const& a_name, Type_Boolean_Type<T>&& a_type,
+                                      typename Type_Boolean_Type<T>::bool_type a_initial);
+
+            template <typename T>
+            Attribute_Data_Definition(std::string const& a_name, Type_Integral_Type<T>&& a_type);
+            template <typename T>
+            Attribute_Data_Definition(std::string const& a_name, Type_Integral_Type<T>&& a_type,
+                                      typename Type_Integral_Type<T>::int_type a_bound1,
+                                      typename Type_Integral_Type<T>::int_type a_bound2,
+                                      typename Type_Integral_Type<T>::int_type a_intiial = 0);
 
             // Interface
             //============================================================
@@ -79,6 +89,26 @@ namespace saklib
 
             Attribute_Data_Definition_Bool const& cget_bool() const;
             Attribute_Data_Definition_Int const& cget_int() const;
+
+            template <typename T>
+            bool is_bool_type() const;
+            template <typename T>
+            bool is_int_type() const;
+
+            template <typename T>
+            void set_to_bool_type();
+            template <typename T>
+            void set_to_int_type();
+
+            template <typename T>
+            Attribute_Data_Definition_Boolean_Type<T>& get_bool_type();
+            template <typename T>
+            Attribute_Data_Definition_Integral_Type<T>& get_int_type();
+
+            template <typename T>
+            Attribute_Data_Definition_Boolean_Type<T> const& cget_bool_type() const;
+            template <typename T>
+            Attribute_Data_Definition_Integral_Type<T> const& cget_int_type() const;
 
         private:
             // Data Members
@@ -137,6 +167,21 @@ namespace saklib
 
             Attribute_Data_Bool const& cget_bool() const;
             Attribute_Data_Int const& cget_int() const;
+
+            template <typename T>
+            bool is_bool_type() const;
+            template <typename T>
+            bool is_int_type() const;
+
+            template <typename T>
+            Attribute_Data_Boolean_Type<T>& get_bool_type();
+            template <typename T>
+            Attribute_Data_Integral_Type<T>& get_int_type();
+
+            template <typename T>
+            Attribute_Data_Boolean_Type<T> const& cget_bool_type() const;
+            template <typename T>
+            Attribute_Data_Integral_Type<T> const& cget_int_type() const;
 
         private:
             using value_string_getter_type = std::function<std::string (boost::any const&)>;

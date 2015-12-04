@@ -5,6 +5,8 @@
 #include "command_history.h"
 #include "command.h"
 
+#include "command_attribute_data_boolean_type.h"
+
 namespace saklib
 {
     namespace internal
@@ -168,7 +170,8 @@ bool saklib::internal::Undoable_Attribute_Data_Handle_Bool::set_value(bool a_val
 {
     if (can_set_value_to(a_value))
     {
-        get_command_history().emplace_execute<Command_Attribute_Data_Handle_Bool_Set_Value>(m_attribute_handle, a_value);
+        get_command_history().emplace_execute<Command_Attribute_Data_Handle_Bool__Set_Value>(m_attribute_handle, a_value);
+        //get_command_history().emplace_execute<Command_Attribute_Data_Handle_Bool_Set_Value>(m_attribute_handle, a_value);
         return true;
     }
     else

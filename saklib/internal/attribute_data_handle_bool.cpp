@@ -1,6 +1,6 @@
 #include "attribute_data_handle_bool.h"
 
-#include "attribute_data_boolean_type.h"
+#include "attribute_data_bool.h"
 
 // Special 6
 //============================================================

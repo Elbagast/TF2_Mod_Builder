@@ -16,10 +16,10 @@ void saklib::internal::test_element()
     {
         "Moooo",
         {
-            AD("Default Bool", TS_Bool()),
-            AD("Constrained Bool",TS_Bool(), true),
-            AD("Default Int", TS_Int()),
-            AD("Constrained Int", TS_Int(), 0, 10, 5)
+            AD("Default Bool", Type_Bool()),
+            AD("Constrained Bool",Type_Bool(), true),
+            AD("Default Int", Type_Int()),
+            AD("Constrained Int", Type_Int(), 0, 10, 5)
         }
     };
 

@@ -1,5 +1,5 @@
-#ifndef SAKLIB_INTERNAL_ATTRIBUTE_DATA_INTEGRAL_TYPE__FWD_H
-#define SAKLIB_INTERNAL_ATTRIBUTE_DATA_INTEGRAL_TYPE__FWD_H
+#ifndef SAKLIB_INTERNAL_ATTRIBUTE_DATA_INT__FWD_H
+#define SAKLIB_INTERNAL_ATTRIBUTE_DATA_INT__FWD_H
 
 namespace saklib
 {
@@ -35,8 +35,29 @@ namespace saklib
         using Attribute_Data_LLong = Attribute_Data_Integral_Type<long long>;
         using Attribute_Data_ULLong = Attribute_Data_Integral_Type<unsigned long long>;
 
+        //---------------------------------------------------------------------------
+        // Type_Integral_Type<T>
+        //---------------------------------------------------------------------------
+        template <typename T>
+        struct Type_Integral_Type
+        {
+            using int_type = T;
+        };
+
+        using Type_Short = Type_Integral_Type<short>;
+        using Type_UShort = Type_Integral_Type<unsigned short>;
+
+        using Type_Int = Type_Integral_Type<int>;
+        using Type_UInt = Type_Integral_Type<unsigned int>;
+
+        using Type_Long = Type_Integral_Type<long>;
+        using Type_ULong = Type_Integral_Type<unsigned long>;
+
+        using Type_LLong = Type_Integral_Type<long long>;
+        using Type_ULLong = Type_Integral_Type<unsigned long long>;
+
     } // namespace internal
 } // namespace saklib
 
-#endif // SAKLIB_INTERNAL_ATTRIBUTE_DATA_INTEGRAL_TYPE__FWD_H
+#endif // SAKLIB_INTERNAL_ATTRIBUTE_DATA_INT__FWD_H
 

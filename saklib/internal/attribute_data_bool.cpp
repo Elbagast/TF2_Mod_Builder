@@ -1,7 +1,26 @@
-#include "attribute_data_boolean_type.h"
+#include "attribute_data_bool.h"
 #include "type_string.h"
 
 #include <iostream>
+
+namespace saklib
+{
+    namespace internal
+    {
+        template <typename T>
+        std::string boolean_type_to_string(T a_value)
+        {
+            if (a_value == true)
+            {
+                return std::string("true");
+            }
+            else
+            {
+                return std::string("false");
+            }
+        }
+    } // namespace internal
+} // namespace saklib
 
 //---------------------------------------------------------------------------
 // Attribute_Data_Definition_Boolean_Type<T>
@@ -10,7 +29,7 @@
 // Special 6
 //============================================================
 template <typename T>
-saklib::internal::Attribute_Data_Definition_Boolean_Type<T>::Attribute_Data_Definition_Boolean_Type(std::string const& a_name, boolean_type a_initial):
+saklib::internal::Attribute_Data_Definition_Boolean_Type<T>::Attribute_Data_Definition_Boolean_Type(std::string const& a_name, bool_type a_initial):
     m_name(a_name),
     m_initial_value(a_initial)
 {
@@ -38,13 +57,13 @@ std::string const& saklib::internal::Attribute_Data_Definition_Boolean_Type<T>::
 }
 
 template <typename T>
-bool saklib::internal::Attribute_Data_Definition_Boolean_Type<T>::can_set_value_to(boolean_type /*a_value*/) const
+bool saklib::internal::Attribute_Data_Definition_Boolean_Type<T>::can_set_value_to(bool_type /*a_value*/) const
 {
     return true;
 }
 
 template <typename T>
-typename saklib::internal::Attribute_Data_Definition_Boolean_Type<T>::boolean_type
+typename saklib::internal::Attribute_Data_Definition_Boolean_Type<T>::bool_type
 saklib::internal::Attribute_Data_Definition_Boolean_Type<T>::get_initial_value() const
 {
     return m_initial_value;
@@ -52,7 +71,7 @@ saklib::internal::Attribute_Data_Definition_Boolean_Type<T>::get_initial_value()
 
 // Set the initial value.
 template <typename T>
-void saklib::internal::Attribute_Data_Definition_Boolean_Type<T>::set_initial_value(boolean_type a_value)
+void saklib::internal::Attribute_Data_Definition_Boolean_Type<T>::set_initial_value(bool_type a_value)
 {
     m_initial_value = a_value;
 }
@@ -65,10 +84,10 @@ void saklib::internal::Attribute_Data_Definition_Boolean_Type<T>::set_to_default
 }
 
 template <typename T>
-typename saklib::internal::Attribute_Data_Definition_Boolean_Type<T>::boolean_type
+typename saklib::internal::Attribute_Data_Definition_Boolean_Type<T>::bool_type
 saklib::internal::Attribute_Data_Definition_Boolean_Type<T>::default_initial_value()
 {
-    return boolean_type{false};
+    return bool_type{false};
 }
 
 // Non-Member Operators
@@ -118,23 +137,12 @@ std::string const& saklib::internal::Attribute_Data_Boolean_Type<T>::cget_type()
 template <typename T>
 std::string saklib::internal::Attribute_Data_Boolean_Type<T>::cget_value_string() const
 {
-    if (m_value == true)
-    {
-        return "true";
-    }
-    else if (m_value == false)
-    {
-        return "false";
-    }
-    else
-    {
-        return "";
-    }
+    return boolean_type_to_string<T>(m_value);
 }
 
 // Get the stored value
 template <typename T>
-typename saklib::internal::Attribute_Data_Boolean_Type<T>::boolean_type saklib::internal::Attribute_Data_Boolean_Type<T>::cget_value() const
+typename saklib::internal::Attribute_Data_Boolean_Type<T>::bool_type saklib::internal::Attribute_Data_Boolean_Type<T>::cget_value() const
 {
     return m_value;
 }
@@ -142,7 +150,7 @@ typename saklib::internal::Attribute_Data_Boolean_Type<T>::boolean_type saklib::
 // Can the value be set to this? Returns true if it can, but returns false if the
 // value is already set to this since there would be no change.
 template <typename T>
-bool saklib::internal::Attribute_Data_Boolean_Type<T>::can_set_value_to(boolean_type a_value) const
+bool saklib::internal::Attribute_Data_Boolean_Type<T>::can_set_value_to(bool_type a_value) const
 {
     if (a_value != m_value)
     {
@@ -156,7 +164,7 @@ bool saklib::internal::Attribute_Data_Boolean_Type<T>::can_set_value_to(boolean_
 
 // If can_set_value_to() then set the value to this and return true, else false.
 template <typename T>
-bool saklib::internal::Attribute_Data_Boolean_Type<T>::try_set_value(boolean_type a_value)
+bool saklib::internal::Attribute_Data_Boolean_Type<T>::try_set_value(bool_type a_value)
 {
     if (can_set_value_to(a_value))
     {
@@ -170,7 +178,7 @@ bool saklib::internal::Attribute_Data_Boolean_Type<T>::try_set_value(boolean_typ
 }
 
 template <typename T>
-void saklib::internal::Attribute_Data_Boolean_Type<T>::set_value(boolean_type a_value)
+void saklib::internal::Attribute_Data_Boolean_Type<T>::set_value(bool_type a_value)
 {
     m_value = a_value;
 }
@@ -190,4 +198,3 @@ std::ostream& saklib::internal::operator << (std::ostream& a_ostream, Attribute_
 //============================================================
 template saklib::internal::Attribute_Data_Boolean_Type<bool>;
 template std::ostream& saklib::internal::operator << <bool>(std::ostream& a_ostream, Attribute_Data_Boolean_Type<bool> const& a_constraint);
-

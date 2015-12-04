@@ -9,8 +9,8 @@
 //#include "saklib/named_properties/property_test.h"
 
 #include "saklib/internal/test.h"
-#include "saklib/internal/attribute_data_integral_type__test.h"
-#include "saklib/internal/attribute_data_boolean_type__test.h"
+#include "saklib/internal/attribute_data_int__test.h"
+#include "saklib/internal/attribute_data_bool__test.h"
 #include "saklib/internal/attribute_data__test.h"
 #include "saklib/internal/element_data__test.h"
 #include "saklib/internal/element_data_manager__test.h"

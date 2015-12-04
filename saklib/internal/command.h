@@ -60,33 +60,61 @@ namespace saklib
         };
 
         /*
-        //---------------------------------------------------------------------------
-        // Omni_Command
-        //---------------------------------------------------------------------------
-        template <typename H, typename V, void(H::*Get_Current)()>
-        class Reversable_Command
+        What would a totally templated Command look like?
+        - Actor = Type to act on
+        - Type to recieve
+        - Type (Actor::*Value_Getter)() const
+        - bool (Actor::*Value_Setter)(Type const&)
+        - Success Assertion
+        */
+        template
+                <
+                typename Actor,
+                typename Value,
+                typename Getter_Return,
+                Getter_Return (Actor::*Value_Getter)() const,
+                typename Setter_Return,
+                typename Setter_Arg,
+                Setter_Return (Actor::*Value_Setter)(Setter_Arg)
+                >
+
+        class Command_Simple_Stored_Get_Set :
+                public Command
         {
         public:
-            using handle_type;
-            using value_type;
-            using old_value_getter;
-            using value_setter;
+            using actor_type = Actor;
+            using value_type = Value;
+            using getter_return_type = Getter_Return;
+            using setter_return_type = Setter_Return;
+            using setter_arg_type = Setter_Arg;
 
             // Special 6
             //============================================================
-            Omni_Command();
-            ~Omni_Command() override;
+            Command_Simple_Stored_Get_Set(actor_type const& a_actor, value_type const& a_value):
+                Command(),
+                m_actor(a_actor),
+                m_old_value((m_actor.*Value_Getter)()),
+                m_new_value(a_value)
+            {}
+            ~Command_Simple_Stored_Get_Set() override = default;
+
         protected:
             // Virtuals
             //============================================================
-            void v_execute() override;
-            void v_unexecute() override;
-
+            void v_execute() override
+            {
+                (m_actor.*Value_Setter)(m_new_value);
+            }
+            void v_unexecute() override
+            {
+                (m_actor.*Value_Setter)(m_old_value);
+            }
         private:
-            // Data Members
-            //============================================================
+            actor_type m_actor;
+            value_type m_old_value;
+            value_type m_new_value;
         };
-        */
+
     } // namespace internal
 } // namespace saklib
 

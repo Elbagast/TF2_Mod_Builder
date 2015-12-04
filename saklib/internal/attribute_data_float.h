@@ -1,8 +1,8 @@
-#ifndef SAKLIB_INTERNAL_ATTRIBUTE_DATA_FLOATING_POINT_TYPE_H
-#define SAKLIB_INTERNAL_ATTRIBUTE_DATA_FLOATING_POINT_TYPE_H
+#ifndef SAKLIB_INTERNAL_ATTRIBUTE_DATA_FLOAT_H
+#define SAKLIB_INTERNAL_ATTRIBUTE_DATA_FLOAT_H
 
-#ifndef SAKLIB_INTERNAL_ATTRIBUTE_DATA_FLOATING_POINT_TYPE__FWD_H
-#include "attribute_data_floating_point_type__fwd.h"
+#ifndef SAKLIB_INTERNAL_ATTRIBUTE_DATA_FLOAT__FWD_H
+#include "attribute_data_float__fwd.h"
 #endif
 
 #ifndef INCLUDE_STD_TYPE_TRAITS
@@ -34,4 +34,4 @@ namespace saklib
     } // namespace internal
 } // namespace saklib
 
-#endif // SAKLIB_INTERNAL_ATTRIBUTE_DATA_FLOATING_POINT_TYPE_H
+#endif // SAKLIB_INTERNAL_ATTRIBUTE_DATA_FLOAT_H
