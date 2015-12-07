@@ -23,6 +23,7 @@
 #define INCLUDE_STD_IOSFWD
 #include <iosfwd>
 #endif
+
 #ifndef INCLUDE_STD_MEMORY
 #define INCLUDE_STD_MEMORY
 #include <memory>

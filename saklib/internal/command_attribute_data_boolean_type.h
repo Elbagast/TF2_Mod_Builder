@@ -25,18 +25,6 @@ namespace saklib
         >;
         */
 
-        using Command_Attribute_Data_Handle_Bool__Set_Value =
-
-        Command_Simple_Stored_Get_Set
-        <
-        Attribute_Data_Handle_Bool,
-        bool,
-        bool,
-        &Attribute_Data_Handle_Bool::cget_value,
-        void,
-        bool,
-        &Attribute_Data_Handle_Bool::set_value
-        >;
 
     } // namespace internal
 } // namespace saklib

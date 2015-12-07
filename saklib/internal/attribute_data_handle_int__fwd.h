@@ -5,10 +5,8 @@ namespace saklib
 {
     namespace internal
     {
-        template <typename T>
+        template <typename T, typename M>
         class Attribute_Data_Handle_Integral_Type;
-
-        using Attribute_Data_Handle_Int = Attribute_Data_Handle_Integral_Type<int>;
     } // namespace internal
 } // namespace saklib
 

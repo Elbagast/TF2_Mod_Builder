@@ -14,7 +14,7 @@
 #include "saklib/internal/attribute_data__test.h"
 #include "saklib/internal/element_data__test.h"
 #include "saklib/internal/element_data_manager__test.h"
-#include "saklib/internal/undoable_element_data_manager__test.h"
+//#include "saklib/internal/undoable_element_data_manager__test.h"
 
 void myMessageOutput(QtMsgType type, QMessageLogContext const& context, QString const& msg)
 {
@@ -58,7 +58,7 @@ int main(int argc, char *argv[])
     //saklib::internal::test_element();
 
     saklib::internal::test_element_manager();
-    saklib::internal::test_undoable_element_data_manager();
+    //saklib::internal::test_undoable_element_data_manager();
 
     //saklib::attribute_test();
     //saklib::element_test();

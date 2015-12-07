@@ -88,7 +88,6 @@ SOURCES += main.cpp\
     saklib/internal/element_data__test.cpp \
     saklib/internal/element_data_manager__test.cpp \
     saklib/internal/element_data_manager.cpp \
-    saklib/internal/undoable_element_data_manager.cpp \
     saklib/element.cpp \
     saklib/internal/exceptions/bad_data_handle.cpp \
     saklib/internal/element_data_definition_manager.cpp \
@@ -98,11 +97,6 @@ SOURCES += main.cpp\
     saklib/internal/element_data_handle.cpp \
     saklib/internal/attribute_data_handle_bool.cpp \
     saklib/internal/attribute_data_handle_int.cpp \
-    saklib/internal/undoable_element_data_handle.cpp \
-    saklib/internal/undoable_attribute_data_handle.cpp \
-    saklib/internal/undoable_attribute_data_handle_bool.cpp \
-    saklib/internal/undoable_attribute_data_handle_int.cpp \
-    saklib/internal/undoable_element_data_manager__test.cpp \
     saklib/internal/command_attribute_data_boolean_type.cpp \
     saklib/internal/attribute_data_bool.cpp \
     saklib/internal/attribute_data_bool__test.cpp \
@@ -136,8 +130,6 @@ HEADERS  += \
     saklib/internal/element_data_manager__fwd.h \
     saklib/internal/element_data_manager__test.h \
     saklib/internal/exceptions/bad_element_data_type.h \
-    saklib/internal/undoable_element_data_manager.h \
-    saklib/internal/undoable_element_data_manager__fwd.h \
     saklib/internal/reference_counter__fwd.h \
     saklib/internal/reference_counter__inline.h \
     saklib/element.h \
@@ -167,17 +159,6 @@ HEADERS  += \
     saklib/internal/all_attribute_data_handle__fwd.h \
     saklib/internal/all_attribute_data_handle.h \
     saklib/internal/element_data_handle__fwd.h \
-    saklib/internal/undoable_element_data_handle.h \
-    saklib/internal/undoable_element_data_handle__fwd.h \
-    saklib/internal/undoable_attribute_data_handle.h \
-    saklib/internal/undoable_attribute_data_handle__fwd.h \
-    saklib/internal/undoable_attribute_data_handle_bool.h \
-    saklib/internal/undoable_attribute_data_handle_bool__fwd.h \
-    saklib/internal/undoable_attribute_data_handle_int.h \
-    saklib/internal/undoable_attribute_data_handle_int__fwd.h \
-    saklib/internal/undoable_element_data_manager__test.h \
-    saklib/internal/all_undoable_attribute_data_handle.h \
-    saklib/internal/all_undoable_attribute_data_handle__fwd.h \
     saklib/internal/command_attribute_data_boolean_type.h \
     saklib/internal/attribute_data_bool.h \
     saklib/internal/attribute_data_bool__fwd.h \
@@ -186,7 +167,12 @@ HEADERS  += \
     saklib/internal/attribute_data_float__fwd.h \
     saklib/internal/attribute_data_int.h \
     saklib/internal/attribute_data_int__fwd.h \
-    saklib/internal/attribute_data_int__test.h
+    saklib/internal/attribute_data_int__test.h \
+    saklib/internal/element_data_handle__inline.h \
+    saklib/internal/attribute_data_handle_bool__inline.h \
+    saklib/internal/attribute_data_handle_int__inline.h \
+    saklib/internal/attribute_data_handle_shared_data.h \
+    saklib/internal/attribute_data_handle__inline.h
 
 FORMS
 
