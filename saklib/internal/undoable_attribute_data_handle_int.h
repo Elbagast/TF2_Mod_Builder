@@ -22,27 +22,30 @@ namespace saklib
     namespace internal
     {
         //---------------------------------------------------------------------------
-        // Undoable_Attribute_Data_Handle_Int
+        // Undoable_Attribute_Data_Handle_Integral_Type<T>
         //---------------------------------------------------------------------------
-        class Undoable_Attribute_Data_Handle_Int
+        template <typename T>
+        class Undoable_Attribute_Data_Handle_Integral_Type
         {
         public:
             // Typedefs
             //============================================================
-            using handle_type = Attribute_Data_Handle_Int::handle_type;
+            using handle_type = typename Attribute_Data_Handle_Integral_Type<T>::handle_type;
+
+            using int_type = T;
 
             // Special 6
             //============================================================
-            Undoable_Attribute_Data_Handle_Int();
-            explicit Undoable_Attribute_Data_Handle_Int(Attribute_Data_Handle_Int const& a_attribute_handle, Command_History* ap_command_history);
-            explicit Undoable_Attribute_Data_Handle_Int(Attribute_Data_Handle_Int && a_attribute_handle, Command_History* ap_command_history);
-            ~Undoable_Attribute_Data_Handle_Int();
+            Undoable_Attribute_Data_Handle_Integral_Type();
+            Undoable_Attribute_Data_Handle_Integral_Type(Attribute_Data_Handle_Integral_Type<T> const& a_attribute_handle, Command_History& ar_command_history);
+            Undoable_Attribute_Data_Handle_Integral_Type(Attribute_Data_Handle_Integral_Type<T> && a_attribute_handle, Command_History& ar_command_history);
+            ~Undoable_Attribute_Data_Handle_Integral_Type();
 
-            Undoable_Attribute_Data_Handle_Int(Undoable_Attribute_Data_Handle_Int const& other);
-            Undoable_Attribute_Data_Handle_Int& operator=(Undoable_Attribute_Data_Handle_Int const& other);
+            Undoable_Attribute_Data_Handle_Integral_Type(Undoable_Attribute_Data_Handle_Integral_Type const& other);
+            Undoable_Attribute_Data_Handle_Integral_Type& operator=(Undoable_Attribute_Data_Handle_Integral_Type const& other);
 
-            Undoable_Attribute_Data_Handle_Int(Undoable_Attribute_Data_Handle_Int && other);
-            Undoable_Attribute_Data_Handle_Int& operator=(Undoable_Attribute_Data_Handle_Int && other);
+            Undoable_Attribute_Data_Handle_Integral_Type(Undoable_Attribute_Data_Handle_Integral_Type && other);
+            Undoable_Attribute_Data_Handle_Integral_Type& operator=(Undoable_Attribute_Data_Handle_Integral_Type && other);
 
             // Interface
             //============================================================
@@ -62,31 +65,31 @@ namespace saklib
 
             std::string cget_value_string() const;
 
-            int cget_value() const;
+            int_type cget_value() const;
 
-            bool can_set_value_to(int a_value) const;
+            bool can_set_value_to(int_type a_value) const;
 
-            //bool try_set_value(int a_value);
+            bool try_set_value(int_type a_value);
 
-            bool set_value(int a_value);
+            void set_value(int_type a_value);
 
-            int cget_lowest_value() const;
+            int_type cget_lowest_value() const;
 
-            int cget_highest_value() const;
+            int_type cget_highest_value() const;
 
             // Comparison Operators
             //============================================================
-            bool operator==(Undoable_Attribute_Data_Handle_Int const& rhs);
-            bool operator!=(Undoable_Attribute_Data_Handle_Int const& rhs);
-            bool operator<(Undoable_Attribute_Data_Handle_Int const& rhs);
-            bool operator>(Undoable_Attribute_Data_Handle_Int const& rhs);
-            bool operator<=(Undoable_Attribute_Data_Handle_Int const& rhs);
-            bool operator>=(Undoable_Attribute_Data_Handle_Int const& rhs);
+            bool operator==(Undoable_Attribute_Data_Handle_Integral_Type const& rhs);
+            bool operator!=(Undoable_Attribute_Data_Handle_Integral_Type const& rhs);
+            bool operator<(Undoable_Attribute_Data_Handle_Integral_Type const& rhs);
+            bool operator>(Undoable_Attribute_Data_Handle_Integral_Type const& rhs);
+            bool operator<=(Undoable_Attribute_Data_Handle_Integral_Type const& rhs);
+            bool operator>=(Undoable_Attribute_Data_Handle_Integral_Type const& rhs);
 
             // Comparison Operators to Untyped Handle
             //============================================================
-            //bool operator==(Undoable_Attribute_Data_Handle const& rhs);
-            //bool operator!=(Undoable_Attribute_Data_Handle const& rhs);
+            bool operator==(Undoable_Attribute_Data_Handle const& rhs);
+            bool operator!=(Undoable_Attribute_Data_Handle const& rhs);
 
             // Comparison Operators for compare to the null handle
             //============================================================
@@ -102,7 +105,7 @@ namespace saklib
         private:
             // Data Members
             //============================================================
-            Attribute_Data_Handle_Int m_attribute_handle;
+            Attribute_Data_Handle_Integral_Type<T> m_attribute_handle;
             Command_History* mp_command_history;
         };
     } // namespace internal

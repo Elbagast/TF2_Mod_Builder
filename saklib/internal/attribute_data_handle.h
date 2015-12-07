@@ -9,6 +9,14 @@
 #include "all_attribute_data_handle__fwd.h"
 #endif
 
+#ifndef SAKLIB_INTERNAL_ELEMENT_DATA_MANAGER__FWD_H
+#include "element_data_manager__fwd.h"
+#endif
+
+#ifndef SAKLIB_INTERNAL_ELEMENT_DATA_HANDLE_H
+#include "element_data_handle.h"
+#endif
+
 #ifndef SAKLIB_INTERNAL_NULL_HANDLE__FWD_H
 #include "null_handle__fwd.h"
 #endif
@@ -28,25 +36,27 @@ namespace saklib
     namespace internal
     {
         //---------------------------------------------------------------------------
-        // Attribute_Data_Handle<Manager>
+        // Attribute_Data_Handle
         //---------------------------------------------------------------------------
 
-        template <typename M>
         class Attribute_Data_Handle
         {
+            template <typename T>
+            friend class Attribute_Data_Handle_Boolean_Type;
+            template <typename T>
+            friend class Attribute_Data_Handle_Integral_Type;
         public:
             // Typedefs
             //============================================================
-            using manager_type = M;
-            using reference_counter_type = typename manager_type::reference_counter_type;
-            using handle_type = typename reference_counter_type::handle_type;
-            using storage_type = typename reference_counter_type::storage_type;
+            using reference_counter_type = Element_Data_Handle::reference_counter_type;
+            using handle_type = Element_Data_Handle::handle_type;
+            using storage_type = Element_Data_Handle::storage_type;
 
             // Special 6
             //============================================================
             Attribute_Data_Handle();
-            Attribute_Data_Handle(manager_type* ap_manager, reference_counter_type const& a_reference_counter, std::size_t a_index);
-            Attribute_Data_Handle(manager_type* ap_manager, reference_counter_type&& a_reference_counter, std::size_t a_index);
+            Attribute_Data_Handle(Element_Data_Handle const& a_element_handle, std::size_t a_index);
+            Attribute_Data_Handle(Element_Data_Handle&& a_element_handle, std::size_t a_index);
             ~Attribute_Data_Handle();
 
             Attribute_Data_Handle(Attribute_Data_Handle const& other);
@@ -65,8 +75,8 @@ namespace saklib
 
             std::size_t cget_attribute_index() const;
 
-            manager_type& get_manager();
-            manager_type const& cget_manager() const;
+            Element_Data_Manager& get_manager();
+            Element_Data_Manager const& cget_manager() const;
 
             // Attribute_Data Wrapper Interface
             //============================================================
@@ -77,20 +87,23 @@ namespace saklib
             std::string cget_value_string() const;
 
             bool is_bool() const;
-            bool is_int() const;
 
-            Attribute_Data_Handle_Boolean_Type<bool, M> cget_bool() const;
-            Attribute_Data_Handle_Integral_Type<int, M> cget_int() const;
+            Attribute_Data_Handle_Boolean_Type<bool> cget_bool() const;
 
             template <typename T>
             bool is_bool_type() const;
+
+            template <typename T>
+            Attribute_Data_Handle_Boolean_Type<T> cget_bool_type() const;
+
+            bool is_int() const;
+            Attribute_Data_Handle_Integral_Type<int> cget_int() const;
+
             template <typename T>
             bool is_int_type() const;
 
             template <typename T>
-            Attribute_Data_Handle_Boolean_Type<T, M> const& cget_bool_type() const;
-            template <typename T>
-            Attribute_Data_Handle_Integral_Type<T, M> const& cget_int_type() const;
+            Attribute_Data_Handle_Integral_Type<T> cget_int_type() const;
 
             // Comparison Operators
             //============================================================
@@ -106,11 +119,16 @@ namespace saklib
             bool operator==(Null_Handle_Type const& rhs);
             bool operator!=(Null_Handle_Type const& rhs);
 
+        protected:
+            // Protected Helpers
+            //============================================================
+            Attribute_Data& get_attribute();
+            Attribute_Data const& cget_attribute() const;
+
         private:
             // Data Members
             //============================================================
-            manager_type* mp_manager;
-            reference_counter_type m_reference_counter;
+            Element_Data_Handle m_element_handle;
             std::size_t m_attribute_index;
         };
     } // namespace internal

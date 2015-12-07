@@ -29,6 +29,7 @@ namespace saklib
 
         class Undoable_Element_Data_Handle
         {
+            //friend class Undoable_Attribute_Data_Handle;
         public:
             // Typedefs
             //============================================================
@@ -61,7 +62,7 @@ namespace saklib
             std::string const& cget_type() const;
 
             std::string const& cget_name() const;
-            bool set_name(std::string const& a_name); // adds undo
+            void set_name(std::string const& a_name);
 
             std::size_t cget_attribute_count() const;
 

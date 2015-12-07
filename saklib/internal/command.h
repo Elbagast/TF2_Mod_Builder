@@ -5,6 +5,11 @@
 #include "command__fwd.h"
 #endif
 
+#ifndef INCLUDE_STD_MEMORY
+#define INCLUDE_STD_MEMORY
+#include <memory>
+#endif
+
 namespace saklib
 {
     namespace internal
@@ -114,6 +119,26 @@ namespace saklib
             value_type m_old_value;
             value_type m_new_value;
         };
+
+        // type deducing maker function...
+        // Doesn't work right now.
+
+
+        template
+                <
+                typename Actor,
+                typename Value,
+                typename Getter_Return,
+                typename Getter_Function,
+                typename Setter_Return,
+                typename Setter_Arg,
+                typename Setter_Function
+                >
+        std::unique_ptr<Command> make_command_simple_stored_get_set(Actor const& a_actor, Getter_Function a_getter, Setter_Function a_setter, Value const& a_value)
+        {
+            return std::unique_ptr<Command>(new Command_Simple_Stored_Get_Set<Actor, Value, Getter_Return, &a_getter, Setter_Return, Setter_Arg, &a_setter>(a_actor, a_value));
+        }
+
 
     } // namespace internal
 } // namespace saklib

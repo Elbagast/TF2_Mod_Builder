@@ -102,7 +102,14 @@ SOURCES += main.cpp\
     saklib/internal/attribute_data_bool__test.cpp \
     saklib/internal/attribute_data_float.cpp \
     saklib/internal/attribute_data_int.cpp \
-    saklib/internal/attribute_data_int__test.cpp
+    saklib/internal/attribute_data_int__test.cpp \
+    saklib/internal/null_on_move.cpp \
+    saklib/internal/undoable_attribute_data_handle.cpp \
+    saklib/internal/undoable_attribute_data_handle_bool.cpp \
+    saklib/internal/undoable_attribute_data_handle_int.cpp \
+    saklib/internal/undoable_element_data_handle.cpp \
+    saklib/internal/undoable_element_data_manager.cpp \
+    saklib/internal/undoable_element_data_manager__test.cpp
 
 HEADERS  += \
     saklib/zzz_refactoring.h \
@@ -172,7 +179,19 @@ HEADERS  += \
     saklib/internal/attribute_data_handle_bool__inline.h \
     saklib/internal/attribute_data_handle_int__inline.h \
     saklib/internal/attribute_data_handle_shared_data.h \
-    saklib/internal/attribute_data_handle__inline.h
+    saklib/internal/attribute_data_handle__inline.h \
+    saklib/internal/null_on_move.h \
+    saklib/internal/undoable_attribute_data_handle.h \
+    saklib/internal/undoable_attribute_data_handle__fwd.h \
+    saklib/internal/undoable_attribute_data_handle_bool.h \
+    saklib/internal/undoable_attribute_data_handle_bool__fwd.h \
+    saklib/internal/undoable_attribute_data_handle_int.h \
+    saklib/internal/undoable_attribute_data_handle_int__fwd.h \
+    saklib/internal/undoable_element_data_handle.h \
+    saklib/internal/undoable_element_data_handle__fwd.h \
+    saklib/internal/undoable_element_data_manager.h \
+    saklib/internal/undoable_element_data_manager__fwd.h \
+    saklib/internal/undoable_element_data_manager__test.h
 
 FORMS
 

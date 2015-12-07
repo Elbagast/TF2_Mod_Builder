@@ -175,6 +175,11 @@ std::size_t saklib::internal::Element_Data::cget_attribute_count() const
     return m_attributes.size();
 }
 
+bool saklib::internal::Element_Data::has_attribute(std::size_t a_index) const
+{
+    return a_index < cget_attribute_count();
+}
+
 saklib::internal::Attribute_Data& saklib::internal::Element_Data::get_attribute_at(std::size_t a_index)
 {
     return m_attributes.at(a_index);

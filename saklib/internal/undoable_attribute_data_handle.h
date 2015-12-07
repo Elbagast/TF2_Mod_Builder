@@ -5,6 +5,18 @@
 #include "undoable_attribute_data_handle__fwd.h"
 #endif
 
+#ifndef SAKLIB_INTERNAL_UNDOABLE_ELEMENT_DATA_HANDLE__FWD_H
+#include "undoable_element_data_handle__fwd.h"
+#endif
+
+#ifndef SAKLIB_INTERNAL_UNDOABLE_ATTRIBUTE_DATA_HANDLE_BOOL__FWD_H
+#include "undoable_attribute_data_handle_bool__fwd.h"
+#endif
+
+#ifndef SAKLIB_INTERNAL_UNDOABLE_ATTRIBUTE_DATA_HANDLE_INT__FWD_H
+#include "undoable_attribute_data_handle_int__fwd.h"
+#endif
+
 #ifndef SAKLIB_INTERNAL_ATTRIBUTE_DATA_HANDLE_H
 #include "attribute_data_handle.h"
 #endif
@@ -17,14 +29,17 @@ namespace saklib
 {
     namespace internal
     {
-        class Undoable_Attribute_Data_Handle_Bool;
-        class Undoable_Attribute_Data_Handle_Int;
+        //---------------------------------------------------------------------------
+        // Undoable_Attribute_Data_Handle
+        //---------------------------------------------------------------------------
 
         class Undoable_Attribute_Data_Handle
         {
-            friend class Undoable_Attribute_Data_Handle_Bool;
-            friend class Undoable_Attribute_Data_Handle_Int;
-            //etc.
+            template <typename T>
+            friend class Undoable_Attribute_Data_Handle_Boolean_Type;
+            template <typename T>
+            friend class Undoable_Attribute_Data_Handle_Integral_Type;
+
         public:
             // Typedefs
             //============================================================
@@ -33,8 +48,8 @@ namespace saklib
             // Special 6
             //============================================================
             Undoable_Attribute_Data_Handle();
-            Undoable_Attribute_Data_Handle(Attribute_Data_Handle const& a_attribute_handle, Command_History* ap_command_history);
-            Undoable_Attribute_Data_Handle(Attribute_Data_Handle&& a_attribute_handle, Command_History* ap_command_history);
+            Undoable_Attribute_Data_Handle(Attribute_Data_Handle const& a_attribute_handle, Command_History& ar_command_history);
+            Undoable_Attribute_Data_Handle(Attribute_Data_Handle && a_attribute_handle, Command_History& ar_command_history);
             ~Undoable_Attribute_Data_Handle();
 
             Undoable_Attribute_Data_Handle(Undoable_Attribute_Data_Handle const& other);
@@ -62,10 +77,24 @@ namespace saklib
             std::string cget_value_string() const;
 
             bool is_bool() const;
+
+            Undoable_Attribute_Data_Handle_Boolean_Type<bool> cget_bool() const;
+
+            template <typename T>
+            bool is_bool_type() const;
+
+            template <typename T>
+            Undoable_Attribute_Data_Handle_Boolean_Type<T> cget_bool_type() const;
+
             bool is_int() const;
 
-            Undoable_Attribute_Data_Handle_Bool cget_bool() const;
-            Undoable_Attribute_Data_Handle_Int cget_int() const;
+            Undoable_Attribute_Data_Handle_Integral_Type<int> cget_int() const;
+
+            template <typename T>
+            bool is_int_type() const;
+
+            template <typename T>
+            Undoable_Attribute_Data_Handle_Integral_Type<T> cget_int_type() const;
 
             // Comparison Operators
             //============================================================
@@ -91,7 +120,7 @@ namespace saklib
             // Data Members
             //============================================================
             Attribute_Data_Handle m_attribute_handle;
-            Command_History* mp_command_history;
+            mutable Command_History* mp_command_history;
         };
     } // namespace internal
 } // namespace saklib

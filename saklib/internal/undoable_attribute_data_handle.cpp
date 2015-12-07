@@ -15,16 +15,18 @@ saklib::internal::Undoable_Attribute_Data_Handle::Undoable_Attribute_Data_Handle
 {
 }
 
-saklib::internal::Undoable_Attribute_Data_Handle::Undoable_Attribute_Data_Handle(Attribute_Data_Handle const& a_attribute_handle, Command_History* ap_command_history):
+saklib::internal::Undoable_Attribute_Data_Handle::Undoable_Attribute_Data_Handle(Attribute_Data_Handle const& a_attribute_handle, Command_History& ar_command_history):
     m_attribute_handle(a_attribute_handle),
-    mp_command_history(ap_command_history)
+    mp_command_history(&ar_command_history)
 {
+    assert(is_valid());
 }
 
-saklib::internal::Undoable_Attribute_Data_Handle::Undoable_Attribute_Data_Handle(Attribute_Data_Handle&& a_attribute_handle, Command_History* ap_command_history):
+saklib::internal::Undoable_Attribute_Data_Handle::Undoable_Attribute_Data_Handle(Attribute_Data_Handle&& a_attribute_handle, Command_History& ar_command_history):
     m_attribute_handle(std::move(a_attribute_handle)),
-    mp_command_history(ap_command_history)
+    mp_command_history(&ar_command_history)
 {
+    assert(is_valid());
 }
 
 saklib::internal::Undoable_Attribute_Data_Handle::~Undoable_Attribute_Data_Handle() = default;
@@ -55,7 +57,7 @@ saklib::internal::Undoable_Attribute_Data_Handle& saklib::internal::Undoable_Att
 //============================================================
 bool saklib::internal::Undoable_Attribute_Data_Handle::is_valid() const
 {
-    return m_attribute_handle.is_valid();
+    return m_attribute_handle.is_valid() && mp_command_history != nullptr;
 }
 
 bool saklib::internal::Undoable_Attribute_Data_Handle::is_null() const
@@ -97,35 +99,59 @@ std::string saklib::internal::Undoable_Attribute_Data_Handle::cget_value_string(
 
 bool saklib::internal::Undoable_Attribute_Data_Handle::is_bool() const
 {
-    return m_attribute_handle.is_bool();
+    return is_bool_type<bool>();
+}
+
+saklib::internal::Undoable_Attribute_Data_Handle_Boolean_Type<bool> saklib::internal::Undoable_Attribute_Data_Handle::cget_bool() const
+{
+    return cget_bool_type<bool>();
+}
+
+template <typename T>
+bool saklib::internal::Undoable_Attribute_Data_Handle::is_bool_type() const
+{
+    return m_attribute_handle.is_bool_type<T>();
+}
+
+template <typename T>
+saklib::internal::Undoable_Attribute_Data_Handle_Boolean_Type<T> saklib::internal::Undoable_Attribute_Data_Handle::cget_bool_type() const
+{
+    if (is_bool_type<T>())
+    {
+        return Undoable_Attribute_Data_Handle_Boolean_Type<T>(m_attribute_handle.cget_bool_type<T>(), *mp_command_history);
+    }
+    else
+    {
+        return Undoable_Attribute_Data_Handle_Boolean_Type<T>();
+    }
 }
 
 bool saklib::internal::Undoable_Attribute_Data_Handle::is_int() const
 {
-    return m_attribute_handle.is_int();
+    return is_int_type<int>();
 }
 
-saklib::internal::Undoable_Attribute_Data_Handle_Bool saklib::internal::Undoable_Attribute_Data_Handle::cget_bool() const
+saklib::internal::Undoable_Attribute_Data_Handle_Integral_Type<int> saklib::internal::Undoable_Attribute_Data_Handle::cget_int() const
 {
-    if(is_valid())
+    return cget_int_type<int>();
+}
+
+template <typename T>
+bool saklib::internal::Undoable_Attribute_Data_Handle::is_int_type() const
+{
+    return m_attribute_handle.is_int_type<T>();
+}
+
+template <typename T>
+saklib::internal::Undoable_Attribute_Data_Handle_Integral_Type<T> saklib::internal::Undoable_Attribute_Data_Handle::cget_int_type() const
+{
+    if (is_int_type<T>())
     {
-        return Undoable_Attribute_Data_Handle_Bool(m_attribute_handle.cget_bool(), mp_command_history);
+        return Undoable_Attribute_Data_Handle_Integral_Type<T>(m_attribute_handle.cget_int_type<T>(), *mp_command_history);
     }
     else
     {
-        return Undoable_Attribute_Data_Handle_Bool();
-    }
-}
-
-saklib::internal::Undoable_Attribute_Data_Handle_Int saklib::internal::Undoable_Attribute_Data_Handle::cget_int() const
-{
-    if(is_valid())
-    {
-        return Undoable_Attribute_Data_Handle_Int(m_attribute_handle.cget_int(), mp_command_history);
-    }
-    else
-    {
-        return Undoable_Attribute_Data_Handle_Int();
+        return Undoable_Attribute_Data_Handle_Integral_Type<T>();
     }
 }
 
@@ -163,12 +189,12 @@ bool saklib::internal::Undoable_Attribute_Data_Handle::operator>=(Undoable_Attri
 
 // Comparison Operators for compare to the null handle
 //============================================================
-bool saklib::internal::Undoable_Attribute_Data_Handle::operator==(Null_Handle_Type const& rhs)
+bool saklib::internal::Undoable_Attribute_Data_Handle::operator==(Null_Handle_Type const& )
 {
     return is_null();
 }
 
-bool saklib::internal::Undoable_Attribute_Data_Handle::operator!=(Null_Handle_Type const& rhs)
+bool saklib::internal::Undoable_Attribute_Data_Handle::operator!=(Null_Handle_Type const& )
 {
     return is_valid();
 }

@@ -241,10 +241,10 @@ template saklib::internal::Attribute_Data_Definition_Integral_Type<short>;
 template saklib::internal::Attribute_Data_Definition_Integral_Type<unsigned short>;
 template saklib::internal::Attribute_Data_Definition_Integral_Type<int>;
 template saklib::internal::Attribute_Data_Definition_Integral_Type<unsigned int>;
-template saklib::internal::Attribute_Data_Definition_Integral_Type<long int>;
-template saklib::internal::Attribute_Data_Definition_Integral_Type<unsigned long int>;
-template saklib::internal::Attribute_Data_Definition_Integral_Type<long long int>;
-template saklib::internal::Attribute_Data_Definition_Integral_Type<unsigned long long int>;
+template saklib::internal::Attribute_Data_Definition_Integral_Type<long>;
+template saklib::internal::Attribute_Data_Definition_Integral_Type<unsigned long>;
+template saklib::internal::Attribute_Data_Definition_Integral_Type<long long>;
+template saklib::internal::Attribute_Data_Definition_Integral_Type<unsigned long long>;
 
 template std::ostream& saklib::internal::operator << <short>(std::ostream& a_ostream, Attribute_Data_Definition_Integral_Type<short> const& a_constraint);
 template std::ostream& saklib::internal::operator << <unsigned short>(std::ostream& a_ostream, Attribute_Data_Definition_Integral_Type<unsigned short> const& a_constraint);

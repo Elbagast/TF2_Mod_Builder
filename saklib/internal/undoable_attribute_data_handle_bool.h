@@ -22,27 +22,29 @@ namespace saklib
     namespace internal
     {
         //---------------------------------------------------------------------------
-        // Undoable_Attribute_Data_Handle_Bool
+        // Undoable_Attribute_Data_Handle_Boolean_Type<T>
         //---------------------------------------------------------------------------
-        class Undoable_Attribute_Data_Handle_Bool
+        template <typename T>
+        class Undoable_Attribute_Data_Handle_Boolean_Type
         {
         public:
             // Typedefs
             //============================================================
             using handle_type = Attribute_Data_Handle_Bool::handle_type;
+            using bool_type = T;
 
             // Special 6
             //============================================================
-            Undoable_Attribute_Data_Handle_Bool();
-            explicit Undoable_Attribute_Data_Handle_Bool(Attribute_Data_Handle_Bool const& a_attribute_handle, Command_History* ap_command_history);
-            explicit Undoable_Attribute_Data_Handle_Bool(Attribute_Data_Handle_Bool && a_attribute_handle, Command_History* ap_command_history);
-            ~Undoable_Attribute_Data_Handle_Bool();
+            Undoable_Attribute_Data_Handle_Boolean_Type();
+            Undoable_Attribute_Data_Handle_Boolean_Type(Attribute_Data_Handle_Boolean_Type<T> const& a_attribute_handle, Command_History& ar_command_history);
+            Undoable_Attribute_Data_Handle_Boolean_Type(Attribute_Data_Handle_Boolean_Type<T> && a_attribute_handle, Command_History& ar_command_history);
+            ~Undoable_Attribute_Data_Handle_Boolean_Type();
 
-            Undoable_Attribute_Data_Handle_Bool(Undoable_Attribute_Data_Handle_Bool const& other);
-            Undoable_Attribute_Data_Handle_Bool& operator=(Undoable_Attribute_Data_Handle_Bool const& other);
+            Undoable_Attribute_Data_Handle_Boolean_Type(Undoable_Attribute_Data_Handle_Boolean_Type const& other);
+            Undoable_Attribute_Data_Handle_Boolean_Type& operator=(Undoable_Attribute_Data_Handle_Boolean_Type const& other);
 
-            Undoable_Attribute_Data_Handle_Bool(Undoable_Attribute_Data_Handle_Bool && other);
-            Undoable_Attribute_Data_Handle_Bool& operator=(Undoable_Attribute_Data_Handle_Bool && other);
+            Undoable_Attribute_Data_Handle_Boolean_Type(Undoable_Attribute_Data_Handle_Boolean_Type && other);
+            Undoable_Attribute_Data_Handle_Boolean_Type& operator=(Undoable_Attribute_Data_Handle_Boolean_Type && other);
 
             // Interface
             //============================================================
@@ -62,27 +64,27 @@ namespace saklib
 
             std::string cget_value_string() const;
 
-            bool cget_value() const;
+            bool_type cget_value() const;
 
-            bool can_set_value_to(bool a_value) const;
+            bool can_set_value_to(bool_type a_value) const;
 
-            //bool try_set_value(bool a_value);
+            bool try_set_value(bool_type a_value);
 
-            bool set_value(bool a_value);
+            void set_value(bool_type a_value);
 
             // Comparison Operators
             //============================================================
-            bool operator==(Undoable_Attribute_Data_Handle_Bool const& rhs);
-            bool operator!=(Undoable_Attribute_Data_Handle_Bool const& rhs);
-            bool operator<(Undoable_Attribute_Data_Handle_Bool const& rhs);
-            bool operator>(Undoable_Attribute_Data_Handle_Bool const& rhs);
-            bool operator<=(Undoable_Attribute_Data_Handle_Bool const& rhs);
-            bool operator>=(Undoable_Attribute_Data_Handle_Bool const& rhs);
+            bool operator==(Undoable_Attribute_Data_Handle_Boolean_Type const& rhs);
+            bool operator!=(Undoable_Attribute_Data_Handle_Boolean_Type const& rhs);
+            bool operator<(Undoable_Attribute_Data_Handle_Boolean_Type const& rhs);
+            bool operator>(Undoable_Attribute_Data_Handle_Boolean_Type const& rhs);
+            bool operator<=(Undoable_Attribute_Data_Handle_Boolean_Type const& rhs);
+            bool operator>=(Undoable_Attribute_Data_Handle_Boolean_Type const& rhs);
 
             // Comparison Operators to Untyped Handle
             //============================================================
-            //bool operator==(Undoable_Attribute_Data_Handle const& rhs);
-            //bool operator!=(Undoable_Attribute_Data_Handle const& rhs);
+            bool operator==(Undoable_Attribute_Data_Handle const& rhs);
+            bool operator!=(Undoable_Attribute_Data_Handle const& rhs);
 
             // Comparison Operators for compare to the null handle
             //============================================================

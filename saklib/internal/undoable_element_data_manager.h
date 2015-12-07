@@ -28,19 +28,29 @@ namespace saklib
         //---------------------------------------------------------------------------
         // Undoable_Element_Data_Manager
         //---------------------------------------------------------------------------
-
         class Undoable_Element_Data_Manager
         {
         public:
             // Typedefs
             //============================================================
-            using handle_type = Element_Data_Manager::handle_type;
+            using handle_type = Handle<Element_Data>;
+            using handle_factory_type = Handle_Factory<Element_Data>;
+
+            using storage_type = Reference_Counted_Storage<handle_type, Element_Data, Element_Data_Definition_Handle>;
+            using reference_counter_type = storage_type::reference_counter_type;
+
+            // Special 6
+            //============================================================
+            //Undoable_Element_Data_Manager();
 
             // Interface
             //============================================================
             bool has_element(handle_type const& a_handle) const;
             Undoable_Element_Data_Handle make_element_handle(handle_type const& a_handle);
-            Undoable_Element_Data_Handle make_element(Element_Data_Definition_Handle && a_definition_handle); // issues command?
+
+            Undoable_Element_Data_Handle make_element(Element_Data_Definition_Handle&& a_definition_handle);
+
+            std::size_t cget_reference_count(handle_type const& a_handle) const;
 
             std::vector<handle_type> cget_all_handles() const;
             std::vector<Undoable_Element_Data_Handle> make_all_element_handles();
@@ -71,7 +81,9 @@ namespace saklib
             void clear();
 
         private:
-            Element_Data_Manager m_data_manager;
+            // Data Members
+            //============================================================
+            Element_Data_Manager m_manager;
             Command_History m_command_history;
         };
     } // namespace internal

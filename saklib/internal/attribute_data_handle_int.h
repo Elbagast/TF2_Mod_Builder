@@ -5,6 +5,10 @@
 #include "attribute_data_handle_int__fwd.h"
 #endif
 
+#ifndef SAKLIB_INTERNAL_ATTRIBUTE_DATA_HANDLE_H
+#include "attribute_data_handle.h"
+#endif
+
 #ifndef SAKLIB_INTERNAL_NULL_HANDLE__FWD_H
 #include "null_handle__fwd.h"
 #endif
@@ -24,26 +28,23 @@ namespace saklib
     namespace internal
     {
         //---------------------------------------------------------------------------
-        // Attribute_Data_Handle_Int<T, M>
+        // Attribute_Data_Handle_Int<T>
         //---------------------------------------------------------------------------
-        template <typename T, typename M>
+        template <typename T>
         class Attribute_Data_Handle_Integral_Type
         {
         public:
             // Typedefs
             //============================================================
-            using manager_type = M;
-            using reference_counter_type = typename manager_type::reference_counter_type;
-            using handle_type = typename reference_counter_type::handle_type;
-            using storage_type = typename reference_counter_type::storage_type;
+            using handle_type = Attribute_Data_Handle::handle_type;
 
             using int_type = T;
 
             // Special 6
             //============================================================
             Attribute_Data_Handle_Integral_Type();
-            Attribute_Data_Handle_Integral_Type(manager_type* ap_manager, reference_counter_type const& a_reference_counter, std::size_t a_index);
-            Attribute_Data_Handle_Integral_Type(manager_type* ap_manager, reference_counter_type&& a_reference_counter, std::size_t a_index);
+            explicit Attribute_Data_Handle_Integral_Type(Attribute_Data_Handle const& a_attribute_handle);
+            explicit Attribute_Data_Handle_Integral_Type(Attribute_Data_Handle&& a_attribute_handle);
             ~Attribute_Data_Handle_Integral_Type();
 
             Attribute_Data_Handle_Integral_Type(Attribute_Data_Handle_Integral_Type const& other);
@@ -62,8 +63,8 @@ namespace saklib
 
             std::size_t cget_attribute_index() const;
 
-            manager_type& get_manager();
-            manager_type const& cget_manager() const;
+            Element_Data_Manager& get_manager();
+            Element_Data_Manager const& cget_manager() const;
 
             // Attribute_Data Wrapper Interface
             //============================================================
@@ -96,20 +97,24 @@ namespace saklib
 
             // Comparison Operators to Untyped Handle
             //============================================================
-            //bool operator==(Attribute_Data_Handle const& rhs);
-            //bool operator!=(Attribute_Data_Handle const& rhs);
+            bool operator==(Attribute_Data_Handle const& rhs);
+            bool operator!=(Attribute_Data_Handle const& rhs);
 
             // Comparison Operators for compare to the null handle
             //============================================================
             bool operator==(Null_Handle_Type const& rhs);
             bool operator!=(Null_Handle_Type const& rhs);
 
+        protected:
+            // Protected Helpers
+            //============================================================
+            Attribute_Data_Integral_Type<T>& get_attribute_int();
+            Attribute_Data_Integral_Type<T> const& cget_attribute_int() const;
+
         private:
             // Data Members
             //============================================================
-            manager_type* mp_manager;
-            reference_counter_type m_reference_counter;
-            std::size_t m_attribute_index;
+            Attribute_Data_Handle m_attribute_handle;
         };
     } // namespace internal
 } // namespace saklib

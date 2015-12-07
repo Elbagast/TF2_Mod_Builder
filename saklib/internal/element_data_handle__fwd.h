@@ -5,7 +5,6 @@ namespace saklib
 {
     namespace internal
     {
-        template <typename M>
         class Element_Data_Handle;
     } // namespace internal
 } // namespace saklib

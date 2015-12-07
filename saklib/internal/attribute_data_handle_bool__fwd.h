@@ -5,8 +5,10 @@ namespace saklib
 {
     namespace internal
     {
-        template <typename T, typename M>
+        template <typename T>
         class Attribute_Data_Handle_Boolean_Type;
+
+        using Attribute_Data_Handle_Bool = Attribute_Data_Handle_Boolean_Type<bool>;
 
     } // namespace internal
 } // namespace saklib

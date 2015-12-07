@@ -4,7 +4,7 @@
 
 #include "command_history.h"
 #include "command.h"
-
+/*
 namespace saklib
 {
     namespace internal
@@ -44,7 +44,7 @@ void saklib::internal::Command_Element_Data_Handle_Set_Name::v_unexecute()
 {
     m_element_handle.set_name(m_old_name);
 }
-
+*/
 
 //---------------------------------------------------------------------------
 // Undoable_Element_Data_Handle
@@ -128,18 +128,24 @@ std::string const& saklib::internal::Undoable_Element_Data_Handle::cget_name() c
     return m_element_handle.cget_name();
 }
 
-bool saklib::internal::Undoable_Element_Data_Handle::set_name(std::string const& a_name)
+void saklib::internal::Undoable_Element_Data_Handle::set_name(std::string const& a_name)
 {
-    // This should actually issue a command
-    if (cget_name() != a_name)
-    {
-        get_command_history().emplace_execute<Command_Element_Data_Handle_Set_Name>(m_element_handle, a_name);
-        return true;
-    }
-    else
-    {
-        return false;
-    }
+    using Command_Element_Data_Handle_Set_Name = Command_Simple_Stored_Get_Set
+    <
+    Element_Data_Handle,
+    std::string,
+    std::string const&,
+    &Element_Data_Handle::cget_name,
+    void,
+    std::string const&,
+    &Element_Data_Handle::set_name
+    >;
+
+    get_command_history().emplace_execute<Command_Element_Data_Handle_Set_Name>(m_element_handle, a_name);
+
+
+    // Having a function deduce the template args would be nice, but I haven't figured it out yet.
+    //get_command_history().add_execute(make_command_simple_stored_get_set(m_element_handle, &Element_Data_Handle::cget_name, &Element_Data_Handle::set_name, a_name));
 }
 
 std::size_t saklib::internal::Undoable_Element_Data_Handle::cget_attribute_count() const
@@ -151,7 +157,7 @@ saklib::internal::Undoable_Attribute_Data_Handle saklib::internal::Undoable_Elem
 {
     if(is_valid() && a_index < cget_attribute_count())
     {
-        return Undoable_Attribute_Data_Handle(m_element_handle.cget_attribute_at(a_index), mp_command_history);
+        return Undoable_Attribute_Data_Handle(m_element_handle.cget_attribute_at(a_index), *mp_command_history);
     }
     else
     {

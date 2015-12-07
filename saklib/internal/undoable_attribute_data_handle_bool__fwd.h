@@ -5,7 +5,10 @@ namespace saklib
 {
     namespace internal
     {
-        class Undoable_Attribute_Data_Handle_Bool;
+        template <typename T>
+        class Undoable_Attribute_Data_Handle_Boolean_Type;
+
+        using Undoable_Attribute_Data_Handle_Bool = Undoable_Attribute_Data_Handle_Boolean_Type<bool>;
     } // namespace internal
 } // namespace saklib
 

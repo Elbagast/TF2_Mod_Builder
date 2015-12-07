@@ -5,7 +5,8 @@ namespace saklib
 {
     namespace internal
     {
-        class Undoable_Attribute_Data_Handle_Int;
+        template <typename T>
+        class Undoable_Attribute_Data_Handle_Integral_Type;
     } // namespace internal
 } // namespace saklib
 
