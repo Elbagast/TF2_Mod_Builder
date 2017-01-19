@@ -19,8 +19,8 @@
 #include "attribute_data_handle__fwd.h"
 #endif
 
-#ifndef SAKLIB_INTERNAL_NULL_HANDLE__FWD_H
-#include "null_handle__fwd.h"
+#ifndef SAKLIB_INTERNAL_NULL_INTEGER_ID__FWD_H
+#include "null_integer_id__fwd.h"
 #endif
 
 #ifndef INCLUDE_STD_CSTDDEF
@@ -106,8 +106,8 @@ namespace saklib
 
             // Comparison Operators for compare to the null handle
             //============================================================
-            bool operator==(Null_Handle_Type const& rhs);
-            bool operator!=(Null_Handle_Type const& rhs);
+            bool operator==(Null_Integer_ID_Type const& rhs);
+            bool operator!=(Null_Integer_ID_Type const& rhs);
 
         protected:
             // Protected Helpers

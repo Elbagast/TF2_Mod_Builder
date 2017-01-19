@@ -10,7 +10,7 @@ Thinking up the required interfaces, remember:
 namespace saklib
 {
     class Char;
-    class std::size_t;
+    class Size_Type;
     class Index;
 
     class TypeID;
@@ -125,26 +125,26 @@ namespace saklib
     {
     public:
         String get_name() const;
-        void set_name(String const& a_value);
+        void set_name(String a_value);
         String get_type_string() const;
 
 
         // Does this have an Attribute with this index?
-        bool has_attribute_at(Index a_index) const;
+        bool has_attribute_at(Size_Type a_index) const;
 
         // Does this have an Attribute with this name?
-        bool has_attribute_named(String const& a_name) const;
+        bool has_attribute_named(String a_name) const;
 
         // Get an attribute by its index
-        Attribute get_attribute_at(Index a_index) const;
+        Attribute get_attribute_at(Size_Type a_index) const;
 
         // Get an attribute by its name
-        Attribute get_attribute_named(String const& a_name) const;
+        Attribute get_attribute_named(String a_name) const;
 
         // Typed Attribute gets?
 
         // The number of Attributes
-        std::size_t get_attribute_count() const;
+        Size_Type get_attribute_count() const;
 
         // typed Attribute Counts?
         //Size_Type get_attribute_bool_count() const;

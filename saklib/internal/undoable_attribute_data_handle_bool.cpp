@@ -259,13 +259,13 @@ bool saklib::internal::Undoable_Attribute_Data_Handle_Boolean_Type<T>::operator!
 // Comparison Operators for compare to the null handle
 //============================================================
 template <typename T>
-bool saklib::internal::Undoable_Attribute_Data_Handle_Boolean_Type<T>::operator==(Null_Handle_Type const& rhs)
+bool saklib::internal::Undoable_Attribute_Data_Handle_Boolean_Type<T>::operator==(Null_Integer_ID_Type const& rhs)
 {
     return m_attribute_handle == rhs;
 }
 
 template <typename T>
-bool saklib::internal::Undoable_Attribute_Data_Handle_Boolean_Type<T>::operator!=(Null_Handle_Type const& rhs)
+bool saklib::internal::Undoable_Attribute_Data_Handle_Boolean_Type<T>::operator!=(Null_Integer_ID_Type const& rhs)
 {
     return m_attribute_handle != rhs;
 }

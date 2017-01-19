@@ -5,7 +5,6 @@ namespace saklib
 {
     namespace internal
     {
-        /*
         template <typename T>
         class Nullptr_On_Move
         {
@@ -37,12 +36,12 @@ namespace saklib
                 a_other.mp_pointer = nullptr;
             }
 
-            operator pointer_type()()
+            operator pointer_type()
             {
                 return mp_pointer;
             }
 
-            operator const_pointer_type()() const
+            operator const_pointer_type() const
             {
                 return mp_pointer;
             }
@@ -60,7 +59,6 @@ namespace saklib
         private:
             pointer_type mp_pointer;
         };
-        */
     } // namespace internal
 } // namespace saklib
 

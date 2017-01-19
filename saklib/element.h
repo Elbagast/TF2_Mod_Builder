@@ -10,12 +10,26 @@
 #include <memory>
 #endif
 
+#ifndef INCLUDE_STD_VECTOR
+#define INCLUDE_STD_VECTOR
+#include <vector>
+#endif
+
 namespace saklib
 {
+    class ElementID;
+    class String;
+    class Attribute;
+
     //---------------------------------------------------------------------------
     // Element
     //---------------------------------------------------------------------------
     // API class for undo-enabled editing of Element data.
+
+    namespace internal
+    {
+        class Element_Implementation;
+    }
 
     class Element
     {
@@ -24,6 +38,7 @@ namespace saklib
         //============================================================
         // How will these be made...
         Element();
+        explicit Element(std::unique_ptr<internal::Element_Implementation>&& a_implementation);
         ~Element();
 
         Element(Element const& a_other);
@@ -34,16 +49,29 @@ namespace saklib
 
         // Interface
         //============================================================
+        bool is_valid() const;
+        bool is_null() const;
 
+        ElementID cget_id() const;
+
+        String cget_type() const;
+
+        String cget_name() const;
+        void set_name(String a_name);
+
+        std::size_t cget_attribute_count() const;
+        bool has_attribute(std::size_t a_index) const;
+
+        Attribute cget_attribute_at(std::size_t a_index) const;
+
+        std::vector<Attribute> cget_attributes() const;
     private:
         // Data Members
         //============================================================
-        class Implementation;
+        internal::Element_Implementation* get_implementation();
+        internal::Element_Implementation const* cget_implementation() const;
 
-        Implementation* get_implementation();
-        Implementation const* cget_implementation() const;
-
-        std::unique_ptr<Implementation> m_implementation;
+        std::unique_ptr<internal::Element_Implementation> m_implementation;
     };
 } // namespace saklib
 

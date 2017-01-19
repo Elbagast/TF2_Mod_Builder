@@ -6,7 +6,7 @@
 #endif
 
 #ifndef SAKLIB_INTERNAL_HANDLE_H
-#include "handle.h"
+#include "uint_id.h"
 #endif
 
 #ifndef SAKLIB_INTERNAL_STORAGE_TRAITS_H

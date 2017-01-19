@@ -210,12 +210,12 @@ bool saklib::internal::Undoable_Element_Data_Handle::operator>=(Undoable_Element
 
 // Comparison Operators for compare to the null handle
 //============================================================
-bool saklib::internal::Undoable_Element_Data_Handle::operator==(Null_Handle_Type const& )
+bool saklib::internal::Undoable_Element_Data_Handle::operator==(Null_Integer_ID_Type const& )
 {
     return is_null();
 }
 
-bool saklib::internal::Undoable_Element_Data_Handle::operator!=(Null_Handle_Type const& )
+bool saklib::internal::Undoable_Element_Data_Handle::operator!=(Null_Integer_ID_Type const& )
 {
     return is_valid();
 }

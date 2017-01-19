@@ -1,6 +1,8 @@
 #ifndef SAKLIB_INTERNAL_ATTRIBUTE_DATA_INT__FWD_H
 #define SAKLIB_INTERNAL_ATTRIBUTE_DATA_INT__FWD_H
 
+
+
 namespace saklib
 {
     namespace internal

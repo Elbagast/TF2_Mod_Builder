@@ -195,12 +195,12 @@ bool saklib::internal::Element_Data_Handle::operator>=(Element_Data_Handle const
 
 // Comparison Operators for compare to the null handle
 //============================================================
-bool saklib::internal::Element_Data_Handle::operator==(Null_Handle_Type const& )
+bool saklib::internal::Element_Data_Handle::operator==(Null_Integer_ID_Type const& )
 {
     return is_null();
 }
 
-bool saklib::internal::Element_Data_Handle::operator!=(Null_Handle_Type const& )
+bool saklib::internal::Element_Data_Handle::operator!=(Null_Integer_ID_Type const& )
 {
     return is_valid();
 }

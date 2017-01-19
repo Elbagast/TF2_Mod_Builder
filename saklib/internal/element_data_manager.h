@@ -9,8 +9,8 @@
 #include "element_data_definition_manager.h"
 #endif
 
-#ifndef SAKLIB_INTERNAL_HANDLE_FACTORY_H
-#include "handle_factory.h"
+#ifndef SAKLIB_INTERNAL_ELEMENT_ID_H
+#include "element_id.h"
 #endif
 
 #ifndef SAKLIB_INTERNAL_ELEMENT_DATA_HANDLE__FWD_H
@@ -34,10 +34,7 @@ namespace saklib
         public:
             // Typedefs
             //============================================================
-            using handle_type = Handle<Element_Data>;
-            using handle_factory_type = Handle_Factory<Element_Data>;
-
-            using storage_type = Reference_Counted_Storage<handle_type, Element_Data, Element_Data_Definition_Handle>;
+            using storage_type = Reference_Counted_Storage<Element_ID, Element_Data, Element_Data_Definition_Handle>;
             using reference_counter_type = storage_type::reference_counter_type;
 
 
@@ -47,22 +44,22 @@ namespace saklib
 
             // Interface
             //============================================================
-            bool has_element(handle_type const& a_handle) const;
-            Element_Data_Handle make_element_handle(handle_type const& a_handle);
-            Attribute_Data_Handle make_attribute_handle(Element_Data_Handle const& a_element_handle, std::size_t a_index);
+            bool has_element(Element_ID a_id) const;
+            Element_Data_Handle make_element_handle(Element_ID a_id);
+            Attribute_Data_Handle make_attribute_handle(Element_ID a_id, std::size_t a_index);
 
             Element_Data_Handle make_element(Element_Data_Definition_Handle&& a_definition_handle);
 
-            std::size_t cget_reference_count(handle_type const& a_handle) const;
+            std::size_t cget_reference_count(Element_ID a_id) const;
 
-            std::vector<handle_type> cget_all_handles() const;
+            std::vector<Element_ID> cget_all_element_ids() const;
             std::vector<Element_Data_Handle> make_all_element_handles();
 
         private:
             // Data Members
             //============================================================
-            mutable storage_type m_storage;
-            handle_factory_type m_handle_factory; // right now this does not know when a handle is revoked
+            storage_type m_storage;
+            Element_ID_Factory m_id_factory; // right now this does not know when a handle is revoked
         };
 
     } // namespace internal

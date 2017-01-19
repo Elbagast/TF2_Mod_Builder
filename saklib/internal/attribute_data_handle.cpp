@@ -249,12 +249,12 @@ bool saklib::internal::Attribute_Data_Handle::operator!=(Attribute_Data_Handle c
 */
 // Comparison Operators for compare to the null handle
 //============================================================
-bool saklib::internal::Attribute_Data_Handle::operator==(Null_Handle_Type const& )
+bool saklib::internal::Attribute_Data_Handle::operator==(Null_Integer_ID_Type const& )
 {
     return is_null();
 }
 
-bool saklib::internal::Attribute_Data_Handle::operator!=(Null_Handle_Type const& )
+bool saklib::internal::Attribute_Data_Handle::operator!=(Null_Integer_ID_Type const& )
 {
     return is_valid();
 }

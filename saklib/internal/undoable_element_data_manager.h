@@ -33,8 +33,8 @@ namespace saklib
         public:
             // Typedefs
             //============================================================
-            using handle_type = Handle<Element_Data>;
-            using handle_factory_type = Handle_Factory<Element_Data>;
+            using handle_type = Unsigned_Integer_ID<Element_Data>;
+            using handle_factory_type = Unsigned_Integer_ID_Factory<Element_Data>;
 
             using storage_type = Reference_Counted_Storage<handle_type, Element_Data, Element_Data_Definition_Handle>;
             using reference_counter_type = storage_type::reference_counter_type;
@@ -45,14 +45,14 @@ namespace saklib
 
             // Interface
             //============================================================
-            bool has_element(handle_type const& a_handle) const;
-            Undoable_Element_Data_Handle make_element_handle(handle_type const& a_handle);
+            bool has_element(Element_ID a_id) const;
+            Undoable_Element_Data_Handle make_element_handle(Element_ID a_id);
 
             Undoable_Element_Data_Handle make_element(Element_Data_Definition_Handle&& a_definition_handle);
 
-            std::size_t cget_reference_count(handle_type const& a_handle) const;
+            std::size_t cget_reference_count(Element_ID a_id) const;
 
-            std::vector<handle_type> cget_all_handles() const;
+            std::vector<Element_ID> cget_all_element_ids() const;
             std::vector<Undoable_Element_Data_Handle> make_all_element_handles();
 
             // Will calling undo do anything?

@@ -176,25 +176,25 @@ bool saklib::internal::operator>=(Reference_Counter<S, H, I, D> const& lhs, Refe
 // Comparison Operators for compare to the null handle
 //============================================================
 template <typename S, typename H, typename I, typename D>
-bool saklib::internal::operator==(Reference_Counter<S, H, I, D> const& lhs, Null_Handle_Type const& rhs)
+bool saklib::internal::operator==(Reference_Counter<S, H, I, D> const& lhs, Null_Integer_ID_Type const& rhs)
 {
     return lhs.is_null();
 }
 
 template <typename S, typename H, typename I, typename D>
-bool saklib::internal::operator!=(Reference_Counter<S, H, I, D> const& lhs, Null_Handle_Type const& rhs)
+bool saklib::internal::operator!=(Reference_Counter<S, H, I, D> const& lhs, Null_Integer_ID_Type const& rhs)
 {
     return !operator==(lhs, rhs);
 }
 
 template <typename S, typename H, typename I, typename D>
-bool saklib::internal::operator==(Null_Handle_Type const& lhs, Reference_Counter<S, H, I, D> const& rhs)
+bool saklib::internal::operator==(Null_Integer_ID_Type const& lhs, Reference_Counter<S, H, I, D> const& rhs)
 {
     return operator==(rhs, lhs);
 }
 
 template <typename S, typename H, typename I, typename D>
-bool saklib::internal::operator!=(Null_Handle_Type const& lhs, Reference_Counter<S, H, I, D> const& rhs)
+bool saklib::internal::operator!=(Null_Integer_ID_Type const& lhs, Reference_Counter<S, H, I, D> const& rhs)
 {
     return !operator==(rhs, lhs);
 }
@@ -320,25 +320,25 @@ bool saklib::internal::operator>=(Member_Reference_Counter<S, H, I, D> const& lh
 // Comparison Operators for compare to the null handle
 //============================================================
 template <typename S, typename H, void(S::*I)(H const&), void(S::*D)(H const&)>
-bool saklib::internal::operator==(Member_Reference_Counter<S, H, I, D> const& lhs, Null_Handle_Type const& )
+bool saklib::internal::operator==(Member_Reference_Counter<S, H, I, D> const& lhs, Null_Integer_ID_Type const& )
 {
     return lhs.is_null();
 }
 
 template <typename S, typename H, void(S::*I)(H const&), void(S::*D)(H const&)>
-bool saklib::internal::operator!=(Member_Reference_Counter<S, H, I, D> const& lhs, Null_Handle_Type const& rhs)
+bool saklib::internal::operator!=(Member_Reference_Counter<S, H, I, D> const& lhs, Null_Integer_ID_Type const& rhs)
 {
     return !operator==(lhs, rhs);
 }
 
 template <typename S, typename H, void(S::*I)(H const&), void(S::*D)(H const&)>
-bool saklib::internal::operator==(Null_Handle_Type const& lhs, Member_Reference_Counter<S, H, I, D> const& rhs)
+bool saklib::internal::operator==(Null_Integer_ID_Type const& lhs, Member_Reference_Counter<S, H, I, D> const& rhs)
 {
     return operator==(rhs, lhs);
 }
 
 template <typename S, typename H, void(S::*I)(H const&), void(S::*D)(H const&)>
-bool saklib::internal::operator!=(Null_Handle_Type const& lhs, Member_Reference_Counter<S, H, I, D> const& rhs)
+bool saklib::internal::operator!=(Null_Integer_ID_Type const& lhs, Member_Reference_Counter<S, H, I, D> const& rhs)
 {
     return !operator==(rhs, lhs);
 }

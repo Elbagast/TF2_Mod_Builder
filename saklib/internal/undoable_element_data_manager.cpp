@@ -19,16 +19,16 @@
 
 // Interface
 //============================================================
-bool saklib::internal::Undoable_Element_Data_Manager::has_element(handle_type const& a_handle) const
+bool saklib::internal::Undoable_Element_Data_Manager::has_element(Element_ID a_id) const
 {
-    return m_manager.has_element(a_handle);
+    return m_manager.has_element(a_id);
 }
 
-saklib::internal::Undoable_Element_Data_Handle saklib::internal::Undoable_Element_Data_Manager::make_element_handle(handle_type const& a_handle)
+saklib::internal::Undoable_Element_Data_Handle saklib::internal::Undoable_Element_Data_Manager::make_element_handle(Element_ID a_id)
 {
-    if (has_element(a_handle))
+    if (has_element(a_id))
     {
-        return Undoable_Element_Data_Handle(m_manager.make_element_handle(a_handle), m_command_history);
+        return Undoable_Element_Data_Handle(m_manager.make_element_handle(a_id), m_command_history);
     }
     else
     {
@@ -50,14 +50,14 @@ saklib::internal::Undoable_Element_Data_Handle saklib::internal::Undoable_Elemen
     }
 }
 
-std::size_t saklib::internal::Undoable_Element_Data_Manager::cget_reference_count(handle_type const& a_handle) const
+std::size_t saklib::internal::Undoable_Element_Data_Manager::cget_reference_count(Element_ID a_id) const
 {
-    return m_manager.cget_reference_count(a_handle);
+    return m_manager.cget_reference_count(a_id);
 }
 
-std::vector<saklib::internal::Undoable_Element_Data_Manager::handle_type> saklib::internal::Undoable_Element_Data_Manager::cget_all_handles() const
+std::vector<saklib::internal::Element_ID> saklib::internal::Undoable_Element_Data_Manager::cget_all_element_ids() const
 {
-    return m_manager.cget_all_handles();
+    return m_manager.cget_all_element_ids();
 }
 
 std::vector<saklib::internal::Undoable_Element_Data_Handle> saklib::internal::Undoable_Element_Data_Manager::make_all_element_handles()

@@ -14,7 +14,7 @@ saklib::internal::Bad_Data_Handle::Bad_Data_Handle():
 {
 }
 
-saklib::internal::Bad_Data_Handle::Bad_Data_Handle(std::string const& a_type, Handle_Value_Type a_value):
+saklib::internal::Bad_Data_Handle::Bad_Data_Handle(std::string const& a_type, Integer_ID_Value_Type a_value):
     std::out_of_range("Bad_Data_Handle"),
     m_type(a_type),
     m_what(),
@@ -41,7 +41,7 @@ std::string const& saklib::internal::Bad_Data_Handle::get_type() const
     return m_type;
 }
 
-saklib::internal::Handle_Value_Type saklib::internal::Bad_Data_Handle::cget_handle_value() const
+saklib::internal::Integer_ID_Value_Type saklib::internal::Bad_Data_Handle::cget_handle_value() const
 {
     return m_value;
 }

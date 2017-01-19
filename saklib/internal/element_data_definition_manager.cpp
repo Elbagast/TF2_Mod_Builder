@@ -225,12 +225,12 @@ bool saklib::internal::Element_Data_Definition_Handle::operator>=(Element_Data_D
 
 // Comparison Operators for compare to the null handle
 //============================================================
-bool saklib::internal::Element_Data_Definition_Handle::operator==(Null_Handle_Type const& rhs)
+bool saklib::internal::Element_Data_Definition_Handle::operator==(Null_Integer_ID_Type const& rhs)
 {
     return m_reference_counter == rhs;
 }
 
-bool saklib::internal::Element_Data_Definition_Handle::operator!=(Null_Handle_Type const& rhs)
+bool saklib::internal::Element_Data_Definition_Handle::operator!=(Null_Integer_ID_Type const& rhs)
 {
     return m_reference_counter != rhs;
 }

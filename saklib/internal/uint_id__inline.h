@@ -1,0 +1,9 @@
+#ifndef SAKLIB_INTERNAL_UINT_ID__INLINE_H
+#define SAKLIB_INTERNAL_UINT_ID__INLINE_H
+
+#ifndef SAKLIB_INTERNAL_UINT_ID_H
+#include "uint_id.h"
+#endif
+
+#endif // SAKLIB_INTERNAL_UINT_ID__INLINE_H
+

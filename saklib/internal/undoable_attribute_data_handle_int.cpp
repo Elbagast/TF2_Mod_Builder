@@ -231,13 +231,13 @@ bool saklib::internal::Undoable_Attribute_Data_Handle_Integral_Type<T>::operator
 //============================================================
 
 template <typename T>
-bool saklib::internal::Undoable_Attribute_Data_Handle_Integral_Type<T>::operator==(Null_Handle_Type const& )
+bool saklib::internal::Undoable_Attribute_Data_Handle_Integral_Type<T>::operator==(Null_Integer_ID_Type const& )
 {
     return is_null();
 }
 
 template <typename T>
-bool saklib::internal::Undoable_Attribute_Data_Handle_Integral_Type<T>::operator!=(Null_Handle_Type const& )
+bool saklib::internal::Undoable_Attribute_Data_Handle_Integral_Type<T>::operator!=(Null_Integer_ID_Type const& )
 {
     return is_valid();
 }

@@ -217,13 +217,13 @@ bool saklib::internal::Attribute_Data_Handle_Integral_Type<T>::operator!=(Attrib
 // Comparison Operators for compare to the null handle
 //============================================================
 template <typename T>
-bool saklib::internal::Attribute_Data_Handle_Integral_Type<T>::operator==(Null_Handle_Type const& )
+bool saklib::internal::Attribute_Data_Handle_Integral_Type<T>::operator==(Null_Integer_ID_Type const& )
 {
     return is_null();
 }
 
 template <typename T>
-bool saklib::internal::Attribute_Data_Handle_Integral_Type<T>::operator!=(Null_Handle_Type const& )
+bool saklib::internal::Attribute_Data_Handle_Integral_Type<T>::operator!=(Null_Integer_ID_Type const& )
 {
     return is_valid();
 }

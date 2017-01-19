@@ -78,7 +78,6 @@ DEPENDPATH += $${BOOST_LIBRARY_DIR}
 
 SOURCES += main.cpp\
     saklib/internal/test.cpp \
-    saklib/internal/null_handle.cpp \
     saklib/internal/type_string.cpp \
     saklib/internal/exceptions/bad_attribute_data_type.cpp \
     saklib/internal/attribute_data.cpp \
@@ -109,20 +108,15 @@ SOURCES += main.cpp\
     saklib/internal/undoable_attribute_data_handle_int.cpp \
     saklib/internal/undoable_element_data_handle.cpp \
     saklib/internal/undoable_element_data_manager.cpp \
-    saklib/internal/undoable_element_data_manager__test.cpp
+    saklib/internal/undoable_element_data_manager__test.cpp \
+    saklib/project.cpp \
+    saklib/internal/unit_id.cpp \
+    saklib/internal/element_id.cpp \
+    saklib/internal/project_data.cpp
 
 HEADERS  += \
     saklib/zzz_refactoring.h \
-    saklib/internal/handle.h \
-    saklib/internal/null_handle.h \
-    saklib/internal/handle_factory.h \
     saklib/internal/test.h \
-    saklib/internal/handle__inline.h \
-    saklib/internal/handle__fwd.h \
-    saklib/internal/null_handle__fwd.h \
-    saklib/internal/handle_factory__inline.h \
-    saklib/internal/null_handle__inline.h \
-    saklib/internal/handle_factory__fwd.h \
     saklib/internal/type_string.h \
     saklib/internal/type_string__fwd.h \
     saklib/internal/reference_counter.h \
@@ -191,7 +185,17 @@ HEADERS  += \
     saklib/internal/undoable_element_data_handle__fwd.h \
     saklib/internal/undoable_element_data_manager.h \
     saklib/internal/undoable_element_data_manager__fwd.h \
-    saklib/internal/undoable_element_data_manager__test.h
+    saklib/internal/undoable_element_data_manager__test.h \
+    saklib/project.h \
+    saklib/internal/typed_integer_id.h \
+    saklib/internal/uint_id.h \
+    saklib/internal/uint_id__fwd.h \
+    saklib/internal/uint_id__inline.h \
+    saklib/internal/element_id.h \
+    saklib/internal/element_id__fwd.h \
+    saklib/internal/reference_counting_system.h \
+    saklib/internal/project_data.h \
+    saklib/version1/aaa_specification.h
 
 FORMS
 

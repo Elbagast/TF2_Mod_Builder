@@ -115,8 +115,8 @@ namespace saklib
 
             // Comparison Operators for compare to the null handle
             //============================================================
-            bool operator==(Null_Handle_Type const& rhs);
-            bool operator!=(Null_Handle_Type const& rhs);
+            bool operator==(Null_Integer_ID_Type const& rhs);
+            bool operator!=(Null_Integer_ID_Type const& rhs);
 
         private:
             reference_counter_type m_reference_counter;
