@@ -1,0 +1,171 @@
+Project Layout
+==============================
+
+In an outliner view a project looks like this:
+
+- Project (name)
+    - Assets
+        - Models (hidden if empty)
+            - User Model 1
+            ...
+            - User Model n
+        - Materials (hidden if empty)
+            - User Material 1
+            ...
+            - User Material n
+        - Textures (hidden if empty)
+            - User Texture 1
+            ...
+            - User Texture n
+        - File (hidden if empty)
+            - User File 1
+            ...
+            - User File n
+    - Packages
+        - User Package 1
+        ...
+        - User Package n
+
+Assets
+------------------------------
+Game component files or file groups that are built from source files with user
+supplied settings. Each has type specific settings and method of building.
+Individual assets have a build target but cannot be built outside of a package.
+They contain:
+
+Common parts:
+- User supplied name for ease of recognition.
+- User supplied description of the purpose it serves.
+- Build target.
+- Build methods
+    - These will be type specific but each has one
+- Internal ID for internal referencing (not user manipulated).
+- Possibility of referencing another asset and creating a modified version of it
+    - e.g. a model that adds an attachment
+- Ability to build from presets.
+    - Type specific operations though
+
+File
+- Source file that may or may not be the same name as the build target.
+
+Texture
+- Source data
+    - Either an image file
+    - or programmatic settings (e.g. single colour)
+- .vtf compile settings
+
+Material
+- Selectable shader
+    - Shaders have settings that need to be set
+        - References Texture assets
+        - or exisiting game textures
+- Ability to
+
+Model (probably the biggest jump from doing it manually)
+- Source mesh(es)
+- Source animation(s)
+- Material groups
+    - References Material assets
+    - or existing game materials
+- Attachments
+- Other settings
+
+
+Packages
+------------------------------
+In order to use Assets they must be added to a Package and the package has
+to be built. A Package's settings are a list of related Assets with their
+build targets set. An Asset in a package may reference an Asset in another
+package. A full project might look like:
+
+Project - Pathfinder (TF2 rocket launcher mod)
+
+- Pathfinder
+    - Assets
+        - Models
+            - Launcher
+                - build: models/weapons/c_models/c_pathfinder/c_pathfinder
+                - mesh: patherfinder_launcher_lod0
+                - mesh: patherfinder_launcher_lod1
+                - mesh: patherfinder_launcher_lod2
+                - physmesh: ref: patherfinder_launcher_lod0
+                - sequence: ref: patherfinder_launcher_lod0
+            - Rocket
+                - build: models/weapons/c_models/c_pathfinder/w_pathfinder_rocket
+                - mesh: patherfinder_rocket_lod0
+                - physmesh: ref: patherfinder_rocket_lod0
+                - sequence: ref: patherfinder_rocket_lod0
+        - Materials
+            - Launcher Red
+                - ref: Texture: Launcher Red
+                - ref: game texture: materials/models/lightwarp/weapon_lightwarp
+            - Launcher Blue
+                - ref: Texture: Launcher Blue
+                - ref: game texture: materials/models/lightwarp/weapon_lightwarp
+            - Rocket
+                - ref: Texture: Rocket
+                - ref: game texture: materials/models/lightwarp/weapon_lightwarp
+            - Backpack Icon Large
+                - ref: Texture: Backpack Icon Large
+            - Backpack Icon Small
+                - ref: Texture: Backpack Icon Small
+        - Textures
+            - Launcher Red
+                - RGB source: patherfinder_launcher_red.tga
+                - A source: patherfinder_launcher_phongmask.tga
+            - Launcher Blue
+                - RGB source: patherfinder_launcher_blue.tga
+                - A source: patherfinder_launcher_phongmask.tga
+            - Launcher Rocket
+                - RGB source: patherfinder_rocket.tga
+                - A source: patherfinder_rocket_phongmask.tga
+            - Backpack Icon Large
+                - RGBA source: patherfinder_backpack.tga
+            - Backpack Icon Small
+                - RGBA source: patherfinder_backpack.tga
+    - Packages
+        - Shared Mod Textures
+            - Texture: Launcher Red: build: models/mods/weapons/c_models/c_pathfinder/c_pathfinder_red
+            - Texture: Launcher Blue: build: models/mods/weapons/c_models/c_pathfinder/c_pathfinder_blue
+            - Texture: Rocket: build: models/mods/weapons/c_models/c_pathfinder/c_pathfinder_rocket
+            - Texture: Backpack Icon Large: build: backpack/mods/weapons/c_models/c_pathfinder/c_pathfinder_large
+            - Texture: Backpack Icon Small: build: backpack/mods/weapons/c_models/c_pathfinder/c_pathfinder
+
+        - Shared Mod Materials
+            - Material: Launcher Red: build: models/mods/weapons/c_models/c_pathfinder/c_pathfinder_red
+                - ref: Package: Shared Mod Textures: Texture: Launcher Red
+            - Material: Launcher Blue: build: models/mods/weapons/c_models/c_pathfinder/c_pathfinder_blue
+                - ref: Package: Shared Mod Textures: Texture: Launcher Blue
+            - Material: Rocket: build: models/mods/weapons/c_models/c_pathfinder/c_pathfinder_rocket
+                - ref: Package: Shared Mod Textures: Texture: Rocket
+
+        - Liberty Launcher Model
+            - Model: Launcher: build: models/weapons/c_models/c_liberty_launcher/c_liberty_launcher
+                - ref: Package: Shared Mod Materials: Material: Launcher Red
+                - ref: Package: Shared Mod Materials: Material: Launcher Blue
+            - Material: Backpack Icon Large: build: backpack/weapons/c_models/c_liberty_launcher/c_liberty_launcher_large
+                - ref: Package: Shared Mod Textures: Material: Backpack Icon Large
+            - Material: Backpack Icon Small: build: backpack/weapons/c_models/c_liberty_launcher/c_liberty_launcher
+                - ref: Package: Shared Mod Textures: Material: Backpack Icon Small
+
+        - Airstrike Model
+            - Model: Launcher: build: models/workshop/weapons/c_models/c_atom_launcher/c_atom_launcher
+                - ref: Package: Shared Mod Materials: Material: Launcher Red
+                - ref: Package: Shared Mod Materials: Material: Launcher Blue
+            - Model: Rocket: build: models/weapons/w_models/w_rocket_airstrike/w_rocket_airstrike
+                - ref: Package: Shared Mod Materials: Material: Rocket
+            - Material: Backpack Icon Large: build: backpack/workshop/weapons/c_models/c_atom_launcher/c_atom_launcher_large
+                - ref: Package: Shared Mod Textures: Material: Backpack Icon Large
+            - Material: Backpack Icon Small: build: backpack/workshop/weapons/c_models/c_atom_launcher/c_atom_launcher
+                - ref: Package: Shared Mod Textures: Material: Backpack Icon Small
+
+    - Releases
+        - Pathfinder TF2 Mod
+            - Package: Shared Mod Textures: build: TF2MOD__Pathfinder_Textures.vpk
+            - Package: Shared Mod Materials: build: TF2MOD__Pathfinder_Materials.vpk
+            - Package: Liberty Launcher Model: build: TF2MOD__Pathfinder_Model_as_Liberty_Launcher.vpk
+            - Package: Airstrike Model: build: TF2MOD__Pathfinder_Model_as_Airstrike.vpk
+            - Description File
+                - Blah blah blah
+                - Generated uninstall instructions etc.
+

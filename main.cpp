@@ -1,20 +1,13 @@
-//#include "saklib/qtlib/project_main_window.h"
 #include <QApplication>
 #include <iostream>
-//#include "saklib/project_manager.h"
-//#include "saklib/internal_element_definitions.h"
-//#include "saklib/attribute/attribute.h"
-//#include "saklib/attribute/attribute_test.h"
-//#include "saklib/element/element_test.h"
-//#include "saklib/named_properties/property_test.h"
-
-#include "saklib/internal/test.h"
-#include "saklib/internal/attribute_data_int__test.h"
-#include "saklib/internal/attribute_data_bool__test.h"
-#include "saklib/internal/attribute_data__test.h"
-#include "saklib/internal/element_data__test.h"
-#include "saklib/internal/element_data_manager__test.h"
-#include "saklib/internal/undoable_element_data_manager__test.h"
+#include <QMenu>
+#include <QAction>
+#include <QPointer>
+#include <QMenuBar>
+#include <QWidget>
+#include <QHBoxLayout>
+#include <memory>
+#include "sak/project_window.h"
 
 void myMessageOutput(QtMsgType type, QMessageLogContext const& context, QString const& msg)
 {
@@ -44,42 +37,93 @@ void myMessageOutput(QtMsgType type, QMessageLogContext const& context, QString 
 }
 
 int main(int argc, char *argv[])
-{
-    saklib::internal::test_handle();
-    saklib::internal::test_handle_factory();
+{    
+    QApplication l_application(argc, argv);
+    sak::Project_Window l_window{};
+    l_window.show();
 
-    //saklib::internal::test_constraint_boolean_type();
-    //saklib::internal::test_constrained_boolean_type();
+    {
+        QPointer<QAction> l_action{new QAction("blah")};
+        QPointer<QMenu> l_menu{new QMenu};
+        {
+            std::unique_ptr<QMenu> l_menu2{new QMenu};
+            l_menu2->addAction(l_action);
+            l_menu2->addMenu(l_menu);
+        }
+        if (!l_action.isNull())
+        {
+            delete l_action.data();
+        }
+        else
+        {
+            std::cout << "QAction destroyed by QMenu." << std::endl;
+        }
 
-    //saklib::internal::test_constraint_integral_type();
+        if (!l_menu.isNull())
+        {
+            delete l_menu.data();
+        }
+        else
+        {
+            std::cout << "QMenu destroyed by QMenu." << std::endl;
+        }
+    }
 
-    //saklib::internal::test_attribute();
+    {
+        QPointer<QAction> l_action{new QAction("blah")};
+        QPointer<QMenu> l_menu{new QMenu};
+        {
+            std::unique_ptr<QMenuBar> l_menubar{new QMenuBar};
+            l_menubar->addMenu(l_menu);
+            l_menubar->addAction(l_action);
+        }
+        if (!l_action.isNull())
+        {
+            delete l_action.data();
+        }
+        else
+        {
+            std::cout << "QAction destroyed by QMenuBar." << std::endl;
+        }
 
-    //saklib::internal::test_element();
+        if (!l_menu.isNull())
+        {
+            delete l_menu.data();
+        }
+        else
+        {
+            std::cout << "QMenu destroyed by QMenuBar." << std::endl;
+        }
+    }
 
-    saklib::internal::test_element_manager();
-    saklib::internal::test_undoable_element_data_manager();
+    {
+        QPointer<QWidget> l_child{new QWidget};
+        QPointer<QHBoxLayout> l_layout{new QHBoxLayout};
+        {
+            std::unique_ptr<QWidget> l_parent{new QWidget};
+            //QPointer<QWidget> l_parent{new QWidget};
+            l_layout->addWidget(l_child);
+            l_parent->setLayout(l_layout);
+        }
+        if (!l_child.isNull())
+        {
+            delete l_child.data();
+        }
+        else
+        {
+            std::cout << "QWidget Child previously destroyed by QWidget." << std::endl;
+        }
 
-    //saklib::attribute_test();
-    //saklib::element_test();
-    //saklib::property_test();
-    //datalib::test();
-    //datalib::test2();
-    //datalib::test3();
-    /*
-    //qInstallMessageHandler(myMessageOutput);
-    saklib::Project_Manager project_manager{};
-    project_manager.register_element_definition( saklib::internal_definition_of_Project());
-    project_manager.register_element_definition( saklib::internal_definition_of_File());
-    project_manager.register_element_definition( saklib::internal_definition_of_SingleInt());
-    project_manager.register_element_definition( saklib::internal_definition_of_Build());
-    */
-
-    //QApplication a(argc, argv);
-    //saklib::Qtlib::Project_Main_Window window(project_manager);
-    //window.show();
-
-    //return a.exec();
+        if (!l_layout.isNull())
+        {
+            delete l_layout.data();
+        }
+        else
+        {
+            std::cout << "QHBoxLayout previously destroyed by QWidget." << std::endl;
+        }
+    }
+    return l_application.exec();
 
     return 0;
 }

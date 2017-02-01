@@ -76,128 +76,20 @@ DEPENDPATH += $${BOOST_LIBRARY_DIR}
 #==============================
 
 
-SOURCES += main.cpp\
-    saklib/internal/test.cpp \
-    saklib/internal/null_handle.cpp \
-    saklib/internal/type_string.cpp \
-    saklib/internal/exceptions/bad_attribute_data_type.cpp \
-    saklib/internal/attribute_data.cpp \
-    saklib/internal/exceptions/bad_element_data_type.cpp \
-    saklib/internal/attribute_data__test.cpp \
-    saklib/internal/element_data.cpp \
-    saklib/internal/element_data__test.cpp \
-    saklib/internal/element_data_manager__test.cpp \
-    saklib/internal/element_data_manager.cpp \
-    saklib/element.cpp \
-    saklib/internal/exceptions/bad_data_handle.cpp \
-    saklib/internal/element_data_definition_manager.cpp \
-    saklib/internal/command_history.cpp \
-    saklib/internal/command.cpp \
-    saklib/internal/attribute_data_handle.cpp \
-    saklib/internal/element_data_handle.cpp \
-    saklib/internal/attribute_data_handle_bool.cpp \
-    saklib/internal/attribute_data_handle_int.cpp \
-    saklib/internal/command_attribute_data_boolean_type.cpp \
-    saklib/internal/attribute_data_bool.cpp \
-    saklib/internal/attribute_data_bool__test.cpp \
-    saklib/internal/attribute_data_float.cpp \
-    saklib/internal/attribute_data_int.cpp \
-    saklib/internal/attribute_data_int__test.cpp \
-    saklib/internal/null_on_move.cpp \
-    saklib/internal/undoable_attribute_data_handle.cpp \
-    saklib/internal/undoable_attribute_data_handle_bool.cpp \
-    saklib/internal/undoable_attribute_data_handle_int.cpp \
-    saklib/internal/undoable_element_data_handle.cpp \
-    saklib/internal/undoable_element_data_manager.cpp \
-    saklib/internal/undoable_element_data_manager__test.cpp
+SOURCES += \
+	main.cpp \
+    sak/project_window.cpp
+    
 
 HEADERS  += \
-    saklib/zzz_refactoring.h \
-    saklib/internal/handle.h \
-    saklib/internal/null_handle.h \
-    saklib/internal/handle_factory.h \
-    saklib/internal/test.h \
-    saklib/internal/handle__inline.h \
-    saklib/internal/handle__fwd.h \
-    saklib/internal/null_handle__fwd.h \
-    saklib/internal/handle_factory__inline.h \
-    saklib/internal/null_handle__inline.h \
-    saklib/internal/handle_factory__fwd.h \
-    saklib/internal/type_string.h \
-    saklib/internal/type_string__fwd.h \
-    saklib/internal/reference_counter.h \
-    saklib/internal/exceptions/bad_attribute_data_type.h \
-    saklib/internal/attribute_data.h \
-    saklib/internal/attribute_data__fwd.h \
-    saklib/internal/attribute_data__test.h \
-    saklib/internal/element_data.h \
-    saklib/internal/element_data__fwd.h \
-    saklib/internal/element_data__test.h \
-    saklib/internal/element_data_manager.h \
-    saklib/internal/element_data_manager__fwd.h \
-    saklib/internal/element_data_manager__test.h \
-    saklib/internal/exceptions/bad_element_data_type.h \
-    saklib/internal/reference_counter__fwd.h \
-    saklib/internal/reference_counter__inline.h \
-    saklib/element.h \
-    saklib/element__fwd.h \
-    saklib/internal/storage_traits.h \
-    saklib/internal/storage_traits__fwd.h \
-    saklib/internal/storage_traits__inline.h \
-    saklib/internal/exceptions/bad_data_handle.h \
-    saklib/internal/element_data_definition_manager.h \
-    saklib/internal/element_data_definition_manager__fwd.h \
-    saklib/internal/reference_counted_storage__inline.h \
-    saklib/internal/reference_counted_storage.h \
-    saklib/internal/reference_counted_storage__fwd.h \
-    saklib/internal/command.h \
-    saklib/internal/command_history.h \
-    saklib/internal/command__fwd.h \
-    saklib/internal/command_history__fwd.h \
-    saklib/internal/attribute_data_handle.h \
-    saklib/internal/attribute_data_handle__fwd.h \
-    saklib/internal/element_data_handle.h \
-    saklib/internal/all_attribute_data_.h \
-    saklib/internal/all_attribute_data__fwd.h \
-    saklib/internal/attribute_data_handle_bool.h \
-    saklib/internal/attribute_data_handle_bool__fwd.h \
-    saklib/internal/attribute_data_handle_int.h \
-    saklib/internal/attribute_data_handle_int__fwd.h \
-    saklib/internal/all_attribute_data_handle__fwd.h \
-    saklib/internal/all_attribute_data_handle.h \
-    saklib/internal/element_data_handle__fwd.h \
-    saklib/internal/command_attribute_data_boolean_type.h \
-    saklib/internal/attribute_data_bool.h \
-    saklib/internal/attribute_data_bool__fwd.h \
-    saklib/internal/attribute_data_bool__test.h \
-    saklib/internal/attribute_data_float.h \
-    saklib/internal/attribute_data_float__fwd.h \
-    saklib/internal/attribute_data_int.h \
-    saklib/internal/attribute_data_int__fwd.h \
-    saklib/internal/attribute_data_int__test.h \
-    saklib/internal/element_data_handle__inline.h \
-    saklib/internal/attribute_data_handle_bool__inline.h \
-    saklib/internal/attribute_data_handle_int__inline.h \
-    saklib/internal/attribute_data_handle_shared_data.h \
-    saklib/internal/attribute_data_handle__inline.h \
-    saklib/internal/null_on_move.h \
-    saklib/internal/undoable_attribute_data_handle.h \
-    saklib/internal/undoable_attribute_data_handle__fwd.h \
-    saklib/internal/undoable_attribute_data_handle_bool.h \
-    saklib/internal/undoable_attribute_data_handle_bool__fwd.h \
-    saklib/internal/undoable_attribute_data_handle_int.h \
-    saklib/internal/undoable_attribute_data_handle_int__fwd.h \
-    saklib/internal/undoable_element_data_handle.h \
-    saklib/internal/undoable_element_data_handle__fwd.h \
-    saklib/internal/undoable_element_data_manager.h \
-    saklib/internal/undoable_element_data_manager__fwd.h \
-    saklib/internal/undoable_element_data_manager__test.h
+    sak/texture.h \
+    sak/project_window.h
+    
 
 FORMS
 
-OTHER_FILES += \
-    dev_notes.txt
+OTHER_FILES +=
 
 DISTFILES += \
-    readme.txt \
-    README.md
+    README.md \
+    project_layout.txt
