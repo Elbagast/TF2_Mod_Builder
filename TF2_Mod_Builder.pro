@@ -78,12 +78,15 @@ DEPENDPATH += $${BOOST_LIBRARY_DIR}
 
 SOURCES += \
 	main.cpp \
-    sak/project_window.cpp
+    sak/project_window.cpp \
+    sak/project_widget.cpp \
+    sak/dialog/new_project_dialog.cpp
     
 
 HEADERS  += \
-    sak/texture.h \
-    sak/project_window.h
+    sak/project_window.h \
+    sak/project_widget.h \
+    sak/dialog/new_project_dialog.h
     
 
 FORMS
@@ -93,3 +96,6 @@ OTHER_FILES +=
 DISTFILES += \
     README.md \
     project_layout.txt
+
+FORMS += \
+    sak/dialog/new_project_dialog.ui

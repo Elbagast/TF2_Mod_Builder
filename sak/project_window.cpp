@@ -8,9 +8,63 @@
 #include <QVBoxLayout>
 #include <QStackedWidget>
 
+#include "dialog/new_project_dialog.h"
+
 namespace
 {
-    QString const c_application_title{"TF2 Mod Builder"};
+    QString const c_title_application{"TF2 Mod Builder"};
+
+    QString const c_title_file{"File"};
+    QString const c_title_file_new_project{"New Project"};
+    QString const c_title_file_open_project{"Open Project"};
+    QString const c_title_file_save_project{"Save Project"};
+    QString const c_title_file_close_project{"Close Project"};
+    QString const c_title_file_exit{"Exit"};
+
+    QString const c_title_edit{"Edit"};
+    QString const c_title_edit_undo{"Undo"};
+    QString const c_title_edit_redo{"Redo"};
+    QString const c_title_edit_view_history{"View History"};
+    QString const c_title_edit_clear_history{"Clear History"};
+
+    QString const c_title_component{"Component"};
+    QString const c_title_component_create{"Create..."};
+    QString const c_title_component_create_file{"File"};
+    QString const c_title_component_create_texture{"Texture"};
+    QString const c_title_component_create_material{"Material"};
+    QString const c_title_component_create_model{"Model"};
+    QString const c_title_component_create_package{"Package"};
+    QString const c_title_component_create_release{"Release"};
+
+    QString const c_title_build{"Build"};
+    QString const c_title_build_build_project{"Build Project"};
+    QString const c_title_build_rebuild_project{"Rebuild Project"};
+    QString const c_title_build_clean_project{"Clean Project"};
+    QString const c_title_build_build_component{"Build..."};
+    QString const c_title_build_rebuild_component{"Rebuild..."};
+    QString const c_title_build_clean_component{"Clean..."};
+
+    QString const c_title_build_build_component_front{"Build "};
+    QString const c_title_build_rebuild_component_front{"Rebuild "};
+    QString const c_title_build_clean_component_front{"Clean "};
+
+    QString const c_title_install{"Install"};
+    QString const c_title_install_install_status{"Install Status"};
+    QString const c_title_install_install_component{"Install..."};
+    QString const c_title_install_uninstall_component{"Uninstall..."};
+    QString const c_title_install_uninstall_all{"Uninstall all"};
+
+    QString const c_title_install_install_component_front{"Install "};
+    QString const c_title_install_uninstall_component_front{"Uninstall "};
+
+    QString const c_title_settings{"Settings"};
+    QString const c_title_settings_settings{"Settings"};
+    QString const c_title_settings_tf2_settings{"TF2 Settings"};
+    QString const c_title_settings_sfm_settings{"SFM Settings"};
+
+    QString const c_title_help{"Help"};
+    QString const c_title_help_help{"Help"};
+    QString const c_title_help_about{"About"};
 }
 
 
@@ -31,6 +85,29 @@ public:
     ~Background_Widget() override = default;
 };
 
+//---------------------------------------------------------------------------
+// Project_Widget
+//---------------------------------------------------------------------------
+// Temporary class to build functionality.
+class sak::Project_Widget :
+        public QWidget
+{
+public:
+    explicit Project_Widget(QWidget* a_parent = nullptr):
+        QWidget(a_parent)
+    {
+        //barebones as all hell for now.
+
+        auto l_layout = std::make_unique<QVBoxLayout>();
+        auto l_content = std::make_unique<QLabel>("new project",nullptr);
+
+        l_layout->addWidget(l_content.release());
+        this->setLayout(l_layout.release());
+
+    }
+    ~Project_Widget() override = default;
+};
+
 
 //---------------------------------------------------------------------------
 // Project_Window
@@ -41,51 +118,52 @@ sak::Project_Window::Project_Window(QWidget* a_parent):
     QMainWindow(a_parent),
     m_central_stack{std::make_unique<QStackedWidget>()},
     m_background_widget{std::make_unique<Background_Widget>()},
+    m_project_widget{},
 
-    m_file{std::make_unique<QMenu>("File")},
-    m_file_new_project{std::make_unique<QAction>("New Project")},
-    m_file_open_project{std::make_unique<QAction>("Open Project")},
-    m_file_save_project{std::make_unique<QAction>("Save Project")},
-    m_file_close_project{std::make_unique<QAction>("Close Project")},
-    m_file_exit{std::make_unique<QAction>("Exit")},
+    m_file{std::make_unique<QMenu>(c_title_file)},
+    m_file_new_project{std::make_unique<QAction>(c_title_file_new_project)},
+    m_file_open_project{std::make_unique<QAction>(c_title_file_open_project)},
+    m_file_save_project{std::make_unique<QAction>(c_title_file_save_project)},
+    m_file_close_project{std::make_unique<QAction>(c_title_file_close_project)},
+    m_file_exit{std::make_unique<QAction>(c_title_file_exit)},
 
-    m_edit{std::make_unique<QMenu>("Edit")},
-    m_edit_undo{std::make_unique<QAction>("Undo")},
-    m_edit_redo{std::make_unique<QAction>("Redo")},
-    m_edit_view_history{std::make_unique<QAction>("View History")},
-    m_edit_clear_history{std::make_unique<QAction>("Clear History")},
+    m_edit{std::make_unique<QMenu>(c_title_edit)},
+    m_edit_undo{std::make_unique<QAction>(c_title_edit_undo)},
+    m_edit_redo{std::make_unique<QAction>(c_title_edit_redo)},
+    m_edit_view_history{std::make_unique<QAction>(c_title_edit_view_history)},
+    m_edit_clear_history{std::make_unique<QAction>(c_title_edit_clear_history)},
 
-    m_component{std::make_unique<QMenu>("Component")},
-    m_component_create{std::make_unique<QMenu>("Create...")},
-    m_component_create_file{std::make_unique<QAction>("File")},
-    m_component_create_texture{std::make_unique<QAction>("Texture")},
-    m_component_create_material{std::make_unique<QAction>("Material")},
-    m_component_create_model{std::make_unique<QAction>("Model")},
-    m_component_create_package{std::make_unique<QAction>("Package")},
-    m_component_create_release{std::make_unique<QAction>("Release")},
+    m_component{std::make_unique<QMenu>(c_title_component)},
+    m_component_create{std::make_unique<QMenu>(c_title_component_create)},
+    m_component_create_file{std::make_unique<QAction>(c_title_component_create_file)},
+    m_component_create_texture{std::make_unique<QAction>(c_title_component_create_texture)},
+    m_component_create_material{std::make_unique<QAction>(c_title_component_create_material)},
+    m_component_create_model{std::make_unique<QAction>(c_title_component_create_model)},
+    m_component_create_package{std::make_unique<QAction>(c_title_component_create_package)},
+    m_component_create_release{std::make_unique<QAction>(c_title_component_create_release)},
 
-    m_build{std::make_unique<QMenu>("Build")},
-    m_build_build_project{std::make_unique<QAction>("Build Project")},
-    m_build_rebuild_project{std::make_unique<QAction>("Rebuild Project")},
-    m_build_clean_project{std::make_unique<QAction>("Clean Project")},
-    m_build_build_component{std::make_unique<QAction>("Build Component")},
-    m_build_rebuild_component{std::make_unique<QAction>("Rebuild Component")},
-    m_build_clean_component{std::make_unique<QAction>("Clean Component")},
+    m_build{std::make_unique<QMenu>(c_title_build)},
+    m_build_build_project{std::make_unique<QAction>(c_title_build_build_project)},
+    m_build_rebuild_project{std::make_unique<QAction>(c_title_build_rebuild_project)},
+    m_build_clean_project{std::make_unique<QAction>(c_title_build_clean_project)},
+    m_build_build_component{std::make_unique<QAction>(c_title_build_build_component)},
+    m_build_rebuild_component{std::make_unique<QAction>(c_title_build_rebuild_component)},
+    m_build_clean_component{std::make_unique<QAction>(c_title_build_clean_component)},
 
-    m_install{std::make_unique<QMenu>("Install")},
-    m_install_install_status{std::make_unique<QAction>("Install Status")},
-    m_install_install_component{std::make_unique<QAction>("Install Component")},
-    m_install_uninstall_component{std::make_unique<QAction>("Uninstall Component")},
-    m_install_uninstall_all{std::make_unique<QAction>("Uninstall all")},
+    m_install{std::make_unique<QMenu>(c_title_install)},
+    m_install_install_status{std::make_unique<QAction>(c_title_install_install_status)},
+    m_install_install_component{std::make_unique<QAction>(c_title_install_install_component)},
+    m_install_uninstall_component{std::make_unique<QAction>(c_title_install_uninstall_component)},
+    m_install_uninstall_all{std::make_unique<QAction>(c_title_install_uninstall_all)},
 
-    m_settings{std::make_unique<QMenu>("Settings")},
-    m_settings_settings{std::make_unique<QAction>("Settings")},
-    m_settings_tf2_settings{std::make_unique<QAction>("TF2 Settings")},
-    m_settings_sfm_settings{std::make_unique<QAction>("SFM Settings")},
+    m_settings{std::make_unique<QMenu>(c_title_settings)},
+    m_settings_settings{std::make_unique<QAction>(c_title_settings_settings)},
+    m_settings_tf2_settings{std::make_unique<QAction>(c_title_settings_tf2_settings)},
+    m_settings_sfm_settings{std::make_unique<QAction>(c_title_settings_sfm_settings)},
 
-    m_help{std::make_unique<QMenu>("Help")},
-    m_help_help{std::make_unique<QAction>("Help")},
-    m_help_about{std::make_unique<QAction>("about")}
+    m_help{std::make_unique<QMenu>(c_title_help)},
+    m_help_help{std::make_unique<QAction>(c_title_help_help)},
+    m_help_about{std::make_unique<QAction>(c_title_help_about)}
 {
     // Add the background widget to the stack.
     m_central_stack->addWidget(m_background_widget.get());
@@ -94,7 +172,7 @@ sak::Project_Window::Project_Window(QWidget* a_parent):
     this->setCentralWidget(m_central_stack.get());
 
     // Window Title
-    this->setWindowTitle(c_application_title);
+    this->setWindowTitle(c_title_application);
 
     // Menu Bar -> File
     //============================================================
@@ -238,6 +316,7 @@ sak::Project_Window::~Project_Window()
 {
     // If this is owned by the stack it will be double-deleted.
     m_background_widget->setParent(nullptr);
+    if(m_project_widget) m_project_widget->setParent(nullptr);
 }
 
 // Menu Bar -> File
@@ -254,14 +333,20 @@ void sak::Project_Window::new_project()
         return;
     }
 
-    auto l_new = std::make_unique<QWidget>();
-    auto l_layout = std::make_unique<QVBoxLayout>(); //Central widget MUST HAVE A LAYOUT
-    auto l_content = std::make_unique<QLabel>("new project",nullptr);
+    // get initalisation parameters from the user...
+    New_Project_Dialog l_dialog{};
+    auto l_result = l_dialog.exec();
 
-    l_layout->addWidget(l_content.release());
-    l_new->setLayout(l_layout.release());
+    if (l_result == QDialog::Rejected)
+    {
+        return;
+    }
 
-    m_central_stack->addWidget(l_new.release());
+
+    // Make the widget - could be a factory function instead?
+    m_project_widget = std::make_unique<Project_Widget>();
+
+    m_central_stack->addWidget(m_project_widget.get());
     m_central_stack->setCurrentIndex(1);
 
     notify_project_changes();
@@ -280,7 +365,8 @@ void sak::Project_Window::save_project()
 
 // Ask to save then close the Project if that is not cancelled.
 void sak::Project_Window::close_project()
-{// if there's a project ask to save it and stop if the user cancels out
+{
+    // if there's a project ask to save it and stop if the user cancels out
     if (is_project_open()
         //&& has_unsaved_edits()
         && !ask_to_save() )
@@ -288,12 +374,11 @@ void sak::Project_Window::close_project()
         return;
     }
 
-    // capture the removed widget
-    std::unique_ptr<QWidget> l_removed{m_central_stack->widget(1)};
-    m_central_stack->removeWidget(l_removed.get());
-    // De-parent it so that it will be destroyed when this function ends.
-    l_removed->setParent(nullptr);
-
+    // Unhook the project widget.
+    m_central_stack->removeWidget(m_project_widget.get());
+    // Now destory it.
+    m_project_widget.reset();
+    // Set the stack to point to the first widget again.
     m_central_stack->setCurrentIndex(0);
     notify_project_changes();
 }
@@ -470,21 +555,61 @@ void sak::Project_Window::about()
 
 
 
-// Auxilliary
+// Internal Interface
 //============================================================
-// Is a Project currently open?
+// State query helpers for determining whether actions are
+// currently active, and what they do.
+
+// Is a project currently open?
 bool sak::Project_Window::is_project_open() const
 {
-    // Whether or not the stack contains any widgets.
+    // Whether or not the stack contains a second widget (the Project_Widget).
     return m_central_stack->count() == 2;
 }
+
+// Can we currently call undo?
+bool sak::Project_Window::can_undo() const
+{
+    return false;
+}
+
+// Can we currently call redo?
+bool sak::Project_Window::can_redo() const
+{
+    return false;
+}
+
+// Get the name of the currently selected component. Empty if none is selected.
+QString sak::Project_Window::selected_component_name() const
+{
+    return QString();
+}
+
+// Is a component selected? If no project is open, this is always false.
+bool sak::Project_Window::is_component_selected() const
+{
+    return false;
+}
+
+// Is the selected component buildable? If no component is open, this is always false.
+bool sak::Project_Window::is_component_buildable() const
+{
+    return false;
+}
+
+// Is the selected component installable? If no component is open, this is always false.
+bool sak::Project_Window::is_component_installable() const
+{
+    return false;
+}
+
 
 // Spawn a message box asking if the user wants to save the current project,
 // act on it and return true if the action was never cancelled.
 bool sak::Project_Window::ask_to_save()
 {
     int msgBoxRet = QMessageBox::question(this,
-                                              c_application_title,
+                                              c_title_application,
                                               tr("The project has been modified.\n"
                                                  "Do you want to save your changes?"),
                                               QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel,
@@ -510,66 +635,82 @@ bool sak::Project_Window::ask_to_save()
     }
 }
 
-// Internal Interface
+// Notifications
 //============================================================
+// Tell parts of the window that these states have changed so they should update.
+
 // Change anything that needs to change if a Project is opended or closed.
 void sak::Project_Window::notify_project_changes()
 {
-    if(is_project_open())
-    {
-        m_file_new_project.get()->setEnabled(true);
-        m_file_open_project.get()->setEnabled(true);
-        m_file_save_project.get()->setEnabled(true);
-        m_file_close_project.get()->setEnabled(true);
-        m_file_exit.get()->setEnabled(true);
+    bool l_project_open_state{is_project_open()};
 
-        m_component.get()->setEnabled(true);
+    m_file_save_project.get()->setEnabled(l_project_open_state);
+    m_file_close_project.get()->setEnabled(l_project_open_state);
 
-        m_build.get()->setEnabled(true);
+    m_edit.get()->setEnabled(l_project_open_state);
 
-        m_install.get()->setEnabled(true);
-    }
-    else
-    {
-        m_file_new_project.get()->setEnabled(true);
-        m_file_open_project.get()->setEnabled(true);
-        m_file_save_project.get()->setEnabled(false);
-        m_file_close_project.get()->setEnabled(false);
-        m_file_exit.get()->setEnabled(true);
+    m_component.get()->setEnabled(l_project_open_state);
 
-        m_component.get()->setEnabled(false);
+    m_build.get()->setEnabled(l_project_open_state);
 
-        m_build.get()->setEnabled(false);
+    m_install.get()->setEnabled(l_project_open_state);
 
-        m_install.get()->setEnabled(false);
-    }
     // Since undo changes are dependent on the Project, check that too.
     notify_undo_changes();
     // And anything that depends on a component being selected.
     notify_component_changes();
+
 }
 
 // Change anything that needs to change if undo changes are made.
 void sak::Project_Window::notify_undo_changes()
 {
-    if(is_project_open())
-    {
-        m_edit.get()->setEnabled(true);
+    // assuming the project status is already correct (this controls
+    // the menu that these actions are in so they may already be inaccessable)
+    // set the action statuses to what is needed.
 
-        // Enable or disable undo/redo depending on whether there are
-        // commands to undo.
-    }
-    else
-    {
-        m_edit.get()->setEnabled(false);
-    }
+    m_edit_undo.get()->setEnabled(can_undo());
+    m_edit_redo.get()->setEnabled(can_redo());
 }
 
 
 // Change anything that needs to change if the selected componenent changes.
 void sak::Project_Window::notify_component_changes()
 {
-    // need to ask stuff about the selected component
+    QString l_component_name{selected_component_name()};
+
+    // Buildable?
+    bool l_is_component_buildable{is_component_buildable()};
+    m_build_build_component->setEnabled(l_is_component_buildable);
+    m_build_rebuild_component->setEnabled(l_is_component_buildable);
+    m_build_clean_component->setEnabled(l_is_component_buildable);
+    if (l_is_component_buildable)
+    {
+        m_build_build_component->setText(c_title_build_build_component_front + l_component_name);
+        m_build_rebuild_component->setText(c_title_build_rebuild_component_front + l_component_name);
+        m_build_clean_component->setText(c_title_build_clean_component_front + l_component_name);
+    }
+    else
+    {
+        m_build_build_component->setText(c_title_build_build_component);
+        m_build_rebuild_component->setText(c_title_build_rebuild_component);
+        m_build_clean_component->setText(c_title_build_clean_component);
+    }
+
+    // Installable?
+    bool l_is_component_installable{is_component_buildable()};
+    m_install_install_component->setEnabled(l_is_component_installable);
+    m_install_uninstall_component->setEnabled(l_is_component_installable);
+    if (l_is_component_installable)
+    {
+        m_install_install_component->setText(c_title_install_install_component_front + l_component_name);
+        m_install_uninstall_component->setText(c_title_install_uninstall_component_front + l_component_name);
+    }
+    else
+    {
+        m_install_install_component->setText(c_title_install_install_component);
+        m_install_uninstall_component->setText(c_title_install_uninstall_component);
+    }
 }
 
 

@@ -11,10 +11,66 @@ class QStackedWidget;
 
 namespace sak
 {
+    class Project_Widget;
+
     //---------------------------------------------------------------------------
     // Project_Window
     //---------------------------------------------------------------------------
     // Main Window class for an open Project.
+    /*
+     State Tracked:
+     - project open?
+          - yes:
+            - enaable actions
+                - file::save
+                - file::close
+            - enaable menus
+                - edit
+                - Component
+                - build
+                - install
+            - component selected?
+                - yes
+                    - enaable actions, displaying component name
+                        - build::build component
+                        - build::rebuild component
+                        - build::clean component
+                        - install::install component
+                        - install::uninstall component
+                - no
+                    - disable actions, displaying no component name
+                        - build::build component
+                        - build::rebuild component
+                        - build::clean component
+                        - install::install component
+                        - install::uninstall component
+            - undo properties?
+                - can undo?
+                    - yes
+                        - enable action edit::undo
+                    - no
+                        - disable action edit::undo
+                - can redo?
+                    - yes
+                        - enable action edit::redo
+                    - no
+                        - disable action edit::redo
+                - history
+            - unsaved data?
+                - yes
+                    - prompt to save on close or exit
+                    - display marker
+                - no
+        - no:
+            - disable actions
+                - file::save
+                - file::close
+            - disable menus
+                - edit
+                - create
+                - build
+                - install
+    */
     class Project_Window :
             public QMainWindow
     {
@@ -26,6 +82,11 @@ namespace sak
         explicit Project_Window(QWidget* a_parent = nullptr);
         ~Project_Window() override;
 
+    private:
+        // Menu Action Slots
+        //============================================================
+        // The menu actions are connected to these corresponding slots.
+        // These are the things the user can do though the main window.
 
         // Menu Bar -> File
         //============================================================
@@ -136,19 +197,44 @@ namespace sak
         void about();
 
 
-        // Auxilliary
+        // Internal Interface
         //============================================================
-        // Is a Project currently open?
+        // State query helpers for determining whether actions are
+        // currently active, and what they do.
+
+        // Get the name of the current project. Empty if not open.
+        QString project_name() const;
+
+        // Is a project currently open?
         bool is_project_open() const;
+
+        // Can we currently call undo?
+        bool can_undo() const;
+
+        // Can we currently call redo?
+        bool can_redo() const;
+
+        // Get the name of the currently selected component. Empty if none is selected.
+        QString selected_component_name() const;
+
+        // Is a component selected? If no project is open, this is always false.
+        bool is_component_selected() const;
+
+        // Is the selected component buildable? If no component is open, this is always false.
+        bool is_component_buildable() const;
+
+        // Is the selected component installable? If no component is open, this is always false.
+        bool is_component_installable() const;
 
         // Spawn a message box asking if the user wants to save the current project,
         // act on it and return true if the action was never cancelled.
         bool ask_to_save();
 
-    private:
 
-        // Internal Interface
+        // Notifications
         //============================================================
+        // Tell parts of the window that these states have changed so they should update.
+
         // Change anything that needs to change if a Project is opended or closed.
         void notify_project_changes();
 
@@ -164,6 +250,10 @@ namespace sak
 
         class Background_Widget;
         std::unique_ptr<Background_Widget> m_background_widget;
+
+        // Going to need some kind of settings object or reference to one. Or singleton?
+
+        std::unique_ptr<Project_Widget> m_project_widget;
 
         std::unique_ptr<QMenu> m_file;
         std::unique_ptr<QAction> m_file_new_project;
