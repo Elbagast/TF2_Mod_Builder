@@ -17,6 +17,7 @@ namespace sak
     // Probably want generalised classes for the entry of names and directories
     class Project_Name_Entry;
     class Project_Location_Entry;
+    //class Validating_Line_Edit;
 
     //---------------------------------------------------------------------------
     // New_Project_Dialog
@@ -43,10 +44,23 @@ namespace sak
     {
         Q_OBJECT
     public:
+        // Special 6
+        //============================================================
         explicit New_Project_Dialog(QWidget* parent = nullptr);
+        New_Project_Dialog(QString const& a_name, QString const& a_location, QWidget* parent = nullptr);
         ~New_Project_Dialog() override;
 
+        // Access the data we make this class to get.
+        QString name() const;
+        QString location() const;
+
     private:
+        // Slot for the browse for location directory button.
+        void browse();
+
+        // Slot for the entry widgets to inform that they're changed state.
+        void update_finish_button();
+
         std::unique_ptr<QVBoxLayout> m_layout;
         std::unique_ptr<QLabel> m_description;
         std::unique_ptr<QFormLayout> m_entry_layout;

@@ -47,7 +47,7 @@ namespace sak
         // Create a Project_Widget in the directory location with the given name.
         // After data creation the file is saved there even though the Project
         // will be empty.
-        Project_Widget(QString const& a_location, QString const& a_name, QWidget* a_parent = nullptr);
+        //Project_Widget(QString const& a_location, QString const& a_name, QWidget* a_parent = nullptr);
 
         // Menu Actions
         //============================================================

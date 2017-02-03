@@ -7,6 +7,7 @@
 #include <QWidget>
 #include <QHBoxLayout>
 #include <memory>
+#include <QDir>
 #include "sak/project_window.h"
 
 void myMessageOutput(QtMsgType type, QMessageLogContext const& context, QString const& msg)
@@ -123,6 +124,15 @@ int main(int argc, char *argv[])
             std::cout << "QHBoxLayout previously destroyed by QWidget." << std::endl;
         }
     }
+
+    {
+        std::string l_dir_in{u8"m*oo"};
+        QDir l_dir{QString::fromUtf8(l_dir_in.c_str())};
+        std::string l_dir_out = l_dir.absolutePath().toStdString();
+        std::cout << l_dir_in << std::endl;
+        std::cout << l_dir_out << std::endl;
+    }
+
     return l_application.exec();
 
     return 0;

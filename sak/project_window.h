@@ -4,6 +4,7 @@
 #include <QMainWindow>
 #include <memory>
 
+// You know this should probably just all be in a pimpl...
 class QCheckBox;
 class QWidget;
 class QVBoxLayout;
@@ -230,6 +231,10 @@ namespace sak
         // act on it and return true if the action was never cancelled.
         bool ask_to_save();
 
+        // Virtuals
+        //============================================================
+        // Needed so that we can ask to save when we use the x button in the corner to close.
+        void closeEvent(QCloseEvent *event) override;
 
         // Notifications
         //============================================================

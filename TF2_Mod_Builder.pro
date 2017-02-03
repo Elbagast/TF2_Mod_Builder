@@ -80,13 +80,22 @@ SOURCES += \
 	main.cpp \
     sak/project_window.cpp \
     sak/project_widget.cpp \
-    sak/dialog/new_project_dialog.cpp
+    sak/dialog/new_project_dialog.cpp \
+    qtlib/validating_line_edit.cpp \
+    qtlib/text_colour_state_changer.cpp \
+    qtlib/directory_name_validator.cpp \
+    qtlib/existing_directory_validator.cpp
     
 
 HEADERS  += \
     sak/project_window.h \
     sak/project_widget.h \
-    sak/dialog/new_project_dialog.h
+    sak/dialog/new_project_dialog.h \
+    qtlib/validating_line_edit.h \
+    qtlib/text_colour_state_changer.h \
+    qtlib/state_changer.h \
+    qtlib/directory_name_validator.h \
+    qtlib/existing_directory_validator.h
     
 
 FORMS

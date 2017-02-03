@@ -30,7 +30,7 @@ sak::Project_Widget::Project_Widget(QString const& a_filepath, QWidget* a_parent
     m_tabs{},
     m_data{std::make_unique<Data>(a_filepath)}
 {}
-
+/*
 sak::Project_Widget::Project_Widget(QString const& a_location, QString const& a_name, QWidget* a_parent):
     QWidget(a_parent),
     m_layout{},
@@ -38,3 +38,4 @@ sak::Project_Widget::Project_Widget(QString const& a_location, QString const& a_
     m_tabs{},
     m_data{std::make_unique<Data>(a_location, a_name)}
 {}
+*/

@@ -7,6 +7,7 @@
 #include <QLabel>
 #include <QVBoxLayout>
 #include <QStackedWidget>
+#include <QCloseEvent>
 
 #include "dialog/new_project_dialog.h"
 
@@ -65,6 +66,10 @@ namespace
     QString const c_title_help{"Help"};
     QString const c_title_help_help{"Help"};
     QString const c_title_help_about{"About"};
+
+
+    QString const c_default_project_name{"untitled"};
+    QString const c_default_project_location{"D:\\Temp"};
 }
 
 
@@ -93,15 +98,17 @@ class sak::Project_Widget :
         public QWidget
 {
 public:
-    explicit Project_Widget(QWidget* a_parent = nullptr):
+    explicit Project_Widget(QString const& a_name, QString const& a_location, QWidget* a_parent = nullptr):
         QWidget(a_parent)
     {
         //barebones as all hell for now.
 
         auto l_layout = std::make_unique<QVBoxLayout>();
-        auto l_content = std::make_unique<QLabel>("new project",nullptr);
+        auto l_name = std::make_unique<QLabel>(a_name,nullptr);
+        auto l_location = std::make_unique<QLabel>(a_location,nullptr);
 
-        l_layout->addWidget(l_content.release());
+        l_layout->addWidget(l_name.release());
+        l_layout->addWidget(l_location.release());
         this->setLayout(l_layout.release());
 
     }
@@ -173,6 +180,9 @@ sak::Project_Window::Project_Window(QWidget* a_parent):
 
     // Window Title
     this->setWindowTitle(c_title_application);
+
+    // Minimum Window Size (720p for now)
+    this->setMinimumSize(1280,720);
 
     // Menu Bar -> File
     //============================================================
@@ -334,7 +344,7 @@ void sak::Project_Window::new_project()
     }
 
     // get initalisation parameters from the user...
-    New_Project_Dialog l_dialog{};
+    New_Project_Dialog l_dialog{c_default_project_name, c_default_project_location};
     auto l_result = l_dialog.exec();
 
     if (l_result == QDialog::Rejected)
@@ -344,7 +354,7 @@ void sak::Project_Window::new_project()
 
 
     // Make the widget - could be a factory function instead?
-    m_project_widget = std::make_unique<Project_Widget>();
+    m_project_widget = std::make_unique<Project_Widget>(l_dialog.name(), l_dialog.location());
 
     m_central_stack->addWidget(m_project_widget.get());
     m_central_stack->setCurrentIndex(1);
@@ -633,6 +643,26 @@ bool sak::Project_Window::ask_to_save()
         // should never be reached
         return false;
     }
+}
+
+// Virtuals
+//============================================================
+// Needed so that we can ask to save when we use the x button in the corner to close.
+void sak::Project_Window::closeEvent(QCloseEvent *event)
+{
+    // if any of these are true then we can saftely exit and will
+    if (is_project_open() // project is open
+        //&& has_unsaved_data() // there is unsaved data
+        && !ask_to_save() // and we cancel the save prompt
+        )
+    {
+        // cancel the close attempt
+        event->ignore();
+
+    }
+
+    // Handle the event as normal
+    QMainWindow::closeEvent(event);
 }
 
 // Notifications
