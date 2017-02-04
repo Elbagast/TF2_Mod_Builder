@@ -26,7 +26,7 @@ namespace
 
     bool has_invalid_char(QString const& a_string)
     {
-        static QString const s_ms_reserved{u8"<>:\"/\\|?*"};
+        static QString const s_ms_reserved{u8"<>:\"/\\|?*[]"};
         for (auto const& l_char : a_string)
         {
             // test for invalids

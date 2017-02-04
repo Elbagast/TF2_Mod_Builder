@@ -3,16 +3,9 @@
 
 #include <memory>
 #include <QWidget>
-class QHBoxLayout;
-class QTabWidget;
-class QTreeView;
-class QString;
-
 
 namespace sak
 {
-    class Project_Window;
-
     //---------------------------------------------------------------------------
     // Project_Widget
     //---------------------------------------------------------------------------
@@ -41,13 +34,13 @@ namespace sak
     public:
         // Special 6
         //============================================================
-        // Create a Project_Widget that will load the data at the given filepath.
-        explicit Project_Widget(QString const& a_filepath, QWidget* a_parent = nullptr);
-
-        // Create a Project_Widget in the directory location with the given name.
+        // Create a Project with the given name in the directory location.
         // After data creation the file is saved there even though the Project
         // will be empty.
-        //Project_Widget(QString const& a_location, QString const& a_name, QWidget* a_parent = nullptr);
+        //Project_Widget(QString const& a_name, QString const& a_location, QWidget* a_parent = nullptr);
+
+        // Create a Project with the given filepath.
+        explicit Project_Widget(QString const& a_filepath, QWidget* a_parent = nullptr);
 
         // Menu Actions
         //============================================================
@@ -129,14 +122,43 @@ namespace sak
         // Uninstalls all the components that are currently installed.
         void uninstall_all();
 
-    private:
-        std::unique_ptr<QHBoxLayout> m_layout;
-        std::unique_ptr<QTreeView> m_outliner;
-        std::unique_ptr<QTabWidget> m_tabs;
+        // Interface
+        //============================================================
+        // State query helpers for determining whether actions are
+        // currently active, and what they do.
 
-        // hiding data implementation for now since it will eventually be the Project class.
+        // Get the name of the project.
+        QString name() const;
+
+        // Get the root directory of the project.
+        QString location() const;
+
+        // Can we currently call undo?
+        bool can_undo() const;
+
+        // Can we currently call redo?
+        bool can_redo() const;
+
+        // Get the name of the currently selected component. Empty if none is selected.
+        QString selected_component_name() const;
+
+        // Is a component selected? If no project is open, this is always false.
+        bool is_component_selected() const;
+
+        // Is the selected component buildable? If no component is open, this is always false.
+        bool is_component_buildable() const;
+
+        // Is the selected component installable? If no component is open, this is always false.
+        bool is_component_installable() const;
+
+    private:
+        // Pimpl Data
+        //============================================================
         class Data;
         std::unique_ptr<Data> m_data;
+
+        Data& data()                { return *m_data; }
+        Data const& cdata() const   { return *m_data; }
     };
 }
 

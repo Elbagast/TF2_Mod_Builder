@@ -4,16 +4,9 @@
 #include <QMainWindow>
 #include <memory>
 
-// You know this should probably just all be in a pimpl...
-class QCheckBox;
-class QWidget;
-class QVBoxLayout;
-class QStackedWidget;
-
 namespace sak
 {
     class Project_Widget;
-
     //---------------------------------------------------------------------------
     // Project_Window
     //---------------------------------------------------------------------------
@@ -231,6 +224,10 @@ namespace sak
         // act on it and return true if the action was never cancelled.
         bool ask_to_save();
 
+        //Project_Widget* project_widget();
+        //Project_Widget const* project_widget() const;
+        //Project_Widget const* cproject_widget() const;
+
         // Virtuals
         //============================================================
         // Needed so that we can ask to save when we use the x button in the corner to close.
@@ -249,61 +246,14 @@ namespace sak
         // Change anything that needs to change if the selected componenent changes.
         void notify_component_changes();
 
-        // Data Members
+        // Pimpl Data
         //============================================================
-        std::unique_ptr<QStackedWidget> m_central_stack;
+        class Data;
+        std::unique_ptr<Data> m_data;
 
-        class Background_Widget;
-        std::unique_ptr<Background_Widget> m_background_widget;
-
-        // Going to need some kind of settings object or reference to one. Or singleton?
-
-        std::unique_ptr<Project_Widget> m_project_widget;
-
-        std::unique_ptr<QMenu> m_file;
-        std::unique_ptr<QAction> m_file_new_project;
-        std::unique_ptr<QAction> m_file_open_project;
-        std::unique_ptr<QAction> m_file_save_project;
-        std::unique_ptr<QAction> m_file_close_project;
-        std::unique_ptr<QAction> m_file_exit;
-
-        std::unique_ptr<QMenu> m_edit;
-        std::unique_ptr<QAction> m_edit_undo;
-        std::unique_ptr<QAction> m_edit_redo;
-        std::unique_ptr<QAction> m_edit_view_history;
-        std::unique_ptr<QAction> m_edit_clear_history;
-
-        std::unique_ptr<QMenu> m_component;
-        std::unique_ptr<QMenu> m_component_create;
-        std::unique_ptr<QAction> m_component_create_file;
-        std::unique_ptr<QAction> m_component_create_texture;
-        std::unique_ptr<QAction> m_component_create_material;
-        std::unique_ptr<QAction> m_component_create_model;
-        std::unique_ptr<QAction> m_component_create_package;
-        std::unique_ptr<QAction> m_component_create_release;
-
-        std::unique_ptr<QMenu> m_build;
-        std::unique_ptr<QAction> m_build_build_project;
-        std::unique_ptr<QAction> m_build_rebuild_project;
-        std::unique_ptr<QAction> m_build_clean_project;
-        std::unique_ptr<QAction> m_build_build_component;
-        std::unique_ptr<QAction> m_build_rebuild_component;
-        std::unique_ptr<QAction> m_build_clean_component;
-
-        std::unique_ptr<QMenu> m_install;
-        std::unique_ptr<QAction> m_install_install_status;
-        std::unique_ptr<QAction> m_install_install_component;
-        std::unique_ptr<QAction> m_install_uninstall_component;
-        std::unique_ptr<QAction> m_install_uninstall_all;
-
-        std::unique_ptr<QMenu> m_settings;
-        std::unique_ptr<QAction> m_settings_settings;
-        std::unique_ptr<QAction> m_settings_tf2_settings;
-        std::unique_ptr<QAction> m_settings_sfm_settings;
-
-        std::unique_ptr<QMenu> m_help;
-        std::unique_ptr<QAction> m_help_help;
-        std::unique_ptr<QAction> m_help_about;
+        Data& data()                { return *m_data; }
+        Data const& data() const    { return *m_data; }
+        Data const& cdata() const   { return *m_data; }
     };
 }
 

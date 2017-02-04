@@ -4,19 +4,11 @@
 #include <memory>
 #include <QDialog>
 
-class QVBoxLayout;
-class QHBoxLayout;
-class QPushButton;
-class QHBoxLayout;
-class QFormLayout;
-class QLabel;
-
-
 namespace sak
 {
     // Probably want generalised classes for the entry of names and directories
-    class Project_Name_Entry;
-    class Project_Location_Entry;
+    //class Project_Name_Entry;
+    //class Project_Location_Entry;
     //class Validating_Line_Edit;
 
     //---------------------------------------------------------------------------
@@ -38,6 +30,8 @@ namespace sak
     - subfolders of this directory will be created and managed by the project as needed.
 
     The finish button will not be activated while the inputs are invalid.
+
+    Going to need to determine whether a project is already present at a given location...
     */
     class New_Project_Dialog :
             public QDialog
@@ -50,27 +44,29 @@ namespace sak
         New_Project_Dialog(QString const& a_name, QString const& a_location, QWidget* parent = nullptr);
         ~New_Project_Dialog() override;
 
+        // Interface
+        //============================================================
         // Access the data we make this class to get.
         QString name() const;
         QString location() const;
 
     private:
+        // Internal Interface
+        //============================================================
         // Slot for the browse for location directory button.
         void browse();
 
         // Slot for the entry widgets to inform that they're changed state.
         void update_finish_button();
 
-        std::unique_ptr<QVBoxLayout> m_layout;
-        std::unique_ptr<QLabel> m_description;
-        std::unique_ptr<QFormLayout> m_entry_layout;
-        std::unique_ptr<Project_Name_Entry> m_name_entry;
-        std::unique_ptr<QHBoxLayout> m_location_layout;
-        std::unique_ptr<Project_Location_Entry> m_location_entry;
-        std::unique_ptr<QPushButton> m_location_browse;
-        std::unique_ptr<QHBoxLayout> m_button_layout;
-        std::unique_ptr<QPushButton> m_finish_button;
-        std::unique_ptr<QPushButton> m_cancel_button;
+        // Pimpl Data
+        //============================================================
+        class Data;
+        std::unique_ptr<Data> m_data;
+
+        Data& data()                { return *m_data; }
+        Data const& data() const    { return *m_data; }
+        Data const& cdata() const   { return *m_data; }
     };
 }
 
