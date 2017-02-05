@@ -59,8 +59,14 @@ namespace qtlib
 
     signals:
         // Whenever QLineEdit::textChanged is emitted, the text is tested for validity.
-        // The result of the test is stored and emitted via this signal.
+        // This results in two signals being emitted:
+
+        // Any time text is changed the state is emitted.
         void state_changed(bool a_new_state);
+
+        // Any time the state actuallly changes - regardless of how many times text
+        // has been changed for this to happen - this is emitted.
+        void state_flipped(bool a_new_state);
 
     private slots:
         // QLineEdit::textChanged is linked to this slot to make the local state changes.

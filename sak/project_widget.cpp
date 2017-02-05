@@ -46,13 +46,16 @@ namespace
     Also:
     - Project_Data will handle all operations on files it manages
     - amy be worth stepping away from qt to do this
+
+    Other:
+    - Decide on exception classes for these operations, what library does them etc.
     */
     class Project_Data
     {
     public:
         // Special 6
         //============================================================
-        // Construct the project using the suplied filename. If the directory
+        // Construct the project using the supplied filename. If the directory
         // does not exist or is inaccessible it will fail. If the file does
         // not exist it will attempt to create it and save the initial data
         // to it. If the file exists it will attempt to load the data from it.
@@ -63,46 +66,49 @@ namespace
             // If the directory does not exist it will fail.
             if(!m_filepath.dir().exists())
             {
+                // Failure exception for directory not existing.
+                m_message = u8"Failure exception for directory not existing.";
+            }
+            if(!m_filepath.dir().isReadable())
+            {
                 // Failure exception for directory access.
+                m_message = u8"Failure exception for directory access.";
             }
 
-
             QFile l_file{(m_filepath.absoluteFilePath())};
-
             if(!l_file.exists())
             {
-                // Create an empty file.
                 if (!l_file.open(QIODevice::WriteOnly | QIODevice::Text))
                 {
-                    m_message = u8"file creation failed";
-                    // Failure exception for file access.
+                    // Failure exception for file writing.
+                    m_message = u8"Failure exception for file writing.";
                 }
                 else
                 {
-                    m_message = u8"created a file";
                     QTextStream l_stream{(&l_file)};
                     l_stream << "empty project: " << a_filepath;
                     l_file.close();
 
                     // should probably just call save at this point?
+                    m_message = u8"Created new project file.";
                 }
 
             }
             else
             {
-                // Load data from the file
                 if (!l_file.open(QIODevice::ReadOnly | QIODevice::Text))
                 {
-                    m_message = u8"file loading failed";
-                    // Failure exception for file access.
+                    // Failure exception for file loading.
+                    m_message = u8"Failure exception for file loading.";
                 }
                 else
                 {
-                    m_message = u8"loaded existing file.";
                     QTextStream l_stream{(&l_file)};
                     m_data = l_stream.readLine();
                     l_file.close();
+                    m_message = u8"Loaded existing project file.";
                 }
+
             }
         }
 

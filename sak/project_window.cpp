@@ -421,14 +421,21 @@ void sak::Project_Window::new_project()
         return;
     }
 
+    // Location project will be built in
     QDir l_dir{l_dialog.location()};
-    if(!l_dir.mkdir(l_dialog.name()))
+
+    // If the root dir for the project does not exist, and we fail to build it, error.
+    if(!l_dir.exists(l_dialog.name()) && !l_dir.mkdir(l_dialog.name()))
     {
         // failed to make the project directory
         QMessageBox::warning(this, "New Project Failed","Could not create the project directory.");
         return;
     }
+
+    // Project root dir now exists, go to it
     l_dir.cd(l_dialog.name());
+
+    // Compose the filepath for the project file
     QString l_filename{l_dialog.name() + Fixed_Settings::project_file_extension()};
     QString l_filepath{l_dir.filePath(l_filename)};
 

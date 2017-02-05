@@ -12,6 +12,8 @@ namespace
     */
     // assuming not emp
 
+    QString const c_ms_reserved{u8"<>:\"/\\|?*[]"};
+
     bool has_char(QString const& a_string, QChar a_char)
     {
         for (auto const& l_char : a_string)
@@ -26,13 +28,12 @@ namespace
 
     bool has_invalid_char(QString const& a_string)
     {
-        static QString const s_ms_reserved{u8"<>:\"/\\|?*[]"};
         for (auto const& l_char : a_string)
         {
             // test for invalids
             if (l_char.isNull() // char is null
                 || !l_char.isPrint() // char is not printable
-                || has_char(s_ms_reserved, l_char) // char is in the reserved list
+                || has_char(c_ms_reserved, l_char) // char is in the reserved list
                 )
             {
                 return true;
@@ -58,6 +59,8 @@ namespace
         }
     }
 
+
+
 }
 
 //---------------------------------------------------------------------------
@@ -82,5 +85,46 @@ QValidator::State qtlib::Directory_Name_Validator::validate(QString& a_input, in
     else
     {
         return QValidator::Invalid;
+    }
+}
+
+// Interface
+//============================================================
+// Produce a string that describes the first error found in string that
+// stops it from being valid. String is empty if no errors.
+QString qtlib::Directory_Name_Validator::first_error(QString& a_string)
+{
+    if (a_string.isEmpty())
+    {
+        return QString(u8"Project name cannot be nothing.");
+    }
+    else if (a_string.at(0).isSpace())
+    {
+        return QString(u8"Project name cannot have any leading spaces.");
+    }
+    else if (a_string == u8".")
+    {
+        return QString(u8"Project name cannot be \".\"");
+    }
+    else if (a_string == u8"..")
+    {
+        return QString(u8"Project name cannot be \".\"");
+    }
+    else
+    {
+        for (auto const& l_char : a_string)
+        {
+            if (l_char.isNull() // char is null
+                || !l_char.isPrint() // char is not printable
+                )
+            {
+                return QString(u8"Project name cannot contain control characters.");
+            }
+            else if (has_char(c_ms_reserved, l_char)) // char is in the reserved list
+            {
+                return QString(u8"Project name cannot contain the character \"").append(l_char).append(u8"\"");
+            }
+        }
+        return QString();
     }
 }

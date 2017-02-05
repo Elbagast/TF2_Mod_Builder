@@ -30,8 +30,6 @@ namespace sak
     - subfolders of this directory will be created and managed by the project as needed.
 
     The finish button will not be activated while the inputs are invalid.
-
-    Going to need to determine whether a project is already present at a given location...
     */
     class New_Project_Dialog :
             public QDialog
@@ -40,8 +38,12 @@ namespace sak
     public:
         // Special 6
         //============================================================
+        // Construct using the Fixed_Settings starting values for name and location.
         explicit New_Project_Dialog(QWidget* parent = nullptr);
+
+        // Construct using the supplied starting values for name and location.
         New_Project_Dialog(QString const& a_name, QString const& a_location, QWidget* parent = nullptr);
+
         ~New_Project_Dialog() override;
 
         // Interface
@@ -57,7 +59,7 @@ namespace sak
         void browse();
 
         // Slot for the entry widgets to inform that they're changed state.
-        void update_finish_button();
+        void update();
 
         // Pimpl Data
         //============================================================

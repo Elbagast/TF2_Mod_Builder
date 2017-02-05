@@ -25,7 +25,7 @@ namespace
 {
     QString const c_title{"New Project"};
     QString const c_text_description{"Create a new project:"};
-    QString const c_text_name{"Name"};
+    QString const c_text_name{"Name:"};
     QString const c_text_location{"Location:"};
     QString const c_text_location_browse{"Browse..."};
     QString const c_text_finish_button{"Finish"};
@@ -47,6 +47,11 @@ namespace
             this->set_state_changer(&m_sc);
         }
         ~Project_Name_Entry() override = default;
+
+        QString first_error() const
+        {
+            return m_val.first_error(this->text());
+        }
     private:
         qtlib::Directory_Name_Validator m_val;
         qtlib::Text_Colour_State_Changer m_sc;
@@ -69,6 +74,8 @@ namespace
         qtlib::Existing_Directory_Validator m_val;
         qtlib::Text_Colour_State_Changer m_sc;
     };
+
+
 }
 
 // Pimpl Data
@@ -82,7 +89,8 @@ public:
     std::unique_ptr<Project_Name_Entry> m_name_entry;
     std::unique_ptr<QHBoxLayout> m_location_layout;
     std::unique_ptr<Project_Location_Entry> m_location_entry;
-    std::unique_ptr<QPushButton> m_location_browse;
+    std::unique_ptr<QPushButton> m_browse_button;
+    std::unique_ptr<QLabel> m_warning;
     std::unique_ptr<QHBoxLayout> m_button_layout;
     std::unique_ptr<QPushButton> m_finish_button;
     std::unique_ptr<QPushButton> m_cancel_button;
@@ -94,7 +102,8 @@ public:
         m_name_entry{std::make_unique<Project_Name_Entry>()},
         m_location_layout{std::make_unique<QHBoxLayout>()},
         m_location_entry{std::make_unique<Project_Location_Entry>()},
-        m_location_browse{std::make_unique<QPushButton>(c_text_location_browse)},
+        m_browse_button{std::make_unique<QPushButton>(c_text_location_browse)},
+        m_warning{std::make_unique<QLabel>()},
         m_button_layout{std::make_unique<QHBoxLayout>()},
         m_finish_button{std::make_unique<QPushButton>(c_text_finish_button)},
         m_cancel_button{std::make_unique<QPushButton>(c_text_cancel_button)}
@@ -109,18 +118,26 @@ sak::New_Project_Dialog::New_Project_Dialog(QWidget* a_parent) :
     QDialog(a_parent),
     m_data{std::make_unique<Data>()}
 {
+    // Window setup
     this->setWindowTitle(c_title);
     this->setFixedSize(512,256);
 
+    // No default buttons (default one is what pressing enter will activate)
+    data().m_browse_button->setDefault(false);
+    data().m_finish_button->setDefault(false);
+    data().m_cancel_button->setDefault(false);
+
+    // Build the ui
     data().m_layout->addWidget(data().m_description.get());
 
     data().m_entry_layout->addRow(c_text_name, data().m_name_entry.get());
     data().m_location_layout->addWidget(data().m_location_entry.get());
-    data().m_location_layout->addWidget(data().m_location_browse.get());
+    data().m_location_layout->addWidget(data().m_browse_button.get());
 
     data().m_entry_layout->addRow(c_text_location, data().m_location_layout.get());
 
     data().m_layout->addLayout(data().m_entry_layout.get());
+    data().m_layout->addWidget(data().m_warning.get());
 
     data().m_button_layout->addStretch();
     data().m_button_layout->addWidget(data().m_finish_button.get());
@@ -130,19 +147,21 @@ sak::New_Project_Dialog::New_Project_Dialog(QWidget* a_parent) :
 
     this->setLayout(data().m_layout.get());
 
+    // Connect the signals
     QObject::connect(data().m_cancel_button.get(), &QPushButton::clicked, [=](){this->reject();});
     QObject::connect(data().m_finish_button.get(), &QPushButton::clicked, [=](){this->accept();});
 
-    QObject::connect(data().m_location_browse.get(), &QPushButton::clicked, this, &New_Project_Dialog::browse);
+    QObject::connect(data().m_browse_button.get(), &QPushButton::clicked, this, &New_Project_Dialog::browse);
 
-    QObject::connect(data().m_name_entry.get(), &Project_Name_Entry::state_changed, [=](){this->update_finish_button();});
-    QObject::connect(data().m_location_entry.get(), &Project_Location_Entry::state_changed, [=](){this->update_finish_button();});
+    QObject::connect(data().m_name_entry.get(), &Project_Name_Entry::state_changed, [=](){this->update();});
+    QObject::connect(data().m_location_entry.get(), &Project_Location_Entry::state_changed, [=](){this->update();});
 
-
+    // Load the starting data
     data().m_name_entry->setText(Fixed_Settings::default_project_name());
     data().m_location_entry->setText(Fixed_Settings::default_project_location());
 
-    update_finish_button();
+    // update the dialog
+    update();
 }
 
 sak::New_Project_Dialog::New_Project_Dialog(QString const& a_name, QString const& a_location, QWidget* a_parent):
@@ -185,7 +204,33 @@ void sak::New_Project_Dialog::browse()
 }
 
 // Slot for the entry widgets to inform that they're changed state.
-void sak::New_Project_Dialog::update_finish_button()
+void sak::New_Project_Dialog::update()
 {
-    data().m_finish_button->setEnabled(data().m_name_entry->is_valid() && data().m_location_entry->is_valid());
+    if (data().m_name_entry->is_valid())
+    {
+        if (data().m_location_entry->is_valid())
+        {
+            QDir l_dir{location()};
+            if (l_dir.cd(name()) && (QFileInfo(l_dir.filePath(name() + Fixed_Settings::project_file_extension())).exists()))
+            {
+                data().m_finish_button->setEnabled(false);
+                data().m_warning->setText(u8"Cannot create a project here because one of this name already exists.");
+            }
+            else
+            {
+                data().m_finish_button->setEnabled(true);
+                data().m_warning->setText(u8"");
+            }
+        }
+        else
+        {
+            data().m_finish_button->setEnabled(false);
+            data().m_warning->setText(u8"Location is not a valid existing directory.");
+        }
+    }
+    else
+    {
+        data().m_finish_button->setEnabled(false);
+        data().m_warning->setText(data().m_name_entry->first_error());
+    }
 }

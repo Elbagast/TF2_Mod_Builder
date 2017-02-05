@@ -116,11 +116,14 @@ void qtlib::Validating_Line_Edit::update_state(QString const& a_new_text)
             m_state_changer->set_to_invalid(*this);
         }
     }
+    // Emit the new state
+    emit state_changed(m_validity_state);
 
     // If the state changed emit the signal.
     if (l_old_state != m_validity_state)
     {
-        emit state_changed(m_validity_state);
+        emit state_flipped(m_validity_state);
     }
+
 }
 
