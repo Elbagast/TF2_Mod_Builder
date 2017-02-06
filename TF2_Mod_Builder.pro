@@ -85,7 +85,9 @@ SOURCES += \
     qtlib/text_colour_state_changer.cpp \
     qtlib/directory_name_validator.cpp \
     qtlib/existing_directory_validator.cpp \
-    sak/fixed_settings.cpp
+    sak/fixed_settings.cpp \
+    sak/project.cpp \
+    sak/exceptions/exception.cpp
     
 
 HEADERS  += \
@@ -97,7 +99,9 @@ HEADERS  += \
     qtlib/state_changer.h \
     qtlib/directory_name_validator.h \
     qtlib/existing_directory_validator.h \
-    sak/fixed_settings.h
+    sak/fixed_settings.h \
+    sak/project.h \
+    sak/exceptions/exception.h
     
 
 FORMS

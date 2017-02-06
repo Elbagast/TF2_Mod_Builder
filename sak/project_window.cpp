@@ -14,7 +14,8 @@
 #include "project_widget.h"
 #include "dialog/new_project_dialog.h"
 #include "fixed_settings.h"
-
+#include "project.h"
+#include "exceptions/exception.h"
 
 //---------------------------------------------------------------------------
 // Project_Window
@@ -446,9 +447,19 @@ void sak::Project_Window::new_project()
 
     // It might be worth seperating the initialisation of a project?
     // That way things like write permissions can be checked without making the data object?
+    try
+    {
+        // Right now this constructor does the file stuff and emits exceptions if it can't
+        Project l_project{l_filepath};
 
-    // Make the widget - could be a factory function instead?
-    data().m_project_widget = std::make_unique<Project_Widget>(l_filepath);
+        // Make the widget
+        data().m_project_widget = std::make_unique<Project_Widget>(std::move(l_project));
+    }
+    catch(Filesystem_Error& e)
+    {
+        e.dialog(this);
+        return;
+    }
 
     data().m_central_stack->addWidget(data().m_project_widget.get());
     data().m_central_stack->setCurrentIndex(1);

@@ -6,6 +6,7 @@
 
 namespace sak
 {
+    class Project;
     //---------------------------------------------------------------------------
     // Project_Widget
     //---------------------------------------------------------------------------
@@ -40,7 +41,7 @@ namespace sak
         //Project_Widget(QString const& a_name, QString const& a_location, QWidget* a_parent = nullptr);
 
         // Create a Project with the given filepath.
-        explicit Project_Widget(QString const& a_filepath, QWidget* a_parent = nullptr);
+        explicit Project_Widget(Project && a_project, QWidget* a_parent = nullptr);
 
         // Menu Actions
         //============================================================

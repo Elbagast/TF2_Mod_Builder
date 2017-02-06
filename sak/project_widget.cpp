@@ -5,10 +5,7 @@
 #include <QTreeView>
 #include <QLabel>
 
-#include <QFileInfo>
-#include <QDir>
-#include <QFile>
-#include <QTextStream>
+#include "project.h"
 
 //---------------------------------------------------------------------------
 // Project_Widget
@@ -17,134 +14,26 @@
 //============================================================
 namespace
 {
-    //---------------------------------------------------------------------------
-    // Project_Data
-    //---------------------------------------------------------------------------
-    // temporary implementation
-    // Operating on the assumption that the widget handles display of data and
-    // providing a mechanism for editing data, what does a Project have and
-    // what does it need to provide?
-    /*
-    Has:
-    - filepath to the project file
-    - root directory (that filepath is in)
-    - sub directories and files as needed
-    - data
-
-    Widget has:
-    - outliner displaying the data structure
-    - list of widgets for open components
-    - those widgets relay changes
-
-    Thus:
-    Operating on a model-view setup:
-    - Project_Data stores and provides access to data anywhere in the structure
-    - The handles capture attempts to edit the data
-    - Changes propagate out of the data
-    - Widget reads and displays the data as necessary
-
-    Also:
-    - Project_Data will handle all operations on files it manages
-    - amy be worth stepping away from qt to do this
-
-    Other:
-    - Decide on exception classes for these operations, what library does them etc.
-    */
-    class Project_Data
-    {
-    public:
-        // Special 6
-        //============================================================
-        // Construct the project using the supplied filename. If the directory
-        // does not exist or is inaccessible it will fail. If the file does
-        // not exist it will attempt to create it and save the initial data
-        // to it. If the file exists it will attempt to load the data from it.
-        Project_Data(QString const& a_filepath):
-            m_filepath{a_filepath},
-            m_message{"got here"}
-        {
-            // If the directory does not exist it will fail.
-            if(!m_filepath.dir().exists())
-            {
-                // Failure exception for directory not existing.
-                m_message = u8"Failure exception for directory not existing.";
-            }
-            if(!m_filepath.dir().isReadable())
-            {
-                // Failure exception for directory access.
-                m_message = u8"Failure exception for directory access.";
-            }
-
-            QFile l_file{(m_filepath.absoluteFilePath())};
-            if(!l_file.exists())
-            {
-                if (!l_file.open(QIODevice::WriteOnly | QIODevice::Text))
-                {
-                    // Failure exception for file writing.
-                    m_message = u8"Failure exception for file writing.";
-                }
-                else
-                {
-                    QTextStream l_stream{(&l_file)};
-                    l_stream << "empty project: " << a_filepath;
-                    l_file.close();
-
-                    // should probably just call save at this point?
-                    m_message = u8"Created new project file.";
-                }
-
-            }
-            else
-            {
-                if (!l_file.open(QIODevice::ReadOnly | QIODevice::Text))
-                {
-                    // Failure exception for file loading.
-                    m_message = u8"Failure exception for file loading.";
-                }
-                else
-                {
-                    QTextStream l_stream{(&l_file)};
-                    m_data = l_stream.readLine();
-                    l_file.close();
-                    m_message = u8"Loaded existing project file.";
-                }
-
-            }
-        }
-
-        QString name() const { return m_filepath.baseName(); }
-        QString location() const { return m_filepath.absolutePath(); }
-        QString filepath() const { return m_filepath.absoluteFilePath(); }
-
-        QString message() const { return m_message; }
-        QString data() const { return m_data; }
-
-
-    private:
-        QFileInfo m_filepath;
-        QString m_message;
-        QString m_data;
-    };
 
 
     class Project_Display :
             public QWidget
     {
     public:
-        explicit Project_Display(Project_Data const& a_data):
+        explicit Project_Display(sak::Project const& a_data):
             QWidget(),
             m_layout{std::make_unique<QVBoxLayout>()},
             m_name{std::make_unique<QLabel>(a_data.name())},
             m_location{std::make_unique<QLabel>(a_data.location())},
             m_filepath{std::make_unique<QLabel>(a_data.filepath())},
             m_message{std::make_unique<QLabel>(a_data.message())},
-            m_data{std::make_unique<QLabel>(a_data.data())}
+            m_content{std::make_unique<QLabel>(a_data.content())}
         {
             m_layout->addWidget(m_name.get());
             m_layout->addWidget(m_location.get());
             m_layout->addWidget(m_filepath.get());
             m_layout->addWidget(m_message.get());
-            m_layout->addWidget(m_data.get());
+            m_layout->addWidget(m_content.get());
             this->setLayout(m_layout.get());
         }
 
@@ -156,7 +45,7 @@ namespace
         std::unique_ptr<QLabel> m_location;
         std::unique_ptr<QLabel> m_filepath;
         std::unique_ptr<QLabel> m_message;
-        std::unique_ptr<QLabel> m_data;
+        std::unique_ptr<QLabel> m_content;
     };
 
 }
@@ -166,7 +55,7 @@ namespace
 class sak::Project_Widget::Data
 {
 public:
-    Project_Data m_data;
+    sak::Project m_data;
 
     std::unique_ptr<QHBoxLayout> m_layout;
     std::unique_ptr<QTreeView> m_outliner;
@@ -174,7 +63,7 @@ public:
     std::unique_ptr<Project_Display> m_display;
 
 
-    explicit Data(Project_Data&& a_data):
+    explicit Data(sak::Project&& a_data):
         m_data{std::move(a_data)},
         m_layout{std::make_unique<QHBoxLayout>()},
         m_outliner{std::make_unique<QTreeView>()},
@@ -201,10 +90,10 @@ sak::Project_Widget::Project_Widget(QString const& a_name, QString const& a_loca
 */
 
 // Create a Project with the given filepath.
-sak::Project_Widget::Project_Widget(QString const& a_filepath, QWidget* a_parent):
+sak::Project_Widget::Project_Widget(Project && a_project, QWidget* a_parent):
    // Project_Widget(QFileInfo(a_filepath).fileName(), QFileInfo(a_filepath).absoluteDir().absolutePath(), a_parent)
     QWidget(a_parent),
-    m_data{std::make_unique<Data>(Project_Data{a_filepath})}
+    m_data{std::make_unique<Data>(std::move(a_project))}
 {
     data().m_layout->addWidget(data().m_outliner.get());
     data().m_layout->setStretchFactor(data().m_outliner.get(),1);
