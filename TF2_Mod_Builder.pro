@@ -87,7 +87,8 @@ SOURCES += \
     qtlib/existing_directory_validator.cpp \
     sak/fixed_settings.cpp \
     sak/project.cpp \
-    sak/exceptions/exception.cpp
+    sak/exceptions/exception.cpp \
+    sak/system_settings.cpp
     
 
 HEADERS  += \
@@ -101,7 +102,8 @@ HEADERS  += \
     qtlib/existing_directory_validator.h \
     sak/fixed_settings.h \
     sak/project.h \
-    sak/exceptions/exception.h
+    sak/exceptions/exception.h \
+    sak/system_settings.h
     
 
 FORMS

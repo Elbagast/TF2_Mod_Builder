@@ -155,11 +155,11 @@ namespace sak
     private:
         // Pimpl Data
         //============================================================
-        class Data;
-        std::unique_ptr<Data> m_data;
+        class Implementation;
+        std::unique_ptr<Implementation> m_data;
 
-        Data& data()                { return *m_data; }
-        Data const& cdata() const   { return *m_data; }
+        Implementation& imp()                { return *m_data; }
+        Implementation const& cimp() const   { return *m_data; }
     };
 }
 

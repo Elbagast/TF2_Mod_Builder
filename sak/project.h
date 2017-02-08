@@ -60,6 +60,15 @@ namespace sak
 
         // Interface
         //============================================================
+        // If the final interface allows it, saving and loading should probably not be
+        // member functions.
+
+        // Save the current data to the file.
+        void save() const;
+
+        // Get the data from the file and discard the current data.
+        void load();
+
         QString name() const;
         QString location() const;
         QString filepath() const;
@@ -72,11 +81,11 @@ namespace sak
 
         // Pimpl Data
         //============================================================
-        class Data;
-        std::unique_ptr<Data> m_data;
+        class Implementation;
+        std::unique_ptr<Implementation> m_data;
 
-        Data& data()                { return *m_data; }
-        Data const& cdata() const   { return *m_data; }
+        Implementation& imp()                { return *m_data; }
+        Implementation const& cimp() const   { return *m_data; }
     };
 }
 
