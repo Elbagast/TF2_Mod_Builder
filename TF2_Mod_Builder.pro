@@ -88,7 +88,8 @@ SOURCES += \
     sak/fixed_settings.cpp \
     sak/project.cpp \
     sak/exceptions/exception.cpp \
-    sak/system_settings.cpp
+    sak/system_settings.cpp \
+    sak/project_outliner_model.cpp
     
 
 HEADERS  += \
@@ -103,7 +104,8 @@ HEADERS  += \
     sak/fixed_settings.h \
     sak/project.h \
     sak/exceptions/exception.h \
-    sak/system_settings.h
+    sak/system_settings.h \
+    sak/project_outliner_model.h
     
 
 FORMS

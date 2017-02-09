@@ -7,6 +7,18 @@ class QString;
 namespace sak
 {
     //---------------------------------------------------------------------------
+    // Component
+    //---------------------------------------------------------------------------
+    // temp classes
+    class Componentrest
+    {
+    public:
+        QString const& name() const;
+        QString const& description() const;
+    };
+
+
+    //---------------------------------------------------------------------------
     // Project
     //---------------------------------------------------------------------------
     // temporary implementation
@@ -75,6 +87,8 @@ namespace sak
 
         QString message() const;
         QString content() const;
+
+
 
 
     private:

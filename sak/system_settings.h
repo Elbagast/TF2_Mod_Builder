@@ -2,11 +2,12 @@
 #define SYSTEM_SETTINGS_H
 
 class QString;
+#include <QString>
 
 namespace sak
 {
-    class TF2_Settings;
-    class SFM_Settings;
+    class TF2_Settings{};
+    class SFM_Settings{};
     //---------------------------------------------------------------------------
     // System_Settings
     //---------------------------------------------------------------------------

@@ -6,6 +6,7 @@
 #include <QLabel>
 
 #include "project.h"
+#include "project_outliner_model.h"
 
 //---------------------------------------------------------------------------
 // Project_Widget
@@ -56,6 +57,7 @@ class sak::Project_Widget::Implementation
 {
 public:
     sak::Project m_data;
+    sak::Project_Outliner_Model m_model;
 
     std::unique_ptr<QHBoxLayout> m_layout;
     std::unique_ptr<QTreeView> m_outliner;
@@ -65,11 +67,14 @@ public:
 
     explicit Implementation(sak::Project&& a_data):
         m_data{std::move(a_data)},
+        m_model{m_data},
         m_layout{std::make_unique<QHBoxLayout>()},
         m_outliner{std::make_unique<QTreeView>()},
         m_tabs{std::make_unique<QTabWidget>()},
         m_display{std::make_unique<Project_Display>(m_data)}
-    {}
+    {
+        m_outliner->setModel(&m_model);
+    }
 };
 
 // Special 6
