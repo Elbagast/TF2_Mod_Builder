@@ -4,9 +4,13 @@
 #include <QTabWidget>
 #include <QTreeView>
 #include <QLabel>
+#include <cassert>
 
 #include "project.h"
-#include "project_outliner_model.h"
+#include "../qtlib/outliner/outliner_model.h"
+#include "../qtlib/outliner/outliner_delegate.h"
+#include "../qtlib/outliner/outliner_treeview.h"
+#include "project_outliner_items.h"
 
 //---------------------------------------------------------------------------
 // Project_Widget
@@ -53,29 +57,50 @@ namespace
 
 // Pimpl Data
 //============================================================
-class sak::Project_Widget::Implementation
+namespace sak
 {
-public:
-    sak::Project m_data;
-    sak::Project_Outliner_Model m_model;
-
-    std::unique_ptr<QHBoxLayout> m_layout;
-    std::unique_ptr<QTreeView> m_outliner;
-    std::unique_ptr<QTabWidget> m_tabs;
-    std::unique_ptr<Project_Display> m_display;
-
-
-    explicit Implementation(sak::Project&& a_data):
-        m_data{std::move(a_data)},
-        m_model{m_data},
-        m_layout{std::make_unique<QHBoxLayout>()},
-        m_outliner{std::make_unique<QTreeView>()},
-        m_tabs{std::make_unique<QTabWidget>()},
-        m_display{std::make_unique<Project_Display>(m_data)}
+    class Project_Widget::Implementation
     {
-        m_outliner->setModel(&m_model);
-    }
-};
+    public:
+        Project m_data;
+        qtlib::Outliner_Model m_model;
+        qtlib::Outliner_Delegate m_delegate;
+
+        std::unique_ptr<Outliner_Root> m_root;
+
+        std::unique_ptr<QHBoxLayout> m_layout;
+        std::unique_ptr<qtlib::Outliner_Treeview> m_outliner;
+        std::unique_ptr<QTabWidget> m_tabs;
+        std::unique_ptr<Project_Display> m_display;
+
+
+        explicit Implementation(Project&& a_data):
+            m_data{std::move(a_data)},
+            m_model{},
+            m_delegate{},
+            m_root{std::make_unique<Outliner_Root>(m_data)},
+            m_layout{std::make_unique<QHBoxLayout>()},
+            m_outliner{std::make_unique<qtlib::Outliner_Treeview>()},
+            m_tabs{std::make_unique<QTabWidget>()},
+            m_display{std::make_unique<Project_Display>(m_data)}
+        {
+            m_model.set_root(m_root.get());
+            assert(m_model.is_active());
+            assert(m_root->child_count() == 1);
+            assert(m_root->get_child(0)->child_count() == 2);
+            assert(m_root->get_child(0)->get_parent() == m_root.get());
+            assert(m_root->get_child(0)->get_data(Qt::DisplayRole) == m_data.name());
+
+            // testing the model
+            assert(m_model.parent(QModelIndex()) == QModelIndex());
+            assert(m_model.index(0,0,QModelIndex()).internalPointer() == m_root.get()->get_child(0));
+            //assert(m_model.index(0,0,m_model.index(0,0,QModelIndex())).internalPointer() == m_root.get()->get_child(0));
+
+            m_outliner->setItemDelegate(&m_delegate);
+            m_outliner->set_model(&m_model);
+        }
+    };
+}
 
 // Special 6
 //============================================================

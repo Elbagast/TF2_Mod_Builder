@@ -89,7 +89,13 @@ SOURCES += \
     sak/project.cpp \
     sak/exceptions/exception.cpp \
     sak/system_settings.cpp \
-    sak/project_outliner_model.cpp
+    qtlib/outliner/outliner_delegate.cpp \
+    qtlib/outliner/outliner_item.cpp \
+    qtlib/outliner/outliner_item_readonly.cpp \
+    qtlib/outliner/outliner_model.cpp \
+    qtlib/outliner/outliner_treeview.cpp \
+    sak/project_outliner_items.cpp \
+    qtlib/outliner/outliner_item_root.cpp
     
 
 HEADERS  += \
@@ -105,7 +111,13 @@ HEADERS  += \
     sak/project.h \
     sak/exceptions/exception.h \
     sak/system_settings.h \
-    sak/project_outliner_model.h
+    qtlib/outliner/outliner_delegate.h \
+    qtlib/outliner/outliner_item.h \
+    qtlib/outliner/outliner_item_readonly.h \
+    qtlib/outliner/outliner_model.h \
+    qtlib/outliner/outliner_treeview.h \
+    sak/project_outliner_items.h \
+    qtlib/outliner/outliner_item_root.h
     
 
 FORMS
