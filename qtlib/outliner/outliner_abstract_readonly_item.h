@@ -29,27 +29,29 @@ namespace qtlib
 
                 // Virtual Interface
                 //============================================================
+                // Parent
+                //----------------------------------------
                 // Does this item have a parent item?
                 bool has_parent() const override = 0;
                 // Get the item that is the parent of this
                 item_type* get_parent() const override = 0;
                 // Get the item at the root of the structure
                 item_type* get_root() const override = 0;
-
-                // Does this item have any child items?
-                bool has_children() const override = 0;
-                // The number of children this item has
-                int get_child_count() const override = 0;
-
-                // Does this item have a child item at this index?
-                bool has_child_at(int a_index) const override = 0;
-                // Get the child at a given row, return nullptr if there is no child at row
-                item_type* get_child_at(int a_index) const override = 0;
-
                 // The row that this item is in relative to the parent e.g. if the parent has
                 // 5 children, and this is the third, then row is 2. If this has no parent
                 // then -1 is returned.
                 int index_in_parent() const override = 0;
+
+                // Children
+                //----------------------------------------
+                // Does this item have any child items?
+                bool has_children() const override = 0;
+                // The number of children this item has
+                int get_child_count() const override = 0;
+                // Does this item have a child item at this index?
+                bool has_child_at(int a_index) const override = 0;
+                // Get the child at a given row, return nullptr if there is no child at row
+                item_type* get_child_at(int a_index) const override = 0;
 
                 // Underlying data access
                 //----------------------------------------

@@ -4,6 +4,9 @@
 #include "../qtlib/outliner/outliner_abstract_root_item.h"
 #include "../qtlib/outliner/outliner_abstract_readonly_item.h"
 #include "../qtlib/outliner/outliner_branch_item.h"
+#include "../qtlib/outliner/outliner_leaf_item.h"
+#include "../qtlib/outliner/outliner_root_trunk_item.h"
+#include "../qtlib/outliner/outliner_multitrunk_item.h"
 #include <memory>
 
 namespace sak
@@ -19,9 +22,6 @@ namespace sak
         class Texture_Header_Item;
         class Texture_Item;
 
-        class Header_Item;
-        class Component_Item;
-
         //---------------------------------------------------------------------------
         // sak::outliner::Root_Item
         //---------------------------------------------------------------------------
@@ -29,7 +29,7 @@ namespace sak
         // defines the default context menu.
 
         class Root_Item :
-                public qtlib::outliner::abstract::Root_Item
+                public qtlib::outliner::Root_Trunk_Item<Project_Item>
         {
         public:
             // Special 6
@@ -39,15 +39,6 @@ namespace sak
 
             // Virtual Interface
             //============================================================
-            // Does this item have any child items?
-            bool has_children() const override final;
-            // The number of children this item has
-            int get_child_count() const override final;
-
-            // Does this item have a child item at this index?
-            bool has_child_at(int a_index) const override final;
-            // Get the child at a given row, return nullptr if there is no child at row
-            item_type* get_child_at(int a_index) const override final;
             // Other
             //----------------------------------------
             // Make and act on the context menu for this item. Need the model pointer here so that
@@ -60,14 +51,8 @@ namespace sak
             Project const& cget_project() const;
         private:
             Project& m_project;
-            std::unique_ptr<Project_Item> m_child;
         };
 
-
-        class Header_Item :
-                public qtlib::outliner::abstract::Readonly_Item
-        {
-        };
 
         //---------------------------------------------------------------------------
         // sak::outliner::Project_Item
@@ -76,40 +61,18 @@ namespace sak
         // It's children are the section headers which
 
         class Project_Item :
-                public qtlib::outliner::Readonly_Branch_Item<Root_Item, Header_Item>
+                public qtlib::outliner::Readonly_Multitrunk_item<Root_Item, File_Header_Item, Texture_Header_Item>
         {
+            using inherited_type = qtlib::outliner::Readonly_Multitrunk_item<Root_Item, File_Header_Item, Texture_Header_Item>;
         public:
 
             // Special 6
             //============================================================
-            explicit Project_Item(Root_Item* a_parent);
+            explicit Project_Item(parent_type* a_parent);
             ~Project_Item() override;
 
             // Virtual Interface
             //============================================================
-            /*
-            // Does this item have a parent item?
-            bool has_parent() const override final;
-            // Get the item that is the parent of this
-            item_type* get_parent() const override final;
-            // Get the item at the root of the structure
-            item_type* get_root() const override final;
-
-            // Does this item have any child items?
-            bool has_children() const override final;
-            // The number of children this item has
-            int get_child_count() const override final;
-
-            // Does this item have a child item at this index?
-            bool has_child_at(int a_index) const override final;
-            // Get the child at a given row, return nullptr if there is no child at row
-            item_type* get_child_at(int a_row) const override final;
-
-            // The row that this item is in relative to the parent e.g. if the parent has
-            // 5 children, and this is the third, then row is 2. If this has no parent
-            // then -1 is returned.
-            int index_in_parent() const override final;
-*/
             // Underlying data access
             //----------------------------------------
             // Get the item data for a given column and role
@@ -125,26 +88,18 @@ namespace sak
             //============================================================
             Project& get_project();
             Project const& cget_project() const;
-        private:
-            //Root_Item* m_parent;
-            //std::unique_ptr<Header_Item> m_headers;
         };
 
-        class Component_Item :
-                public qtlib::outliner::abstract::Item
-        {
-        };
-
-
-
-        class File_Item : public qtlib::outliner::abstract::Item {};
+        //---------------------------------------------------------------------------
+        // sak::outliner::File_Header_Item
+        //---------------------------------------------------------------------------
+        // Outliner item that represents the File container of a Project. It's children
+        // are all the Files present in the Project.
 
         class File_Header_Item :
                 public qtlib::outliner::Readonly_Branch_Item<Project_Item, File_Item>
         {
         public:
-            using model_type = Header_Item::model_type;
-
             // Special 6
             //============================================================
             explicit File_Header_Item(parent_type* a_parent);
@@ -168,9 +123,60 @@ namespace sak
             Project const& cget_project() const;
         };
 
+        //---------------------------------------------------------------------------
+        // sak::outliner::File_Item
+        //---------------------------------------------------------------------------
+        // Outliner item that represents a File of a Project.
 
-        class Texture_Header_Item{};
-        class Texture_Item{};
+        class File_Item :
+                public qtlib::outliner::abstract::Item
+        {
+        };
+
+        //---------------------------------------------------------------------------
+        // sak::outliner::Texture_Header_Item
+        //---------------------------------------------------------------------------
+        // Outliner item that represents the Texture container of a Project. It's children
+        // are all the Textures present in the Project.
+
+        class Texture_Header_Item :
+                public qtlib::outliner::Readonly_Branch_Item<Project_Item, Texture_Item>
+        {
+        public:
+            // Special 6
+            //============================================================
+            explicit Texture_Header_Item(parent_type* a_parent);
+            ~Texture_Header_Item() override;
+
+            // Virtual Interface
+            //============================================================
+            // Underlying data access
+            //----------------------------------------
+            // Get the item data for a given column and role
+            QVariant get_data(int a_role = Qt::DisplayRole) const override final;
+            // Other
+            //----------------------------------------
+            // Make and act on the context menu for this item. Need the model pointer here so that
+            // actions can call functions in it for editing
+            void do_custom_context_menu(QAbstractItemView* a_view, model_type* a_model, QPoint const& a_point) override final;
+
+            // Additional Interface
+            //============================================================
+            Project& get_project();
+            Project const& cget_project() const;
+        };
+
+        //---------------------------------------------------------------------------
+        // sak::outliner::Texture_Item
+        //---------------------------------------------------------------------------
+        // Outliner item that represents a Texture of a Project.
+
+        class Texture_Item :
+                public qtlib::outliner::abstract::Item
+        {
+        };
+
+
     }
 }
 

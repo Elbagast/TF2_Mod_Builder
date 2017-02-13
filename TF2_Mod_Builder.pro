@@ -97,7 +97,13 @@ SOURCES += \
     qtlib/outliner/outliner_abstract_root_item.cpp \
     qtlib/outliner/outliner_abstract_readonly_item.cpp \
     qtlib/outliner/outliner_branch_item.cpp \
-    qtlib/outliner/outliner_leaf_item.cpp
+    qtlib/outliner/outliner_leaf_item.cpp \
+    qtlib/outliner/outliner_trunk_item.cpp \
+    qtlib/outliner/outliner_root_branch_item.cpp \
+    qtlib/outliner/outliner_root_trunk_item.cpp \
+    qtlib/outliner/outliner_parented_item.cpp \
+    qtlib/outliner/outliner_orphanded_item.cpp \
+    qtlib/outliner/outliner_multitrunk_item.cpp
     
 
 HEADERS  += \
@@ -121,7 +127,13 @@ HEADERS  += \
     qtlib/outliner/outliner_abstract_root_item.h \
     qtlib/outliner/outliner_abstract_readonly_item.h \
     qtlib/outliner/outliner_branch_item.h \
-    qtlib/outliner/outliner_leaf_item.h
+    qtlib/outliner/outliner_leaf_item.h \
+    qtlib/outliner/outliner_trunk_item.h \
+    qtlib/outliner/outliner_root_branch_item.h \
+    qtlib/outliner/outliner_root_trunk_item.h \
+    qtlib/outliner/outliner_parented_item.h \
+    qtlib/outliner/outliner_orphanded_item.h \
+    qtlib/outliner/outliner_multitrunk_item.h
     
 
 FORMS

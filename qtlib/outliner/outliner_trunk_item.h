@@ -1,10 +1,9 @@
-#ifndef OUTLINER_ITEM_H
-#define OUTLINER_ITEM_H
+#ifndef OUTLINER_TRUNK_ITEM_H
+#define OUTLINER_TRUNK_ITEM_H
 
 #include "outliner_parented_item.h"
-#include <vector>
 #include <memory>
-#include <type_traits>
+//#include <type_traits>
 #include <QVariant>
 
 namespace qtlib
@@ -12,14 +11,15 @@ namespace qtlib
     namespace outliner
     {
         //---------------------------------------------------------------------------
-        // outliner::Branch_Item<Parent, Children>
+        // outliner::Trunk_Item<Parent, Child>
         //---------------------------------------------------------------------------
-        // Subclass of abstract::Item which is in the middle of the tree. Item may have
-        // differenct distinct types for the parent and children, so long as they are
-        // both subclasses of abstract::Item.
+        // Subclass of abstract::Item which is in the middle of the tree. It has a
+        // single parent and a single child that may or may not be present. Trunk_Item
+        // may have differenct distinct types for the parent and child, so long as they
+        // are both subclasses of abstract::Item.
 
         template <typename P, typename C>
-        class Branch_Item :
+        class Trunk_Item :
                 public Parented_Item<P>
         {
         public:
@@ -34,8 +34,8 @@ namespace qtlib
 
             // Special 6
             //============================================================
-            explicit Branch_Item(parent_type* a_parent);
-            ~Branch_Item() override;
+            explicit Trunk_Item(parent_type* a_parent);
+            ~Trunk_Item() override;
 
             // Virtual Interface
             //============================================================
@@ -80,36 +80,42 @@ namespace qtlib
             using Parented_Item<P>::get_true_parent;
             using Parented_Item<P>::set_parent;
 
-            child_type* get_true_child_at(int a_index) const;
-            void append_child(std::unique_ptr<child_type>&& a_item);
+            child_type* get_true_child(int a_index) const
+            {
+                return m_child.get();
+            }
+            void append_child(std::unique_ptr<child_type>&& a_item)
+            {
+                m_child = std::move(a_item);
+            }
         private:
             parent_type* m_parent;
-            std::vector<std::unique_ptr<child_type>> m_children;
+            std::unique_ptr<child_type> m_child;
         };
 
 
         //---------------------------------------------------------------------------
-        // outliner::Readonly_Branch_Item<Parent, Children>
+        // outliner::Readonly_Trunk_Item<Parent, Child>
         //---------------------------------------------------------------------------
-        // Subclass of Branch_Item<Parent, Children> with the write interface
+        // Subclass of Trunk_Item<Parent, Child> with the write interface
         // implemented as dummy functions. This exists to solve multiple inheritance
         // problems if you want to use features together.
 
         template <typename P, typename C>
-        class Readonly_Branch_Item :
-                public Branch_Item<P,C>
+        class Readonly_Trunk_Item :
+                public Trunk_Item<P,C>
         {
         public:
-            using item_type = typename Branch_Item<P,C>::item_type;
-            using model_type = typename Branch_Item<P,C>::model_type;
+            using item_type = typename Trunk_Item<P,C>::item_type;
+            using model_type = typename Trunk_Item<P,C>::model_type;
 
-            using parent_type = typename Branch_Item<P,C>::parent_type;
-            using child_type = typename Branch_Item<P,C>::child_type;
+            using parent_type = typename Trunk_Item<P,C>::parent_type;
+            using child_type = typename Trunk_Item<P,C>::child_type;
 
             // Special 6
             //============================================================
-            explicit Readonly_Branch_Item(parent_type* a_parent);
-            ~Readonly_Branch_Item() override;
+            explicit Readonly_Trunk_Item(parent_type* a_parent);
+            ~Readonly_Trunk_Item() override;
 
             // Virtual Interface
             //============================================================
@@ -140,96 +146,101 @@ namespace qtlib
         protected:
             // Additional Interface
             //============================================================
-            using Branch_Item<P,C>::get_true_parent;
-            using Branch_Item<P,C>::set_parent;
+            using Trunk_Item<P,C>::get_true_parent;
+            using Trunk_Item<P,C>::set_parent;
 
-            using Branch_Item<P,C>::get_true_child_at;
-            using Branch_Item<P,C>::append_child;
+            using Trunk_Item<P,C>::set_child;
+            using Trunk_Item<P,C>::get_true_child;
         };
     } // namespace outliner
 } // namespace qtlib
 
 
 //---------------------------------------------------------------------------
-// outliner::Branch_Item<Parent, Children>
+// outliner::Trunk_Item<Parent, Child>
 //---------------------------------------------------------------------------
-// Subclass of abstract::Item which is in the middle of the tree. Item may have
-// differenct distinct types for the parent and children, so long as they are
-// both subclasses of abstract::Item.
+// Subclass of abstract::Item which is in the middle of the tree. It has a
+// single parent and a single child that may or may not be present. Trunk_Item
+// may have differenct distinct types for the parent and child, so long as they
+// are both subclasses of abstract::Item.
 
 // Special 6
 //============================================================
 template <typename P, typename C>
-qtlib::outliner::Branch_Item<P,C>::Branch_Item(parent_type* a_parent):
-    Parented_Item<P>(a_parent),
-    m_children{}
+qtlib::outliner::Trunk_Item<P,C>::Trunk_Item(parent_type* a_parent):
+    m_parent{a_parent},
+    m_child{}
 {}
 
 template <typename P, typename C>
-qtlib::outliner::Branch_Item<P,C>::~Branch_Item() = default;
+qtlib::outliner::Trunk_Item<P,C>::~Trunk_Item() = default;
 
 // Virtual Interface
 //============================================================
-
 // Children
 //----------------------------------------
 // Does this item have any child items?
 template <typename P, typename C>
-bool qtlib::outliner::Branch_Item<P,C>::has_children() const
+bool qtlib::outliner::Trunk_Item<P,C>::has_children() const
 {
-    return !m_children.empty();
+    return m_child != nullptr;
 }
 // The number of children this item has
 template <typename P, typename C>
-int qtlib::outliner::Branch_Item<P,C>::get_child_count() const
+int qtlib::outliner::Trunk_Item<P,C>::get_child_count() const
 {
-    return static_cast<int>(m_children.size());
+    return (m_child != nullptr ? 1 : 0);
 }
 
 // Does this item have a child item at this index?
 template <typename P, typename C>
-bool qtlib::outliner::Branch_Item<P,C>::has_child_at(int a_index) const
+bool qtlib::outliner::Trunk_Item<P,C>::has_child_at(int a_index) const
 {
-    return a_index >= 0 && a_index < static_cast<int>(m_children.size());
+    return m_child != nullptr && a_index == 0;
 }
 // Get the child at a given row, return nullptr if there is no child at row
 template <typename P, typename C>
-typename qtlib::outliner::Branch_Item<P,C>::item_type* qtlib::outliner::Branch_Item<P,C>::get_child_at(int a_index) const
+typename qtlib::outliner::Trunk_Item<P,C>::item_type* qtlib::outliner::Trunk_Item<P,C>::get_child_at(int a_index) const
 {
-    return m_children.at(a_index).get();
+    if( m_child != nullptr && a_index == 0 )
+    {
+        return m_child.get();
+    }
+    else
+    {
+        return nullptr;
+    }
 }
-
-
+/*
 // Additional Interface
 //============================================================
 template <typename P, typename C>
-typename qtlib::outliner::Branch_Item<P,C>::child_type* qtlib::outliner::Branch_Item<P,C>::get_true_child_at(int a_index) const
+typename qtlib::outliner::Trunk_Item<P,C>::child_type* qtlib::outliner::Trunk_Item<P,C>::get_true_child() const
 {
-    return m_children.at(a_index).get();
+    return m_child.get();
 }
-
 template <typename P, typename C>
-void qtlib::outliner::Branch_Item<P,C>::append_child(std::unique_ptr<child_type>&& a_item)
+void qtlib::outliner::Trunk_Item<P,C>::append_child(std::unique_ptr<child_type>&& a_item)
 {
-    m_children.push_back(std::move(a_item));
+    m_child = std::move(a_item);
 }
-
+*/
 //---------------------------------------------------------------------------
-// outliner::Readonly_Branch_Item<Parent, Children>
+// outliner::Readonly_Trunk_Item<Parent, Child>
 //---------------------------------------------------------------------------
-// Subclass of Branch_Item<Parent, Children> with the write interface
+// Subclass of Trunk_Item<Parent, Child> with the write interface
 // implemented as dummy functions. This exists to solve multiple inheritance
 // problems if you want to use features together.
 
 // Special 6
 //============================================================
 template <typename P, typename C>
-qtlib::outliner::Readonly_Branch_Item<P,C>::Readonly_Branch_Item(parent_type* a_parent):
-    Branch_Item<P,C>(a_parent)
+qtlib::outliner::Readonly_Trunk_Item<P,C>::Readonly_Trunk_Item(parent_type* a_parent):
+    Trunk_Item<P,C>(a_parent)
 {}
 
 template <typename P, typename C>
-qtlib::outliner::Readonly_Branch_Item<P,C>::~Readonly_Branch_Item() = default;
+qtlib::outliner::Readonly_Trunk_Item<P,C>::~Readonly_Trunk_Item() = default;
 
 // Virtual Interface
 //============================================================
@@ -237,7 +248,7 @@ qtlib::outliner::Readonly_Branch_Item<P,C>::~Readonly_Branch_Item() = default;
 //----------------------------------------
 // Set the data in item with the given value
 template <typename P, typename C>
-void qtlib::outliner::Readonly_Branch_Item<P,C>::set_data(QVariant const& a_value)
+void qtlib::outliner::Readonly_Trunk_Item<P,C>::set_data(QVariant const& a_value)
 {
     this->abstract::Item::set_data(a_value);
 }
@@ -246,19 +257,19 @@ void qtlib::outliner::Readonly_Branch_Item<P,C>::set_data(QVariant const& a_valu
 //----------------------------------------
 // Make the appropriate editor for this item, parenting it to parent
 template <typename P, typename C>
-QWidget* qtlib::outliner::Readonly_Branch_Item<P,C>::get_editor(QWidget* a_parent)
+QWidget* qtlib::outliner::Readonly_Trunk_Item<P,C>::get_editor(QWidget* a_parent)
 {
-    return this->abstract::Item::get_editor(a_parent);
+    return this->abstract::Item::set_editor_data(a_editor);
 }
 // Set the data in the editor to the value in the item
 template <typename P, typename C>
-void qtlib::outliner::Readonly_Branch_Item<P,C>::set_editor_data(QWidget* a_editor)
+void qtlib::outliner::Readonly_Trunk_Item<P,C>::set_editor_data(QWidget* a_editor)
 {
-    this->abstract::Item::set_editor_data(a_editor);
+    return this->abstract::Item::get_editor_data(a_editor);
 }
 // Get the data in the editor and return it
 template <typename P, typename C>
-QVariant qtlib::outliner::Readonly_Branch_Item<P,C>::get_editor_data(QWidget* a_editor)
+QVariant qtlib::outliner::Readonly_Trunk_Item<P,C>::get_editor_data(QWidget* a_editor)
 {
     return this->abstract::Item::get_editor_data(a_editor);
 }
@@ -267,10 +278,9 @@ QVariant qtlib::outliner::Readonly_Branch_Item<P,C>::get_editor_data(QWidget* a_
 //----------------------------------------
 // Get the flags for this item
 template <typename P, typename C>
-Qt::ItemFlags qtlib::outliner::Readonly_Branch_Item<P,C>::get_flags() const
+Qt::ItemFlags qtlib::outliner::Readonly_Trunk_Item<P,C>::get_flags() const
 {
     return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
 }
 
-
-#endif // OUTLINER_ITEM_H
+#endif // OUTLINER_TRUNK_ITEM_H

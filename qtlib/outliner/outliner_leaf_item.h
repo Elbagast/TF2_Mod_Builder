@@ -1,10 +1,11 @@
 #ifndef OUTLINER_LEAF_ITEM_H
 #define OUTLINER_LEAF_ITEM_H
 
-#include "outliner_abstract_item.h"
+#include "outliner_parented_item.h"
 #include <vector>
 #include <memory>
-#include <type_traits>
+//#include <type_traits>
+#include <QVariant>
 
 namespace qtlib
 {
@@ -18,15 +19,15 @@ namespace qtlib
 
         template <typename P>
         class Leaf_Item :
-                public abstract::Item
+                public Parented_Item<P>
         {
         public:
-            using item_type = abstract::Item::item_type;
-            using model_type = abstract::Item::model_type;
+            using item_type = typename Parented_Item<P>::item_type;
+            using model_type = typename Parented_Item<P>::model_type;
 
-            using parent_type = P;
+            using parent_type = typename Parented_Item<P>::parent_type;
 
-            static_assert(std::is_base_of<abstract::Item, parent_type>::value, "parent_type must inherit qtlib::outliner::abstract::Item");
+            //static_assert(std::is_base_of<abstract::Item, parent_type>::value, "parent_type must inherit qtlib::outliner::abstract::Item");
 
             // Special 6
             //============================================================
@@ -35,13 +36,8 @@ namespace qtlib
 
             // Virtual Interface
             //============================================================
-            // Does this item have a parent item?
-            bool has_parent() const override final;
-            // Get the item that is the parent of this
-            item_type* get_parent() const override final;
-            // Get the item at the root of the structure
-            item_type* get_root() const override final;
-
+            // Children
+            //----------------------------------------
             // Does this item have any child items?
             bool has_children() const override final;
             // The number of children this item has
@@ -51,11 +47,6 @@ namespace qtlib
             bool has_child_at(int a_index) const override final;
             // Get the child at a given row, return nullptr if there is no child at row
             item_type* get_child_at(int a_index) const override final;
-
-            // The row that this item is in relative to the parent e.g. if the parent has
-            // 5 children, and this is the third, then row is 2. If this has no parent
-            // then -1 is returned.
-            int index_in_parent() const override final;
 
             // Underlying data access
             //----------------------------------------
@@ -84,11 +75,63 @@ namespace qtlib
         protected:
             // Additional Interface
             //============================================================
-            parent_type* get_true_parent() const;
+            using Parented_Item<P>::get_true_parent;
+            using Parented_Item<P>::set_parent;
+        };
 
-            void set_parent(parent_type* a_parent);
-        private:
-            parent_type* m_parent;
+        //---------------------------------------------------------------------------
+        // outliner::Readonly_Leaf_Item<Parent>
+        //---------------------------------------------------------------------------
+        // Subclass of Leaf_Item<Parent> with the write interface implemented as
+        // dummy functions. This exists to solve multiple inheritance problems if
+        // you want to use features together.
+
+        template <typename P>
+        class Readonly_Leaf_Item :
+                public Leaf_Item<P>
+        {
+        public:
+            using item_type = typename Leaf_Item<P>::item_type;
+            using model_type = typename Leaf_Item<P>::model_type;
+
+            using parent_type = typename Leaf_Item<P>::parent_type;
+
+            // Special 6
+            //============================================================
+            explicit Readonly_Leaf_Item(parent_type* a_parent);
+            ~Readonly_Leaf_Item() override;
+
+            // Virtual Interface
+            //============================================================
+            // Underlying data access
+            //----------------------------------------
+            // Get the item data for a given column and role
+            QVariant get_data(int a_role = Qt::DisplayRole) const override = 0;
+            // Set the data in item with the given value
+            void set_data(QVariant const& a_value) override final;
+
+            // Editors
+            //----------------------------------------
+            // Make the appropriate editor for this item, parenting it to parent
+            QWidget* get_editor(QWidget* a_parent) override final;
+            // Set the data in the editor to the value in the item
+            void set_editor_data(QWidget* a_editor) override final;
+            // Get the data in the editor and return it
+            QVariant get_editor_data(QWidget* a_editor) override final;
+
+            // Other
+            //----------------------------------------
+            // Get the flags for this item
+            Qt::ItemFlags get_flags() const override final;
+            // Make and act on the context menu for this item. Need the model pointer here so that
+            // actions can call functions in it for editing
+            void do_custom_context_menu(QAbstractItemView* a_view, model_type* a_model, QPoint const& a_point) override = 0;
+
+        protected:
+            // Additional Interface
+            //============================================================
+            using Leaf_Item<P>::get_true_parent;
+            using Leaf_Item<P>::set_parent;
         };
     } // namespace outliner
 } // namespace qtlib
@@ -103,7 +146,7 @@ namespace qtlib
 //============================================================
 template <typename P>
 qtlib::outliner::Leaf_Item<P>::Leaf_Item(parent_type* a_parent):
-    m_parent{a_parent}
+    Parented_Item<P>(a_parent)
 {}
 
 template <typename P>
@@ -111,32 +154,8 @@ qtlib::outliner::Leaf_Item<P>::~Leaf_Item() = default;
 
 // Virtual Interface
 //============================================================
-// Does this item have a parent item?
-template <typename P>
-bool qtlib::outliner::Leaf_Item<P>::has_parent() const
-{
-    return m_parent != nullptr;
-}
-// Get the item that is the parent of this
-template <typename P>
-typename qtlib::outliner::Leaf_Item<P>::item_type* qtlib::outliner::Leaf_Item<P>::get_parent() const
-{
-    return m_parent;
-}
-// Get the item at the root of the structure
-template <typename P>
-typename qtlib::outliner::Leaf_Item<P>::item_type* qtlib::outliner::Leaf_Item<P>::get_root() const
-{
-    if (has_parent())
-    {
-        return m_parent->get_root();
-    }
-    else
-    {
-        return nullptr;
-    }
-}
-
+// Children
+//----------------------------------------
 // Does this item have any child items?
 template <typename P>
 bool qtlib::outliner::Leaf_Item<P>::has_children() const
@@ -152,49 +171,76 @@ int qtlib::outliner::Leaf_Item<P>::get_child_count() const
 
 // Does this item have a child item at this index?
 template <typename P>
-bool qtlib::outliner::Leaf_Item<P>::has_child_at(int a_index) const
+bool qtlib::outliner::Leaf_Item<P>::has_child_at(int /*a_index*/) const
 {
     return false;
 }
 // Get the child at a given row, return nullptr if there is no child at row
 template <typename P>
-typename qtlib::outliner::Leaf_Item<P>::item_type* qtlib::outliner::Leaf_Item<P>::get_child_at(int a_index) const
+typename qtlib::outliner::Leaf_Item<P>::item_type* qtlib::outliner::Leaf_Item<P>::get_child_at(int /*a_index*/) const
 {
     return nullptr;
 }
 
-// The row that this item is in relative to the parent e.g. if the parent has
-// 5 children, and this is the third, then row is 2. If this has no parent
-// then -1 is returned.
-template <typename P>
-int qtlib::outliner::Leaf_Item<P>::index_in_parent() const
-{
-    if (m_parent != nullptr)
-    {
-        for (int l_index = 0, l_end = m_parent->get_child_count(); l_index != l_end; ++l_index)
-        {
-            if (m_parent->get_child_at(l_index) == this)
-            {
-                return l_index;
-            }
-        }
-    }
 
-    return -1;
-}
+//---------------------------------------------------------------------------
+// outliner::Readonly_Leaf_Item<Parent>
+//---------------------------------------------------------------------------
+// Subclass of Leaf_Item<Parent> with the write interface implemented as
+// dummy functions. This exists to solve multiple inheritance problems if
+// you want to use features together.
 
-protected:
-// Additional Interface
+// Special 6
 //============================================================
 template <typename P>
-typename qtlib::outliner::Leaf_Item<P>::parent_type* qtlib::outliner::Leaf_Item<P>::get_true_parent() const
-{
-    return m_parent;
-}
+qtlib::outliner::Readonly_Leaf_Item<P>::Readonly_Leaf_Item(parent_type* a_parent):
+    Leaf_Item<P>(a_parent)
+{}
+
 template <typename P>
-void qtlib::outliner::Leaf_Item<P>::set_parent(parent_type* a_parent)
+qtlib::outliner::Readonly_Leaf_Item<P>::~Readonly_Leaf_Item() = default;
+
+// Virtual Interface
+//============================================================
+// Underlying data access
+//----------------------------------------
+// Set the data in item with the given value
+template <typename P>
+void qtlib::outliner::Readonly_Leaf_Item<P>::set_data(QVariant const& a_value)
 {
-    m_parent = a_parent;
+    this->abstract::Item::set_data(a_value);
 }
+
+// Editors
+//----------------------------------------
+// Make the appropriate editor for this item, parenting it to parent
+template <typename P>
+QWidget* qtlib::outliner::Readonly_Leaf_Item<P>::get_editor(QWidget* a_parent)
+{
+    return this->abstract::Item::get_editor(a_parent);
+}
+// Set the data in the editor to the value in the item
+template <typename P>
+void qtlib::outliner::Readonly_Leaf_Item<P>::set_editor_data(QWidget* a_editor)
+{
+    this->abstract::Item::set_editor_data(a_editor);
+}
+// Get the data in the editor and return it
+template <typename P>
+QVariant qtlib::outliner::Readonly_Leaf_Item<P>::get_editor_data(QWidget* a_editor)
+{
+    return this->abstract::Item::get_editor_data(a_editor);
+}
+
+// Other
+//----------------------------------------
+// Get the flags for this item
+template <typename P>
+Qt::ItemFlags qtlib::outliner::Readonly_Leaf_Item<P>::get_flags() const
+{
+    return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
+}
+
+
 
 #endif // OUTLINER_LEAF_ITEM_H

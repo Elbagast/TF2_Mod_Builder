@@ -9,6 +9,14 @@
 
 #include "project.h"
 
+namespace
+{
+    template <typename... Args>
+    void shadup(Args&&...)
+    {
+
+    }
+}
 
 //---------------------------------------------------------------------------
 // sak::outliner::Root_Item
@@ -19,47 +27,23 @@
 // Special 6
 //============================================================
 sak::outliner::Root_Item::Root_Item(Project& a_project):
-    m_project{a_project},
-    m_child{std::make_unique<Project_Item>(this)}
-{}
+    qtlib::outliner::Root_Trunk_Item<Project_Item>(),
+    m_project{a_project}
+{
+    this->set_child(std::make_unique<Project_Item>(this));
+}
 sak::outliner::Root_Item::~Root_Item() = default;
 
 // Virtual Interface
 //============================================================
-// Does this item have any child items?
-bool sak::outliner::Root_Item::has_children() const
-{
-    return m_child != nullptr;
-}
-// The number of children this item has
-int sak::outliner::Root_Item::get_child_count() const
-{
-    return 1;
-}
-
-// Does this item have a child item at this index?
-bool sak::outliner::Root_Item::has_child_at(int a_index) const
-{
-    return a_index == 0;
-}
-// Get the child at a given row, return nullptr if there is no child at row
-sak::outliner::Root_Item::item_type* sak::outliner::Root_Item::get_child_at(int a_index) const
-{
-    if (a_index == 0)
-    {
-        return m_child.get();
-    }
-    else
-    {
-        return nullptr;
-    }
-}
 // Other
 //----------------------------------------
 // Make and act on the context menu for this item. Need the model pointer here so that
 // actions can call functions in it for editing
 void sak::outliner::Root_Item::do_custom_context_menu(QAbstractItemView* a_view, model_type* a_model, QPoint const& a_point)
 {
+    shadup(a_view, a_model,a_point);
+
     QMenu menu{};
     menu.addAction("Root context menu");
     menu.addSeparator();
@@ -87,64 +71,26 @@ sak::Project const& sak::outliner::Root_Item::cget_project() const
 
 // Special 6
 //============================================================
-sak::outliner::Project_Item::Project_Item(Root_Item* a_parent):
-    qtlib::outliner::Readonly_Branch_Item<Root_Item, Header_Item>(a_parent)
-    //m_parent{a_parent}//,
-    //m_files{},
-    //m_textures{}
+sak::outliner::Project_Item::Project_Item(parent_type* a_parent):
+    inherited_type(a_parent)
 {
+    if (cget_project().has_files())
+    {
+        set_child<0>(std::make_unique<child_type<0>>(this));
+    }
+    //etc
+    /*
+    if (cget_project().has_textures())
+    {
+        set_child<0>(std::make_unique<child_type<0>>(this));
+    }
+    */
+
 }
 sak::outliner::Project_Item::~Project_Item() = default;
 
 // Virtual Interface
 //============================================================
-/*
-// Does this item have a parent item?
-bool sak::outliner::Project_Item::has_parent() const
-{
-    return true;
-}
-// Get the item that is the parent of this
-sak::outliner::Project_Item::item_type* sak::outliner::Project_Item::get_parent() const
-{
-    return m_parent;
-}
-// Get the item at the root of the structure
-sak::outliner::Project_Item::item_type* sak::outliner::Project_Item::get_root() const
-{
-    return m_parent;
-}
-
-// Does this item have any child items?
-bool sak::outliner::Project_Item::has_children() const
-{
-    return false;
-}
-// The number of children this item has
-int sak::outliner::Project_Item::get_child_count() const
-{
-    return 0;
-}
-
-// Does this item have a child item at this index?
-bool sak::outliner::Project_Item::has_child_at(int a_index) const
-{
-    return false;
-}
-// Get the child at a given row, return nullptr if there is no child at row
-sak::outliner::Project_Item::item_type* sak::outliner::Project_Item::get_child_at(int a_index) const
-{
-    return nullptr;
-}
-
-// The row that this item is in relative to the parent e.g. if the parent has
-// 5 children, and this is the third, then row is 2. If this has no parent
-// then -1 is returned.
-int sak::outliner::Project_Item::index_in_parent() const
-{
-    return 0;
-}
-*/
 // Underlying data access
 //----------------------------------------
 // Get the item data for a given column and role
@@ -166,6 +112,8 @@ QVariant sak::outliner::Project_Item::get_data(int a_role) const
 // actions can call functions in it for editing
 void sak::outliner::Project_Item::do_custom_context_menu(QAbstractItemView* a_view, model_type* a_model, QPoint const& a_point)
 {
+    shadup(a_view, a_model,a_point);
+
     QMenu menu{};
     menu.addAction("Project context menu");
     menu.addAction(cget_project().name())->setEnabled(false);
@@ -186,4 +134,114 @@ sak::Project const& sak::outliner::Project_Item::cget_project() const
     return get_true_parent()->cget_project();
 }
 
+//---------------------------------------------------------------------------
+// sak::outliner::File_Header_Item
+//---------------------------------------------------------------------------
+// Outliner item that represents the File container of a Project. It's children
+// are all the Files present in the Project.
 
+// Special 6
+//============================================================
+sak::outliner::File_Header_Item::File_Header_Item(parent_type* a_parent):
+    qtlib::outliner::Readonly_Branch_Item<Project_Item, File_Item>(a_parent)
+{}
+
+sak::outliner::File_Header_Item::~File_Header_Item() = default;
+
+// Virtual Interface
+//============================================================
+// Underlying data access
+//----------------------------------------
+// Get the item data for a given column and role
+QVariant sak::outliner::File_Header_Item::get_data(int a_role) const
+{
+    if (a_role == Qt::DisplayRole)
+    {
+        return QVariant(QString::fromUtf8(u8"Files"));
+    }
+    else
+    {
+        return QVariant();
+    }
+}
+// Other
+//----------------------------------------
+// Make and act on the context menu for this item. Need the model pointer here so that
+// actions can call functions in it for editing
+void sak::outliner::File_Header_Item::do_custom_context_menu(QAbstractItemView* a_view, model_type* a_model, QPoint const& a_point)
+{
+    shadup(a_view, a_model,a_point);
+
+    QMenu menu{};
+    menu.addAction("Files context menu");
+    menu.exec(a_point);
+}
+
+// Additional Interface
+//============================================================
+sak::Project& sak::outliner::File_Header_Item::get_project()
+{
+    return get_true_parent()->get_project();
+}
+
+sak::Project const& sak::outliner::File_Header_Item::cget_project() const
+{
+    return get_true_parent()->cget_project();
+}
+
+
+
+//---------------------------------------------------------------------------
+// sak::outliner::Texture_Header_Item
+//---------------------------------------------------------------------------
+// Outliner item that represents the Texture container of a Project. It's children
+// are all the Textures present in the Project.
+
+// Special 6
+//============================================================
+sak::outliner::Texture_Header_Item::Texture_Header_Item(parent_type* a_parent):
+    qtlib::outliner::Readonly_Branch_Item<Project_Item, Texture_Item>(a_parent)
+{}
+
+sak::outliner::Texture_Header_Item::~Texture_Header_Item() = default;
+
+// Virtual Interface
+//============================================================
+// Underlying data access
+//----------------------------------------
+// Get the item data for a given column and role
+QVariant sak::outliner::Texture_Header_Item::get_data(int a_role) const
+{
+    if (a_role == Qt::DisplayRole)
+    {
+        return QVariant(QString::fromUtf8(u8"Textures"));
+    }
+    else
+    {
+        return QVariant();
+    }
+}
+// Other
+//----------------------------------------
+// Make and act on the context menu for this item. Need the model pointer here so that
+// actions can call functions in it for editing
+void sak::outliner::Texture_Header_Item::do_custom_context_menu(QAbstractItemView* a_view, model_type* a_model, QPoint const& a_point)
+{
+    shadup(a_view, a_model,a_point);
+
+    QMenu menu{};
+    menu.addAction("Textures context menu");
+    menu.exec(a_point);
+}
+
+// Additional Interface
+//============================================================
+sak::Project& sak::outliner::Texture_Header_Item::get_project()
+{
+    return get_true_parent()->get_project();
+}
+
+sak::Project const& sak::outliner::Texture_Header_Item::cget_project() const
+{
+    return get_true_parent()->cget_project();
+}

@@ -36,27 +36,29 @@ namespace qtlib
 
                 // Virtual Interface
                 //============================================================
+                // Parent
+                //----------------------------------------
                 // Does this item have a parent item?
                 virtual bool has_parent() const = 0;
                 // Get the item that is the parent of this
                 virtual item_type* get_parent() const = 0;
                 // Get the item at the root of the structure
                 virtual item_type* get_root() const = 0;
-
-                // Does this item have any child items?
-                virtual bool has_children() const = 0;
-                // The number of child items this item has
-                virtual int get_child_count() const = 0;
-
-                // Does this item have a child item at this index?
-                virtual bool has_child_at(int a_index) const = 0;
-                // Get the child at a given row, return nullptr if there is no child at the index
-                virtual item_type* get_child_at(int a_index) const = 0;
-
                 // The row that this item is in relative to the parent e.g. if the parent has
                 // 5 children, and this is the third, then row is 2. If this has no parent
                 // then -1 is returned.
                 virtual int index_in_parent() const = 0;
+
+                // Children
+                //----------------------------------------
+                // Does this item have any child items?
+                virtual bool has_children() const = 0;
+                // The number of child items this item has
+                virtual int get_child_count() const = 0;
+                // Does this item have a child item at this index?
+                virtual bool has_child_at(int a_index) const = 0;
+                // Get the child at a given row, return nullptr if there is no child at the index
+                virtual item_type* get_child_at(int a_index) const = 0;
 
                 // Underlying data access
                 //----------------------------------------

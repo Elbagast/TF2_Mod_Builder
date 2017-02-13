@@ -1,5 +1,5 @@
-#ifndef OUTLINER_ROOT_H
-#define OUTLINER_ROOT_H
+#ifndef OUTLINER_ORPHANDED_ITEM_H
+#define OUTLINER_ORPHANDED_ITEM_H
 
 #include "outliner_abstract_item.h"
 
@@ -10,16 +10,11 @@ namespace qtlib
         namespace abstract
         {
             //---------------------------------------------------------------------------
-            // outliner::abstract::Root_Item
+            // outliner::abstract::Orphaned_Item
             //---------------------------------------------------------------------------
-            // Abstract subclass of abstract::Item. Subclass from this for your root
-            // (invisible) object in an outliner item tree. Functions that are part of
-            // the abstract::Item interface that will not be called on the root item
-            // are finalised with do-nothing implemenations. Your implemenation of
-            // do_custom_context_menu is what will be carried out in the view if one is
-            // requested where no item is present.
+            // Subclass of abstract::Item which implements the item having no parent item.
 
-            class Root_Item :
+            class Orphaned_Item :
                     public abstract::Item
             {
             public:
@@ -28,7 +23,7 @@ namespace qtlib
 
                 // Special 6
                 //============================================================
-                ~Root_Item() override;
+                ~Orphaned_Item() override;
 
                 // Virtual Interface
                 //============================================================
@@ -59,23 +54,23 @@ namespace qtlib
                 // Underlying data access
                 //----------------------------------------
                 // Get the item data for a given column and role
-                QVariant get_data(int a_role = Qt::DisplayRole) const override final;
+                QVariant get_data(int a_role = Qt::DisplayRole) const override = 0;
                 // Set the data in item with the given value
-                void set_data(QVariant const& a_value) override final;
+                void set_data(QVariant const& a_value) override = 0;
 
                 // Editors
                 //----------------------------------------
                 // Make the appropriate editor for this item, parenting it to parent
-                QWidget* get_editor(QWidget* a_parent) override final;
+                QWidget* get_editor(QWidget* a_parent) override = 0;
                 // Set the data in the editor to the value in the item
-                void set_editor_data(QWidget* a_editor) override final;
+                void set_editor_data(QWidget* a_editor) override = 0;
                 // Get the data in the editor and return it
-                QVariant get_editor_data(QWidget* a_editor) override final;
+                QVariant get_editor_data(QWidget* a_editor) override = 0;
 
                 // Other
                 //----------------------------------------
                 // Get the flags for this item
-                Qt::ItemFlags get_flags() const override final;
+                Qt::ItemFlags get_flags() const override = 0;
                 // Make and act on the context menu for this item. Need the model pointer here so that
                 // actions can call functions in it for editing
                 void do_custom_context_menu(QAbstractItemView* a_view, model_type* a_model, QPoint const& a_point) override = 0;
@@ -84,4 +79,4 @@ namespace qtlib
     } // namespace outliner
 } // namespace qtlib
 
-#endif // OUTLINER_ROOT_H
+#endif // OUTLINER_ORPHANDED_ITEM_H
