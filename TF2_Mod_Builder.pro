@@ -90,12 +90,14 @@ SOURCES += \
     sak/exceptions/exception.cpp \
     sak/system_settings.cpp \
     qtlib/outliner/outliner_delegate.cpp \
-    qtlib/outliner/outliner_item.cpp \
-    qtlib/outliner/outliner_item_readonly.cpp \
     qtlib/outliner/outliner_model.cpp \
     qtlib/outliner/outliner_treeview.cpp \
     sak/project_outliner_items.cpp \
-    qtlib/outliner/outliner_item_root.cpp
+    qtlib/outliner/outliner_abstract_item.cpp \
+    qtlib/outliner/outliner_abstract_root_item.cpp \
+    qtlib/outliner/outliner_abstract_readonly_item.cpp \
+    qtlib/outliner/outliner_branch_item.cpp \
+    qtlib/outliner/outliner_leaf_item.cpp
     
 
 HEADERS  += \
@@ -112,12 +114,14 @@ HEADERS  += \
     sak/exceptions/exception.h \
     sak/system_settings.h \
     qtlib/outliner/outliner_delegate.h \
-    qtlib/outliner/outliner_item.h \
-    qtlib/outliner/outliner_item_readonly.h \
     qtlib/outliner/outliner_model.h \
     qtlib/outliner/outliner_treeview.h \
     sak/project_outliner_items.h \
-    qtlib/outliner/outliner_item_root.h
+    qtlib/outliner/outliner_abstract_item.h \
+    qtlib/outliner/outliner_abstract_root_item.h \
+    qtlib/outliner/outliner_abstract_readonly_item.h \
+    qtlib/outliner/outliner_branch_item.h \
+    qtlib/outliner/outliner_leaf_item.h
     
 
 FORMS

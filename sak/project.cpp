@@ -16,23 +16,27 @@
 
 // Pimpl Data
 //============================================================
-class sak::Project::Implementation
+namespace sak
 {
-public:
-    QFileInfo m_filepath;
-    QString m_message;
-    QString m_data;
-
-    Implementation(QString const& a_filepath):
-        m_filepath{a_filepath},
-        m_message{"got here"},
-        m_data{}
+    class Project::Implementation
     {
-    }
-    ~Implementation() = default;
-};
+    public:
+        QFileInfo m_filepath;
+        QString m_message;
+        QString m_data;
 
+        std::vector<File> m_files;
 
+        Implementation(QString const& a_filepath):
+            m_filepath{a_filepath},
+            m_message{"got here"},
+            m_data{},
+            m_files{}
+        {
+        }
+        ~Implementation() = default;
+    };
+}
 
 // Special 6
 //============================================================
@@ -193,4 +197,68 @@ QString sak::Project::message() const
 QString sak::Project::content() const
 {
     return cimp().m_data;
+}
+
+// File Interface
+//============================================================
+
+// Are there any Files in this Project?
+bool sak::Project::has_files() const
+{
+    return !(cimp().m_files.empty());
+}
+
+// How many any Files are in this Project?
+std::size_t sak::Project::file_count() const
+{
+    return cimp().m_files.size();
+}
+
+// Get the file at this index, asssuming the Files are alphabetically sorted by name
+sak::File* sak::Project::get_file_at(std::size_t a_index)
+{
+    return &(imp().m_files.at(a_index));
+}
+
+sak::File const* sak::Project::cget_file_at(std::size_t a_index) const
+{
+    return &(cimp().m_files.at(a_index));
+}
+
+// Get all the Files alphabetically sorted by name
+std::vector<sak::File*> sak::Project::get_all_files()
+{
+    std::vector<sak::File*> l_result{};
+    l_result.reserve(cimp().m_files.size());
+    for (auto& l_file : imp().m_files)
+    {
+        l_result.push_back(&l_file);
+    }
+    return l_result;
+}
+
+std::vector<sak::File const*> sak::Project::cget_all_files() const
+{
+    std::vector<sak::File const*> l_result{};
+    l_result.reserve(cimp().m_files.size());
+    for (auto const& l_file : cimp().m_files)
+    {
+        l_result.push_back(&l_file);
+    }
+    return l_result;
+}
+
+// Add a new file. Project takes ownership of the File. File is inserted in
+// the appropriate place to maintain sorting and Project signals that the File list
+// has gained an item at that posiiton.
+void sak::Project::add_file(File&& a_file)
+{
+
+}
+
+// Remove the file at this index and return it. Project is no longer its owner.
+// Project signals that the File list has lost an item at that location.
+sak::File sak::Project::remove_file_at(std::size_t a_index)
+{
+    return File();
 }

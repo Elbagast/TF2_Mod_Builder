@@ -1,130 +1,189 @@
 #include "project_outliner_items.h"
-#include "project.h"
+
+#include <cassert>
+
 #include <QString>
 #include <QVariant>
+#include <QMenu>
+#include <QAction>
 
-sak::Outliner_Root::Outliner_Root(Project& a_project):
-    qtlib::Outliner_Item_Root()
+#include "project.h"
+
+
+//---------------------------------------------------------------------------
+// sak::outliner::Root_Item
+//---------------------------------------------------------------------------
+// Outliner root item for a single project. This item is invisible and
+// defines the default context menu.
+
+// Special 6
+//============================================================
+sak::outliner::Root_Item::Root_Item(Project& a_project):
+    m_project{a_project},
+    m_child{std::make_unique<Project_Item>(this)}
+{}
+sak::outliner::Root_Item::~Root_Item() = default;
+
+// Virtual Interface
+//============================================================
+// Does this item have any child items?
+bool sak::outliner::Root_Item::has_children() const
 {
-    this->append_child(std::make_unique<Outliner_Project>(a_project, this));
+    return m_child != nullptr;
+}
+// The number of children this item has
+int sak::outliner::Root_Item::get_child_count() const
+{
+    return 1;
 }
 
-sak::Outliner_Root::~Outliner_Root() = default;
-
-
-sak::Outliner_Project::Outliner_Project(Project& a_project, Outliner_Root* a_parent):
-    qtlib::Outliner_Item_ReadOnly(a_parent),
-    m_project{a_project}
+// Does this item have a child item at this index?
+bool sak::outliner::Root_Item::has_child_at(int a_index) const
 {
-    this->append_child(std::make_unique<Outliner_Header_Files>(a_project, this));
-    this->append_child(std::make_unique<Outliner_Header_Textures>(a_project, this));
+    return a_index == 0;
+}
+// Get the child at a given row, return nullptr if there is no child at row
+sak::outliner::Root_Item::item_type* sak::outliner::Root_Item::get_child_at(int a_index) const
+{
+    if (a_index == 0)
+    {
+        return m_child.get();
+    }
+    else
+    {
+        return nullptr;
+    }
+}
+// Other
+//----------------------------------------
+// Make and act on the context menu for this item. Need the model pointer here so that
+// actions can call functions in it for editing
+void sak::outliner::Root_Item::do_custom_context_menu(QAbstractItemView* a_view, model_type* a_model, QPoint const& a_point)
+{
+    QMenu menu{};
+    menu.addAction("Root context menu");
+    menu.addSeparator();
+    menu.addAction("blah blah blah");
+    menu.exec(a_point);
 }
 
-sak::Outliner_Project::~Outliner_Project() = default;
-
-sak::Project& sak::Outliner_Project::get_project()
+// Additional Interface
+//============================================================
+sak::Project& sak::outliner::Root_Item::get_project()
 {
     return m_project;
 }
 
-sak::Project const& sak::Outliner_Project::cget_project() const
+sak::Project const& sak::outliner::Root_Item::cget_project() const
 {
     return m_project;
 }
 
-// Virtuals
+
+//---------------------------------------------------------------------------
+// sak::outliner::Project_Item
+//---------------------------------------------------------------------------
+// Outliner item that represents a Project. It's data is the Project's name.
+
+// Special 6
 //============================================================
-QVariant sak::Outliner_Project::v_get_data(int a_role) const
+sak::outliner::Project_Item::Project_Item(Root_Item* a_parent):
+    qtlib::outliner::Readonly_Branch_Item<Root_Item, Header_Item>(a_parent)
+    //m_parent{a_parent}//,
+    //m_files{},
+    //m_textures{}
+{
+}
+sak::outliner::Project_Item::~Project_Item() = default;
+
+// Virtual Interface
+//============================================================
+/*
+// Does this item have a parent item?
+bool sak::outliner::Project_Item::has_parent() const
+{
+    return true;
+}
+// Get the item that is the parent of this
+sak::outliner::Project_Item::item_type* sak::outliner::Project_Item::get_parent() const
+{
+    return m_parent;
+}
+// Get the item at the root of the structure
+sak::outliner::Project_Item::item_type* sak::outliner::Project_Item::get_root() const
+{
+    return m_parent;
+}
+
+// Does this item have any child items?
+bool sak::outliner::Project_Item::has_children() const
+{
+    return false;
+}
+// The number of children this item has
+int sak::outliner::Project_Item::get_child_count() const
+{
+    return 0;
+}
+
+// Does this item have a child item at this index?
+bool sak::outliner::Project_Item::has_child_at(int a_index) const
+{
+    return false;
+}
+// Get the child at a given row, return nullptr if there is no child at row
+sak::outliner::Project_Item::item_type* sak::outliner::Project_Item::get_child_at(int a_index) const
+{
+    return nullptr;
+}
+
+// The row that this item is in relative to the parent e.g. if the parent has
+// 5 children, and this is the third, then row is 2. If this has no parent
+// then -1 is returned.
+int sak::outliner::Project_Item::index_in_parent() const
+{
+    return 0;
+}
+*/
+// Underlying data access
+//----------------------------------------
+// Get the item data for a given column and role
+QVariant sak::outliner::Project_Item::get_data(int a_role) const
 {
     if (a_role == Qt::DisplayRole)
     {
-        return QVariant(m_project.name());
+        return QVariant(cget_project().name());
     }
     else
     {
-        return QVariant(QString::fromUtf8(u8"PROJECT FUCK UP"));
+        return QVariant();
     }
 }
 
-void sak::Outliner_Project::v_custom_context_menu(QAbstractItemView* a_view, qtlib::Outliner_Model* a_model, QPoint const& a_position)
+// Other
+//----------------------------------------
+// Make and act on the context menu for this item. Need the model pointer here so that
+// actions can call functions in it for editing
+void sak::outliner::Project_Item::do_custom_context_menu(QAbstractItemView* a_view, model_type* a_model, QPoint const& a_point)
 {
-    return this->Outliner_Item::v_custom_context_menu(a_view, a_model,a_position);
+    QMenu menu{};
+    menu.addAction("Project context menu");
+    menu.addAction(cget_project().name())->setEnabled(false);
+    menu.addSeparator();
+    menu.addAction("mooooo");
+    menu.addAction("buhi.");
+    menu.exec(a_point);
 }
 
-
-
-sak::Outliner_Header_Files::Outliner_Header_Files(Project& a_project, Outliner_Project* a_parent):
-    qtlib::Outliner_Item_ReadOnly(a_parent)
-{
-
-}
-
-sak::Outliner_Header_Files::~Outliner_Header_Files() = default;
-
-sak::Project& sak::Outliner_Header_Files::get_project()
-{
-    return static_cast<Outliner_Project*>(get_parent())->get_project();
-}
-
-sak::Project const& sak::Outliner_Header_Files::cget_project() const
-{
-    return static_cast<Outliner_Project const*>(get_parent())->cget_project();
-}
-
-// Virtuals
+// Additional Interface
 //============================================================
-QVariant sak::Outliner_Header_Files::v_get_data(int a_role) const
+sak::Project& sak::outliner::Project_Item::get_project()
 {
-    if (a_role == Qt::DisplayRole)
-    {
-        return QVariant(u8"Files");
-    }
-    else
-    {
-        return QVariant(QString::fromUtf8(u8"Files FUCK UP"));
-    }
+    return get_true_parent()->get_project();
 }
-
-void sak::Outliner_Header_Files::v_custom_context_menu(QAbstractItemView* a_view, qtlib::Outliner_Model* a_model, QPoint const& a_position)
+sak::Project const& sak::outliner::Project_Item::cget_project() const
 {
-    return this->Outliner_Item::v_custom_context_menu(a_view, a_model,a_position);
+    return get_true_parent()->cget_project();
 }
 
 
-sak::Outliner_Header_Textures::Outliner_Header_Textures(Project& a_project, Outliner_Project* a_parent):
-    qtlib::Outliner_Item_ReadOnly(a_parent)
-{
-
-}
-
-sak::Outliner_Header_Textures::~Outliner_Header_Textures() = default;
-
-sak::Project& sak::Outliner_Header_Textures::get_project()
-{
-    return static_cast<Outliner_Project*>(get_parent())->get_project();
-}
-
-sak::Project const& sak::Outliner_Header_Textures::cget_project() const
-{
-    return static_cast<Outliner_Project const*>(get_parent())->cget_project();
-}
-
-
-// Virtuals
-//============================================================
-QVariant sak::Outliner_Header_Textures::v_get_data(int a_role) const
-{
-    if (a_role == Qt::DisplayRole)
-    {
-        return QVariant(u8"Textures");
-    }
-    else
-    {
-        return QVariant(QString::fromUtf8(u8"Textures FUCK UP"));
-    }
-}
-
-void sak::Outliner_Header_Textures::v_custom_context_menu(QAbstractItemView* a_view, qtlib::Outliner_Model* a_model, QPoint const& a_position)
-{
-    return this->Outliner_Item::v_custom_context_menu(a_view, a_model,a_position);
-}

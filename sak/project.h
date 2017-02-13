@@ -2,7 +2,9 @@
 #define PROJECT_H
 
 #include <memory>
+#include <vector>
 class QString;
+#include <QString>
 
 namespace sak
 {
@@ -10,13 +12,33 @@ namespace sak
     // Component
     //---------------------------------------------------------------------------
     // temp classes
-    class Componentrest
+    class Component
     {
     public:
-        QString const& name() const;
-        QString const& description() const;
-    };
+        Component():
+            m_name{},
+            m_description{}
+        {}
+        Component(QString const& a_name, QString const& a_description):
+            m_name{a_name},
+            m_description{a_description}
+        {}
 
+        QString const& cget_name() const { return m_name; }
+        QString const& cget_description() const { return m_description; }
+
+        void set_name(QString const& a_name) { m_name = a_name; }
+        void set_description(QString const& a_description) { m_description = a_description; }
+    private:
+        QString m_name;
+        QString m_description;
+    };
+    class File : public Component {};
+    class Texture : public Component {};
+    class Material : public Component {};
+    class Model : public Component {};
+    class Package : public Component {};
+    class Release : public Component {};
 
     //---------------------------------------------------------------------------
     // Project
@@ -88,7 +110,33 @@ namespace sak
         QString message() const;
         QString content() const;
 
+        // File Interface
+        //============================================================
+        // Probably better to have these as handle classes and deal with
+        // data management elsewhere.
 
+        // Are there any Files in this Project?
+        bool has_files() const;
+
+        // How many any Files are in this Project?
+        std::size_t file_count() const;
+
+        // Get the file at this index, asssuming the Files are alphabetically sorted by name
+        File* get_file_at(std::size_t a_index);
+        File const* cget_file_at(std::size_t a_index) const;
+
+        // Get all the Files alphabetically sorted by name
+        std::vector<File*> get_all_files();
+        std::vector<File const*> cget_all_files() const;
+
+        // Add a new file. Project takes ownership of the File. File is inserted in
+        // the appropriate place to maintain sorting and Project signals that the File list
+        // has gained an item at that posiiton.
+        void add_file(File&& a_file);
+
+        // Remove the file at this index and return it. Project is no longer its owner.
+        // Project signals that the File list has lost an item at that location.
+        File remove_file_at(std::size_t a_index);
 
 
     private:

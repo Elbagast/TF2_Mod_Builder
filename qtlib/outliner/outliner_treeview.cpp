@@ -1,35 +1,35 @@
 #include "outliner_treeview.h"
 #include "outliner_model.h"
-#include "outliner_item.h"
+#include "outliner_abstract_item.h"
 #include <QHeaderView>
 #include <QMenu>
 
 //---------------------------------------------------------------------------
-// Outliner_Treeview
+// outliner::Treeview
 //---------------------------------------------------------------------------
-// Class derived from QTreeView for use with Outliner_Model which provides the capability
-// to act on custom context menus for Outliner_Item classes. There is also some custom
+// Class derived from QTreeView for use with Model which provides the capability
+// to act on custom context menus for abstract::Item classes. There is also some custom
 // behaviour for adding items, and there may be more in the future - it depends what has
 // to be done here.
 
 // Special 6
 //============================================================
-qtlib::Outliner_Treeview::Outliner_Treeview(QWidget* a_parent) :
+qtlib::outliner::Treeview::Treeview(QWidget* a_parent) :
     QTreeView(a_parent)
 {
     // Connect the base class signal to the new slot so that we can do our own context menu
     QObject::connect(this, &QTreeView::customContextMenuRequested,
-                     this, &Outliner_Treeview::slot_custom_context_menu_requested);
+                     this, &Treeview::slot_custom_context_menu_requested);
 
     apply_settings();
 }
 
-qtlib::Outliner_Treeview::~Outliner_Treeview() = default;
+qtlib::outliner::Treeview::~Treeview() = default;
 
 // Since there is a bunch of additional behaviour, this is a new
 // function that will apply it and also limit the type of model
 // that can be used.
-void qtlib::Outliner_Treeview::set_model(Outliner_Model* a_model)
+void qtlib::outliner::Treeview::set_model(Model* a_model)
 {
     this->QTreeView::setModel(a_model);
     apply_settings();
@@ -37,7 +37,7 @@ void qtlib::Outliner_Treeview::set_model(Outliner_Model* a_model)
 
 // Slots
 //============================================================
-void qtlib::Outliner_Treeview::slot_custom_context_menu_requested(QPoint const& a_position)
+void qtlib::outliner::Treeview::slot_custom_context_menu_requested(QPoint const& a_position)
 {
     // Gives the currently selected index (always valid)
     //QModelIndex index = this->currentIndex();
@@ -46,7 +46,7 @@ void qtlib::Outliner_Treeview::slot_custom_context_menu_requested(QPoint const& 
     auto l_index = this->indexAt(a_position);
 
     // Cast to the assumed correct model type
-    auto l_model = dynamic_cast<Outliner_Model*>(this->model());
+    auto l_model = dynamic_cast<Model*>(this->model());
 
     // if the cast worked (sanity check)
     if (l_model && l_model->is_active())
@@ -55,13 +55,13 @@ void qtlib::Outliner_Treeview::slot_custom_context_menu_requested(QPoint const& 
         if(l_index.isValid())
         {
             // Get the custom context menu for the selected item
-            Outliner_Item::from_index(l_index)->custom_context_menu(this, l_model, viewport()->mapToGlobal(a_position));
+            abstract::Item::from_index(l_index)->do_custom_context_menu(this, l_model, viewport()->mapToGlobal(a_position));
         }
         // else not requested on an item (clicking away from any items)
         else
         {
             // Get the custom context menu for the root item (which is not visible)
-            l_model->get_root()->custom_context_menu(this, l_model, viewport()->mapToGlobal(a_position));
+            l_model->get_root()->do_custom_context_menu(this, l_model, viewport()->mapToGlobal(a_position));
         }
     }
 
@@ -69,7 +69,7 @@ void qtlib::Outliner_Treeview::slot_custom_context_menu_requested(QPoint const& 
 
 // Virtual Overrides
 //============================================================
-void qtlib::Outliner_Treeview::rowsInserted(QModelIndex const& a_parent, int a_start, int a_end)
+void qtlib::outliner::Treeview::rowsInserted(QModelIndex const& a_parent, int a_start, int a_end)
 {
     // Make sure the parent is expanded, it may not have had children before this and
     // we want them to be visible.
@@ -81,7 +81,7 @@ void qtlib::Outliner_Treeview::rowsInserted(QModelIndex const& a_parent, int a_s
 
 // Convenience
 //============================================================
-void qtlib::Outliner_Treeview::apply_settings()
+void qtlib::outliner::Treeview::apply_settings()
 {
     // This has to be disabled regardless
     header()->setStretchLastSection(false);

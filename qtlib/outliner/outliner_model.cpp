@@ -1,33 +1,39 @@
 #include "outliner_model.h"
-#include "outliner_item.h"
-#include "outliner_item_root.h"
+#include "outliner_abstract_item.h"
 #include <cassert>
 #include <QDebug>
+
+//---------------------------------------------------------------------------
+// outliner::Model
+//---------------------------------------------------------------------------
+// A specialised model with only one column. Create a sublclass of abstract::Item
+// and give it to this class in order to use it. Model relies entirely
+// on the public interface of abstract::Item.
 
 // Special 6
 //============================================================
 // Construct without an associated root item. The model will function but be empty.
-qtlib::Outliner_Model::Outliner_Model(QObject* a_parent):
+qtlib::outliner::Model::Model(QObject* a_parent):
     QAbstractItemModel(a_parent),
     m_root{nullptr}
 {
 }
 
 // Construct with an associated root item. The model will function using this root.
-qtlib::Outliner_Model::Outliner_Model(Outliner_Item* a_root, QObject* a_parent):
+qtlib::outliner::Model::Model(abstract::Item* a_root, QObject* a_parent):
     QAbstractItemModel(a_parent),
     m_root{a_root}
 {
 }
-qtlib::Outliner_Model::~Outliner_Model() = default;
+qtlib::outliner::Model::~Model() = default;
 
 
 // Virtual Overrides
 //============================================================
 // Read functions
 //----------------------------------------
-// Get the flags for the Outliner_Item at a given QModelIndex.
-Qt::ItemFlags qtlib::Outliner_Model::flags(QModelIndex const& a_index) const
+// Get the flags for the abstract::Item at a given QModelIndex.
+Qt::ItemFlags qtlib::outliner::Model::flags(QModelIndex const& a_index) const
 {
     // if the model is inactive
     if (!is_active())
@@ -35,10 +41,10 @@ Qt::ItemFlags qtlib::Outliner_Model::flags(QModelIndex const& a_index) const
         return Qt::NoItemFlags;
     }
 
-    // if this index exists, get the flags from the Outliner_Item* stored in the index
+    // if this index exists, get the flags from the abstract::Item* stored in the index
     if (a_index.isValid())//isIndexValid(index))
     {
-        return Outliner_Item::from_index(a_index)->flags();
+        return abstract::Item::from_index(a_index)->get_flags();
     }
     // else no flags
     else
@@ -46,8 +52,8 @@ Qt::ItemFlags qtlib::Outliner_Model::flags(QModelIndex const& a_index) const
         return Qt::NoItemFlags;
     }
 }
-// Get the data for the Outliner_Item at a given QModelIndex.
-QVariant qtlib::Outliner_Model::data(QModelIndex const& a_index, int a_role) const
+// Get the data for the abstract::Item at a given QModelIndex.
+QVariant qtlib::outliner::Model::data(QModelIndex const& a_index, int a_role) const
 {
     // if the model is inactive
     if (!is_active())
@@ -55,13 +61,13 @@ QVariant qtlib::Outliner_Model::data(QModelIndex const& a_index, int a_role) con
         return QVariant();
     }
 
-    // if  this index exists, get the data from the Outliner_Item* stored in the index
+    // if  this index exists, get the data from the abstract::Item* stored in the index
     if (a_index.isValid()
         && a_role == Qt::DisplayRole
         && a_index.column() == 0
         )//isIndexValid(index))
     {
-        return Outliner_Item::from_index(a_index)->get_data(a_role);
+        return abstract::Item::from_index(a_index)->get_data(a_role);
     }
     // else return nothing
     else
@@ -71,7 +77,7 @@ QVariant qtlib::Outliner_Model::data(QModelIndex const& a_index, int a_role) con
 }
 // Write functions
 // This is used to edit the data structure with or without a delegate installed.
-bool qtlib::Outliner_Model::setData(QModelIndex const& index, QVariant const& value, int role)
+bool qtlib::outliner::Model::setData(QModelIndex const& index, QVariant const& value, int role)
 {
     // if the model is inactive
     if (!is_active())
@@ -84,7 +90,7 @@ bool qtlib::Outliner_Model::setData(QModelIndex const& index, QVariant const& va
         && role == Qt::EditRole)
     {
         // Virtual call to item pointer stored in index
-        Outliner_Item::from_index(index)->set_data(value);
+        abstract::Item::from_index(index)->set_data(value);
         // Emit a signal to tell attatched views that the data has changed at this index
         emit QAbstractItemModel::dataChanged(index, index);
         return true;
@@ -97,7 +103,7 @@ bool qtlib::Outliner_Model::setData(QModelIndex const& index, QVariant const& va
 }
 
 /*
-bool qtlib::Outliner_Model::insertRows(int row, int count, QModelIndex const& parent)
+bool qtlib::outliner::Model::insertRows(int row, int count, QModelIndex const& parent)
 {
     if (parent.isValid())
     {
@@ -111,7 +117,7 @@ bool qtlib::Outliner_Model::insertRows(int row, int count, QModelIndex const& pa
     else
         return false;
 }
-bool qtlib::Outliner_Model::removeRows(int row, int count, QModelIndex const& parent)
+bool qtlib::outliner::Model::removeRows(int row, int count, QModelIndex const& parent)
 {
     if (parent.isValid())
     {
@@ -129,8 +135,8 @@ bool qtlib::Outliner_Model::removeRows(int row, int count, QModelIndex const& pa
 
 // Indexing
 //----------------------------------------
-// The number of rows (children) the Outliner_Item at a given QModelIndex has.
-int qtlib::Outliner_Model::rowCount(QModelIndex const& a_parent) const
+// The number of rows (children) the abstract::Item at a given QModelIndex has.
+int qtlib::outliner::Model::rowCount(QModelIndex const& a_parent) const
 {
     //qDebug() << "rowCount: " << a_parent;
 
@@ -149,13 +155,13 @@ int qtlib::Outliner_Model::rowCount(QModelIndex const& a_parent) const
     }
 
     // Make a pointer that will be the l_parent_item for parent
-    Outliner_Item const* l_item{nullptr};
+    abstract::Item const* l_item{nullptr};
 
     // if the index is valid then l_parent_item is the root item
     if (a_parent.isValid()) // && hasIndex(parent.row(), parent.column(), parent.parent()) ??
     {
         //qDebug() << " children = " << Outliner_Item::from_index(a_parent)->child_count();
-        l_item = Outliner_Item::from_index(a_parent);
+        l_item = abstract::Item::from_index(a_parent);
     }
     // else l_parent_item is the root item
     else
@@ -163,12 +169,13 @@ int qtlib::Outliner_Model::rowCount(QModelIndex const& a_parent) const
         //qDebug() << " root children = " << m_root->child_count();
         l_item = m_root;
     }
-    return l_item->child_count();
+    // Get the child count from the item.
+    return l_item->get_child_count();
 }
 
-// The number of columns (children) the Outliner_Item at a given QModelIndex has,
+// The number of columns (children) the abstract::Item at a given QModelIndex has,
 // but this just returns 1 as there is only one column.
-int qtlib::Outliner_Model::columnCount(QModelIndex const& /*a_parent*/) const
+int qtlib::outliner::Model::columnCount(QModelIndex const& /*a_parent*/) const
 {
     //qDebug() << "columnCount: " << a_parent;
     // if the model is inactive
@@ -182,7 +189,7 @@ int qtlib::Outliner_Model::columnCount(QModelIndex const& /*a_parent*/) const
 }
 
 // Get the index of the item at the given position
-QModelIndex qtlib::Outliner_Model::index(int a_row, int a_column, QModelIndex const& a_parent) const
+QModelIndex qtlib::outliner::Model::index(int a_row, int a_column, QModelIndex const& a_parent) const
 {
     //qDebug() << "index: " << a_row << " " << a_column << " " << a_parent;
 
@@ -200,22 +207,14 @@ QModelIndex qtlib::Outliner_Model::index(int a_row, int a_column, QModelIndex co
         return QModelIndex();
     }
 
-    /*
-    return QModelIndex();
-
-    is equivalent to:
-
-    return QAbstractItemModel::createIndex(0, 0, nullptr);
-    */
-
     // Make a pointer that will be the l_parent_item for the index returned
-    Outliner_Item* l_parent_item{nullptr};
+    abstract::Item* l_parent_item{nullptr};
 
     // if the parent index is valid
     if (a_parent.isValid())
     {
         // get the item
-        l_parent_item = Outliner_Item::from_index(a_parent);
+        l_parent_item = abstract::Item::from_index(a_parent);
     }
     // else it's the root
     else
@@ -224,9 +223,9 @@ QModelIndex qtlib::Outliner_Model::index(int a_row, int a_column, QModelIndex co
     }
     assert(l_parent_item != nullptr);
     assert(a_row != -1);
-    assert(a_row < l_parent_item->child_count());
+    assert(a_row < l_parent_item->get_child_count());
     // Make a pointer that will be the item for the index returned
-    Outliner_Item* l_child_item{l_parent_item->get_child(a_row)};
+    abstract::Item* l_child_item{l_parent_item->get_child_at(a_row)};
 
     // if l_child_item is valid (parent had a child at row) then create and return and index for l_child_item
     if (l_child_item != nullptr)
@@ -242,7 +241,7 @@ QModelIndex qtlib::Outliner_Model::index(int a_row, int a_column, QModelIndex co
     }
 }
 // Get the index of the parent of the item at a given index
-QModelIndex qtlib::Outliner_Model::parent(QModelIndex const& a_index) const
+QModelIndex qtlib::outliner::Model::parent(QModelIndex const& a_index) const
 {
     //qDebug() << "parent: " << a_index;
 
@@ -261,10 +260,10 @@ QModelIndex qtlib::Outliner_Model::parent(QModelIndex const& a_index) const
     }
 
     // l_child_item is the item in the index
-    Outliner_Item* l_child_item = Outliner_Item::from_index(a_index);
+    abstract::Item* l_child_item = abstract::Item::from_index(a_index);
 
     // l_parent_item is the parent of l_child_item
-    Outliner_Item* l_parent_item = l_child_item->get_parent();
+    abstract::Item* l_parent_item = l_child_item->get_parent();
 
     assert(l_child_item != nullptr);
     assert(l_parent_item != nullptr);
@@ -279,33 +278,33 @@ QModelIndex qtlib::Outliner_Model::parent(QModelIndex const& a_index) const
     else
     {
         //qDebug() << " result = " << l_parent_item->row() << ", " << 0 << ", " << l_parent_item ;
-        return QAbstractItemModel::createIndex(l_parent_item->row(), 0, l_parent_item);
+        return QAbstractItemModel::createIndex(l_parent_item->index_in_parent(), 0, l_parent_item);
     }
 }
 
 // Custom Access
 //============================================================
 // Does the model have any data to show? i.e. is there a root item?
-bool qtlib::Outliner_Model::is_active() const
+bool qtlib::outliner::Model::is_active() const
 {
     return m_root != nullptr;
 }
 // Access the root item. The root is not owned by Outliner_Model.
-qtlib::Outliner_Item* qtlib::Outliner_Model::get_root() const
+qtlib::outliner::abstract::Item* qtlib::outliner::Model::get_root() const
 {
     return m_root;
 }
 // Replace the root item and refresh the model in all views. The old
 // root is not deleted. The new root is not owned by Outliner_Model.
-void qtlib::Outliner_Model::set_root(Outliner_Item* a_root)
+void qtlib::outliner::Model::set_root(abstract::Item* a_root)
 {
     this->beginResetModel();
     m_root = a_root;
     this->endResetModel();
 }
 
-// Make an index from an item, mostly so that Outliner_Item can make an index of itself without being a friend
-QModelIndex qtlib::Outliner_Model::create_index_from_item(Outliner_Item* a_item) const
+// Make an index from an item, mostly so that abstract::Item can make an index of itself without being a friend
+QModelIndex qtlib::outliner::Model::create_index_from_item(abstract::Item* a_item) const
 {
     // if the model is inactive
     if (!is_active())
@@ -319,6 +318,8 @@ QModelIndex qtlib::Outliner_Model::create_index_from_item(Outliner_Item* a_item)
         return QModelIndex();
     }
 
+    // Should probably check if the item is in this model somewhere.
+
     // if the item is the root, make a root (empty) index
     if (a_item == m_root)
     {
@@ -328,6 +329,6 @@ QModelIndex qtlib::Outliner_Model::create_index_from_item(Outliner_Item* a_item)
     else
     {
         // Column is always 0 in this model, so be wary if copying this code.
-        return QAbstractItemModel::createIndex(a_item->row(), 0, static_cast<void*>(a_item));
+        return QAbstractItemModel::createIndex(a_item->index_in_parent(), 0, static_cast<void*>(a_item));
     }
 }
