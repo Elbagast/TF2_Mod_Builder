@@ -103,7 +103,12 @@ SOURCES += \
     qtlib/outliner/outliner_root_trunk_item.cpp \
     qtlib/outliner/outliner_parented_item.cpp \
     qtlib/outliner/outliner_orphanded_item.cpp \
-    qtlib/outliner/outliner_multitrunk_item.cpp
+    qtlib/outliner/outliner_multitrunk_item.cpp \
+    generic/manager.cpp \
+    generic/uintid.cpp \
+    generic/uintid_manager.cpp \
+    generic/uintid_traits.cpp \
+    generic/extended_manager.cpp
     
 
 HEADERS  += \
@@ -133,7 +138,12 @@ HEADERS  += \
     qtlib/outliner/outliner_root_trunk_item.h \
     qtlib/outliner/outliner_parented_item.h \
     qtlib/outliner/outliner_orphanded_item.h \
-    qtlib/outliner/outliner_multitrunk_item.h
+    qtlib/outliner/outliner_multitrunk_item.h \
+    generic/manager.h \
+    generic/uintid.h \
+    generic/uintid_manager.h \
+    generic/uintid_traits.h \
+    generic/extended_manager.h
     
 
 FORMS

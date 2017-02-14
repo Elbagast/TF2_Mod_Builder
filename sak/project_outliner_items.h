@@ -129,8 +129,30 @@ namespace sak
         // Outliner item that represents a File of a Project.
 
         class File_Item :
-                public qtlib::outliner::abstract::Item
+                public qtlib::outliner::Readonly_Leaf_Item<File_Header_Item>
         {
+        public:
+            // Special 6
+            //============================================================
+            explicit File_Item(parent_type* a_parent);
+            ~File_Item() override;
+
+            // Virtual Interface
+            //============================================================
+            // Underlying data access
+            //----------------------------------------
+            // Get the item data for a given column and role
+            QVariant get_data(int a_role = Qt::DisplayRole) const override final;
+            // Other
+            //----------------------------------------
+            // Make and act on the context menu for this item. Need the model pointer here so that
+            // actions can call functions in it for editing
+            void do_custom_context_menu(QAbstractItemView* a_view, model_type* a_model, QPoint const& a_point) override final;
+
+            // Additional Interface
+            //============================================================
+            Project& get_project();
+            Project const& cget_project() const;
         };
 
         //---------------------------------------------------------------------------

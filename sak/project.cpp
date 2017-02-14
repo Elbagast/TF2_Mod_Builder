@@ -9,6 +9,8 @@
 #include <QXmlStreamReader>
 #include "exceptions/exception.h"
 #include <QDebug>
+#include <cassert>
+
 
 //---------------------------------------------------------------------------
 // Project
@@ -24,8 +26,9 @@ namespace sak
         QFileInfo m_filepath;
         QString m_message;
         QString m_data;
+        File_Manager m_file_manager;
 
-        std::vector<File> m_files;
+        std::vector<File_Handle> m_files;
 
         Implementation(QString const& a_filepath):
             m_filepath{a_filepath},
@@ -71,6 +74,17 @@ sak::Project::Project(QString const& a_filepath):
     {
         save();
     }
+
+    this->add_file(File("dummy1", "poop"));
+    this->add_file(File("dummy2", "pee"));
+
+    auto l_temp = this->get_file_at(0);
+    assert(l_temp.ref_count() == 2);
+    {
+        auto l_temp2 = l_temp;
+        assert(l_temp.ref_count() == 3);
+    }
+    assert(l_temp.ref_count() == 2);
 }
 sak::Project::~Project() = default;
 
@@ -215,50 +229,40 @@ std::size_t sak::Project::file_count() const
 }
 
 // Get the file at this index, asssuming the Files are alphabetically sorted by name
-sak::File* sak::Project::get_file_at(std::size_t a_index)
+sak::File_Handle sak::Project::get_file_at(std::size_t a_index) const
 {
-    return &(imp().m_files.at(a_index));
-}
-
-sak::File const* sak::Project::cget_file_at(std::size_t a_index) const
-{
-    return &(cimp().m_files.at(a_index));
+    return cimp().m_files.at(a_index);
 }
 
 // Get all the Files alphabetically sorted by name
-std::vector<sak::File*> sak::Project::get_all_files()
+std::vector<sak::File_Handle> sak::Project::get_all_files() const
 {
-    std::vector<sak::File*> l_result{};
-    l_result.reserve(cimp().m_files.size());
-    for (auto& l_file : imp().m_files)
-    {
-        l_result.push_back(&l_file);
-    }
-    return l_result;
-}
-
-std::vector<sak::File const*> sak::Project::cget_all_files() const
-{
-    std::vector<sak::File const*> l_result{};
-    l_result.reserve(cimp().m_files.size());
-    for (auto const& l_file : cimp().m_files)
-    {
-        l_result.push_back(&l_file);
-    }
-    return l_result;
+    return cimp().m_files;
 }
 
 // Add a new file. Project takes ownership of the File. File is inserted in
 // the appropriate place to maintain sorting and Project signals that the File list
-// has gained an item at that posiiton.
-void sak::Project::add_file(File&& a_file)
+// has gained an item at that positon.
+sak::File_Handle sak::Project::add_file(File&& a_file)
 {
-
+    auto l_handle = imp().m_file_manager.emplace_data(std::move(a_file));
+    assert(l_handle.ref_count() == 1);
+    imp().m_files.push_back(l_handle);
+    assert(l_handle.ref_count() == 2);
+    //auto l_location
+    //auto l_index =
+    //signal_file_added_at(a_index);
+    return l_handle;
 }
 
 // Remove the file at this index and return it. Project is no longer its owner.
 // Project signals that the File list has lost an item at that location.
-sak::File sak::Project::remove_file_at(std::size_t a_index)
+sak::File_Handle sak::Project::remove_file_at(std::size_t a_index)
 {
-    return File();
+    auto l_result = cimp().m_files.at(a_index);
+    auto l_position = cimp().m_files.begin();
+    std::advance(l_position, a_index);
+    imp().m_files.erase(l_position);
+    //signal_file_removed_at(a_index);
+    return l_result;
 }

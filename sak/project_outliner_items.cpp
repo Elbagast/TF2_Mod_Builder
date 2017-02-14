@@ -144,7 +144,12 @@ sak::Project const& sak::outliner::Project_Item::cget_project() const
 //============================================================
 sak::outliner::File_Header_Item::File_Header_Item(parent_type* a_parent):
     qtlib::outliner::Readonly_Branch_Item<Project_Item, File_Item>(a_parent)
-{}
+{
+    for(std::size_t l_index = 0, l_end = cget_project().file_count(); l_index != l_end; ++l_index)
+    {
+        this->append_child(std::make_unique<File_Item>(this));
+    }
+}
 
 sak::outliner::File_Header_Item::~File_Header_Item() = default;
 
@@ -190,6 +195,61 @@ sak::Project const& sak::outliner::File_Header_Item::cget_project() const
 }
 
 
+//---------------------------------------------------------------------------
+// sak::outliner::File_Item
+//---------------------------------------------------------------------------
+// Outliner item that represents a File of a Project.
+
+// Special 6
+//============================================================
+sak::outliner::File_Item::File_Item(parent_type* a_parent):
+    qtlib::outliner::Readonly_Leaf_Item<File_Header_Item>(a_parent)
+{}
+
+sak::outliner::File_Item::~File_Item() = default;
+
+// Virtual Interface
+//============================================================
+// Underlying data access
+//----------------------------------------
+// Get the item data for a given column and role
+QVariant sak::outliner::File_Item::get_data(int a_role) const
+{
+    if (a_role == Qt::DisplayRole)
+    {
+        return QVariant(cget_project().get_file_at(this->index_in_parent()).get().cget_name());
+    }
+    else
+    {
+        return QVariant();
+    }
+}
+// Other
+//----------------------------------------
+// Make and act on the context menu for this item. Need the model pointer here so that
+// actions can call functions in it for editing
+void sak::outliner::File_Item::do_custom_context_menu(QAbstractItemView* a_view, model_type* a_model, QPoint const& a_point)
+{
+    shadup(a_view, a_model,a_point);
+
+    QMenu menu{};
+    menu.addAction("File context menu");
+    menu.addAction(cget_project().get_file_at(this->index_in_parent()).get().cget_name())->setEnabled(false);
+    menu.addSeparator();
+    menu.exec(a_point);
+}
+
+// Additional Interface
+//============================================================
+sak::Project& sak::outliner::File_Item::get_project()
+{
+    return get_true_parent()->get_project();
+}
+
+sak::Project const& sak::outliner::File_Item::cget_project() const
+{
+    return get_true_parent()->cget_project();
+}
 
 //---------------------------------------------------------------------------
 // sak::outliner::Texture_Header_Item

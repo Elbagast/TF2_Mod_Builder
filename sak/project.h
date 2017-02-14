@@ -6,6 +6,12 @@
 class QString;
 #include <QString>
 
+
+#include "../generic/manager.h"
+#include "../generic/extended_manager.h"
+#include "../generic/uintid.h"
+#include "../generic/uintid_manager.h"
+
 namespace sak
 {
     //---------------------------------------------------------------------------
@@ -33,12 +39,34 @@ namespace sak
         QString m_name;
         QString m_description;
     };
-    class File : public Component {};
+    class File : public Component
+    {
+    public:
+        File():
+            Component()
+        {}
+        File(QString const& a_name, QString const& a_description):
+            Component(a_name, a_description)
+        {}
+    };
     class Texture : public Component {};
     class Material : public Component {};
     class Model : public Component {};
     class Package : public Component {};
     class Release : public Component {};
+
+
+    class Component_Handle;
+
+    using File_Manager = generic::Manager<generic::Uint32ID_Manager, File>;
+    using File_Handle = File_Manager::handle_type;
+
+
+    class Texture_Handle;
+    class Material_Handle;
+    class Model_Handle;
+    class Package_Handle;
+    class Release_Handle;
 
     //---------------------------------------------------------------------------
     // Project
@@ -112,8 +140,6 @@ namespace sak
 
         // File Interface
         //============================================================
-        // Probably better to have these as handle classes and deal with
-        // data management elsewhere.
 
         // Are there any Files in this Project?
         bool has_files() const;
@@ -122,21 +148,30 @@ namespace sak
         std::size_t file_count() const;
 
         // Get the file at this index, asssuming the Files are alphabetically sorted by name
-        File* get_file_at(std::size_t a_index);
-        File const* cget_file_at(std::size_t a_index) const;
+        File_Handle get_file_at(std::size_t a_index) const;
 
         // Get all the Files alphabetically sorted by name
-        std::vector<File*> get_all_files();
-        std::vector<File const*> cget_all_files() const;
+        std::vector<File_Handle> get_all_files() const;
 
         // Add a new file. Project takes ownership of the File. File is inserted in
         // the appropriate place to maintain sorting and Project signals that the File list
-        // has gained an item at that posiiton.
-        void add_file(File&& a_file);
+        // has gained an item at that positon.
+        File_Handle add_file(File&& a_file);
 
         // Remove the file at this index and return it. Project is no longer its owner.
         // Project signals that the File list has lost an item at that location.
-        File remove_file_at(std::size_t a_index);
+        File_Handle remove_file_at(std::size_t a_index);
+
+        void rename_file_at(std::size_t a_index, QString const& a_name);
+
+        // When the Files section has changed, this is called.
+        void signal_files_changed();
+        // When a File at this index has changed, this is called.
+        void signal_file_changed_at(std::size_t a_index);
+        // When a File has been added at this index, this is called.
+        void signal_file_added_at(std::size_t a_index);
+        // When a File has been removed at this index, this is called.
+        void signal_file_removed_at(std::size_t a_index);
 
 
     private:
