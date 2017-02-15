@@ -1,7 +1,7 @@
 #ifndef UINTID_H
 #define UINTID_H
 
-#include <cstdint>
+#include "fwd_uintid.h"
 
 namespace generic
 {
@@ -39,13 +39,6 @@ namespace generic
         template <typename T>
         bool operator>=(UintID<T> a_lhs, UintID<T> a_rhs) noexcept;
     }
-
-    using Uint8ID = internal::UintID<std::uint8_t>;
-    using Uint16ID = internal::UintID<std::uint16_t>;
-    using Uint32ID = internal::UintID<std::uint32_t>;
-    using Uint64ID = internal::UintID<std::uint64_t>;
-    using UintPtrID = internal::UintID<std::uintptr_t>;
-    using UintMaxID = internal::UintID<std::uintmax_t>;
 }
 
 

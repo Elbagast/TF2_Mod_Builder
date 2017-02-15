@@ -6,68 +6,10 @@
 class QString;
 #include <QString>
 
-
-#include "../generic/manager.h"
-#include "../generic/extended_manager.h"
-#include "../generic/uintid.h"
-#include "../generic/uintid_manager.h"
+#include "fwd_file.h"
 
 namespace sak
 {
-    //---------------------------------------------------------------------------
-    // Component
-    //---------------------------------------------------------------------------
-    // temp classes
-    class Component
-    {
-    public:
-        Component():
-            m_name{},
-            m_description{}
-        {}
-        Component(QString const& a_name, QString const& a_description):
-            m_name{a_name},
-            m_description{a_description}
-        {}
-
-        QString const& cget_name() const { return m_name; }
-        QString const& cget_description() const { return m_description; }
-
-        void set_name(QString const& a_name) { m_name = a_name; }
-        void set_description(QString const& a_description) { m_description = a_description; }
-    private:
-        QString m_name;
-        QString m_description;
-    };
-    class File : public Component
-    {
-    public:
-        File():
-            Component()
-        {}
-        File(QString const& a_name, QString const& a_description):
-            Component(a_name, a_description)
-        {}
-    };
-    class Texture : public Component {};
-    class Material : public Component {};
-    class Model : public Component {};
-    class Package : public Component {};
-    class Release : public Component {};
-
-
-    class Component_Handle;
-
-    using File_Manager = generic::Manager<generic::Uint32ID_Manager, File>;
-    using File_Handle = File_Manager::handle_type;
-
-
-    class Texture_Handle;
-    class Material_Handle;
-    class Model_Handle;
-    class Package_Handle;
-    class Release_Handle;
-
     //---------------------------------------------------------------------------
     // Project
     //---------------------------------------------------------------------------
@@ -100,6 +42,17 @@ namespace sak
 
     Other:
     - Decide on exception classes for these operations, what library does them etc.
+
+
+    Decisions:
+    - Project is responsible for:
+        - owning data and supplying access to it.
+        - saving and loading.
+        - signalling when and where data has changed to anything that cares.
+    - Project_Widget is responsible for:
+        - owning Project.
+        - owning widgets.
+        - maintaining model accuracy.
     */
     class Project
     {
@@ -153,6 +106,9 @@ namespace sak
         // Get all the Files alphabetically sorted by name
         std::vector<File_Handle> get_all_files() const;
 
+        // Get all the Files alphabetically sorted names
+        std::vector<QString> get_all_file_names() const;
+
         // Add a new file. Project takes ownership of the File. File is inserted in
         // the appropriate place to maintain sorting and Project signals that the File list
         // has gained an item at that positon.
@@ -161,8 +117,6 @@ namespace sak
         // Remove the file at this index and return it. Project is no longer its owner.
         // Project signals that the File list has lost an item at that location.
         File_Handle remove_file_at(std::size_t a_index);
-
-        void rename_file_at(std::size_t a_index, QString const& a_name);
 
         // When the Files section has changed, this is called.
         void signal_files_changed();

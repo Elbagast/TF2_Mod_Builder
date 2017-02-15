@@ -42,29 +42,30 @@ void qtlib::outliner::Treeview::slot_custom_context_menu_requested(QPoint const&
     // Gives the currently selected index (always valid)
     //QModelIndex index = this->currentIndex();
 
-    // Gives the index at pos (not always an item, so not always valid)
-    auto l_index = this->indexAt(a_position);
-
     // Cast to the assumed correct model type
     auto l_model = dynamic_cast<Model*>(this->model());
 
     // if the cast worked (sanity check)
     if (l_model && l_model->is_active())
     {
+        // Gives the index at pos (not always an item, so not always valid)
+        auto l_index = this->indexAt(a_position);
+
         // if menu requested on an item
         if(l_index.isValid())
         {
             // Get the custom context menu for the selected item
-            abstract::Item::from_index(l_index)->do_custom_context_menu(this, l_model, viewport()->mapToGlobal(a_position));
+            // Position is the position in terms of the widget rather than the window.
+            // Use a_view->viewport()->mapToGlobal(a_position)
+            abstract::Item::from_index(l_index)->do_custom_context_menu(this, l_model, a_position);
         }
         // else not requested on an item (clicking away from any items)
         else
         {
             // Get the custom context menu for the root item (which is not visible)
-            l_model->get_root()->do_custom_context_menu(this, l_model, viewport()->mapToGlobal(a_position));
+            l_model->get_root()->do_custom_context_menu(this, l_model, a_position);
         }
     }
-
 }
 
 // Virtual Overrides

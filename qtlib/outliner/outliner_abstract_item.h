@@ -81,8 +81,10 @@ namespace qtlib
                 // Get the flags for this item
                 virtual Qt::ItemFlags get_flags() const = 0;
                 // Make and act on the context menu for this item. Need the model pointer here so that
-                // actions can call functions in it for editing
-                virtual void do_custom_context_menu(QAbstractItemView* a_view, model_type* a_model, QPoint const& a_point) = 0;
+                // actions can call functions in it for editing.  Position is the position in terms of
+                // the widget rather than the window. Use a_view->viewport()->mapToGlobal(a_position)
+                // to get the position relative to the window for a properly placed menu.
+                virtual void do_custom_context_menu(QAbstractItemView* a_view, model_type* a_model, QPoint const& a_position) = 0;
 
                 // Encapsulate the casting of the void* stored in index to Item*
                 static item_type* from_index(QModelIndex const& a_index);

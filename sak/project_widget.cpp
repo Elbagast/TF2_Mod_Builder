@@ -62,7 +62,7 @@ namespace sak
     class Project_Widget::Implementation
     {
     public:
-        Project m_data;
+        std::unique_ptr<Project> m_data;
         qtlib::outliner::Model m_model;
         qtlib::outliner::Delegate m_delegate;
 
@@ -74,15 +74,15 @@ namespace sak
         std::unique_ptr<Project_Display> m_display;
 
 
-        explicit Implementation(Project&& a_data):
+        explicit Implementation(std::unique_ptr<Project>&& a_data):
             m_data{std::move(a_data)},
             m_model{},
             m_delegate{},
-            m_root{std::make_unique<outliner::Root_Item>(m_data)},
+            m_root{std::make_unique<outliner::Root_Item>(*m_data)},
             m_layout{std::make_unique<QHBoxLayout>()},
             m_outliner{std::make_unique<qtlib::outliner::Treeview>()},
             m_tabs{std::make_unique<QTabWidget>()},
-            m_display{std::make_unique<Project_Display>(m_data)}
+            m_display{std::make_unique<Project_Display>(*m_data)}
         {
             m_model.set_root(m_root.get());
             assert(m_model.is_active());
@@ -120,7 +120,7 @@ sak::Project_Widget::Project_Widget(QString const& a_name, QString const& a_loca
 */
 
 // Create a Project with the given filepath.
-sak::Project_Widget::Project_Widget(Project && a_project, QWidget* a_parent):
+sak::Project_Widget::Project_Widget(std::unique_ptr<Project>&& a_project, QWidget* a_parent):
    // Project_Widget(QFileInfo(a_filepath).fileName(), QFileInfo(a_filepath).absoluteDir().absolutePath(), a_parent)
     QWidget(a_parent),
     m_data{std::make_unique<Implementation>(std::move(a_project))}
@@ -145,7 +145,7 @@ sak::Project_Widget::Project_Widget(Project && a_project, QWidget* a_parent):
 // Save the Project data.
 void sak::Project_Widget::save_project()
 {
-    cimp().m_data.save();
+    cimp().m_data->save();
 }
 
 // Menu Bar -> Edit
@@ -286,13 +286,13 @@ void sak::Project_Widget::uninstall_all()
 // Get the name of the project.
 QString sak::Project_Widget::name() const
 {
-    return cimp().m_data.name();
+    return cimp().m_data->name();
 }
 
 // Get the root directory of the project.
 QString sak::Project_Widget::location() const
 {
-    return cimp().m_data.location();
+    return cimp().m_data->location();
 }
 
 // Can we currently call undo?

@@ -84,6 +84,10 @@ namespace qtlib
             //void callEditInView(QAbstractItemView* view, Outliner_Item* item);
             //void callEditInView(QAbstractItemView* view, QModelIndex const& index);
 
+            // Update Calls
+            //============================================================
+            // Functions to tell the model to emit change signals
+
         signals:
             void signal_editor_requested(abstract::Item* a_item);
             void signal_unsaved_edits(bool a_state);

@@ -6,8 +6,23 @@
 #include <QVariant>
 #include <QMenu>
 #include <QAction>
+#include <QLineEdit>
+#include <QAbstractItemView>
+#include <QPixmap>
+#include <QIcon>
+#include "../qtlib/outliner/outliner_model.h"
+#include <algorithm>
+#include <limits>
+#include <vector>
 
 #include "project.h"
+
+
+#include "file.h"
+#include "file_interface_traits.h"
+#include "../generic/uintid.h"
+#include "../generic/uintid_manager.h"
+#include "../generic/extended_manager.h"
 
 namespace
 {
@@ -27,7 +42,7 @@ namespace
 // Special 6
 //============================================================
 sak::outliner::Root_Item::Root_Item(Project& a_project):
-    qtlib::outliner::Root_Trunk_Item<Project_Item>(),
+    inherited_type(),
     m_project{a_project}
 {
     this->set_child(std::make_unique<Project_Item>(this));
@@ -39,16 +54,18 @@ sak::outliner::Root_Item::~Root_Item() = default;
 // Other
 //----------------------------------------
 // Make and act on the context menu for this item. Need the model pointer here so that
-// actions can call functions in it for editing
-void sak::outliner::Root_Item::do_custom_context_menu(QAbstractItemView* a_view, model_type* a_model, QPoint const& a_point)
+// actions can call functions in it for editing.  Position is the position in terms of
+// the widget rather than the window. Use a_view->viewport()->mapToGlobal(a_position)
+// to get the position relative to the window for a properly placed menu.
+void sak::outliner::Root_Item::do_custom_context_menu(QAbstractItemView* a_view, model_type* a_model, QPoint const& a_position)
 {
-    shadup(a_view, a_model,a_point);
+    shadup(a_view, a_model,a_position);
 
     QMenu menu{};
     menu.addAction("Root context menu");
     menu.addSeparator();
     menu.addAction("blah blah blah");
-    menu.exec(a_point);
+    menu.exec(a_view->viewport()->mapToGlobal(a_position));
 }
 
 // Additional Interface
@@ -109,10 +126,12 @@ QVariant sak::outliner::Project_Item::get_data(int a_role) const
 // Other
 //----------------------------------------
 // Make and act on the context menu for this item. Need the model pointer here so that
-// actions can call functions in it for editing
-void sak::outliner::Project_Item::do_custom_context_menu(QAbstractItemView* a_view, model_type* a_model, QPoint const& a_point)
+// actions can call functions in it for editing.  Position is the position in terms of
+// the widget rather than the window. Use a_view->viewport()->mapToGlobal(a_position)
+// to get the position relative to the window for a properly placed menu.
+void sak::outliner::Project_Item::do_custom_context_menu(QAbstractItemView* a_view, model_type* a_model, QPoint const& a_position)
 {
-    shadup(a_view, a_model,a_point);
+    shadup(a_view, a_model,a_position);
 
     QMenu menu{};
     menu.addAction("Project context menu");
@@ -120,7 +139,7 @@ void sak::outliner::Project_Item::do_custom_context_menu(QAbstractItemView* a_vi
     menu.addSeparator();
     menu.addAction("mooooo");
     menu.addAction("buhi.");
-    menu.exec(a_point);
+    menu.exec(a_view->viewport()->mapToGlobal(a_position));
 }
 
 // Additional Interface
@@ -143,7 +162,7 @@ sak::Project const& sak::outliner::Project_Item::cget_project() const
 // Special 6
 //============================================================
 sak::outliner::File_Header_Item::File_Header_Item(parent_type* a_parent):
-    qtlib::outliner::Readonly_Branch_Item<Project_Item, File_Item>(a_parent)
+    inherited_type(a_parent)
 {
     for(std::size_t l_index = 0, l_end = cget_project().file_count(); l_index != l_end; ++l_index)
     {
@@ -172,14 +191,25 @@ QVariant sak::outliner::File_Header_Item::get_data(int a_role) const
 // Other
 //----------------------------------------
 // Make and act on the context menu for this item. Need the model pointer here so that
-// actions can call functions in it for editing
-void sak::outliner::File_Header_Item::do_custom_context_menu(QAbstractItemView* a_view, model_type* a_model, QPoint const& a_point)
+// actions can call functions in it for editing.  Position is the position in terms of
+// the widget rather than the window. Use a_view->viewport()->mapToGlobal(a_position)
+// to get the position relative to the window for a properly placed menu.
+void sak::outliner::File_Header_Item::do_custom_context_menu(QAbstractItemView* a_view, model_type* a_model, QPoint const& a_position)
 {
-    shadup(a_view, a_model,a_point);
+    shadup(a_view, a_model,a_position);
 
     QMenu menu{};
     menu.addAction("Files context menu");
-    menu.exec(a_point);
+
+    // Create and add a new File
+    auto l_action_add_file = menu.addAction("Add new File");
+    QObject::connect(l_action_add_file, &QAction::triggered, [=]()
+    {
+        // Either this call triggers the data change in model, or we have to make that call here.
+    });
+
+    // Execute the menu at the global posiiton.
+    menu.exec(a_view->viewport()->mapToGlobal(a_position));
 }
 
 // Additional Interface
@@ -203,7 +233,7 @@ sak::Project const& sak::outliner::File_Header_Item::cget_project() const
 // Special 6
 //============================================================
 sak::outliner::File_Item::File_Item(parent_type* a_parent):
-    qtlib::outliner::Readonly_Leaf_Item<File_Header_Item>(a_parent)
+    inherited_type(a_parent)
 {}
 
 sak::outliner::File_Item::~File_Item() = default;
@@ -217,26 +247,133 @@ QVariant sak::outliner::File_Item::get_data(int a_role) const
 {
     if (a_role == Qt::DisplayRole)
     {
-        return QVariant(cget_project().get_file_at(this->index_in_parent()).get().cget_name());
+        return QVariant(cget_file_name());
+    }
+    else if (a_role == Qt::DecorationRole)
+    {
+        return QVariant(QIcon(QPixmap("D:\\Temp\\sak\\file_icon.png")));
     }
     else
     {
         return QVariant();
     }
 }
+
+// Set the data in item with the given value
+void sak::outliner::File_Item::set_data(QVariant const& a_value)
+{
+    /*
+    // User supplies a name that is the argument.
+    // If it is the same as the name we already have, we don't bother making a change.
+    if (a_value.toString() == cget_file_name())
+    {
+        return;
+    }
+    // We must make sure the name does not already exist among the other names.
+    auto l_names = cget_project().get_all_file_names();
+    // Get rid of the name of this one, since it is going to change.
+    auto l_old_name_found = std::find(l_names.cbegin(), l_names.cend(), cget_file_name());
+    l_names.erase(l_old_name_found);
+
+    // Candidate for anonymous namespace function.
+    // Oh wait this probably does need to be in the handle or the Project since it'll be used elsewhere too....
+    // void uniqueify_name(QString& a_name, std::vector<QString> const& a_names)
+
+    auto l_new_name_found = std::find(l_names.cbegin(), l_names.cend(), a_value.toString());
+    QString l_final_name{a_value.toString()};
+    // if it wasn't found we can use it
+    if (l_new_name_found == l_names.cend())
+    {
+        l_final_name = a_value.toString();
+    }
+    // else we have to fix the name
+    else
+    {
+        // append a number to the name and test it and keep doing this until we get to one we haven't found.
+        for (int l_postfix = 1, l_end = std::numeric_limits<int>::max(); l_postfix != l_end; ++l_postfix)
+        {
+            QString l_fixed_name{l_final_name};
+            l_fixed_name.append(QString::number(l_postfix));
+            if (std::find(l_names.cbegin(), l_names.cend(), l_fixed_name) == l_names.end())
+            {
+                l_final_name = l_fixed_name;
+                break;
+            }
+        }
+    }
+*/
+    set_file_name(a_value.toString());
+}
+
+// Editors
+//----------------------------------------
+// Make the appropriate editor for this item, parenting it to parent
+QWidget* sak::outliner::File_Item::get_editor(QWidget* a_parent)
+{
+    return new QLineEdit(a_parent);
+}
+
+// Set the data in the editor to the value in the item
+void sak::outliner::File_Item::set_editor_data(QWidget* a_editor)
+{
+    static_cast<QLineEdit*>(a_editor)->setText(cget_file_name());
+}
+
+// Get the data in the editor and return it
+QVariant sak::outliner::File_Item::get_editor_data(QWidget* a_editor)
+{
+    return QVariant(static_cast<QLineEdit*>(a_editor)->text());
+}
+
+// Other
+//----------------------------------------
+// Get the flags for this item
+Qt::ItemFlags sak::outliner::File_Item::get_flags() const
+{
+    return Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsEditable;
+}
+
 // Other
 //----------------------------------------
 // Make and act on the context menu for this item. Need the model pointer here so that
-// actions can call functions in it for editing
-void sak::outliner::File_Item::do_custom_context_menu(QAbstractItemView* a_view, model_type* a_model, QPoint const& a_point)
+// actions can call functions in it for editing.  Position is the position in terms of
+// the widget rather than the window. Use a_view->viewport()->mapToGlobal(a_position)
+// to get the position relative to the window for a properly placed menu.
+void sak::outliner::File_Item::do_custom_context_menu(QAbstractItemView* a_view, model_type* a_model, QPoint const& a_position)
 {
-    shadup(a_view, a_model,a_point);
+    shadup(a_view, a_model,a_position);
 
     QMenu menu{};
     menu.addAction("File context menu");
-    menu.addAction(cget_project().get_file_at(this->index_in_parent()).get().cget_name())->setEnabled(false);
+    menu.addAction(cget_file_name())->setEnabled(false);
     menu.addSeparator();
-    menu.exec(a_point);
+
+    // Open the main editor or focus on it if already open
+    auto l_action_open = menu.addAction("Open");
+    QObject::connect(l_action_open, &QAction::triggered, [=]()
+    {
+        // We need access to a means to open an editor.
+        // We probably need to talk to the Project_Widget then.
+    });
+
+    // Commence an edit operation in the outliner
+    auto l_action_rename = menu.addAction("Rename");
+    QObject::connect(l_action_rename, &QAction::triggered, [=]()
+    {
+        a_view->edit(a_view->indexAt(a_position));
+    });
+
+    // Destroy this one
+    auto l_action_delete = menu.addAction("Delete");
+    QObject::connect(l_action_delete, &QAction::triggered, [=]()
+    {
+        // get rid of the data
+        get_project().remove_file_at(this->index_in_parent());
+        // either this call triggers the data change in model, or we have to make that call here.
+    });
+
+    // Execute the menu at the global posiiton.
+    menu.exec(a_view->viewport()->mapToGlobal(a_position));
 }
 
 // Additional Interface
@@ -251,6 +388,17 @@ sak::Project const& sak::outliner::File_Item::cget_project() const
     return get_true_parent()->cget_project();
 }
 
+QString sak::outliner::File_Item::cget_file_name() const
+{
+    return cget_project().get_file_at(this->index_in_parent()).get().cget_name();
+}
+
+void sak::outliner::File_Item::set_file_name(QString const& a_name)
+{
+    get_project().get_file_at(this->index_in_parent()).get().set_name(a_name);
+}
+
+/*
 //---------------------------------------------------------------------------
 // sak::outliner::Texture_Header_Item
 //---------------------------------------------------------------------------
@@ -285,13 +433,13 @@ QVariant sak::outliner::Texture_Header_Item::get_data(int a_role) const
 //----------------------------------------
 // Make and act on the context menu for this item. Need the model pointer here so that
 // actions can call functions in it for editing
-void sak::outliner::Texture_Header_Item::do_custom_context_menu(QAbstractItemView* a_view, model_type* a_model, QPoint const& a_point)
+void sak::outliner::Texture_Header_Item::do_custom_context_menu(QAbstractItemView* a_view, model_type* a_model, QPoint const& a_position)
 {
-    shadup(a_view, a_model,a_point);
+    shadup(a_view, a_model,a_position);
 
     QMenu menu{};
     menu.addAction("Textures context menu");
-    menu.exec(a_point);
+    menu.exec(a_view->viewport()->mapToGlobal(a_position));
 }
 
 // Additional Interface
@@ -305,3 +453,4 @@ sak::Project const& sak::outliner::Texture_Header_Item::cget_project() const
 {
     return get_true_parent()->cget_project();
 }
+*/

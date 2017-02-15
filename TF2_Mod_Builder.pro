@@ -102,13 +102,15 @@ SOURCES += \
     qtlib/outliner/outliner_root_branch_item.cpp \
     qtlib/outliner/outliner_root_trunk_item.cpp \
     qtlib/outliner/outliner_parented_item.cpp \
-    qtlib/outliner/outliner_orphanded_item.cpp \
     qtlib/outliner/outliner_multitrunk_item.cpp \
     generic/manager.cpp \
     generic/uintid.cpp \
     generic/uintid_manager.cpp \
     generic/uintid_traits.cpp \
-    generic/extended_manager.cpp
+    generic/extended_manager.cpp \
+    qtlib/outliner/outliner_orphan_item.cpp \
+    sak/file_interface_traits.cpp \
+    sak/file.cpp
     
 
 HEADERS  += \
@@ -137,13 +139,22 @@ HEADERS  += \
     qtlib/outliner/outliner_root_branch_item.h \
     qtlib/outliner/outliner_root_trunk_item.h \
     qtlib/outliner/outliner_parented_item.h \
-    qtlib/outliner/outliner_orphanded_item.h \
     qtlib/outliner/outliner_multitrunk_item.h \
     generic/manager.h \
     generic/uintid.h \
     generic/uintid_manager.h \
     generic/uintid_traits.h \
-    generic/extended_manager.h
+    generic/extended_manager.h \
+    qtlib/outliner/outliner_orphan_item.h \
+    sak/file_interface_traits.h \
+    sak/file.h \
+    generic/fwd_uintid.h \
+    generic/fwd_manager.h \
+    generic/fwd_uintid_manager.h \
+    generic/fwd_extended_manager.h \
+    sak/fwd_file.h \
+    sak/file_basic_manager.h \
+    sak/file_manager.h
     
 
 FORMS

@@ -1,6 +1,7 @@
 #ifndef GENERIC_MANAGER_H
 #define GENERIC_MANAGER_H
 
+#include "fwd_manager.h"
 #include <map>
 #include <memory>
 #include <vector>
@@ -22,6 +23,8 @@ namespace generic
         using id_manager_type = IDM;
         using id_type = typename id_manager_type::id_type;
         using value_type = T;
+        using handle_type = Handle<IDM,T>;
+        friend class Handle<IDM,T>;
     private:
         class Holder
         {
@@ -45,37 +48,6 @@ namespace generic
             shared_ptr_type m_data;
         };
     public:
-        friend class Handle;
-        class Handle
-        {
-            friend class Manager;
-        public:
-            using manager_type = Manager;
-            using id_type = typename Manager::id_type;
-            using value_type = typename Manager::value_type;
-
-        private:
-            Handle(Holder const& a_holder, manager_type* a_manager);
-        public:
-            Handle();
-            ~Handle();
-            Handle(Handle const& a_other);
-            Handle& operator=(Handle const& a_other);
-            Handle(Handle && a_other);
-            Handle& operator=(Handle && a_other);
-
-            bool is_valid() const;
-            id_type const& id() const;
-            std::size_t ref_count() const;
-            value_type& get();
-            value_type const& cget() const;
-
-        private:
-            Holder m_holder;
-            manager_type* m_manager;
-        };
-
-        using handle_type = Handle;
 
         handle_type make_null_handle() const;
         handle_type emplace_data(value_type&& a_value);
@@ -91,127 +63,51 @@ namespace generic
         id_manager_type m_id_manager;
         std::map<id_type, Holder> m_data;
     };
-}
 
-
-template <typename IDM, typename T>
-generic::Manager<IDM,T>::Holder::Holder():
-    m_data{}
-{}
-
-template <typename IDM, typename T>
-generic::Manager<IDM,T>::Holder::Holder(id_type const& a_id, value_type&& a_value):
-    m_data{std::make_shared<std::pair<id_type, value_type>>(std::pair<id_type, value_type>(a_id, std::move(a_value)))}
-{}
-
-template <typename IDM, typename T>
-typename generic::Manager<IDM,T>::Holder::id_type const& generic::Manager<IDM,T>::Holder::id() const
-{
-    return m_data->first;
-}
-
-template <typename IDM, typename T>
-std::size_t generic::Manager<IDM,T>::Holder::ref_count() const
-{
-    return m_data.use_count() - 1;
-}
-
-template <typename IDM, typename T>
-typename generic::Manager<IDM,T>::Holder::value_type& generic::Manager<IDM,T>::Holder::get()
-{
-    if (!m_data) throw std::out_of_range("already deleted");
-    return m_data->second;
-}
-
-template <typename IDM, typename T>
-typename generic::Manager<IDM,T>::Holder::value_type const& generic::Manager<IDM,T>::Holder::cget() const
-{
-    if (!m_data) throw std::out_of_range("already deleted");
-    return m_data->second;
-}
-
-template <typename IDM, typename T>
-bool generic::Manager<IDM,T>::Holder::is_valid() const
-{
-    return m_data != nullptr;
-}
-
-template <typename IDM, typename T>
-void generic::Manager<IDM,T>::Holder::clear()
-{
-    m_data = shared_ptr_type(nullptr);
-}
-
-
-template <typename IDM, typename T>
-generic::Manager<IDM,T>::Handle::Handle(Holder const& a_holder, manager_type* a_manager):
-    m_holder{a_holder},
-    m_manager{a_manager}
-{}
-
-template <typename IDM, typename T>
-generic::Manager<IDM,T>::Handle::Handle():
-    m_holder{},
-    m_manager{nullptr}
-{}
-
-template <typename IDM, typename T>
-generic::Manager<IDM,T>::Handle::~Handle()
-{
-    if (is_valid())
+    //---------------------------------------------------------------------------
+    // generic::Handle<ID Manager, Type>
+    //---------------------------------------------------------------------------
+    // Corresponding handle for Manager. This is outside Manager to allow for
+    // forward declaration.
+    template <typename IDM, typename T>
+    class Handle
     {
-       // get the id
-       auto l_id = m_holder.id();
-       // destroy the shared pointer
-       m_holder.clear();
-       // tell the manager to cleanup if this was the last one
-       m_manager->if_unused_destroy(l_id);
-    }
-}
+        friend class Manager<IDM,T>;
+    public:
+        using manager_type = Manager<IDM,T>;
+        using id_type = typename manager_type::id_type;
+        using value_type = typename manager_type::value_type;
 
-template <typename IDM, typename T>
-generic::Manager<IDM,T>::Handle::Handle(Handle const& /*a_other*/) = default;
+    private:
+        using holder_type = typename manager_type::Holder;
+        Handle(typename holder_type const& a_holder, manager_type* a_manager);
+    public:
+        Handle();
+        ~Handle();
+        Handle(Handle const& a_other);
+        Handle& operator=(Handle const& a_other);
+        Handle(Handle && a_other);
+        Handle& operator=(Handle && a_other);
 
-template <typename IDM, typename T>
-typename generic::Manager<IDM,T>::Handle& generic::Manager<IDM,T>::Handle::operator=(Handle const& /*a_other*/) = default;
+        bool is_valid() const;
+        id_type const& id() const;
+        std::size_t ref_count() const;
+        value_type& get();
+        value_type const& cget() const;
 
-template <typename IDM, typename T>
-generic::Manager<IDM,T>::Handle::Handle(Handle && /*a_other*/) = default;
-
-template <typename IDM, typename T>
-typename generic::Manager<IDM,T>::Handle& generic::Manager<IDM,T>::Handle::operator=(Handle && /*a_other*/) = default;
-
-template <typename IDM, typename T>
-bool generic::Manager<IDM,T>::Handle::is_valid() const
-{
-    return m_holder.is_valid();
-}
-
-template <typename IDM, typename T>
-typename generic::Manager<IDM,T>::Handle::id_type const& generic::Manager<IDM,T>::Handle::id() const
-{
-    return m_holder.id();
-}
-
-template <typename IDM, typename T>
-std::size_t generic::Manager<IDM,T>::Handle::ref_count() const
-{
-    return m_holder.ref_count();
-}
-
-template <typename IDM, typename T>
-typename generic::Manager<IDM,T>::Handle::value_type& generic::Manager<IDM,T>::Handle::get()
-{
-    return m_holder.get();
-}
-
-template <typename IDM, typename T>
-typename generic::Manager<IDM,T>::Handle::value_type const& generic::Manager<IDM,T>::Handle::cget() const
-{
-    return m_holder.cget();
+    private:
+        holder_type m_holder;
+        manager_type* m_manager;
+    };
 }
 
 
+//---------------------------------------------------------------------------
+// generic::Manager<ID Manager, Type>
+//---------------------------------------------------------------------------
+// Object that manages a pool of objects allowing for shared referencing
+// via handles that can be expanded. When data is emplaced, a handle is
+// returned. If the last handle is destroyed, the data is destroyed.
 
 template <typename IDM, typename T>
 typename generic::Manager<IDM,T>::handle_type generic::Manager<IDM,T>::make_null_handle() const
@@ -277,5 +173,134 @@ bool generic::Manager<IDM,T>::if_unused_destroy(id_type const& a_id)
         return false;
     }
 }
+
+//---------------------------------------------------------------------------
+// generic::Manager<ID Manager, Type>::Holder
+//---------------------------------------------------------------------------
+// Nested convenience class.
+
+template <typename IDM, typename T>
+generic::Manager<IDM,T>::Holder::Holder():
+    m_data{}
+{}
+
+template <typename IDM, typename T>
+generic::Manager<IDM,T>::Holder::Holder(id_type const& a_id, value_type&& a_value):
+    m_data{std::make_shared<std::pair<id_type, value_type>>(std::pair<id_type, value_type>(a_id, std::move(a_value)))}
+{}
+
+template <typename IDM, typename T>
+typename generic::Manager<IDM,T>::Holder::id_type const& generic::Manager<IDM,T>::Holder::id() const
+{
+    return m_data->first;
+}
+
+template <typename IDM, typename T>
+std::size_t generic::Manager<IDM,T>::Holder::ref_count() const
+{
+    return m_data.use_count() - 1;
+}
+
+template <typename IDM, typename T>
+typename generic::Manager<IDM,T>::Holder::value_type& generic::Manager<IDM,T>::Holder::get()
+{
+    if (!m_data) throw std::out_of_range("already deleted");
+    return m_data->second;
+}
+
+template <typename IDM, typename T>
+typename generic::Manager<IDM,T>::Holder::value_type const& generic::Manager<IDM,T>::Holder::cget() const
+{
+    if (!m_data) throw std::out_of_range("already deleted");
+    return m_data->second;
+}
+
+template <typename IDM, typename T>
+bool generic::Manager<IDM,T>::Holder::is_valid() const
+{
+    return m_data != nullptr;
+}
+
+template <typename IDM, typename T>
+void generic::Manager<IDM,T>::Holder::clear()
+{
+    m_data = shared_ptr_type(nullptr);
+}
+
+//---------------------------------------------------------------------------
+// generic::Handle<ID Manager, Type>
+//---------------------------------------------------------------------------
+// Corresponding handle for Manager. This is outside Manager to allow for
+// forward declaration.
+
+
+template <typename IDM, typename T>
+generic::Handle<IDM,T>::Handle(holder_type const& a_holder, manager_type* a_manager):
+    m_holder{a_holder},
+    m_manager{a_manager}
+{}
+
+template <typename IDM, typename T>
+generic::Handle<IDM,T>::Handle():
+    m_holder{},
+    m_manager{nullptr}
+{}
+
+template <typename IDM, typename T>
+generic::Handle<IDM,T>::~Handle()
+{
+    if (is_valid())
+    {
+       // get the id
+       auto l_id = m_holder.id();
+       // destroy the shared pointer
+       m_holder.clear();
+       // tell the manager to cleanup if this was the last one
+       m_manager->if_unused_destroy(l_id);
+    }
+}
+
+template <typename IDM, typename T>
+generic::Handle<IDM,T>::Handle(Handle const& /*a_other*/) = default;
+
+template <typename IDM, typename T>
+typename generic::Handle<IDM,T>& generic::Handle<IDM,T>::operator=(Handle const& /*a_other*/) = default;
+
+template <typename IDM, typename T>
+generic::Handle<IDM,T>::Handle(Handle && /*a_other*/) = default;
+
+template <typename IDM, typename T>
+typename generic::Handle<IDM,T>& generic::Handle<IDM,T>::operator=(Handle && /*a_other*/) = default;
+
+template <typename IDM, typename T>
+bool generic::Handle<IDM,T>::is_valid() const
+{
+    return m_holder.is_valid();
+}
+
+template <typename IDM, typename T>
+typename generic::Handle<IDM,T>::id_type const& generic::Handle<IDM,T>::id() const
+{
+    return m_holder.id();
+}
+
+template <typename IDM, typename T>
+std::size_t generic::Handle<IDM,T>::ref_count() const
+{
+    return m_holder.ref_count();
+}
+
+template <typename IDM, typename T>
+typename generic::Handle<IDM,T>::value_type& generic::Handle<IDM,T>::get()
+{
+    return m_holder.get();
+}
+
+template <typename IDM, typename T>
+typename generic::Handle<IDM,T>::value_type const& generic::Handle<IDM,T>::cget() const
+{
+    return m_holder.cget();
+}
+
 
 #endif // GENERIC_MANAGER_H

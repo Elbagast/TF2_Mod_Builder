@@ -63,7 +63,7 @@ QVariant qtlib::outliner::Model::data(QModelIndex const& a_index, int a_role) co
 
     // if  this index exists, get the data from the abstract::Item* stored in the index
     if (a_index.isValid()
-        && a_role == Qt::DisplayRole
+        //&& a_role == Qt::DisplayRole
         && a_index.column() == 0
         )//isIndexValid(index))
     {

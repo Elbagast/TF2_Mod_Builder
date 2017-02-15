@@ -84,19 +84,19 @@ namespace sak
 
         // Menu Bar -> File
         //============================================================
-        // Make a new emtpy Project based on what the user supplies via a dialog.
+        // Make a new empty Project based on what the user supplies via a dialog.
         // If the user cancels out, nothing happens.
-        void new_project();
+        bool new_project();
 
         // Opens a project and loads the data found based on what the user supplies
         // via a dialog. If the user cancels out, nothing happens.
-        void open_project();
+        bool open_project();
 
         // Save the Project data.
         void save_project();
 
         // Ask to save then close the Project if that is not cancelled.
-        void close_project();
+        bool close_project();
 
         // Ask to save then quit if that is not cancelled.
         void exit();

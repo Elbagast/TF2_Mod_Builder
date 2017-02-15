@@ -11,6 +11,7 @@
 #include <QDebug>
 #include <cassert>
 
+#include "file_manager.h"
 
 //---------------------------------------------------------------------------
 // Project
@@ -30,10 +31,11 @@ namespace sak
 
         std::vector<File_Handle> m_files;
 
-        Implementation(QString const& a_filepath):
+        Implementation(QString const& a_filepath, Project* a_owner):
             m_filepath{a_filepath},
             m_message{"got here"},
             m_data{},
+            m_file_manager{File_Interface_Traits(a_owner)},
             m_files{}
         {
         }
@@ -48,7 +50,7 @@ namespace sak
 // not exist it will attempt to create it and save the initial data
 // to it. If the file exists it will attempt to load the data from it.
 sak::Project::Project(QString const& a_filepath):
-    m_data{std::make_unique<Implementation>(a_filepath)}
+    m_data{std::make_unique<Implementation>(a_filepath, this)}
 {
     // If the directory does not exist it will fail.
     if(!imp().m_filepath.dir().exists())
@@ -77,6 +79,8 @@ sak::Project::Project(QString const& a_filepath):
 
     this->add_file(File("dummy1", "poop"));
     this->add_file(File("dummy2", "pee"));
+    this->add_file(File("dummy3", "pee"));
+    this->add_file(File("dummy4", "pee"));
 
     auto l_temp = this->get_file_at(0);
     assert(l_temp.ref_count() == 2);
@@ -85,6 +89,7 @@ sak::Project::Project(QString const& a_filepath):
         assert(l_temp.ref_count() == 3);
     }
     assert(l_temp.ref_count() == 2);
+    assert(cimp().m_files.size() == 4);
 }
 sak::Project::~Project() = default;
 
@@ -131,7 +136,7 @@ void sak::Project::save() const
 void sak::Project::load()
 {
     // Initialise new data
-    auto l_data{std::make_unique<Implementation>(cimp().m_filepath.absoluteFilePath())};
+    auto l_data{std::make_unique<Implementation>(cimp().m_filepath.absoluteFilePath(),this)};
 
     // Create a file object
     QFile l_file{cimp().m_filepath.absoluteFilePath()};
@@ -238,6 +243,19 @@ sak::File_Handle sak::Project::get_file_at(std::size_t a_index) const
 std::vector<sak::File_Handle> sak::Project::get_all_files() const
 {
     return cimp().m_files;
+}
+
+
+// Get all the Files alphabetically sorted names
+std::vector<QString> sak::Project::get_all_file_names() const
+{
+    std::vector<QString> l_result{};
+    l_result.reserve(cimp().m_files.size());
+    for (auto const& l_file : cimp().m_files)
+    {
+        l_result.push_back(l_file.cget().cget_name());
+    }
+    return l_result;
 }
 
 // Add a new file. Project takes ownership of the File. File is inserted in

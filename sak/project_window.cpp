@@ -401,25 +401,25 @@ sak::Project_Window::~Project_Window()
 
 // Menu Bar -> File
 //============================================================
-// Make a new emtpy Project based on what the user supplies via a dialog.
+// Make a new empty Project based on what the user supplies via a dialog.
 // If the user cancels out, nothing happens.
-void sak::Project_Window::new_project()
+bool sak::Project_Window::new_project()
 {
-    // if there's a project ask to save it and stop if the user cancels out
-    if (is_project_open()
-        //&& has_unsaved_edits()
-        && !ask_to_save() )
+    // close the open project or do nothing if there isn't one.
+    // if we didn't close it, stop
+    if (!close_project())
     {
-        return;
+        return false;
     }
 
     // get initalisation parameters from the user...
     New_Project_Dialog l_dialog{};
     auto l_result = l_dialog.exec();
 
+    // if ser cancels, stop
     if (l_result == QDialog::Rejected)
     {
-        return;
+        return false;
     }
 
     // Location project will be built in
@@ -430,7 +430,7 @@ void sak::Project_Window::new_project()
     {
         // failed to make the project directory
         QMessageBox::warning(this, "New Project Failed","Could not create the project directory.");
-        return;
+        return false;
     }
 
     // Project root dir now exists, go to it
@@ -450,7 +450,7 @@ void sak::Project_Window::new_project()
     try
     {
         // Right now this constructor does the file stuff and emits exceptions if it can't
-        Project l_project{l_filepath};
+        auto l_project = std::make_unique<Project>(l_filepath);
 
         // Make the widget
         data().m_project_widget = std::make_unique<Project_Widget>(std::move(l_project));
@@ -458,50 +458,65 @@ void sak::Project_Window::new_project()
     catch(Filesystem_Error& e)
     {
         e.dialog(this);
-        return;
+        return false;
     }
 
     data().m_central_stack->addWidget(data().m_project_widget.get());
     data().m_central_stack->setCurrentIndex(1);
 
     notify_project_changes();
+    return true;
 }
 
 // Opens a project and loads the data found based on what the user supplies
 // via a dialog. If the user cancels out, nothing happens.
-void sak::Project_Window::open_project()
+bool sak::Project_Window::open_project()
 {
-    // if there's a project ask to save it and stop if the user cancels out
-    if (is_project_open()
-        //&& has_unsaved_edits()
-        && !ask_to_save() )
+    // close the open project or do nothing if there isn't one.
+    // if we didn't close it, stop
+    if (!close_project())
     {
-        return;
+        return false;
     }
 
     // Get a project file
-    QString l_filename = QFileDialog::getOpenFileName(this,
+    QString l_filepath = QFileDialog::getOpenFileName(this,
                                                       c_open_project_title,
                                                       Fixed_Settings::default_project_location(),
                                                       c_open_project_types);
 
     // If nothing then the user canceled the operation.
-    if (l_filename.isEmpty())
+    if (l_filepath.isEmpty())
     {
-        return;
+        return false;
     }
 
 
     //qDebug() << "open project:";
     //qDebug() << "filepath: " << l_filename;
 
-    // Make the widget - could be a factory function instead?
-    data().m_project_widget = std::make_unique<Project_Widget>(l_filename);
+    try
+    {
+        // Right now this constructor does the file stuff and emits exceptions if it can't
+        auto l_project = std::make_unique<Project>(l_filepath);
+
+        // Make the widget
+        auto l_widget = std::make_unique<Project_Widget>(std::move(l_project));
+
+        // Install the widget
+        std::swap(data().m_project_widget,l_widget);
+    }
+    catch(Filesystem_Error& e)
+    {
+        e.dialog(this);
+        return false;
+    }
 
     data().m_central_stack->addWidget(data().m_project_widget.get());
     data().m_central_stack->setCurrentIndex(1);
 
     notify_project_changes();
+    return true;
 }
 
 // Save the Project data.
@@ -514,23 +529,37 @@ void sak::Project_Window::save_project()
 }
 
 // Ask to save then close the Project if that is not cancelled.
-void sak::Project_Window::close_project()
+bool sak::Project_Window::close_project()
 {
     // if there's a project ask to save it and stop if the user cancels out
-    if (is_project_open()
-        //&& has_unsaved_edits()
-        && !ask_to_save() )
+    if (is_project_open())
     {
-        return;
-    }
+        if (ask_to_save())
+        {
+            // user has not cancelled, do the close
 
-    // Unhook the project widget.
-    data().m_central_stack->removeWidget(data().m_project_widget.get());
-    // Now destory it.
-    data().m_project_widget.reset();
-    // Set the stack to point to the first widget again.
-    data().m_central_stack->setCurrentIndex(0);
-    notify_project_changes();
+            // Unhook the project widget.
+            data().m_central_stack->removeWidget(data().m_project_widget.get());
+            // Now destory it.
+            data().m_project_widget.reset();
+            // Set the stack to point to the first widget again.
+            data().m_central_stack->setCurrentIndex(0);
+            notify_project_changes();
+
+            // closing success
+            return true;
+        }
+        else
+        {
+            // we cancelled, no close
+            return false;
+        }
+    }
+    else
+    {
+        // no closing, so close is success, return true.
+        return true;
+    }
 }
 
 // Ask to save then quit if that is not cancelled.
