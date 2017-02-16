@@ -17,6 +17,7 @@ namespace generic
 
         interface_type get(basic_handle_type& a_ref)                    { return a_ref.get(); }
         const_interface_type cget(basic_handle_type const& a_ref) const { return a_ref.cget(); }
+
     };
 
     //---------------------------------------------------------------------------
@@ -103,6 +104,11 @@ namespace generic
         interface_type get();
         const_interface_type cget() const;
 
+        bool operator==(Extended_Handle const& a_other) const;
+        bool operator!=(Extended_Handle const& a_other) const;
+
+        bool operator==(basic_handle_type const& a_other) const;
+        bool operator!=(basic_handle_type const& a_other) const;
     private:
         basic_handle_type m_handle;
         extended_manager_type* m_manager;
@@ -251,6 +257,30 @@ template <typename IDM, typename T, typename IT>
 typename generic::Extended_Handle<IDM,T,IT>::const_interface_type generic::Extended_Handle<IDM,T,IT>::cget() const
 {
     return m_interface_traits.cget(m_handle);
+}
+
+template <typename IDM, typename T, typename IT>
+bool generic::Extended_Handle<IDM,T,IT>::operator==(Extended_Handle const& a_other) const
+{
+    return m_manager == a_other.m_manager && m_handle == a_other.m_handle;
+}
+
+template <typename IDM, typename T, typename IT>
+bool generic::Extended_Handle<IDM,T,IT>::operator!=(Extended_Handle const& a_other) const
+{
+    return !(m_manager == a_other.m_manager && m_handle == a_other.m_handle);
+}
+
+template <typename IDM, typename T, typename IT>
+bool generic::Extended_Handle<IDM,T,IT>::operator==(basic_handle_type const& a_other) const
+{
+    return m_handle == a_other;
+}
+
+template <typename IDM, typename T, typename IT>
+bool generic::Extended_Handle<IDM,T,IT>::operator!=(basic_handle_type const& a_other) const
+{
+    return m_handle != a_other;
 }
 
 #endif // GENERIC_EXTENDED_MANAGER_H

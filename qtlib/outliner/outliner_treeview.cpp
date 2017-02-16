@@ -93,7 +93,9 @@ void qtlib::outliner::Treeview::apply_settings()
     setContextMenuPolicy(Qt::CustomContextMenu);
     // Whether or not the root children get expansion markers
     setRootIsDecorated(true);
+
     // wanted?
+    setItemsExpandable(false);
     expandAll();
 
     // Want scroll bars whenever they are needed

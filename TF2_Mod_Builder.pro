@@ -103,14 +103,14 @@ SOURCES += \
     qtlib/outliner/outliner_root_trunk_item.cpp \
     qtlib/outliner/outliner_parented_item.cpp \
     qtlib/outliner/outliner_multitrunk_item.cpp \
-    generic/manager.cpp \
     generic/uintid.cpp \
     generic/uintid_manager.cpp \
     generic/uintid_traits.cpp \
-    generic/extended_manager.cpp \
     qtlib/outliner/outliner_orphan_item.cpp \
     sak/file_interface_traits.cpp \
-    sak/file.cpp
+    sak/file.cpp \
+    sak/name_utilities.cpp \
+    sak/file_manager.cpp
     
 
 HEADERS  += \
@@ -154,7 +154,8 @@ HEADERS  += \
     generic/fwd_extended_manager.h \
     sak/fwd_file.h \
     sak/file_basic_manager.h \
-    sak/file_manager.h
+    sak/file_manager.h \
+    sak/name_utilities.h
     
 
 FORMS

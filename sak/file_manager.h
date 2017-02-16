@@ -21,6 +21,12 @@ namespace sak
     //---------------------------------------------------------------------------
     // Allows use of:
     //using File_Handle = generic::Extended_Handle<generic::Uint32ID_Manager, File, File_Interface_Traits>;
+
+    class File_Handle_Less_By_Name
+    {
+    public:
+        bool operator()(File_Handle const& a_lhs, File_Handle const& a_rhs) const;
+    };
 }
 
 #endif // FILE_MANAGER_H

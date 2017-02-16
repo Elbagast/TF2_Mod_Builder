@@ -55,6 +55,7 @@ namespace qtlib
             // these are the inbuilt functions for this, but it isn't clear how they would be used in this case...
             //bool insertRows(int row, int count, QModelIndex const& parent = QModelIndex() ) override;
             //bool removeRows(int row, int count, QModelIndex const& parent = QModelIndex() ) override;
+            //bool moveRows(QModelIndex const& a_source_parent, int a_source_row, int a_count, QModelIndex const& a_destination_parent, int a_destination_child) override;
 
             // Indexing
             //----------------------------------------
@@ -87,6 +88,49 @@ namespace qtlib
             // Update Calls
             //============================================================
             // Functions to tell the model to emit change signals
+
+
+            // Helper classes
+            //============================================================
+            // Providing access to these signals without implementing the actions.
+
+
+
+            friend class Rows_Mover;
+            class Rows_Mover
+            {
+            public:
+                explicit Rows_Mover(Model* a_model, QModelIndex const& a_source_parent, int a_source_row, int a_source_last, QModelIndex const& a_destination_parent, int a_destination_child);
+                ~Rows_Mover();
+            private:
+                Model* m_model;
+            };
+
+            friend class Rows_Mover;
+            class Rows_Inserter
+            {
+            public:
+                explicit Rows_Inserter(Model* a_model, int a_row, int a_last, QModelIndex const& a_parent = QModelIndex());
+                ~Rows_Inserter();
+            private:
+                Model* m_model;
+            };
+
+            friend class Rows_Remover;
+            class Rows_Remover
+            {
+            public:
+                explicit Rows_Remover(Model* a_model, int a_row, int a_last, QModelIndex const& a_parent = QModelIndex());
+                ~Rows_Remover();
+            private:
+                Model* m_model;
+            };
+
+            void data_changed(QModelIndex const& a_top_left, QModelIndex const& a_bottom_right, QVector<int> const& a_roles = QVector<int>());
+            Rows_Mover make_rows_mover(QModelIndex const& a_source_parent, int a_source_row, int a_count, QModelIndex const& a_destination_parent, int a_destination_child);
+            Rows_Inserter make_rows_inserter(int a_row, int a_last, QModelIndex const& a_parent = QModelIndex());
+            Rows_Remover make_rows_remover(int a_row, int a_last, QModelIndex const& a_parent = QModelIndex());
+
 
         signals:
             void signal_editor_requested(abstract::Item* a_item);

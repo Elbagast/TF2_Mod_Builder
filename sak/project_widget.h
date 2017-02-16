@@ -3,6 +3,7 @@
 
 #include <memory>
 #include <QWidget>
+#include "fwd_file.h"
 
 namespace sak
 {
@@ -151,6 +152,33 @@ namespace sak
 
         // Is the selected component installable? If no component is open, this is always false.
         bool is_component_installable() const;
+
+        // File Interface
+        //============================================================
+        // State query helpers for determining whether actions are currently active, and what they do.
+        // Should this section even be public? I maps out how the Project and the Project_Widget
+        // interact so probably not...
+
+        // Is the current top tab widget for a File?
+        bool is_file_in_focus() const;
+
+        // Get the File_Handle for the tob tab widget. If it's a File, this is the handle. If it
+        // isn't a File, this is an invalid handle.
+        File_Handle get_file_in_focus() const;
+
+        // Open this File in this Widget. If there is no widget for this File in the tabs, make
+        // one. If there is one, set the tabwidget to focuse on it. If there is one and it is
+        // already in focus, do nothing.
+        void open_file(File_Handle const& a_file);
+
+        // If a tab widget exists for this File, update its contents.
+        // Could probably specify what part to update?
+        void update_file(File_Handle const& a_file);
+
+        // If a tab widget exists for this File, close it. This does not destory the underlying
+        // File data.
+        void close_file(File_Handle const& a_file);
+
 
     private:
         // Pimpl Data

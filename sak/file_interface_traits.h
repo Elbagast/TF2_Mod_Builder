@@ -24,12 +24,12 @@ namespace sak
             public File_Const_Interface
     {
     public:
-        explicit File_Interface(File_Basic_Handle const& a_handle, Project const* a_project);
+        explicit File_Interface(File_Basic_Handle const& a_handle, Project* a_project);
 
         void set_name(QString const& a_name);
         void set_description(QString const& a_description);
     private:
-        Project const* m_project;
+        Project* m_project;
     };
 
 
@@ -41,12 +41,12 @@ namespace sak
         using interface_type = File_Interface;
         using const_interface_type = File_Const_Interface;
 
-        explicit File_Interface_Traits(Project const* a_project);
+        explicit File_Interface_Traits(Project* a_project);
 
         interface_type get(basic_handle_type& a_ref);
         const_interface_type cget(basic_handle_type const& a_ref) const;
     private:
-        Project const* m_project;
+        Project* m_project;
     };
 }
 

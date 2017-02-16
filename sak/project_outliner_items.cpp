@@ -24,6 +24,8 @@
 #include "../generic/uintid_manager.h"
 #include "../generic/extended_manager.h"
 
+#include <QDebug>
+
 namespace
 {
     template <typename... Args>
@@ -91,12 +93,14 @@ sak::Project const& sak::outliner::Root_Item::cget_project() const
 sak::outliner::Project_Item::Project_Item(parent_type* a_parent):
     inherited_type(a_parent)
 {
+    set_child<0>(std::make_unique<child_type<0>>(this));
+    /*
     if (cget_project().has_files())
     {
         set_child<0>(std::make_unique<child_type<0>>(this));
     }
     //etc
-    /*
+
     if (cget_project().has_textures())
     {
         set_child<0>(std::make_unique<child_type<0>>(this));
@@ -164,10 +168,12 @@ sak::Project const& sak::outliner::Project_Item::cget_project() const
 sak::outliner::File_Header_Item::File_Header_Item(parent_type* a_parent):
     inherited_type(a_parent)
 {
+    /*
     for(std::size_t l_index = 0, l_end = cget_project().file_count(); l_index != l_end; ++l_index)
     {
         this->append_child(std::make_unique<File_Item>(this));
-    }
+    }*/
+    update();
 }
 
 sak::outliner::File_Header_Item::~File_Header_Item() = default;
@@ -206,7 +212,20 @@ void sak::outliner::File_Header_Item::do_custom_context_menu(QAbstractItemView* 
     QObject::connect(l_action_add_file, &QAction::triggered, [=]()
     {
         // Either this call triggers the data change in model, or we have to make that call here.
+        this->get_project().add_new_file();
     });
+
+    auto l_action_debug = menu.addAction("debug");
+    QObject::connect(l_action_debug, &QAction::triggered, [=]()
+    {
+        qDebug() << "file list:";
+        for (auto const& l_file : cget_project().get_all_file_names())
+        {
+            qDebug() << l_file;
+        }
+    });
+
+    menu.addAction(QString::number(this->get_child_count()));
 
     // Execute the menu at the global posiiton.
     menu.exec(a_view->viewport()->mapToGlobal(a_position));
@@ -224,6 +243,30 @@ sak::Project const& sak::outliner::File_Header_Item::cget_project() const
     return get_true_parent()->cget_project();
 }
 
+
+// update the file count
+void sak::outliner::File_Header_Item::update()
+{
+    auto l_file_count = static_cast<int>(cget_project().file_count());
+    auto l_child_count = this->get_child_count();
+    //qDebug() << "file count =  " << l_file_count;
+    //qDebug() << "child count = " << l_child_count;
+    if (l_child_count < l_file_count)
+    {
+        for (;l_child_count != l_file_count; ++l_child_count)
+        {
+            this->append_child(std::make_unique<File_Item>(this));
+        }
+    }
+    else if (l_child_count > l_file_count)
+    {
+        for (;l_child_count != l_file_count; ++l_file_count)
+        {
+            this->remove_last_child();
+        }
+    }
+    assert(static_cast<int>(cget_project().file_count()) == this->get_child_count());
+}
 
 //---------------------------------------------------------------------------
 // sak::outliner::File_Item

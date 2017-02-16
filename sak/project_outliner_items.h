@@ -129,6 +129,9 @@ namespace sak
             //============================================================
             Project& get_project();
             Project const& cget_project() const;
+
+            // update the file count
+            void update();
         };
 
         //---------------------------------------------------------------------------

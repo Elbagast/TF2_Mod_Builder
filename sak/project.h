@@ -10,6 +10,23 @@ class QString;
 
 namespace sak
 {
+    class Project_Signalbox
+    {
+    public:
+        virtual ~Project_Signalbox() = default;
+
+        // When the Files section has changed order due to a name change, this is called.
+        virtual void file_names_reordered() = 0;
+        // When a File has had its name changed, this is called.
+        virtual void file_name_changed(File_Handle const& a_file, std::size_t a_index_old, std::size_t a_index_new) = 0;
+        // When a File has its data changed(anything but the name), this is called.
+        virtual void file_data_changed(File_Handle const& a_file, std::size_t a_index) = 0;
+        // When a File has been added, this is called.
+        virtual void file_added(File_Handle const& a_file, std::size_t a_index) = 0;
+        // When a File has been removed, this is called.
+        virtual void file_removed(File_Handle const& a_file, std::size_t a_index) = 0;
+    };
+
     //---------------------------------------------------------------------------
     // Project
     //---------------------------------------------------------------------------
@@ -91,6 +108,13 @@ namespace sak
         QString message() const;
         QString content() const;
 
+        // Add an object that will rely on the Project's signals. If nulltpr, nothing happens.
+        void add_signalbox(Project_Signalbox* a_signalbox);
+
+        // Remove an object that will rely on the Project's signals. If nulltpr, nothing happens.
+        void remove_signalbox(Project_Signalbox* a_signalbox);
+
+
         // File Interface
         //============================================================
 
@@ -109,26 +133,36 @@ namespace sak
         // Get all the Files alphabetically sorted names
         std::vector<QString> get_all_file_names() const;
 
+        // Since the order of Files may change based on the name change, we need to capture
+        // the calls to rename Files...
+        void rename_file(File_Handle const& a_file, QString const& a_name);
+
         // Add a new file. Project takes ownership of the File. File is inserted in
         // the appropriate place to maintain sorting and Project signals that the File list
         // has gained an item at that positon.
         File_Handle add_file(File&& a_file);
 
+        // Add a new default parameters File.
+        File_Handle add_new_file();
+
         // Remove the file at this index and return it. Project is no longer its owner.
         // Project signals that the File list has lost an item at that location.
         File_Handle remove_file_at(std::size_t a_index);
 
-        // When the Files section has changed, this is called.
-        void signal_files_changed();
-        // When a File at this index has changed, this is called.
-        void signal_file_changed_at(std::size_t a_index);
-        // When a File has been added at this index, this is called.
-        void signal_file_added_at(std::size_t a_index);
-        // When a File has been removed at this index, this is called.
-        void signal_file_removed_at(std::size_t a_index);
+        // Remove the File with this handle.
+        File_Handle remove_file(File_Handle const& a_file);
+
+        // File_Interface will call this when the File's name is changed. This causes Project
+        // to propagate the changes to where they need to go.
+        void file_name_changed(File_Basic_Handle const& a_file);
+
+        // File_Interface will call this when the File's data is changed. This causes Project
+        // to propagate the changes to where they need to go.
+        void file_data_changed(File_Basic_Handle const& a_file);
 
 
     private:
+
 
         // Pimpl Data
         //============================================================

@@ -42,6 +42,9 @@ namespace generic
 
             bool is_valid() const;
             void clear();
+
+            bool operator==(Holder const& a_other) const;
+            bool operator!=(Holder const& a_other) const;
         private:
             using shared_ptr_type = std::shared_ptr<std::pair<id_type, value_type>>;
 
@@ -95,10 +98,24 @@ namespace generic
         value_type& get();
         value_type const& cget() const;
 
+        bool operator==(Handle const& a_other) const;
+        bool operator!=(Handle const& a_other) const;
+
     private:
         holder_type m_holder;
         manager_type* m_manager;
     };
+
+    /*
+    template <typename IDM, typename T>
+    bool operator< (Handle<IDM,T> const& a_lhs, Handle<IDM,T> const& a_rhs);
+    template <typename IDM, typename T>
+    bool operator> (Handle<IDM,T> const& a_lhs, Handle<IDM,T> const& a_rhs);
+    template <typename IDM, typename T>
+    bool operator<=(Handle<IDM,T> const& a_lhs, Handle<IDM,T> const& a_rhs);
+    template <typename IDM, typename T>
+    bool operator>=(Handle<IDM,T> const& a_lhs, Handle<IDM,T> const& a_rhs);
+    */
 }
 
 
@@ -227,6 +244,18 @@ void generic::Manager<IDM,T>::Holder::clear()
     m_data = shared_ptr_type(nullptr);
 }
 
+template <typename IDM, typename T>
+bool generic::Manager<IDM,T>::Holder::operator==(Holder const& a_other) const
+{
+    return m_data == a_other.m_data;
+}
+
+template <typename IDM, typename T>
+bool generic::Manager<IDM,T>::Holder::operator!=(Holder const& a_other) const
+{
+    return m_data != a_other.m_data;
+}
+
 //---------------------------------------------------------------------------
 // generic::Handle<ID Manager, Type>
 //---------------------------------------------------------------------------
@@ -300,6 +329,18 @@ template <typename IDM, typename T>
 typename generic::Handle<IDM,T>::value_type const& generic::Handle<IDM,T>::cget() const
 {
     return m_holder.cget();
+}
+
+template <typename IDM, typename T>
+bool generic::Handle<IDM,T>::operator==(Handle<IDM,T> const& a_other) const
+{
+    return m_manager == a_other.m_manager && m_holder == a_other.m_holder;
+}
+
+template <typename IDM, typename T>
+bool generic::Handle<IDM,T>::operator!=(Handle<IDM,T> const& a_other) const
+{
+    return !(m_manager == a_other.m_manager && m_holder == a_other.m_holder);
 }
 
 

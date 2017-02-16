@@ -332,3 +332,62 @@ QModelIndex qtlib::outliner::Model::create_index_from_item(abstract::Item* a_ite
         return QAbstractItemModel::createIndex(a_item->index_in_parent(), 0, static_cast<void*>(a_item));
     }
 }
+
+// Helper classes
+//============================================================
+// Providing access to these signals without implementing the actions.
+
+qtlib::outliner::Model::Rows_Mover::Rows_Mover(Model* a_model, QModelIndex const& a_source_parent, int a_source_first, int a_source_last, QModelIndex const& a_destination_parent, int a_destination_child):
+    m_model{a_model}
+{
+    m_model->beginMoveRows(a_source_parent, a_source_first, a_source_last, a_destination_parent, a_destination_child);
+}
+
+qtlib::outliner::Model::Rows_Mover::~Rows_Mover()
+{
+    m_model->endMoveRows();
+}
+
+qtlib::outliner::Model::Rows_Inserter::Rows_Inserter(Model* a_model, int a_row, int a_last, QModelIndex const& a_parent):
+    m_model{a_model}
+{
+    m_model->beginInsertRows(a_parent, a_row, a_last);
+}
+
+qtlib::outliner::Model::Rows_Inserter::~Rows_Inserter()
+{
+    m_model->endInsertRows();
+}
+
+qtlib::outliner::Model::Rows_Remover::Rows_Remover(Model* a_model, int a_row, int a_last, QModelIndex const& a_parent):
+    m_model{a_model}
+{
+    m_model->beginRemoveRows(a_parent, a_row, a_last);
+}
+
+qtlib::outliner::Model::Rows_Remover::~Rows_Remover()
+{
+    m_model->endRemoveRows();
+}
+
+
+
+void qtlib::outliner::Model::data_changed(QModelIndex const& a_top_left, QModelIndex const& a_bottom_right, QVector<int> const& a_roles)
+{
+    emit dataChanged(a_top_left, a_bottom_right, a_roles);
+}
+
+qtlib::outliner::Model::Rows_Mover qtlib::outliner::Model::make_rows_mover(QModelIndex const& a_source_parent, int a_source_row, int a_source_last, QModelIndex const& a_destination_parent, int a_destination_child)
+{
+    return Rows_Mover(this, a_source_parent, a_source_row, a_source_last, a_destination_parent, a_destination_child);
+}
+
+qtlib::outliner::Model::Rows_Inserter qtlib::outliner::Model::make_rows_inserter(int a_row, int a_last, QModelIndex const& a_parent)
+{
+    return Rows_Inserter(this, a_row, a_last, a_parent);
+}
+
+qtlib::outliner::Model::Rows_Remover qtlib::outliner::Model::make_rows_remover(int a_row, int a_last, QModelIndex const& a_parent)
+{
+    return Rows_Remover(this, a_row, a_last, a_parent);
+}

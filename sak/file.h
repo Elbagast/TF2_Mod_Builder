@@ -2,6 +2,7 @@
 #define FILE_H
 
 #include "fwd_file.h"
+
 #include <QString>
 
 namespace sak
@@ -13,20 +14,14 @@ namespace sak
     class Component
     {
     public:
-        Component():
-            m_name{},
-            m_description{}
-        {}
-        Component(QString const& a_name, QString const& a_description):
-            m_name{a_name},
-            m_description{a_description}
-        {}
+        Component();
+        explicit Component(QString const& a_name, QString const& a_description = QString());
 
-        QString const& cget_name() const { return m_name; }
-        QString const& cget_description() const { return m_description; }
+        QString const& cget_name() const;
+        QString const& cget_description() const;
 
-        void set_name(QString const& a_name) { m_name = a_name; }
-        void set_description(QString const& a_description) { m_description = a_description; }
+        void set_name(QString const& a_name);
+        void set_description(QString const& a_description);
     private:
         QString m_name;
         QString m_description;
@@ -34,12 +29,8 @@ namespace sak
     class File : public Component
     {
     public:
-        File():
-            Component()
-        {}
-        File(QString const& a_name, QString const& a_description):
-            Component(a_name, a_description)
-        {}
+        File();
+        explicit File(QString const& a_name, QString const& a_description = QString());
     };
 }
 

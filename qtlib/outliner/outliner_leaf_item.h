@@ -72,7 +72,7 @@ namespace qtlib
             // actions can call functions in it for editing
             void do_custom_context_menu(QAbstractItemView* a_view, model_type* a_model, QPoint const& a_position) override = 0;
 
-        protected:
+        //protected:
             // Additional Interface
             //============================================================
             using Parented_Item<P>::get_true_parent;
@@ -129,7 +129,7 @@ namespace qtlib
             // to get the position relative to the window for a properly placed menu.
             void do_custom_context_menu(QAbstractItemView* a_view, model_type* a_model, QPoint const& a_position) override = 0;
 
-        protected:
+        //protected:
             // Additional Interface
             //============================================================
             using Leaf_Item<P>::get_true_parent;

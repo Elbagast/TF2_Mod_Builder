@@ -4,8 +4,10 @@
 #include <QTabWidget>
 #include <QTreeView>
 #include <QLabel>
+#include <QDebug>
 #include <cassert>
 
+#include "file_manager.h"
 #include "project.h"
 #include "../qtlib/outliner/outliner_model.h"
 #include "../qtlib/outliner/outliner_delegate.h"
@@ -19,7 +21,14 @@
 //============================================================
 namespace
 {
-
+    class Component_Widget :
+            public QWidget
+    {
+    public:
+        explicit Component_Widget(QWidget* a_parent = nullptr):
+            QWidget(a_parent)
+        {}
+    };
 
     class Project_Display :
             public QWidget
@@ -59,7 +68,8 @@ namespace
 //============================================================
 namespace sak
 {
-    class Project_Widget::Implementation
+    class Project_Widget::Implementation :
+            public Project_Signalbox
     {
     public:
         std::unique_ptr<Project> m_data;
@@ -98,7 +108,81 @@ namespace sak
 
             m_outliner->setItemDelegate(&m_delegate);
             m_outliner->set_model(&m_model);
+
+            m_data->add_signalbox(this);
         }
+
+        ~Implementation() override = default;
+
+        // When the Files section has changed order due to a name change, this is called.
+        void file_names_reordered() override final
+        {
+            auto l_files_item = m_root->get_true_child()->get_true_child<0>();
+            auto l_file_count = l_files_item->get_child_count();
+            if (l_file_count > 1)
+            {
+                auto l_top_left_index = m_model.create_index_from_item(l_files_item->get_true_child_at(0));
+                auto l_bottom_right_index = m_model.create_index_from_item(l_files_item->get_true_child_at(l_file_count));
+                m_model.data_changed(l_top_left_index, l_bottom_right_index, QVector<int>(Qt::DisplayRole));
+            }
+        }
+        // When a File has had its name changed, this is called.
+        void file_name_changed(File_Handle const& a_file, std::size_t a_index_old, std::size_t a_index_new) override final
+        {
+            auto l_files_item = m_root->get_true_child()->get_true_child<0>();
+            auto l_model_index = m_model.create_index_from_item(l_files_item);
+            auto l_index_old = static_cast<int>(a_index_old);
+
+            if (a_index_old == a_index_new)
+            {
+                // The file didn't move so do this signal
+                auto l_file_index = m_model.index(l_index_old,0,l_model_index);
+                m_model.data_changed(l_file_index, l_file_index, QVector<int>(Qt::DisplayRole));
+            }
+            else
+            {
+                // The file moved so do this signal
+                auto l_mover = m_model.make_rows_mover(l_model_index, l_index_old,l_index_old+1,l_model_index,static_cast<int>(a_index_new));
+            }
+        }
+        // When a File has its data changed(anything but the name), this is called.
+        void file_data_changed(File_Handle const& a_file, std::size_t a_index) override final
+        {
+            // no outliner changes
+        }
+        // When a File has been added, this is called.
+        void file_added(File_Handle const& a_file, std::size_t a_index) override final
+        {
+            auto l_files_item = m_root->get_true_child()->get_true_child<0>();
+            auto l_model_index = m_model.create_index_from_item(l_files_item);
+            auto l_inserter = m_model.make_rows_inserter(a_index,a_index+1,l_model_index);
+            // add a new file
+            auto l_old = l_files_item->get_child_count();
+            l_files_item->update();
+            assert(l_old + 1 == l_files_item->get_child_count());
+        }
+        // When a File has been removed, this is called.
+        void file_removed(File_Handle const& a_file, std::size_t a_index) override final
+        {
+            auto l_files_item = m_root->get_true_child()->get_true_child<0>();
+            auto l_model_index = m_model.create_index_from_item(l_files_item);
+            auto l_remover = m_model.make_rows_remover(a_index,a_index+1,l_model_index);
+            // add a new file
+            auto l_old = l_files_item->get_child_count();
+            l_files_item->update();
+            assert(l_old - 1 == l_files_item->get_child_count());
+        }
+
+        void reset_model()
+        {
+            auto l_root = std::make_unique<outliner::Root_Item>(*m_data);
+
+            m_model.set_root(l_root.get());
+            m_outliner->expandAll();
+            std::swap(m_root, l_root);
+        }
+
+
     };
 }
 
