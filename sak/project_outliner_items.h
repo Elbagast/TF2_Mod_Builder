@@ -12,6 +12,7 @@
 namespace sak
 {
     class Project;
+    class Project_Widget;
 
     namespace outliner
     {
@@ -35,7 +36,7 @@ namespace sak
         public:
             // Special 6
             //============================================================
-            explicit Root_Item(Project& a_project);
+            explicit Root_Item(Project& a_project, Project_Widget& a_widget);
             ~Root_Item() override;
 
             // Virtual Interface
@@ -52,8 +53,12 @@ namespace sak
             //============================================================
             Project& get_project();
             Project const& cget_project() const;
+
+            Project_Widget& get_project_widget();
+            Project_Widget const& cget_project_widget() const;
         private:
             Project& m_project;
+            Project_Widget& m_project_widget;
         };
 
 
@@ -93,6 +98,8 @@ namespace sak
             //============================================================
             Project& get_project();
             Project const& cget_project() const;
+            Project_Widget& get_project_widget();
+            Project_Widget const& cget_project_widget() const;
         };
 
         //---------------------------------------------------------------------------
@@ -129,6 +136,8 @@ namespace sak
             //============================================================
             Project& get_project();
             Project const& cget_project() const;
+            Project_Widget& get_project_widget();
+            Project_Widget const& cget_project_widget() const;
 
             // update the file count
             void update();
@@ -182,6 +191,8 @@ namespace sak
             //============================================================
             Project& get_project();
             Project const& cget_project() const;
+            Project_Widget& get_project_widget();
+            Project_Widget const& cget_project_widget() const;
 
             QString cget_file_name() const;
             void set_file_name(QString const& a_name);

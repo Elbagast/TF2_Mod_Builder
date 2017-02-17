@@ -29,6 +29,12 @@ namespace sak
     widget in the tab widget.
     - When a compoenent is destroyed its tab is removed.
     - If data is changed then its tab is updated.
+
+    Tab Section:
+    - A mixture of tabs that represent different componenent types.
+    - Tabs are closed when the item is deleted or the tab is closed.
+
+
     */
     class Project_Widget :
             public QWidget
@@ -158,6 +164,11 @@ namespace sak
         // State query helpers for determining whether actions are currently active, and what they do.
         // Should this section even be public? I maps out how the Project and the Project_Widget
         // interact so probably not...
+
+        // Open the editor for the File at this index.
+        // This is called by outliner::File_Item can might be better off hidden?
+        void open_file_editor(std::size_t a_index);
+
 
         // Is the current top tab widget for a File?
         bool is_file_in_focus() const;

@@ -110,7 +110,8 @@ SOURCES += \
     sak/file_interface_traits.cpp \
     sak/file.cpp \
     sak/name_utilities.cpp \
-    sak/file_manager.cpp
+    sak/file_manager.cpp \
+    sak/file_widget.cpp
     
 
 HEADERS  += \
@@ -155,7 +156,8 @@ HEADERS  += \
     sak/fwd_file.h \
     sak/file_basic_manager.h \
     sak/file_manager.h \
-    sak/name_utilities.h
+    sak/name_utilities.h \
+    sak/file_widget.h
     
 
 FORMS

@@ -1,18 +1,24 @@
 #include "project_widget.h"
 
 #include <QHBoxLayout>
+//#include <QStackedWidget>
 #include <QTabWidget>
+#include <QScrollArea>
 #include <QTreeView>
 #include <QLabel>
 #include <QDebug>
 #include <cassert>
+#include <iterator>
+#include <algorithm>
 
 #include "file_manager.h"
+#include "file_widget.h"
 #include "project.h"
 #include "../qtlib/outliner/outliner_model.h"
 #include "../qtlib/outliner/outliner_delegate.h"
 #include "../qtlib/outliner/outliner_treeview.h"
 #include "project_outliner_items.h"
+
 
 //---------------------------------------------------------------------------
 // Project_Widget
@@ -21,14 +27,20 @@
 //============================================================
 namespace
 {
-    class Component_Widget :
-            public QWidget
-    {
-    public:
-        explicit Component_Widget(QWidget* a_parent = nullptr):
-            QWidget(a_parent)
-        {}
-    };
+    /*
+    Starting with tabs of a single type:
+    - vector of widgets for all things of that type.
+    - widgets are only made when needed, otherwise they're nullptr
+    - widgets get reordered to match order changes in that type of thing.
+    - tabs are closed when items are deleted.
+    - widgets are deleted when tabs are closed.
+
+    Ergo:
+    std::vector<File_Widget> m_file_widgets;
+    */
+
+
+
 
     class Project_Display :
             public QWidget
@@ -83,16 +95,19 @@ namespace sak
         std::unique_ptr<QTabWidget> m_tabs;
         std::unique_ptr<Project_Display> m_display;
 
+        std::vector<std::unique_ptr<File_Widget>> m_file_widgets;
 
-        explicit Implementation(std::unique_ptr<Project>&& a_data):
+
+        explicit Implementation(std::unique_ptr<Project>&& a_data, Project_Widget& a_widget):
             m_data{std::move(a_data)},
             m_model{},
             m_delegate{},
-            m_root{std::make_unique<outliner::Root_Item>(*m_data)},
+            m_root{std::make_unique<outliner::Root_Item>(*m_data, a_widget)},
             m_layout{std::make_unique<QHBoxLayout>()},
             m_outliner{std::make_unique<qtlib::outliner::Treeview>()},
             m_tabs{std::make_unique<QTabWidget>()},
-            m_display{std::make_unique<Project_Display>(*m_data)}
+            m_display{std::make_unique<Project_Display>(*m_data)},
+            m_file_widgets{}
         {
             m_model.set_root(m_root.get());
             assert(m_model.is_active());
@@ -110,6 +125,15 @@ namespace sak
             m_outliner->set_model(&m_model);
 
             m_data->add_signalbox(this);
+
+            m_tabs->setMovable(true);
+            m_tabs->setTabsClosable(false); // ok how are we supporting this
+
+            m_layout->addWidget(m_outliner.get());
+            m_layout->setStretchFactor(m_outliner.get(),1);
+            m_layout->addWidget(m_tabs.get());
+            m_layout->setStretchFactor(m_tabs.get(),2);
+            m_layout->addWidget(m_display.get());
         }
 
         ~Implementation() override = default;
@@ -117,6 +141,8 @@ namespace sak
         // When the Files section has changed order due to a name change, this is called.
         void file_names_reordered() override final
         {
+            // Outliner update
+            //-----------------------------------
             auto l_files_item = m_root->get_true_child()->get_true_child<0>();
             auto l_file_count = l_files_item->get_child_count();
             if (l_file_count > 1)
@@ -125,10 +151,20 @@ namespace sak
                 auto l_bottom_right_index = m_model.create_index_from_item(l_files_item->get_true_child_at(l_file_count));
                 m_model.data_changed(l_top_left_index, l_bottom_right_index, QVector<int>(Qt::DisplayRole));
             }
+
+            // Editor update
+            //-----------------------------------
+            // don't care
+
+
         }
         // When a File has had its name changed, this is called.
         void file_name_changed(File_Handle const& a_file, std::size_t a_index_old, std::size_t a_index_new) override final
         {
+            // Outliner update
+            //-----------------------------------
+            //qDebug() << "Move " << a_index_old << " to " << a_index_new;
+
             auto l_files_item = m_root->get_true_child()->get_true_child<0>();
             auto l_model_index = m_model.create_index_from_item(l_files_item);
             auto l_index_old = static_cast<int>(a_index_old);
@@ -139,49 +175,183 @@ namespace sak
                 auto l_file_index = m_model.index(l_index_old,0,l_model_index);
                 m_model.data_changed(l_file_index, l_file_index, QVector<int>(Qt::DisplayRole));
             }
-            else
+            else if(a_index_old > a_index_new)
             {
                 // The file moved so do this signal
-                auto l_mover = m_model.make_rows_mover(l_model_index, l_index_old,l_index_old+1,l_model_index,static_cast<int>(a_index_new));
+
+                auto l_mover = m_model.make_row_mover(l_model_index, l_index_old, l_model_index,static_cast<int>(a_index_new));
+            }
+            else if(a_index_old < a_index_new)
+            {
+                // The file moved so do this signal
+                // As per the documentation of QAbstractItemModel::beginMoveRows, when moving a row down the
+                // destination must be outside of the range (first_index, last_index+1). This means we have to
+                // correct the destination
+                auto l_mover = m_model.make_row_mover(l_model_index, l_index_old, l_model_index,static_cast<int>(a_index_new)+1);
+            }
+
+            // Editor update
+            //-----------------------------------
+            // Find the editor for this handle
+            auto l_found = std::find_if(m_file_widgets.cbegin(),
+                                        m_file_widgets.cend(),
+                                        File_Widget_Equals_Handle(a_file));
+
+            // if it exists, update it
+            if (l_found != m_file_widgets.cend())
+            {
+                // update the widget contents
+                l_found->get()->update();
+
+
+                // update the tab name
+
+                m_tabs->setUpdatesEnabled(false);
+                // If we want an icon it goes in here....
+
+                for (int l_index = 0, l_end = m_tabs->count(); l_index != l_end; ++l_index)
+                {
+                    if (m_tabs->widget(l_index) == l_found->get())
+                    {
+                        m_tabs->setTabText(l_index, a_file.cget().cget_name());
+                        break;
+                    }
+                }
+
+                m_tabs->setUpdatesEnabled(true);
             }
         }
         // When a File has its data changed(anything but the name), this is called.
         void file_data_changed(File_Handle const& a_file, std::size_t a_index) override final
         {
+            // Outliner update
+            //-----------------------------------
             // no outliner changes
+
+            // Editor update
+            //-----------------------------------
+            // Find the editor for this handle
+            auto l_found = std::find_if(m_file_widgets.cbegin(),
+                                        m_file_widgets.cend(),
+                                        File_Widget_Equals_Handle(a_file));
+
+            // if it exists, update it
+            if (l_found != m_file_widgets.cend())
+            {
+                l_found->get()->update();
+            }
         }
         // When a File has been added, this is called.
         void file_added(File_Handle const& a_file, std::size_t a_index) override final
         {
+            // Outliner update
+            //-----------------------------------
             auto l_files_item = m_root->get_true_child()->get_true_child<0>();
             auto l_model_index = m_model.create_index_from_item(l_files_item);
-            auto l_inserter = m_model.make_rows_inserter(a_index,a_index+1,l_model_index);
+            auto l_inserter = m_model.make_row_inserter(a_index,l_model_index);
             // add a new file
             auto l_old = l_files_item->get_child_count();
             l_files_item->update();
             assert(l_old + 1 == l_files_item->get_child_count());
+
+
+            // Editor update
+            //-----------------------------------
+            // update the file widget count and open the widget for it.
+            // Shouldn't exist yet
+            assert(std::find_if(m_file_widgets.cbegin(),
+                                m_file_widgets.cend(),
+                                File_Widget_Equals_Handle(a_file))
+                    == m_file_widgets.cend());
+            m_file_widgets.push_back(std::make_unique<File_Widget>(a_file, nullptr));
+
+            // Add it to the tabwidget
+            m_tabs->setUpdatesEnabled(false);
+            // insert the tab at the front
+            // If we want an icon it goes in here....
+            m_tabs->insertTab(0,m_file_widgets.back().get(), a_file.cget().cget_name());
+            m_tabs->setUpdatesEnabled(true);
+            m_tabs->setCurrentIndex(0);
         }
+
         // When a File has been removed, this is called.
         void file_removed(File_Handle const& a_file, std::size_t a_index) override final
         {
+            // Outliner update
+            //-----------------------------------
+
             auto l_files_item = m_root->get_true_child()->get_true_child<0>();
             auto l_model_index = m_model.create_index_from_item(l_files_item);
-            auto l_remover = m_model.make_rows_remover(a_index,a_index+1,l_model_index);
+            auto l_remover = m_model.make_row_remover(a_index,l_model_index);
             // add a new file
             auto l_old = l_files_item->get_child_count();
             l_files_item->update();
             assert(l_old - 1 == l_files_item->get_child_count());
+
+            // Editor update
+            //-----------------------------------
+            // Find the editor for this handle
+            auto l_found = std::find_if(m_file_widgets.begin(),
+                                        m_file_widgets.end(),
+                                        File_Widget_Equals_Handle(a_file));
+
+            // if it exists, remove it
+            if (l_found != m_file_widgets.cend())
+            {
+                // Add it to the tabwidget
+                m_tabs->setUpdatesEnabled(false);
+                // If we want an icon it goes in here....
+
+                for (int l_index = 0, l_end = m_tabs->count(); l_index != l_end; ++l_index)
+                {
+                    if (m_tabs->widget(l_index) == l_found->get())
+                    {
+                        m_tabs->removeTab(l_index);
+                        break;
+                    }
+                }
+
+                m_tabs->setUpdatesEnabled(true);
+
+                // make sure the widget dies
+                l_found->reset();
+                // erase it
+                m_file_widgets.erase(l_found);
+            }
         }
 
-        void reset_model()
+        void file_editor_requested(File_Handle const& a_file, std::size_t a_index)
         {
-            auto l_root = std::make_unique<outliner::Root_Item>(*m_data);
+            // Find the editor for this handle
+            auto l_found = std::find_if(m_file_widgets.begin(),
+                                        m_file_widgets.end(),
+                                        File_Widget_Equals_Handle(a_file));
+            // if it exists, focus on it
+            if (l_found != m_file_widgets.cend())
+            {
+                for (int l_index = 0, l_end = m_tabs->count(); l_index != l_end; ++l_index)
+                {
+                    if (m_tabs->widget(l_index) == l_found->get())
+                    {
+                        m_tabs->setCurrentIndex(l_index);
+                        break;
+                    }
+                }
+            }
+            // otherwise make it and focus on it
+            else
+            {
+                m_file_widgets.push_back(std::make_unique<File_Widget>(a_file, nullptr));
 
-            m_model.set_root(l_root.get());
-            m_outliner->expandAll();
-            std::swap(m_root, l_root);
+                // Add it to the tabwidget
+                m_tabs->setUpdatesEnabled(false);
+                // insert the tab at the front
+                // If we want an icon it goes in here....
+                m_tabs->insertTab(0,m_file_widgets.back().get(), a_file.cget().cget_name());
+                m_tabs->setUpdatesEnabled(true);
+                m_tabs->setCurrentIndex(0);
+            }
         }
-
 
     };
 }
@@ -207,14 +377,8 @@ sak::Project_Widget::Project_Widget(QString const& a_name, QString const& a_loca
 sak::Project_Widget::Project_Widget(std::unique_ptr<Project>&& a_project, QWidget* a_parent):
    // Project_Widget(QFileInfo(a_filepath).fileName(), QFileInfo(a_filepath).absoluteDir().absolutePath(), a_parent)
     QWidget(a_parent),
-    m_data{std::make_unique<Implementation>(std::move(a_project))}
+    m_data{std::make_unique<Implementation>(std::move(a_project),*this)}
 {
-    imp().m_layout->addWidget(imp().m_outliner.get());
-    imp().m_layout->setStretchFactor(imp().m_outliner.get(),1);
-    imp().m_layout->addWidget(imp().m_tabs.get());
-    imp().m_layout->setStretchFactor(imp().m_tabs.get(),2);
-    imp().m_layout->addWidget(imp().m_display.get());
-
     this->setLayout(imp().m_layout.get());
 }
 
@@ -367,6 +531,7 @@ void sak::Project_Widget::uninstall_all()
 // State query helpers for determining whether actions are
 // currently active, and what they do.
 
+
 // Get the name of the project.
 QString sak::Project_Widget::name() const
 {
@@ -413,4 +578,13 @@ bool sak::Project_Widget::is_component_buildable() const
 bool sak::Project_Widget::is_component_installable() const
 {
     return false;
+}
+
+// File Interface
+//============================================================
+// Open the editor for the File at this index.
+// This is called by outliner::File_Item can might be better off hidden?
+void sak::Project_Widget::open_file_editor(std::size_t a_index)
+{
+    imp().file_editor_requested(cimp().m_data->get_file_at(a_index), a_index);
 }

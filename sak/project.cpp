@@ -222,7 +222,7 @@ void sak::Project::load()
             if (xml_stream.readNextStartElement() && xml_stream.name().toString() == "Filepath")
             {
                 l_data->m_filepath = QFileInfo(xml_stream.readElementText());
-                qDebug() << "Filepath: " << l_data->m_filepath.absoluteFilePath();
+                //qDebug() << "Filepath: " << l_data->m_filepath.absoluteFilePath();
 
                 // </Filepath>
                 xml_stream.readNext();
@@ -237,7 +237,7 @@ void sak::Project::load()
             if (xml_stream.readNextStartElement() && xml_stream.name().toString() == "Data")
             {
                 l_data->m_data = xml_stream.readElementText();
-                qDebug() << "Data: " << l_data->m_data;
+                //qDebug() << "Data: " << l_data->m_data;
 
                 // </Data>
                 xml_stream.readNext();
@@ -251,7 +251,7 @@ void sak::Project::load()
             // Read the Files
             if (xml_stream.readNextStartElement() && xml_stream.name().toString() == "Files")
             {
-                qDebug() << "Files:";
+                //qDebug() << "Files:";
 
 
                 int l_count {0};
@@ -260,7 +260,7 @@ void sak::Project::load()
                 if (xml_stream.readNextStartElement() && xml_stream.name().toString() == "Count")
                 {
                     l_count = xml_stream.readElementText().toInt();
-                    qDebug() << "Count = " << l_count;
+                    //qDebug() << "Count = " << l_count;
 
                     // </Count>
                     xml_stream.readNext();
@@ -278,12 +278,12 @@ void sak::Project::load()
                     if (xml_stream.readNextStartElement() && xml_stream.name().toString() == "File")
                     {
                         File l_file{};
-                        qDebug() << "File: "<< l_index ;
+                        //qDebug() << "File: "<< l_index ;
                         // <Name>
                         if (xml_stream.readNextStartElement() && xml_stream.name().toString() == "Name")
                         {
                             auto l_data = xml_stream.readElementText();
-                            qDebug() << "Name: " << l_data;
+                            //qDebug() << "Name: " << l_data;
                             l_file.set_name(l_data);
 
                             // </Name>
@@ -297,7 +297,7 @@ void sak::Project::load()
                         if (xml_stream.readNextStartElement() && xml_stream.name().toString() == "Description")
                         {
                             auto l_data = xml_stream.readElementText();
-                            qDebug() << "Description:" << l_data;
+                            //qDebug() << "Description:" << l_data;
                             l_file.set_description(l_data);
 
                             // </Description>

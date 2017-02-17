@@ -391,3 +391,18 @@ qtlib::outliner::Model::Rows_Remover qtlib::outliner::Model::make_rows_remover(i
 {
     return Rows_Remover(this, a_row, a_last, a_parent);
 }
+
+qtlib::outliner::Model::Rows_Mover qtlib::outliner::Model::make_row_mover(QModelIndex const& a_source_parent, int a_source_row, QModelIndex const& a_destination_parent, int a_destination_child)
+{
+    return Rows_Mover(this, a_source_parent, a_source_row, a_source_row, a_destination_parent, a_destination_child);
+}
+
+qtlib::outliner::Model::Rows_Inserter qtlib::outliner::Model::make_row_inserter(int a_row, QModelIndex const& a_parent)
+{
+    return Rows_Inserter(this, a_row, a_row, a_parent);
+}
+
+qtlib::outliner::Model::Rows_Remover qtlib::outliner::Model::make_row_remover(int a_row, QModelIndex const& a_parent)
+{
+    return Rows_Remover(this, a_row, a_row, a_parent);
+}

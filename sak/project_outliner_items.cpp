@@ -16,6 +16,7 @@
 #include <vector>
 
 #include "project.h"
+#include "project_widget.h"
 
 
 #include "file.h"
@@ -43,9 +44,10 @@ namespace
 
 // Special 6
 //============================================================
-sak::outliner::Root_Item::Root_Item(Project& a_project):
+sak::outliner::Root_Item::Root_Item(Project& a_project, Project_Widget& a_project_widget):
     inherited_type(),
-    m_project{a_project}
+    m_project{a_project},
+    m_project_widget{a_project_widget}
 {
     this->set_child(std::make_unique<Project_Item>(this));
 }
@@ -80,6 +82,15 @@ sak::Project& sak::outliner::Root_Item::get_project()
 sak::Project const& sak::outliner::Root_Item::cget_project() const
 {
     return m_project;
+}
+sak::Project_Widget& sak::outliner::Root_Item::get_project_widget()
+{
+    return m_project_widget;
+}
+
+sak::Project_Widget const& sak::outliner::Root_Item::cget_project_widget() const
+{
+    return m_project_widget;
 }
 
 
@@ -157,6 +168,15 @@ sak::Project const& sak::outliner::Project_Item::cget_project() const
     return get_true_parent()->cget_project();
 }
 
+sak::Project_Widget& sak::outliner::Project_Item::get_project_widget()
+{
+    return get_true_parent()->get_project_widget();
+}
+
+sak::Project_Widget const& sak::outliner::Project_Item::cget_project_widget() const
+{
+    return get_true_parent()->cget_project_widget();
+}
 //---------------------------------------------------------------------------
 // sak::outliner::File_Header_Item
 //---------------------------------------------------------------------------
@@ -243,6 +263,15 @@ sak::Project const& sak::outliner::File_Header_Item::cget_project() const
     return get_true_parent()->cget_project();
 }
 
+sak::Project_Widget& sak::outliner::File_Header_Item::get_project_widget()
+{
+    return get_true_parent()->get_project_widget();
+}
+
+sak::Project_Widget const& sak::outliner::File_Header_Item::cget_project_widget() const
+{
+    return get_true_parent()->cget_project_widget();
+}
 
 // update the file count
 void sak::outliner::File_Header_Item::update()
@@ -305,46 +334,6 @@ QVariant sak::outliner::File_Item::get_data(int a_role) const
 // Set the data in item with the given value
 void sak::outliner::File_Item::set_data(QVariant const& a_value)
 {
-    /*
-    // User supplies a name that is the argument.
-    // If it is the same as the name we already have, we don't bother making a change.
-    if (a_value.toString() == cget_file_name())
-    {
-        return;
-    }
-    // We must make sure the name does not already exist among the other names.
-    auto l_names = cget_project().get_all_file_names();
-    // Get rid of the name of this one, since it is going to change.
-    auto l_old_name_found = std::find(l_names.cbegin(), l_names.cend(), cget_file_name());
-    l_names.erase(l_old_name_found);
-
-    // Candidate for anonymous namespace function.
-    // Oh wait this probably does need to be in the handle or the Project since it'll be used elsewhere too....
-    // void uniqueify_name(QString& a_name, std::vector<QString> const& a_names)
-
-    auto l_new_name_found = std::find(l_names.cbegin(), l_names.cend(), a_value.toString());
-    QString l_final_name{a_value.toString()};
-    // if it wasn't found we can use it
-    if (l_new_name_found == l_names.cend())
-    {
-        l_final_name = a_value.toString();
-    }
-    // else we have to fix the name
-    else
-    {
-        // append a number to the name and test it and keep doing this until we get to one we haven't found.
-        for (int l_postfix = 1, l_end = std::numeric_limits<int>::max(); l_postfix != l_end; ++l_postfix)
-        {
-            QString l_fixed_name{l_final_name};
-            l_fixed_name.append(QString::number(l_postfix));
-            if (std::find(l_names.cbegin(), l_names.cend(), l_fixed_name) == l_names.end())
-            {
-                l_final_name = l_fixed_name;
-                break;
-            }
-        }
-    }
-*/
     set_file_name(a_value.toString());
 }
 
@@ -397,6 +386,7 @@ void sak::outliner::File_Item::do_custom_context_menu(QAbstractItemView* a_view,
     {
         // We need access to a means to open an editor.
         // We probably need to talk to the Project_Widget then.
+        this->get_project_widget().open_file_editor(static_cast<std::size_t>(this->index_in_parent()));
     });
 
     // Commence an edit operation in the outliner
@@ -411,8 +401,7 @@ void sak::outliner::File_Item::do_custom_context_menu(QAbstractItemView* a_view,
     QObject::connect(l_action_delete, &QAction::triggered, [=]()
     {
         // get rid of the data
-        get_project().remove_file_at(this->index_in_parent());
-        // either this call triggers the data change in model, or we have to make that call here.
+        this->get_project().remove_file_at(this->index_in_parent());
     });
 
     // Execute the menu at the global posiiton.
@@ -429,6 +418,16 @@ sak::Project& sak::outliner::File_Item::get_project()
 sak::Project const& sak::outliner::File_Item::cget_project() const
 {
     return get_true_parent()->cget_project();
+}
+
+sak::Project_Widget& sak::outliner::File_Item::get_project_widget()
+{
+    return get_true_parent()->get_project_widget();
+}
+
+sak::Project_Widget const& sak::outliner::File_Item::cget_project_widget() const
+{
+    return get_true_parent()->cget_project_widget();
 }
 
 QString sak::outliner::File_Item::cget_file_name() const

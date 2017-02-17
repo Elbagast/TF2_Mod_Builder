@@ -127,9 +127,14 @@ namespace qtlib
             };
 
             void data_changed(QModelIndex const& a_top_left, QModelIndex const& a_bottom_right, QVector<int> const& a_roles = QVector<int>());
-            Rows_Mover make_rows_mover(QModelIndex const& a_source_parent, int a_source_row, int a_count, QModelIndex const& a_destination_parent, int a_destination_child);
+            Rows_Mover make_rows_mover(QModelIndex const& a_source_parent, int a_source_row, int a_source_last, QModelIndex const& a_destination_parent, int a_destination_child);
             Rows_Inserter make_rows_inserter(int a_row, int a_last, QModelIndex const& a_parent = QModelIndex());
             Rows_Remover make_rows_remover(int a_row, int a_last, QModelIndex const& a_parent = QModelIndex());
+
+
+            Rows_Mover make_row_mover(QModelIndex const& a_source_parent, int a_source_row, QModelIndex const& a_destination_parent, int a_destination_child);
+            Rows_Inserter make_row_inserter(int a_row, QModelIndex const& a_parent = QModelIndex());
+            Rows_Remover make_row_remover(int a_row, QModelIndex const& a_parent = QModelIndex());
 
 
         signals:
