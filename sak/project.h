@@ -10,23 +10,7 @@ class QString;
 
 namespace sak
 {
-    class Project_Signalbox
-    {
-    public:
-        virtual ~Project_Signalbox() = default;
-
-        // When the Files section has changed order due to a name change, this is called.
-        virtual void file_names_reordered() = 0;
-        // When a File has had its name changed, this is called.
-        virtual void file_name_changed(File_Handle const& a_file, std::size_t a_index_old, std::size_t a_index_new) = 0;
-        // When a File has its data changed(anything but the name), this is called.
-        virtual void file_data_changed(File_Handle const& a_file, std::size_t a_index) = 0;
-        // When a File has been added, this is called.
-        virtual void file_added(File_Handle const& a_file, std::size_t a_index) = 0;
-        // When a File has been removed, this is called.
-        virtual void file_removed(File_Handle const& a_file, std::size_t a_index) = 0;
-    };
-
+    class Project_Signalbox;
     //---------------------------------------------------------------------------
     // Project
     //---------------------------------------------------------------------------
@@ -152,6 +136,11 @@ namespace sak
         // Remove the File with this handle.
         File_Handle remove_file(File_Handle const& a_file);
 
+
+
+        // Outliner File_Interface Interface
+        //============================================================
+
         // File_Interface will call this when the File's name is changed. This causes Project
         // to propagate the changes to where they need to go.
         void file_name_changed(File_Basic_Handle const& a_file);
@@ -160,6 +149,12 @@ namespace sak
         // to propagate the changes to where they need to go.
         void file_data_changed(File_Basic_Handle const& a_file);
 
+
+        // Outliner File_Item Interface
+        //============================================================
+        // outliner::File_Item calls this to request an editor. Project propagates the signal
+        // to anything that needs to change as a result.
+        void file_requests_editor(std::size_t a_index);
 
     private:
 

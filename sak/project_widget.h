@@ -42,13 +42,9 @@ namespace sak
     public:
         // Special 6
         //============================================================
-        // Create a Project with the given name in the directory location.
-        // After data creation the file is saved there even though the Project
-        // will be empty.
-        //Project_Widget(QString const& a_name, QString const& a_location, QWidget* a_parent = nullptr);
-
         // Create a Project with the given filepath.
         explicit Project_Widget(std::unique_ptr<Project>&& a_project, QWidget* a_parent = nullptr);
+        ~Project_Widget() override;
 
         // Menu Actions
         //============================================================
@@ -164,11 +160,6 @@ namespace sak
         // State query helpers for determining whether actions are currently active, and what they do.
         // Should this section even be public? I maps out how the Project and the Project_Widget
         // interact so probably not...
-
-        // Open the editor for the File at this index.
-        // This is called by outliner::File_Item can might be better off hidden?
-        void open_file_editor(std::size_t a_index);
-
 
         // Is the current top tab widget for a File?
         bool is_file_in_focus() const;

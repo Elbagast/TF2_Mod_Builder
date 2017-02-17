@@ -12,6 +12,7 @@
 #include <algorithm>
 #include <iterator>
 
+#include "project_signalbox.h"
 #include "exceptions/exception.h"
 #include "file_manager.h"
 #include "name_utilities.h"
@@ -89,6 +90,14 @@ namespace sak
             for (auto l_item : m_dependents)
             {
                 l_item->file_removed(a_file, a_index);
+            }
+        }
+        // When a File requests an editor, this is called.
+        void signal_file_requests_editor(File_Handle const& a_file, std::size_t a_index)
+        {
+            for (auto l_item : m_dependents)
+            {
+                l_item->file_requests_editor(a_file, a_index);
             }
         }
 
@@ -512,4 +521,13 @@ void sak::Project::file_data_changed(File_Basic_Handle const& a_file)
     auto l_index = std::distance(cimp().m_files.cbegin(), l_position);
 
     imp().signal_file_data_changed(*l_position, l_index);
+}
+
+// Outliner File_Item Interface
+//============================================================
+// outliner::File_Item calls this to request an editor. Project propagates the signal
+// to anything that needs to change as a result.
+void sak::Project::file_requests_editor(std::size_t a_index)
+{
+    imp().signal_file_requests_editor(cimp().m_files.at(a_index), a_index);
 }

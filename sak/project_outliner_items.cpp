@@ -16,8 +16,6 @@
 #include <vector>
 
 #include "project.h"
-#include "project_widget.h"
-
 
 #include "file.h"
 #include "file_interface_traits.h"
@@ -44,10 +42,9 @@ namespace
 
 // Special 6
 //============================================================
-sak::outliner::Root_Item::Root_Item(Project& a_project, Project_Widget& a_project_widget):
+sak::outliner::Root_Item::Root_Item(Project& a_project):
     inherited_type(),
-    m_project{a_project},
-    m_project_widget{a_project_widget}
+    m_project{a_project}
 {
     this->set_child(std::make_unique<Project_Item>(this));
 }
@@ -83,16 +80,6 @@ sak::Project const& sak::outliner::Root_Item::cget_project() const
 {
     return m_project;
 }
-sak::Project_Widget& sak::outliner::Root_Item::get_project_widget()
-{
-    return m_project_widget;
-}
-
-sak::Project_Widget const& sak::outliner::Root_Item::cget_project_widget() const
-{
-    return m_project_widget;
-}
-
 
 //---------------------------------------------------------------------------
 // sak::outliner::Project_Item
@@ -168,15 +155,6 @@ sak::Project const& sak::outliner::Project_Item::cget_project() const
     return get_true_parent()->cget_project();
 }
 
-sak::Project_Widget& sak::outliner::Project_Item::get_project_widget()
-{
-    return get_true_parent()->get_project_widget();
-}
-
-sak::Project_Widget const& sak::outliner::Project_Item::cget_project_widget() const
-{
-    return get_true_parent()->cget_project_widget();
-}
 //---------------------------------------------------------------------------
 // sak::outliner::File_Header_Item
 //---------------------------------------------------------------------------
@@ -263,15 +241,6 @@ sak::Project const& sak::outliner::File_Header_Item::cget_project() const
     return get_true_parent()->cget_project();
 }
 
-sak::Project_Widget& sak::outliner::File_Header_Item::get_project_widget()
-{
-    return get_true_parent()->get_project_widget();
-}
-
-sak::Project_Widget const& sak::outliner::File_Header_Item::cget_project_widget() const
-{
-    return get_true_parent()->cget_project_widget();
-}
 
 // update the file count
 void sak::outliner::File_Header_Item::update()
@@ -386,7 +355,7 @@ void sak::outliner::File_Item::do_custom_context_menu(QAbstractItemView* a_view,
     {
         // We need access to a means to open an editor.
         // We probably need to talk to the Project_Widget then.
-        this->get_project_widget().open_file_editor(static_cast<std::size_t>(this->index_in_parent()));
+        this->get_project().file_requests_editor(static_cast<std::size_t>(this->index_in_parent()));
     });
 
     // Commence an edit operation in the outliner
@@ -418,16 +387,6 @@ sak::Project& sak::outliner::File_Item::get_project()
 sak::Project const& sak::outliner::File_Item::cget_project() const
 {
     return get_true_parent()->cget_project();
-}
-
-sak::Project_Widget& sak::outliner::File_Item::get_project_widget()
-{
-    return get_true_parent()->get_project_widget();
-}
-
-sak::Project_Widget const& sak::outliner::File_Item::cget_project_widget() const
-{
-    return get_true_parent()->cget_project_widget();
 }
 
 QString sak::outliner::File_Item::cget_file_name() const

@@ -111,7 +111,9 @@ SOURCES += \
     sak/file.cpp \
     sak/name_utilities.cpp \
     sak/file_manager.cpp \
-    sak/file_widget.cpp
+    sak/file_widget.cpp \
+    sak/project_outliner.cpp \
+    sak/project_editor.cpp
     
 
 HEADERS  += \
@@ -157,7 +159,10 @@ HEADERS  += \
     sak/file_basic_manager.h \
     sak/file_manager.h \
     sak/name_utilities.h \
-    sak/file_widget.h
+    sak/file_widget.h \
+    sak/project_outliner.h \
+    sak/project_signalbox.h \
+    sak/project_editor.h
     
 
 FORMS
