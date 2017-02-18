@@ -246,6 +246,8 @@ namespace sak
         // Change anything that needs to change if the selected componenent changes.
         void notify_component_changes();
 
+        void update_window_title();
+
         // Pimpl Data
         //============================================================
         class Data;

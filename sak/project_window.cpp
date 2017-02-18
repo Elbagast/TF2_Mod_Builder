@@ -234,6 +234,8 @@ public:
         m_help_help{std::make_unique<QAction>(c_title_help_help)},
         m_help_about{std::make_unique<QAction>(c_title_help_about)}
     {}
+
+
 };
 
 // Special 6
@@ -249,7 +251,8 @@ sak::Project_Window::Project_Window(QWidget* a_parent):
     this->setCentralWidget(data().m_central_stack.get());
 
     // Window Title
-    this->setWindowTitle(c_title_application);
+    //this->setWindowTitle(c_title_application);
+    update_window_title();
 
     // Minimum Window Size (720p for now)
     this->setMinimumSize(1280,720);
@@ -889,30 +892,37 @@ bool sak::Project_Window::is_component_installable() const
 // act on it and return true if the action was never cancelled.
 bool sak::Project_Window::ask_to_save()
 {
-    int msgBoxRet = QMessageBox::question(this,
-                                              c_title_application,
-                                              tr("The project has been modified.\n"
-                                                 "Do you want to save your changes?"),
-                                              QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel,
-                                              QMessageBox::Save);
-
-    switch (msgBoxRet)
+    if (is_project_open() && cdata().m_project_widget->has_unsaved_edits())
     {
-    case QMessageBox::Save:
-        // Save was clicked
+        int msgBoxRet = QMessageBox::question(this,
+                                                  c_title_application,
+                                                  tr("The project has been modified.\n"
+                                                     "Do you want to save your changes?"),
+                                                  QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel,
+                                                  QMessageBox::Save);
+
+        switch (msgBoxRet)
         {
-        save_project();
-        return true;
+        case QMessageBox::Save:
+            // Save was clicked
+            {
+            save_project();
+            return true;
+            }
+        case QMessageBox::Discard:
+            // Discard was clicked
+            return true;
+        case QMessageBox::Cancel:
+            // Cancel was clicked
+            return false;
+        default:
+            // should never be reached
+            return false;
         }
-    case QMessageBox::Discard:
-        // Discard was clicked
+    }
+    else
+    {
         return true;
-    case QMessageBox::Cancel:
-        // Cancel was clicked
-        return false;
-    default:
-        // should never be reached
-        return false;
     }
 }
 
@@ -962,6 +972,7 @@ void sak::Project_Window::notify_project_changes()
     // And anything that depends on a component being selected.
     notify_component_changes();
 
+    update_window_title();
 }
 
 // Change anything that needs to change if undo changes are made.
@@ -1017,3 +1028,13 @@ void sak::Project_Window::notify_component_changes()
 
 
 
+void sak::Project_Window::update_window_title()
+{
+    QString l_title{};
+    if (is_project_open())
+    {
+        l_title += data().m_project_widget->name() + " - ";
+    }
+    l_title += c_title_application;
+    this->setWindowTitle(l_title);
+}

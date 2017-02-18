@@ -34,11 +34,23 @@ namespace sak
     - A mixture of tabs that represent different componenent types.
     - Tabs are closed when the item is deleted or the tab is closed.
 
+    Notes on the current implementation:
+    - Outliner and tabs have display orders that are seperate.
+    - Neither cares what the other order is.
+    - Current design has the Project store things in the outliner order...
+    - How would you change this so the Project holds them in any order (e.g. no order or ID order)
+      and the outliner sorts into whatever order it wants as needed?
+    - Doing this would simplify the Project signals to just use the handles rather than also their
+      indexes.
+    - Tabs already doesn't care...
+    - Tabs caches the handles it needs...
+    - Outliner should probably cache the handles and sort the cache instead.
 
     */
     class Project_Widget :
             public QWidget
     {
+        Q_OBJECT
     public:
         // Special 6
         //============================================================
@@ -137,6 +149,9 @@ namespace sak
         // Get the root directory of the project.
         QString location() const;
 
+        // Does the Project have unsaved changes?
+        bool has_unsaved_edits() const;
+
         // Can we currently call undo?
         bool can_undo() const;
 
@@ -181,8 +196,11 @@ namespace sak
         // File data.
         void close_file(File_Handle const& a_file);
 
+    signals:
+        void signal_unsaved_edits_change(bool a_state);
 
     private:
+
         // Pimpl Data
         //============================================================
         class Implementation;

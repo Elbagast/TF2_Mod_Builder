@@ -8,6 +8,7 @@
 #include "../qtlib/outliner/outliner_root_trunk_item.h"
 #include "../qtlib/outliner/outliner_multitrunk_item.h"
 #include <memory>
+#include "file_manager.h"
 
 namespace sak
 {
@@ -19,9 +20,8 @@ namespace sak
         class Project_Item;
         class File_Header_Item;
         class File_Item;
-        class Texture_Header_Item;
-        class Texture_Item;
 
+        //------------------------------------------------------------------------------------------------------------------------------------------------------
         //---------------------------------------------------------------------------
         // sak::outliner::Root_Item
         //---------------------------------------------------------------------------
@@ -46,17 +46,23 @@ namespace sak
             // actions can call functions in it for editing.  Position is the position in terms of
             // the widget rather than the window. Use a_view->viewport()->mapToGlobal(a_position)
             // to get the position relative to the window for a properly placed menu.
-            void do_custom_context_menu(QAbstractItemView* a_view, model_type* a_model, QPoint const& a_position) override final;
+            void do_context_menu(QAbstractItemView* a_view, model_type* a_model, QPoint const& a_position) override final;
+            // Do whatever we want when an item has been double clicked on.
+            void do_double_clicked(QAbstractItemView* a_view, model_type* a_model) override final;
 
             // Additional Interface
             //============================================================
             Project& get_project();
             Project const& cget_project() const;
+
+            Project_Item* project_item() const;
+            File_Header_Item* file_header_item() const;
+
         private:
             Project& m_project;
         };
 
-
+        //------------------------------------------------------------------------------------------------------------------------------------------------------
         //---------------------------------------------------------------------------
         // sak::outliner::Project_Item
         //---------------------------------------------------------------------------
@@ -87,14 +93,22 @@ namespace sak
             // actions can call functions in it for editing.  Position is the position in terms of
             // the widget rather than the window. Use a_view->viewport()->mapToGlobal(a_position)
             // to get the position relative to the window for a properly placed menu.
-            void do_custom_context_menu(QAbstractItemView* a_view, model_type* a_model, QPoint const& a_position) override final;
+            void do_context_menu(QAbstractItemView* a_view, model_type* a_model, QPoint const& a_position) override final;
+            // Do whatever we want when an item has been double clicked on.
+            void do_double_clicked(QAbstractItemView* a_view, model_type* a_model) override final;
 
             // Additional Interface
             //============================================================
             Project& get_project();
             Project const& cget_project() const;
+
+            File_Header_Item* file_header_item() const;
+
+            void initialise_files(bool a_read_files);
+            void close_files();
         };
 
+        //------------------------------------------------------------------------------------------------------------------------------------------------------
         //---------------------------------------------------------------------------
         // sak::outliner::File_Header_Item
         //---------------------------------------------------------------------------
@@ -108,7 +122,7 @@ namespace sak
         public:
             // Special 6
             //============================================================
-            explicit File_Header_Item(parent_type* a_parent);
+            explicit File_Header_Item(parent_type* a_parent, bool a_read_files = true);
             ~File_Header_Item() override;
 
             // Virtual Interface
@@ -123,17 +137,29 @@ namespace sak
             // actions can call functions in it for editing.  Position is the position in terms of
             // the widget rather than the window. Use a_view->viewport()->mapToGlobal(a_position)
             // to get the position relative to the window for a properly placed menu.
-            void do_custom_context_menu(QAbstractItemView* a_view, model_type* a_model, QPoint const& a_position) override final;
+            void do_context_menu(QAbstractItemView* a_view, model_type* a_model, QPoint const& a_position) override final;
+            // Do whatever we want when an item has been double clicked on.
+            void do_double_clicked(QAbstractItemView* a_view, model_type* a_model) override final;
 
             // Additional Interface
             //============================================================
             Project& get_project();
             Project const& cget_project() const;
+            // What index is the File_Item that holds this File_Handle reside at?
+            // Returns get_child_count() if it is not found.
+            std::size_t index_of_file(File_Handle const& a_file) const;
+            // What File_Item holds this File_Handle? Returns nullptr if not found.
+            File_Item* item_of_file(File_Handle const& a_file) const;
 
-            // update the file count
-            void update();
+            // When a File has had its name changed, this is called.
+            void name_changed(File_Handle const& a_file);
+            // When a File has been added, this is called.
+            void added(File_Handle const& a_file);
+            // When a File has been removed, this is called.
+            void removed(File_Handle const& a_file);
         };
 
+        //------------------------------------------------------------------------------------------------------------------------------------------------------
         //---------------------------------------------------------------------------
         // sak::outliner::File_Item
         //---------------------------------------------------------------------------
@@ -146,7 +172,7 @@ namespace sak
         public:
             // Special 6
             //============================================================
-            explicit File_Item(parent_type* a_parent);
+            File_Item(parent_type* a_parent, File_Handle const& a_file);
             ~File_Item() override;
 
             // Virtual Interface
@@ -175,62 +201,22 @@ namespace sak
             // actions can call functions in it for editing.  Position is the position in terms of
             // the widget rather than the window. Use a_view->viewport()->mapToGlobal(a_position)
             // to get the position relative to the window for a properly placed menu.
-            void do_custom_context_menu(QAbstractItemView* a_view, model_type* a_model, QPoint const& a_position) override final;
+            void do_context_menu(QAbstractItemView* a_view, model_type* a_model, QPoint const& a_position) override final;
+            // Do whatever we want when an item has been double clicked on.
+            void do_double_clicked(QAbstractItemView* a_view, model_type* a_model) override final;
 
 
             // Additional Interface
             //============================================================
             Project& get_project();
             Project const& cget_project() const;
-
+            File_Handle const& cget_file() const;
             QString cget_file_name() const;
             void set_file_name(QString const& a_name);
+
+        private:
+            File_Handle m_file;
         };
-
-        //---------------------------------------------------------------------------
-        // sak::outliner::Texture_Header_Item
-        //---------------------------------------------------------------------------
-        // Outliner item that represents the Texture container of a Project. It's children
-        // are all the Textures present in the Project.
-/*
-        class Texture_Header_Item :
-                public qtlib::outliner::Readonly_Branch_Item<Project_Item, Texture_Item>
-        {
-        public:
-            // Special 6
-            //============================================================
-            explicit Texture_Header_Item(parent_type* a_parent);
-            ~Texture_Header_Item() override;
-
-            // Virtual Interface
-            //============================================================
-            // Underlying data access
-            //----------------------------------------
-            // Get the item data for a given column and role
-            QVariant get_data(int a_role = Qt::DisplayRole) const override final;
-            // Other
-            //----------------------------------------
-            // Make and act on the context menu for this item. Need the model pointer here so that
-            // actions can call functions in it for editing
-            void do_custom_context_menu(QAbstractItemView* a_view, model_type* a_model, QPoint const& a_position) override final;
-
-            // Additional Interface
-            //============================================================
-            Project& get_project();
-            Project const& cget_project() const;
-        };
-
-        //---------------------------------------------------------------------------
-        // sak::outliner::Texture_Item
-        //---------------------------------------------------------------------------
-        // Outliner item that represents a Texture of a Project.
-
-        class Texture_Item :
-                public qtlib::outliner::abstract::Item
-        {
-        };
-*/
-
     }
 }
 

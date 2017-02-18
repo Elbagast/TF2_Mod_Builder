@@ -1,16 +1,20 @@
 #include "project_widget.h"
 
-#include <QHBoxLayout>
-#include <QDebug>
 #include <cassert>
 #include <iterator>
 #include <algorithm>
+
+#include <QDebug>
+#include <QHBoxLayout>
+#include <QSplitter>
 
 #include "file_manager.h"
 #include "file_widget.h"
 #include "project.h"
 #include "project_outliner.h"
 #include "project_editor.h"
+#include "project_signalbox.h"
+#include "exceptions/exception.h"
 
 
 //---------------------------------------------------------------------------
@@ -27,29 +31,110 @@ namespace
 //============================================================
 namespace sak
 {
-    class Project_Widget::Implementation
+    class Project_Widget::Implementation :
+            public Project_File_Signalbox
     {
     public:
+        Project_Widget* m_owner;
+        bool m_unsaved_edits;
         std::unique_ptr<Project> m_project;
-        std::unique_ptr<Project_Outliner> m_outliner;
-        std::unique_ptr<Project_Editor> m_editor;
 
         std::unique_ptr<QHBoxLayout> m_layout;
 
-        explicit Implementation(std::unique_ptr<Project>&& a_data):
-            m_project{std::move(a_data)},
-            m_outliner{std::make_unique<Project_Outliner>(*m_project, nullptr)},
-            m_editor{std::make_unique<Project_Editor>(*m_project, nullptr)},
-            m_layout{std::make_unique<QHBoxLayout>()}
-        {
-            m_layout->addWidget(m_outliner.get());
-            m_layout->setStretchFactor(m_outliner.get(),1);
-            m_layout->addWidget(m_editor.get());
-            m_layout->setStretchFactor(m_editor.get(),3);
-        }
+        // Because QSplitter takes ownership it must be before the widgets it holds.
+        // This means the unique_ptr destructor is called after it knows its children are dead.
+        std::unique_ptr<QSplitter> m_splitter;
+        std::unique_ptr<Project_Outliner> m_outliner;
+        std::unique_ptr<Project_Editor> m_editor;
 
-        ~Implementation() = default;
+        ~Implementation() override;
+
+        Implementation(Project_Widget* a_owner, std::unique_ptr<Project>&& a_data);
+
+        // When a File has had its name changed, this is called.
+        void file_name_changed(File_Handle const& a_file) override final;
+        // When a File has its data changed(anything but the name), this is called.
+        void file_data_changed(File_Handle const& a_file) override final;
+        // When a File has its data changed in a specific place, this is called.
+        void file_data_changed_at(File_Handle const& a_file, std::size_t a_section) override final;
+        // When a File has been added, this is called.
+        void file_added(File_Handle const& a_file) override final;
+        // When a File has been removed, this is called.
+        void file_removed(File_Handle const& a_file) override final;
+        // When a File editor is to be opened, this is called.
+        void file_requests_editor(File_Handle const& a_file) override final;
+        // When focus is changed to be on a File, call this
+        void file_requests_focus(File_Handle const& a_file) override final;
+
+        void signal_unsaved_edits_change(bool a_state);
     };
+}
+
+sak::Project_Widget::Implementation::~Implementation() = default;
+
+sak::Project_Widget::Implementation::Implementation(Project_Widget* a_owner, std::unique_ptr<Project>&& a_data):
+    m_owner{a_owner},
+    m_unsaved_edits{false},
+    m_project{std::move(a_data)},
+    m_layout{std::make_unique<QHBoxLayout>()},
+    m_splitter{std::make_unique<QSplitter>(Qt::Horizontal, nullptr)},
+    m_outliner{std::make_unique<Project_Outliner>(*m_project, nullptr)},
+    m_editor{std::make_unique<Project_Editor>(*m_project, nullptr)}
+{
+    m_project->add_signalbox(this);
+
+    m_splitter->addWidget(m_outliner.get());
+    m_splitter->addWidget(m_editor.get());
+    m_splitter->setStretchFactor(0,1);
+    m_splitter->setStretchFactor(1,3);
+    m_splitter->setChildrenCollapsible(false);
+
+    m_layout->addWidget(m_splitter.get());
+    m_layout->setSpacing(0);
+}
+
+// When a File has had its name changed, this is called.
+void sak::Project_Widget::Implementation::file_name_changed(File_Handle const& )
+{
+    signal_unsaved_edits_change(true);
+}
+// When a File has its data changed(anything but the name), this is called.
+void sak::Project_Widget::Implementation::file_data_changed(File_Handle const& )
+{
+    signal_unsaved_edits_change(true);
+}
+// When a File has its data changed in a specific place, this is called.
+void sak::Project_Widget::Implementation::file_data_changed_at(File_Handle const&, std::size_t )
+{
+    signal_unsaved_edits_change(true);
+}
+// When a File has been added, this is called.
+void sak::Project_Widget::Implementation::file_added(File_Handle const& )
+{
+    signal_unsaved_edits_change(true);
+}
+// When a File has been removed, this is called.
+void sak::Project_Widget::Implementation::file_removed(File_Handle const& )
+{
+    signal_unsaved_edits_change(true);
+}
+// When a File editor is to be opened, this is called.
+void sak::Project_Widget::Implementation::file_requests_editor(File_Handle const& )
+{
+
+}
+// When focus is changed to be on a File, call this
+void sak::Project_Widget::Implementation::file_requests_focus(File_Handle const& )
+{
+
+}
+void sak::Project_Widget::Implementation::signal_unsaved_edits_change(bool a_state)
+{
+    if (m_unsaved_edits != a_state)
+    {
+        m_unsaved_edits = a_state;
+        m_owner->emit signal_unsaved_edits_change(m_unsaved_edits);
+    }
 }
 
 // Special 6
@@ -57,7 +142,7 @@ namespace sak
 // Create a Project with the given filepath.
 sak::Project_Widget::Project_Widget(std::unique_ptr<Project>&& a_project, QWidget* a_parent):
     QWidget(a_parent),
-    m_data{std::make_unique<Implementation>(std::move(a_project))}
+    m_data{std::make_unique<Implementation>(this, std::move(a_project))}
 {
     this->setLayout(imp().m_layout.get());
 }
@@ -73,7 +158,15 @@ sak::Project_Widget::~Project_Widget() = default;
 // Save the Project data.
 void sak::Project_Widget::save_project()
 {
-    cimp().m_project->save();
+    try
+    {
+        cimp().m_project->save();
+        imp().signal_unsaved_edits_change(false);
+    }
+    catch(File_Write_Error& e)
+    {
+        e.dialog(this);
+    }
 }
 
 // Menu Bar -> Edit
@@ -222,6 +315,12 @@ QString sak::Project_Widget::name() const
 QString sak::Project_Widget::location() const
 {
     return cimp().m_project->location();
+}
+
+// Does the Project have unsaved changes?
+bool sak::Project_Widget::has_unsaved_edits() const
+{
+    return cimp().m_unsaved_edits;
 }
 
 // Can we currently call undo?

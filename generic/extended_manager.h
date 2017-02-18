@@ -145,7 +145,7 @@ generic::Extended_Manager<IDM,T,IT>::Extended_Manager(interface_traits_type&& a_
 template <typename IDM, typename T, typename IT>
 typename generic::Extended_Manager<IDM,T,IT>::handle_type generic::Extended_Manager<IDM,T,IT>::make_null_handle() const
 {
-    return handle_type();
+    return handle_type(basic_handle_type(), nullptr, m_interface_traits);
 }
 
 template <typename IDM, typename T, typename IT>

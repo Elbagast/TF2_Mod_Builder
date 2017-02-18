@@ -119,7 +119,14 @@ Qt::ItemFlags qtlib::outliner::abstract::Root_Item::get_flags() const
 
 // Make and act on the context menu for this item. Need the model pointer here so that
 // actions can call functions in it for editing
-void qtlib::outliner::abstract::Root_Item::do_custom_context_menu(QAbstractItemView* a_view, model_type* a_model, QPoint const& a_point)
+void qtlib::outliner::abstract::Root_Item::do_context_menu(QAbstractItemView* a_view, model_type* a_model, QPoint const& a_point)
 {
-    return this->abstract::Item::do_custom_context_menu(a_view, a_model, a_point);
+    return this->abstract::Item::do_context_menu(a_view, a_model, a_point);
 }
+
+// Do whatever we want when an item has been double clicked on.
+void qtlib::outliner::abstract::Root_Item::do_double_clicked(QAbstractItemView* a_view, model_type* a_model)
+{
+    return this->abstract::Item::do_double_clicked(a_view, a_model);
+}
+

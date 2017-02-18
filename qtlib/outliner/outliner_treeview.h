@@ -13,9 +13,9 @@ namespace qtlib
         // outliner::Treeview
         //---------------------------------------------------------------------------
         // Class derived from QTreeView for use with Model which provides the capability
-        // to act on custom context menus for abstract::Item classes. There is also some custom
-        // behaviour for adding items, and there may be more in the future - it depends what has
-        // to be done here.
+        // to act on custom context menus and double clicks for abstract::Item classes.
+        // There is also some custom behaviour for adding items, and there may be more
+        // in the future - it depends what has to be done here.
 
         class Treeview :
                 public QTreeView
@@ -38,6 +38,9 @@ namespace qtlib
             // Connected to this->customContextMenuRequested
             void slot_custom_context_menu_requested(QPoint const& a_position);
 
+            // Connected to this->doubleClicked
+            void slot_double_clicked(QModelIndex const& a_index);
+
         protected:
             // Virtual Overrides
             //============================================================
@@ -47,6 +50,8 @@ namespace qtlib
         private:
             // hide this since it is effectively replaced.
             using QTreeView::setModel;
+            // Stop the user from editing the edit triggers.
+            using QTreeView::setEditTriggers;
 
             // Convenience
             //============================================================

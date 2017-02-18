@@ -35,12 +35,10 @@ namespace sak
 
         std::vector<File_Handle> m_files;
 
-        std::vector<Project_Signalbox*> m_dependents;
+        std::vector<Project_File_Signalbox*> m_dependents;
 
         Implementation(QString const& a_filepath, Project* a_owner):
             m_filepath{a_filepath},
-            m_message{"got here"},
-            m_data{},
             m_file_manager{File_Interface_Traits(a_owner)},
             m_files{},
             m_dependents{}
@@ -52,52 +50,61 @@ namespace sak
         //============================================================
         // Call these to call the signalbox functions in all dependents.
 
-        // When the Files section has changed order due to a name change, this is called.
-        void signal_file_names_reordered()
-        {
-            for (auto l_item : m_dependents)
-            {
-                l_item->file_names_reordered();
-            }
-        }
         // When a File has had its name changed, this is called.
-        void signal_file_name_changed(File_Handle const& a_file, std::size_t a_index_old, std::size_t a_index_new)
+        void signal_file_name_changed(File_Handle const& a_file)
         {
             for (auto l_item : m_dependents)
             {
-                l_item->file_name_changed(a_file, a_index_old, a_index_new);
+                l_item->file_name_changed(a_file);
             }
         }
         // When a File has its data changed(anything but the name), this is called.
-        void signal_file_data_changed(File_Handle const& a_file, std::size_t a_index)
+        void signal_file_data_changed(File_Handle const& a_file)
         {
             for (auto l_item : m_dependents)
             {
-                l_item->file_data_changed(a_file, a_index);
+                l_item->file_data_changed(a_file);
+            }
+        }
+        // When a File has its data changed in a specific place, this is called.
+        void signal_file_data_changed_at(File_Handle const& a_file, std::size_t a_section)
+        {
+            for (auto l_item : m_dependents)
+            {
+                l_item->file_data_changed_at(a_file, a_section);
             }
         }
         // When a File has been added, this is called.
-        void signal_file_added(File_Handle const& a_file, std::size_t a_index)
+        void signal_file_added(File_Handle const& a_file)
         {
             for (auto l_item : m_dependents)
             {
-                l_item->file_added(a_file, a_index);
+                l_item->file_added(a_file);
             }
         }
         // When a File has been removed, this is called.
-        void signal_file_removed(File_Handle const& a_file, std::size_t a_index)
+        void signal_file_removed(File_Handle const& a_file)
         {
             for (auto l_item : m_dependents)
             {
-                l_item->file_removed(a_file, a_index);
+                l_item->file_removed(a_file);
             }
         }
         // When a File requests an editor, this is called.
-        void signal_file_requests_editor(File_Handle const& a_file, std::size_t a_index)
+        void signal_file_requests_editor(File_Handle const& a_file)
         {
             for (auto l_item : m_dependents)
             {
-                l_item->file_requests_editor(a_file, a_index);
+                l_item->file_requests_editor(a_file);
+            }
+        }
+
+        // When a File requests an editor, this is called.
+        void signal_file_requests_focus(File_Handle const& a_file)
+        {
+            for (auto l_item : m_dependents)
+            {
+                l_item->file_requests_focus(a_file);
             }
         }
 
@@ -177,9 +184,6 @@ void sak::Project::save() const
        // start the element that contains all the data
        xml_stream.writeStartElement("Project");
 
-       xml_stream.writeTextElement("Filepath", cimp().m_filepath.absoluteFilePath());
-       xml_stream.writeTextElement("Data", cimp().m_data);
-
        // Start the Files block
        xml_stream.writeStartElement("Files");
        xml_stream.writeTextElement("Count", QString::number(cimp().m_files.size()));
@@ -227,36 +231,6 @@ void sak::Project::load()
         // <Project>
         if (xml_stream.readNextStartElement() && xml_stream.name().toString() == "Project")
         {
-            // <Filepath>
-            if (xml_stream.readNextStartElement() && xml_stream.name().toString() == "Filepath")
-            {
-                l_data->m_filepath = QFileInfo(xml_stream.readElementText());
-                //qDebug() << "Filepath: " << l_data->m_filepath.absoluteFilePath();
-
-                // </Filepath>
-                xml_stream.readNext();
-            }
-            else
-            {
-                // Bad file structure
-                qDebug() << "Didn't find Filepath";
-            }
-
-            // <Data>
-            if (xml_stream.readNextStartElement() && xml_stream.name().toString() == "Data")
-            {
-                l_data->m_data = xml_stream.readElementText();
-                //qDebug() << "Data: " << l_data->m_data;
-
-                // </Data>
-                xml_stream.readNext();
-            }
-            else
-            {
-                // Bad file structure
-                qDebug() << "Didn't find Data";
-            }
-
             // Read the Files
             if (xml_stream.readNextStartElement() && xml_stream.name().toString() == "Files")
             {
@@ -376,18 +350,9 @@ QString sak::Project::filepath() const
     return cimp().m_filepath.absoluteFilePath();
 }
 
-QString sak::Project::message() const
-{
-    return cimp().m_message;
-}
-
-QString sak::Project::content() const
-{
-    return cimp().m_data;
-}
 
 // Add an object that will rely on the Project's signals. If nulltpr, nothing happens.
-void sak::Project::add_signalbox(Project_Signalbox* a_signalbox)
+void sak::Project::add_signalbox(Project_File_Signalbox* a_signalbox)
 {
     if (a_signalbox != nullptr && std::find(cimp().m_dependents.cbegin(), cimp().m_dependents.cend(), a_signalbox) == cimp().m_dependents.cend())
     {
@@ -396,7 +361,7 @@ void sak::Project::add_signalbox(Project_Signalbox* a_signalbox)
 }
 
 // Remove an object that will rely on the Project's signals. If nulltpr, nothing happens.
-void sak::Project::remove_signalbox(Project_Signalbox* a_signalbox)
+void sak::Project::remove_signalbox(Project_File_Signalbox* a_signalbox)
 {
     auto l_found = std::find(cimp().m_dependents.cbegin(), cimp().m_dependents.cend(), a_signalbox);
     if (l_found != cimp().m_dependents.cend())
@@ -450,21 +415,11 @@ std::vector<QString> sak::Project::get_all_file_names() const
 // has gained an item at that positon.
 sak::File_Handle sak::Project::add_file(File&& a_file)
 {
-    // determine where the file will be inserted to maintain alphabetical sorting
-    auto l_position = std::find_if(cimp().m_files.cbegin(),
-                                   cimp().m_files.cend(),
-                                   [&](File_Handle const& a_handle){ return a_file.cget_name() < a_handle.cget().cget_name(); });
-    auto l_index = std::distance(cimp().m_files.cbegin(), l_position);
-
     auto l_handle = imp().m_file_manager.emplace_data(std::move(a_file));
-    assert(l_handle.ref_count() == 1);
-
-    imp().m_files.insert(l_position,l_handle);
+    imp().m_files.push_back(l_handle);
 
     assert(l_handle.ref_count() == 2);
-    //auto l_location
-    //auto l_index =
-    imp().signal_file_added(l_handle, l_index);
+    imp().signal_file_added(l_handle);
     return l_handle;
 }
 
@@ -477,57 +432,65 @@ sak::File_Handle sak::Project::add_new_file()
     return add_file(File(l_name));
 }
 
-// Remove the file at this index and return it. Project is no longer its owner.
-// Project signals that the File list has lost an item at that location.
-sak::File_Handle sak::Project::remove_file_at(std::size_t a_index)
-{
-    auto l_result = cimp().m_files.at(a_index);
-    auto l_position = cimp().m_files.begin();
-    std::advance(l_position, a_index);
-    imp().m_files.erase(l_position);
-    imp().signal_file_removed(l_result, a_index);
-    return l_result;
-}
-
 // Remove the File with this handle.
-sak::File_Handle sak::Project::remove_file(File_Handle const& a_file)
+void sak::Project::remove_file(File_Handle const& a_file)
 {
-    auto l_found = std::find(cimp().m_files.cbegin(), cimp().m_files.cend(), a_file);
-    auto l_index = std::distance(cimp().m_files.cbegin(), l_found);
+    assert(a_file.is_valid());
+    auto l_found = std::find(imp().m_files.begin(), imp().m_files.end(), a_file);
+    assert(l_found != cimp().m_files.cend());
+    assert(std::addressof(a_file) != std::addressof(*l_found));
+
+    // Copy the File_Handle locally. We don't know where it came from and have to propagate
+    // the signal from here rather than who knows where to insure the signal reference stays
+    // valid for all that need it.
+    File_Handle l_file = a_file;
+    // Now kill it, because if it's still in the project the signal will call back to find it
+    // is still present.
     imp().m_files.erase(l_found);
-    imp().signal_file_removed(a_file, l_index);
-    return a_file;
+    // Get rid of all external references to this file.
+    imp().signal_file_removed(l_file);
 }
 
-
+// Outliner File_Interface Interface
+//============================================================
 // File_Interface will call this when the File's name is changed. This causes Project
 // to propagate the changes to where they need to go.
 void sak::Project::file_name_changed(File_Basic_Handle const& a_file)
 {
-    auto l_old_position = std::find(cimp().m_files.cbegin(), cimp().m_files.cend(), a_file);
-    auto l_old_index = std::distance(cimp().m_files.cbegin(), l_old_position);
-    std::sort(imp().m_files.begin(), imp().m_files.end(), File_Handle_Less_By_Name());
-    auto l_new_position = std::find(cimp().m_files.cbegin(), cimp().m_files.cend(), a_file);
-    auto l_new_index = std::distance(cimp().m_files.cbegin(), l_new_position);
-
-    imp().signal_file_name_changed(*l_new_position, l_old_index, l_new_index);
+    assert(a_file.is_valid());
+    auto l_found = std::find(cimp().m_files.cbegin(), cimp().m_files.cend(), a_file);
+    assert(l_found != cimp().m_files.cend());
+    imp().signal_file_name_changed(*l_found);
 }
 
 // File_Interface will call this when the File's data is changed. This causes Project
 // to propagate the changes to where they need to go.
 void sak::Project::file_data_changed(File_Basic_Handle const& a_file)
 {
-    auto l_position = std::find(cimp().m_files.cbegin(), cimp().m_files.cend(), a_file);
-    auto l_index = std::distance(cimp().m_files.cbegin(), l_position);
-
-    imp().signal_file_data_changed(*l_position, l_index);
+    assert(a_file.is_valid());
+    auto l_found = std::find(cimp().m_files.cbegin(), cimp().m_files.cend(), a_file);
+    assert(l_found != cimp().m_files.cend());
+    imp().signal_file_data_changed(*l_found);
 }
 
 // Outliner File_Item Interface
 //============================================================
 // outliner::File_Item calls this to request an editor. Project propagates the signal
 // to anything that needs to change as a result.
-void sak::Project::file_requests_editor(std::size_t a_index)
+void sak::Project::file_requests_editor(File_Handle const& a_file)
 {
-    imp().signal_file_requests_editor(cimp().m_files.at(a_index), a_index);
+    // This thing must exist
+    assert(a_file.is_valid());
+    assert(std::find(cimp().m_files.cbegin(), cimp().m_files.cend(), a_file) != cimp().m_files.cend());
+    imp().signal_file_requests_editor(a_file);
+}
+
+
+// Project_Editor calls this to request a File be focused on.
+void sak::Project::file_requests_focus(File_Handle const& a_file)
+{
+    // This thing must exist
+    assert(a_file.is_valid());
+    assert(std::find(cimp().m_files.cbegin(), cimp().m_files.cend(), a_file) != cimp().m_files.cend());
+    imp().signal_file_requests_focus(a_file);
 }

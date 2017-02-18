@@ -6,6 +6,7 @@
 #include <memory>
 #include <vector>
 #include <exception>
+#include <cassert>
 
 namespace generic
 {
@@ -45,9 +46,11 @@ namespace generic
 
             bool operator==(Holder const& a_other) const;
             bool operator!=(Holder const& a_other) const;
-        private:
+
             using shared_ptr_type = std::shared_ptr<std::pair<id_type, value_type>>;
 
+            shared_ptr_type const& data() const { return m_data; }
+        private:
             shared_ptr_type m_data;
         };
     public:
@@ -198,8 +201,10 @@ bool generic::Manager<IDM,T>::if_unused_destroy(id_type const& a_id)
 
 template <typename IDM, typename T>
 generic::Manager<IDM,T>::Holder::Holder():
-    m_data{}
-{}
+    m_data{nullptr}
+{
+
+}
 
 template <typename IDM, typename T>
 generic::Manager<IDM,T>::Holder::Holder(id_type const& a_id, value_type&& a_value):
@@ -235,7 +240,7 @@ typename generic::Manager<IDM,T>::Holder::value_type const& generic::Manager<IDM
 template <typename IDM, typename T>
 bool generic::Manager<IDM,T>::Holder::is_valid() const
 {
-    return m_data != nullptr;
+    return m_data.get() != nullptr;
 }
 
 template <typename IDM, typename T>
@@ -280,10 +285,11 @@ generic::Handle<IDM,T>::~Handle()
 {
     if (is_valid())
     {
+       assert(m_holder.data() != nullptr);
        // get the id
        auto l_id = m_holder.id();
        // destroy the shared pointer
-       m_holder.clear();
+       //m_holder.clear();
        // tell the manager to cleanup if this was the last one
        m_manager->if_unused_destroy(l_id);
     }

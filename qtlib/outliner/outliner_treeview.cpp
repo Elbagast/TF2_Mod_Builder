@@ -8,9 +8,9 @@
 // outliner::Treeview
 //---------------------------------------------------------------------------
 // Class derived from QTreeView for use with Model which provides the capability
-// to act on custom context menus for abstract::Item classes. There is also some custom
-// behaviour for adding items, and there may be more in the future - it depends what has
-// to be done here.
+// to act on custom context menus and double clicks for abstract::Item classes.
+// There is also some custom behaviour for adding items, and there may be more
+// in the future - it depends what has to be done here.
 
 // Special 6
 //============================================================
@@ -20,6 +20,10 @@ qtlib::outliner::Treeview::Treeview(QWidget* a_parent) :
     // Connect the base class signal to the new slot so that we can do our own context menu
     QObject::connect(this, &QTreeView::customContextMenuRequested,
                      this, &Treeview::slot_custom_context_menu_requested);
+
+    // Connect the base class signal to the new slot so that we can do our own double click thing
+    QObject::connect(this, &QTreeView::doubleClicked,
+                     this, &Treeview::slot_double_clicked);
 
     apply_settings();
 }
@@ -57,13 +61,37 @@ void qtlib::outliner::Treeview::slot_custom_context_menu_requested(QPoint const&
             // Get the custom context menu for the selected item
             // Position is the position in terms of the widget rather than the window.
             // Use a_view->viewport()->mapToGlobal(a_position)
-            abstract::Item::from_index(l_index)->do_custom_context_menu(this, l_model, a_position);
+            abstract::Item::from_index(l_index)->do_context_menu(this, l_model, a_position);
         }
         // else not requested on an item (clicking away from any items)
         else
         {
             // Get the custom context menu for the root item (which is not visible)
-            l_model->get_root()->do_custom_context_menu(this, l_model, a_position);
+            l_model->get_root()->do_context_menu(this, l_model, a_position);
+        }
+    }
+}
+
+// Connected to this->doubleClicked
+void qtlib::outliner::Treeview::slot_double_clicked(QModelIndex const& a_index)
+{
+    // Cast to the assumed correct model type
+    auto l_model = dynamic_cast<Model*>(this->model());
+
+    // if the cast worked (sanity check)
+    if (l_model && l_model->is_active())
+    {
+        // if menu requested on an item
+        if(a_index.isValid())
+        {
+            //Do double click for the selected item
+            abstract::Item::from_index(a_index)->do_double_clicked(this, l_model);
+        }
+        // else not requested on an item (clicking away from any items)
+        else
+        {
+            // Do double click for the root item (which is not visible)
+            l_model->get_root()->do_double_clicked(this, l_model);
         }
     }
 }
@@ -84,9 +112,13 @@ void qtlib::outliner::Treeview::rowsInserted(QModelIndex const& a_parent, int a_
 //============================================================
 void qtlib::outliner::Treeview::apply_settings()
 {
+    // Disable calling edit on double click because we use abstract::Item::do_double_clicked
+    // for double-click instead.
+    this->setEditTriggers(QAbstractItemView::NoEditTriggers);
+
     // This has to be disabled regardless
-    header()->setStretchLastSection(false);
-    header()->setSectionResizeMode(QHeaderView::ResizeToContents);
+    header()->setStretchLastSection(true);
+    //header()->setSectionResizeMode(QHeaderView::ResizeToContents);
     // Close the header, we aren't going to use it
     header()->close();
     // Items in the view have right-click menus

@@ -1,7 +1,11 @@
 #include "project_outliner_items.h"
 
 #include <cassert>
+#include <algorithm>
+#include <limits>
+#include <vector>
 
+#include <QDebug>
 #include <QString>
 #include <QVariant>
 #include <QMenu>
@@ -10,20 +14,9 @@
 #include <QAbstractItemView>
 #include <QPixmap>
 #include <QIcon>
+
 #include "../qtlib/outliner/outliner_model.h"
-#include <algorithm>
-#include <limits>
-#include <vector>
-
 #include "project.h"
-
-#include "file.h"
-#include "file_interface_traits.h"
-#include "../generic/uintid.h"
-#include "../generic/uintid_manager.h"
-#include "../generic/extended_manager.h"
-
-#include <QDebug>
 
 namespace
 {
@@ -33,7 +26,7 @@ namespace
 
     }
 }
-
+//------------------------------------------------------------------------------------------------------------------------------------------------------
 //---------------------------------------------------------------------------
 // sak::outliner::Root_Item
 //---------------------------------------------------------------------------
@@ -46,7 +39,7 @@ sak::outliner::Root_Item::Root_Item(Project& a_project):
     inherited_type(),
     m_project{a_project}
 {
-    this->set_child(std::make_unique<Project_Item>(this));
+    this->set_child(std::make_unique<child_type>(this));
 }
 sak::outliner::Root_Item::~Root_Item() = default;
 
@@ -58,7 +51,7 @@ sak::outliner::Root_Item::~Root_Item() = default;
 // actions can call functions in it for editing.  Position is the position in terms of
 // the widget rather than the window. Use a_view->viewport()->mapToGlobal(a_position)
 // to get the position relative to the window for a properly placed menu.
-void sak::outliner::Root_Item::do_custom_context_menu(QAbstractItemView* a_view, model_type* a_model, QPoint const& a_position)
+void sak::outliner::Root_Item::do_context_menu(QAbstractItemView* a_view, model_type* a_model, QPoint const& a_position)
 {
     shadup(a_view, a_model,a_position);
 
@@ -67,6 +60,12 @@ void sak::outliner::Root_Item::do_custom_context_menu(QAbstractItemView* a_view,
     menu.addSeparator();
     menu.addAction("blah blah blah");
     menu.exec(a_view->viewport()->mapToGlobal(a_position));
+}
+
+// Do whatever we want when an item has been double clicked on.
+void sak::outliner::Root_Item::do_double_clicked(QAbstractItemView* a_view, model_type* a_model)
+{
+    return item_type::do_double_clicked(a_view, a_model);
 }
 
 // Additional Interface
@@ -81,6 +80,17 @@ sak::Project const& sak::outliner::Root_Item::cget_project() const
     return m_project;
 }
 
+sak::outliner::Project_Item* sak::outliner::Root_Item::project_item() const
+{
+    return this->get_true_child();
+}
+sak::outliner::File_Header_Item* sak::outliner::Root_Item::file_header_item() const
+{
+    return this->get_true_child()->file_header_item();
+}
+
+
+//------------------------------------------------------------------------------------------------------------------------------------------------------
 //---------------------------------------------------------------------------
 // sak::outliner::Project_Item
 //---------------------------------------------------------------------------
@@ -91,20 +101,10 @@ sak::Project const& sak::outliner::Root_Item::cget_project() const
 sak::outliner::Project_Item::Project_Item(parent_type* a_parent):
     inherited_type(a_parent)
 {
-    set_child<0>(std::make_unique<child_type<0>>(this));
-    /*
     if (cget_project().has_files())
     {
-        set_child<0>(std::make_unique<child_type<0>>(this));
+        initialise_files(true);
     }
-    //etc
-
-    if (cget_project().has_textures())
-    {
-        set_child<0>(std::make_unique<child_type<0>>(this));
-    }
-    */
-
 }
 sak::outliner::Project_Item::~Project_Item() = default;
 
@@ -131,7 +131,7 @@ QVariant sak::outliner::Project_Item::get_data(int a_role) const
 // actions can call functions in it for editing.  Position is the position in terms of
 // the widget rather than the window. Use a_view->viewport()->mapToGlobal(a_position)
 // to get the position relative to the window for a properly placed menu.
-void sak::outliner::Project_Item::do_custom_context_menu(QAbstractItemView* a_view, model_type* a_model, QPoint const& a_position)
+void sak::outliner::Project_Item::do_context_menu(QAbstractItemView* a_view, model_type* a_model, QPoint const& a_position)
 {
     shadup(a_view, a_model,a_position);
 
@@ -139,9 +139,21 @@ void sak::outliner::Project_Item::do_custom_context_menu(QAbstractItemView* a_vi
     menu.addAction("Project context menu");
     menu.addAction(cget_project().name())->setEnabled(false);
     menu.addSeparator();
-    menu.addAction("mooooo");
-    menu.addAction("buhi.");
+    // Create and add a new File
+    auto l_action_add_file = menu.addAction("Add new File");
+    QObject::connect(l_action_add_file, &QAction::triggered, [this]()
+    {
+        // Either this call triggers the data change in model, or we have to make that call here.
+        this->get_project().add_new_file();
+    });
+
     menu.exec(a_view->viewport()->mapToGlobal(a_position));
+}
+
+// Do whatever we want when an item has been double clicked on.
+void sak::outliner::Project_Item::do_double_clicked(QAbstractItemView* a_view, model_type* a_model)
+{
+    return this->item_type::do_double_clicked(a_view, a_model);
 }
 
 // Additional Interface
@@ -155,6 +167,24 @@ sak::Project const& sak::outliner::Project_Item::cget_project() const
     return get_true_parent()->cget_project();
 }
 
+sak::outliner::File_Header_Item* sak::outliner::Project_Item::file_header_item() const
+{
+    return this->get_true_child<0>();
+}
+
+void sak::outliner::Project_Item::initialise_files(bool a_read_files)
+{
+    this->set_child<0>(std::make_unique<child_type<0>>(this, a_read_files));
+}
+
+void sak::outliner::Project_Item::close_files()
+{
+    if (!cget_project().has_files())
+    {
+        this->remove_child<0>();
+    }
+}
+//------------------------------------------------------------------------------------------------------------------------------------------------------
 //---------------------------------------------------------------------------
 // sak::outliner::File_Header_Item
 //---------------------------------------------------------------------------
@@ -163,15 +193,18 @@ sak::Project const& sak::outliner::Project_Item::cget_project() const
 
 // Special 6
 //============================================================
-sak::outliner::File_Header_Item::File_Header_Item(parent_type* a_parent):
+sak::outliner::File_Header_Item::File_Header_Item(parent_type* a_parent, bool a_read_files):
     inherited_type(a_parent)
 {
-    /*
-    for(std::size_t l_index = 0, l_end = cget_project().file_count(); l_index != l_end; ++l_index)
+    if (a_read_files)
     {
-        this->append_child(std::make_unique<File_Item>(this));
-    }*/
-    update();
+        auto l_files = cget_project().get_all_files();
+        // sort them into whatever order and make the File_Items
+        for (auto const& l_file : l_files)
+        {
+            this->append_child(std::make_unique<File_Item>(this, l_file));
+        }
+    }
 }
 
 sak::outliner::File_Header_Item::~File_Header_Item() = default;
@@ -198,7 +231,7 @@ QVariant sak::outliner::File_Header_Item::get_data(int a_role) const
 // actions can call functions in it for editing.  Position is the position in terms of
 // the widget rather than the window. Use a_view->viewport()->mapToGlobal(a_position)
 // to get the position relative to the window for a properly placed menu.
-void sak::outliner::File_Header_Item::do_custom_context_menu(QAbstractItemView* a_view, model_type* a_model, QPoint const& a_position)
+void sak::outliner::File_Header_Item::do_context_menu(QAbstractItemView* a_view, model_type* a_model, QPoint const& a_position)
 {
     shadup(a_view, a_model,a_position);
 
@@ -229,6 +262,12 @@ void sak::outliner::File_Header_Item::do_custom_context_menu(QAbstractItemView* 
     menu.exec(a_view->viewport()->mapToGlobal(a_position));
 }
 
+// Do whatever we want when an item has been double clicked on.
+void sak::outliner::File_Header_Item::do_double_clicked(QAbstractItemView* a_view, model_type* a_model)
+{
+    return this->item_type::do_double_clicked(a_view, a_model);
+}
+
 // Additional Interface
 //============================================================
 sak::Project& sak::outliner::File_Header_Item::get_project()
@@ -241,31 +280,59 @@ sak::Project const& sak::outliner::File_Header_Item::cget_project() const
     return get_true_parent()->cget_project();
 }
 
-
-// update the file count
-void sak::outliner::File_Header_Item::update()
+// What index is the File_Item that holds this File_Handle reside at?
+// Returns get_child_count() if it is not found.
+std::size_t sak::outliner::File_Header_Item::index_of_file(File_Handle const& a_file) const
 {
-    auto l_file_count = static_cast<int>(cget_project().file_count());
-    auto l_child_count = this->get_child_count();
-    //qDebug() << "file count =  " << l_file_count;
-    //qDebug() << "child count = " << l_child_count;
-    if (l_child_count < l_file_count)
+    std::size_t l_index{0};
+    for(auto l_end = static_cast<std::size_t>(inherited_type::get_child_count()); l_index != l_end; ++l_index)
     {
-        for (;l_child_count != l_file_count; ++l_child_count)
+        if (get_true_child_at(static_cast<int>(l_index))->cget_file() == a_file)
         {
-            this->append_child(std::make_unique<File_Item>(this));
+            break;
         }
     }
-    else if (l_child_count > l_file_count)
-    {
-        for (;l_child_count != l_file_count; ++l_file_count)
-        {
-            this->remove_last_child();
-        }
-    }
-    assert(static_cast<int>(cget_project().file_count()) == this->get_child_count());
+    return l_index;
 }
 
+// What File_Item holds this File_Handle? Returns nullptr if not found.
+sak::outliner::File_Item* sak::outliner::File_Header_Item::item_of_file(File_Handle const& a_file) const
+{
+    auto l_index = static_cast<int>(index_of_file(a_file));
+    if (l_index != get_child_count())
+    {
+        return get_true_child_at(l_index);
+    }
+    else
+    {
+        return nullptr;
+    }
+}
+
+// When a File has had its name changed, this is called.
+void sak::outliner::File_Header_Item::name_changed(File_Handle const& a_file)
+{
+    assert(a_file.is_valid());
+    // reorder the Files based on the sorting...
+}
+
+// When a File has been added, this is called.
+void sak::outliner::File_Header_Item::added(File_Handle const& a_file)
+{
+    assert(a_file.is_valid());
+    // insert a child in a location that obeys the sorting...
+    append_child(std::make_unique<File_Item>(this, a_file));
+}
+
+// When a File has been removed, this is called.
+void sak::outliner::File_Header_Item::removed(File_Handle const& a_file)
+{
+    assert(a_file.is_valid());
+    // insert the child with this data...
+    remove_child(index_of_file(a_file));
+}
+
+//------------------------------------------------------------------------------------------------------------------------------------------------------
 //---------------------------------------------------------------------------
 // sak::outliner::File_Item
 //---------------------------------------------------------------------------
@@ -273,9 +340,13 @@ void sak::outliner::File_Header_Item::update()
 
 // Special 6
 //============================================================
-sak::outliner::File_Item::File_Item(parent_type* a_parent):
-    inherited_type(a_parent)
-{}
+sak::outliner::File_Item::File_Item(parent_type* a_parent, File_Handle const& a_file):
+    inherited_type(a_parent),
+    m_file{a_file}
+{
+    assert(a_parent != nullptr);
+    assert(a_file.is_valid());
+}
 
 sak::outliner::File_Item::~File_Item() = default;
 
@@ -331,16 +402,14 @@ QVariant sak::outliner::File_Item::get_editor_data(QWidget* a_editor)
 // Get the flags for this item
 Qt::ItemFlags sak::outliner::File_Item::get_flags() const
 {
-    return Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsEditable;
+    return Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsEditable | Qt::ItemNeverHasChildren;
 }
 
-// Other
-//----------------------------------------
 // Make and act on the context menu for this item. Need the model pointer here so that
 // actions can call functions in it for editing.  Position is the position in terms of
 // the widget rather than the window. Use a_view->viewport()->mapToGlobal(a_position)
 // to get the position relative to the window for a properly placed menu.
-void sak::outliner::File_Item::do_custom_context_menu(QAbstractItemView* a_view, model_type* a_model, QPoint const& a_position)
+void sak::outliner::File_Item::do_context_menu(QAbstractItemView* a_view, model_type* a_model, QPoint const& a_position)
 {
     shadup(a_view, a_model,a_position);
 
@@ -355,7 +424,7 @@ void sak::outliner::File_Item::do_custom_context_menu(QAbstractItemView* a_view,
     {
         // We need access to a means to open an editor.
         // We probably need to talk to the Project_Widget then.
-        this->get_project().file_requests_editor(static_cast<std::size_t>(this->index_in_parent()));
+        this->get_project().file_requests_editor(m_file); // outbound signal. currently to project.
     });
 
     // Commence an edit operation in the outliner
@@ -370,11 +439,17 @@ void sak::outliner::File_Item::do_custom_context_menu(QAbstractItemView* a_view,
     QObject::connect(l_action_delete, &QAction::triggered, [=]()
     {
         // get rid of the data
-        this->get_project().remove_file_at(this->index_in_parent());
+        this->get_project().remove_file(m_file); // outbound signal. currently to project.
     });
 
     // Execute the menu at the global posiiton.
     menu.exec(a_view->viewport()->mapToGlobal(a_position));
+}
+
+// Do whatever we want when an item has been double clicked on.
+void sak::outliner::File_Item::do_double_clicked(QAbstractItemView*, model_type*)
+{
+    this->get_project().file_requests_editor(m_file); // outbound signal. currently to project.
 }
 
 // Additional Interface
@@ -389,69 +464,17 @@ sak::Project const& sak::outliner::File_Item::cget_project() const
     return get_true_parent()->cget_project();
 }
 
+sak::File_Handle const& sak::outliner::File_Item::cget_file() const
+{
+    return m_file;
+}
+
 QString sak::outliner::File_Item::cget_file_name() const
 {
-    return cget_project().get_file_at(this->index_in_parent()).get().cget_name();
+    return m_file.cget().cget_name();
 }
 
 void sak::outliner::File_Item::set_file_name(QString const& a_name)
 {
-    get_project().get_file_at(this->index_in_parent()).get().set_name(a_name);
+    m_file.get().set_name(a_name);
 }
-
-/*
-//---------------------------------------------------------------------------
-// sak::outliner::Texture_Header_Item
-//---------------------------------------------------------------------------
-// Outliner item that represents the Texture container of a Project. It's children
-// are all the Textures present in the Project.
-
-// Special 6
-//============================================================
-sak::outliner::Texture_Header_Item::Texture_Header_Item(parent_type* a_parent):
-    qtlib::outliner::Readonly_Branch_Item<Project_Item, Texture_Item>(a_parent)
-{}
-
-sak::outliner::Texture_Header_Item::~Texture_Header_Item() = default;
-
-// Virtual Interface
-//============================================================
-// Underlying data access
-//----------------------------------------
-// Get the item data for a given column and role
-QVariant sak::outliner::Texture_Header_Item::get_data(int a_role) const
-{
-    if (a_role == Qt::DisplayRole)
-    {
-        return QVariant(QString::fromUtf8(u8"Textures"));
-    }
-    else
-    {
-        return QVariant();
-    }
-}
-// Other
-//----------------------------------------
-// Make and act on the context menu for this item. Need the model pointer here so that
-// actions can call functions in it for editing
-void sak::outliner::Texture_Header_Item::do_custom_context_menu(QAbstractItemView* a_view, model_type* a_model, QPoint const& a_position)
-{
-    shadup(a_view, a_model,a_position);
-
-    QMenu menu{};
-    menu.addAction("Textures context menu");
-    menu.exec(a_view->viewport()->mapToGlobal(a_position));
-}
-
-// Additional Interface
-//============================================================
-sak::Project& sak::outliner::Texture_Header_Item::get_project()
-{
-    return get_true_parent()->get_project();
-}
-
-sak::Project const& sak::outliner::Texture_Header_Item::cget_project() const
-{
-    return get_true_parent()->cget_project();
-}
-*/

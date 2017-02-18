@@ -231,7 +231,9 @@ namespace qtlib
             // actions can call functions in it for editing.  Position is the position in terms of
             // the widget rather than the window. Use a_view->viewport()->mapToGlobal(a_position)
             // to get the position relative to the window for a properly placed menu.
-            void do_custom_context_menu(QAbstractItemView* a_view, model_type* a_model, QPoint const& a_position) override = 0;
+            void do_context_menu(QAbstractItemView* a_view, model_type* a_model, QPoint const& a_position) override = 0;
+            // Do whatever we want when an item has been double clicked on.
+            void do_double_clicked(QAbstractItemView* a_view, model_type* a_model) override = 0;
 
         //protected:
             // Additional Interface
@@ -244,6 +246,9 @@ namespace qtlib
 
             template <std::size_t N>
             void set_child(std::unique_ptr<child_type<N>>&& a_item);
+
+            template <std::size_t N>
+            void remove_child();
         private:
             parent_type* m_parent;
             tuple_type m_children;
@@ -301,7 +306,9 @@ namespace qtlib
             // actions can call functions in it for editing.  Position is the position in terms of
             // the widget rather than the window. Use a_view->viewport()->mapToGlobal(a_position)
             // to get the position relative to the window for a properly placed menu.
-            void do_custom_context_menu(QAbstractItemView* a_view, model_type* a_model, QPoint const& a_position) override = 0;
+            void do_context_menu(QAbstractItemView* a_view, model_type* a_model, QPoint const& a_position) override = 0;
+            // Do whatever we want when an item has been double clicked on.
+            void do_double_clicked(QAbstractItemView* a_view, model_type* a_model) override = 0;
 
         //protected:
             // Additional Interface
@@ -311,6 +318,7 @@ namespace qtlib
 
             using Multitrunk_item<P,Cs...>::get_true_child;
             using Multitrunk_item<P,Cs...>::set_child;
+            using Multitrunk_item<P,Cs...>::remove_child;
         };
     } // namespace outliner
 } // namespace qtlib
@@ -382,6 +390,12 @@ template <std::size_t N>
 void qtlib::outliner::Multitrunk_item<P,Cs...>::set_child(std::unique_ptr<child_type<N>>&& a_item)
 {
     std::get<N>(m_children) = std::move(a_item);
+}
+template <typename P, typename... Cs>
+template <std::size_t N>
+void qtlib::outliner::Multitrunk_item<P,Cs...>::remove_child()
+{
+    std::get<N>(m_children).reset();
 }
 
 //---------------------------------------------------------------------------

@@ -11,6 +11,7 @@ class QString;
 namespace sak
 {
     class Project_Signalbox;
+    class Project_File_Signalbox;
     //---------------------------------------------------------------------------
     // Project
     //---------------------------------------------------------------------------
@@ -89,14 +90,11 @@ namespace sak
         QString location() const;
         QString filepath() const;
 
-        QString message() const;
-        QString content() const;
-
         // Add an object that will rely on the Project's signals. If nulltpr, nothing happens.
-        void add_signalbox(Project_Signalbox* a_signalbox);
+        void add_signalbox(Project_File_Signalbox* a_signalbox);
 
         // Remove an object that will rely on the Project's signals. If nulltpr, nothing happens.
-        void remove_signalbox(Project_Signalbox* a_signalbox);
+        void remove_signalbox(Project_File_Signalbox* a_signalbox);
 
 
         // File Interface
@@ -108,18 +106,14 @@ namespace sak
         // How many any Files are in this Project?
         std::size_t file_count() const;
 
-        // Get the file at this index, asssuming the Files are alphabetically sorted by name
+        // Get the file at this index
         File_Handle get_file_at(std::size_t a_index) const;
 
-        // Get all the Files alphabetically sorted by name
+        // Get all the Files
         std::vector<File_Handle> get_all_files() const;
 
-        // Get all the Files alphabetically sorted names
+        // Get all the Files names
         std::vector<QString> get_all_file_names() const;
-
-        // Since the order of Files may change based on the name change, we need to capture
-        // the calls to rename Files...
-        void rename_file(File_Handle const& a_file, QString const& a_name);
 
         // Add a new file. Project takes ownership of the File. File is inserted in
         // the appropriate place to maintain sorting and Project signals that the File list
@@ -129,18 +123,18 @@ namespace sak
         // Add a new default parameters File.
         File_Handle add_new_file();
 
-        // Remove the file at this index and return it. Project is no longer its owner.
-        // Project signals that the File list has lost an item at that location.
-        File_Handle remove_file_at(std::size_t a_index);
-
         // Remove the File with this handle.
-        File_Handle remove_file(File_Handle const& a_file);
+        void remove_file(File_Handle const& a_file);
 
 
+
+        //-----------
+        // File_Handle gives File_Interface.
+        // File_Interface does what needs to be done without revealing it.
+        // Only File_Interface needs these functions, so they should probably be hidden somehow.
 
         // Outliner File_Interface Interface
         //============================================================
-
         // File_Interface will call this when the File's name is changed. This causes Project
         // to propagate the changes to where they need to go.
         void file_name_changed(File_Basic_Handle const& a_file);
@@ -154,7 +148,11 @@ namespace sak
         //============================================================
         // outliner::File_Item calls this to request an editor. Project propagates the signal
         // to anything that needs to change as a result.
-        void file_requests_editor(std::size_t a_index);
+        void file_requests_editor(File_Handle const& a_file);
+        // This could be in the handle....
+
+        // Project_Editor calls this to request a File be focused on.
+        void file_requests_focus(File_Handle const& a_file);
 
     private:
 

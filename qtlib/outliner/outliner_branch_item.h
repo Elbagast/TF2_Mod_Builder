@@ -5,6 +5,7 @@
 #include <vector>
 #include <memory>
 #include <type_traits>
+#include <iterator>
 #include <QVariant>
 
 namespace qtlib
@@ -74,7 +75,9 @@ namespace qtlib
             // actions can call functions in it for editing.  Position is the position in terms of
             // the widget rather than the window. Use a_view->viewport()->mapToGlobal(a_position)
             // to get the position relative to the window for a properly placed menu.
-            void do_custom_context_menu(QAbstractItemView* a_view, model_type* a_model, QPoint const& a_position) override = 0;
+            void do_context_menu(QAbstractItemView* a_view, model_type* a_model, QPoint const& a_position) override = 0;
+            // Do whatever we want when an item has been double clicked on.
+            void do_double_clicked(QAbstractItemView* a_view, model_type* a_model) override = 0;
 
         //protected:
             // Additional Interface
@@ -84,7 +87,9 @@ namespace qtlib
 
             child_type* get_true_child_at(int a_index) const;
             void append_child(std::unique_ptr<child_type>&& a_item);
+            void insert_child(std::size_t a_index, std::unique_ptr<child_type>&& a_item);
             void remove_last_child();
+            void remove_child(std::size_t a_index);
         private:
             parent_type* m_parent;
             std::vector<std::unique_ptr<child_type>> m_children;
@@ -140,7 +145,9 @@ namespace qtlib
             // actions can call functions in it for editing.  Position is the position in terms of
             // the widget rather than the window. Use a_view->viewport()->mapToGlobal(a_position)
             // to get the position relative to the window for a properly placed menu.
-            void do_custom_context_menu(QAbstractItemView* a_view, model_type* a_model, QPoint const& a_position) override = 0;
+            void do_context_menu(QAbstractItemView* a_view, model_type* a_model, QPoint const& a_position) override = 0;
+            // Do whatever we want when an item has been double clicked on.
+            void do_double_clicked(QAbstractItemView* a_view, model_type* a_model) override = 0;
 
         //protected:
             // Additional Interface
@@ -150,7 +157,9 @@ namespace qtlib
 
             using Branch_Item<P,C>::get_true_child_at;
             using Branch_Item<P,C>::append_child;
+            using Branch_Item<P,C>::insert_child;
             using Branch_Item<P,C>::remove_last_child;
+            using Branch_Item<P,C>::remove_child;
         };
     } // namespace outliner
 } // namespace qtlib
@@ -221,9 +230,26 @@ void qtlib::outliner::Branch_Item<P,C>::append_child(std::unique_ptr<child_type>
 }
 
 template <typename P, typename C>
+void qtlib::outliner::Branch_Item<P,C>::insert_child(std::size_t a_index, std::unique_ptr<child_type>&& a_item)
+{
+    auto l_position = m_children.begin();
+    std::advance(l_position, a_index);
+    m_children.insert(l_position, std::move(a_item));
+}
+
+template <typename P, typename C>
 void qtlib::outliner::Branch_Item<P,C>::remove_last_child()
 {
     m_children.pop_back();
+}
+
+template <typename P, typename C>
+void qtlib::outliner::Branch_Item<P,C>::remove_child(std::size_t a_index)
+{
+    auto l_position = m_children.begin();
+    std::advance(l_position, a_index);
+    l_position->reset();
+    m_children.erase(l_position);
 }
 
 //---------------------------------------------------------------------------

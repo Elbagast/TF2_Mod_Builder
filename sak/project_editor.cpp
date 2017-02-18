@@ -47,7 +47,7 @@ namespace
 namespace sak
 {
     class Project_Editor::Implementation :
-            public Project_Signalbox
+            public Project_File_Signalbox
     {
     public:
         Project& m_project;
@@ -61,19 +61,20 @@ namespace sak
 
         explicit Implementation(Project& a_project);
 
-        // When the Files section has changed order due to a name change, this is called.
-        void file_names_reordered() override final;
         // When a File has had its name changed, this is called.
-        void file_name_changed(File_Handle const& a_file, std::size_t, std::size_t) override final;
+        void file_name_changed(File_Handle const& a_file) override final;
         // When a File has its data changed(anything but the name), this is called.
-        void file_data_changed(File_Handle const& a_file, std::size_t) override final;
+        void file_data_changed(File_Handle const& a_file) override final;
+        // When a File has its data changed in a specific place, this is called.
+        void file_data_changed_at(File_Handle const& a_file, std::size_t a_section) override final;
         // When a File has been added, this is called.
-        void file_added(File_Handle const& a_file, std::size_t) override final;
-
+        void file_added(File_Handle const& a_file) override final;
         // When a File has been removed, this is called.
-        void file_removed(File_Handle const& a_file, std::size_t) override final;
-
-        void file_requests_editor(File_Handle const& a_file, std::size_t) override final;
+        void file_removed(File_Handle const& a_file) override final;
+        // When a File editor is to be opened, this is called.
+        void file_requests_editor(File_Handle const& a_file) override final;
+        // When focus is changed to be on a File, call this
+        void file_requests_focus(File_Handle const& a_file) override final;
 
         void close_tab(int a_index);
 
@@ -85,7 +86,7 @@ namespace sak
 sak::Project_Editor::Implementation::~Implementation() = default;
 
 sak::Project_Editor::Implementation::Implementation(Project& a_project):
-    Project_Signalbox(),
+    Project_File_Signalbox(),
     m_project{a_project},
     m_layout{std::make_unique<QHBoxLayout>()},
     m_stackwidget{std::make_unique<QStackedWidget>()},
@@ -101,20 +102,32 @@ sak::Project_Editor::Implementation::Implementation(Project& a_project):
     m_stackwidget->addWidget(m_background.get());
     m_stackwidget->addWidget(m_tabwidget.get());
     m_stackwidget->setCurrentIndex(0);
+    m_stackwidget->setContentsMargins(0,0,0,0);
 
     m_layout->addWidget(m_stackwidget.get());
     m_layout->setSpacing(0);
+    m_layout->setContentsMargins(0,0,0,0);
 
-    QObject::connect(m_tabwidget.get(), &QTabWidget::tabCloseRequested, [this](int a_index){ this->close_tab(a_index); });
+    QObject::connect(m_tabwidget.get(), &QTabWidget::tabCloseRequested,
+                     [this](int a_index){ this->close_tab(a_index); });
+
+    QObject::connect(m_tabwidget.get(), &QTabWidget::currentChanged,
+                     [this](int a_index)
+    {
+        if (a_index != -1)
+        {
+            auto l_widget = static_cast<File_Widget*>(this->m_tabwidget->widget(a_index));
+            if (l_widget != nullptr)
+            {
+                File_Handle const& l_file = l_widget->cget_file();
+                this->m_project.file_requests_focus(l_file);
+            }
+        }
+    });
 }
 
-// When the Files section has changed order due to a name change, this is called.
-void sak::Project_Editor::Implementation::file_names_reordered()
-{
-    // Don't care.
-}
 // When a File has had its name changed, this is called.
-void sak::Project_Editor::Implementation::file_name_changed(File_Handle const& a_file, std::size_t, std::size_t)
+void sak::Project_Editor::Implementation::file_name_changed(File_Handle const& a_file)
 {
     // Find the editor for this handle
     auto l_found = std::find_if(m_file_widgets.cbegin(),
@@ -145,7 +158,22 @@ void sak::Project_Editor::Implementation::file_name_changed(File_Handle const& a
     }
 }
 // When a File has its data changed(anything but the name), this is called.
-void sak::Project_Editor::Implementation::file_data_changed(File_Handle const& a_file, std::size_t)
+void sak::Project_Editor::Implementation::file_data_changed(File_Handle const& a_file)
+{
+    // Find the editor for this handle
+    auto l_found = std::find_if(m_file_widgets.cbegin(),
+                                m_file_widgets.cend(),
+                                File_Widget_Equals_Handle(a_file));
+
+    // if it exists, update it
+    if (l_found != m_file_widgets.cend())
+    {
+        l_found->get()->update();
+    }
+
+}
+// When a File has its data changed(anything but the name), this is called.
+void sak::Project_Editor::Implementation::file_data_changed_at(File_Handle const& a_file, std::size_t)// a_section)
 {
     // Find the editor for this handle
     auto l_found = std::find_if(m_file_widgets.cbegin(),
@@ -160,7 +188,7 @@ void sak::Project_Editor::Implementation::file_data_changed(File_Handle const& a
 
 }
 // When a File has been added, this is called.
-void sak::Project_Editor::Implementation::file_added(File_Handle const& a_file, std::size_t)
+void sak::Project_Editor::Implementation::file_added(File_Handle const& a_file)
 {
     // update the file widget count and open the widget for it.
     // Shouldn't exist yet
@@ -181,7 +209,7 @@ void sak::Project_Editor::Implementation::file_added(File_Handle const& a_file, 
 }
 
 // When a File has been removed, this is called.
-void sak::Project_Editor::Implementation::file_removed(File_Handle const& a_file, std::size_t)
+void sak::Project_Editor::Implementation::file_removed(File_Handle const& a_file)
 {
     // Find the editor for this handle
     auto l_found = std::find_if(m_file_widgets.begin(),
@@ -214,7 +242,7 @@ void sak::Project_Editor::Implementation::file_removed(File_Handle const& a_file
     update_visible();
 }
 
-void sak::Project_Editor::Implementation::file_requests_editor(File_Handle const& a_file, std::size_t)
+void sak::Project_Editor::Implementation::file_requests_editor(File_Handle const& a_file)
 {
     // Find the editor for this handle
     auto l_found = std::find_if(m_file_widgets.begin(),
@@ -248,6 +276,11 @@ void sak::Project_Editor::Implementation::file_requests_editor(File_Handle const
     update_visible();
 }
 
+void sak::Project_Editor::Implementation::file_requests_focus(File_Handle const&)
+{
+    // nothing for now
+}
+
 void sak::Project_Editor::Implementation::close_tab(int a_index)
 {
     auto l_editor = static_cast<File_Widget*>(m_tabwidget->widget(a_index));
@@ -272,9 +305,6 @@ void sak::Project_Editor::Implementation::update_visible()
         m_stackwidget->setCurrentIndex(1);
     }
 }
-
-
-
 
 // Special 6
 //============================================================
