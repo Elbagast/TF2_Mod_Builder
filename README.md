@@ -4,4 +4,9 @@ Goal: Application to manage the development, deployment and maintenance of mods 
 
 
 Current progress:
-- Rudimentary single project window with menu bar that contains the use case discovered user actions.
+- Window for a single open Project with menu bar that contains the use case discovered user actions.
+- Saving and loading stand-in Project data.
+- Outliner that gets modified as the data changes, and can change the data.
+- Editor for individual sections of the Project, that update if the data changes elsewhere. 
+- Editors can be opened and closed as needed via the Outliner.
+- Section names have unique names that are maintain uniquesness when edited.
