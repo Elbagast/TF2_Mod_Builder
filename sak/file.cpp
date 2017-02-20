@@ -1,36 +1,24 @@
 #include "file.h"
 
-
-sak::Component::Component():
-    m_name{},
-    m_description{}
-{}
-sak::Component::Component(QString const& a_name, QString const& a_description):
-    m_name{a_name},
-    m_description{a_description}
-{}
-
-QString const& sak::Component::cget_name() const
-{
-    return m_name;
-}
-QString const& sak::Component::cget_description() const
-{
-    return m_description;
-}
-
-void sak::Component::set_name(QString const& a_name)
-{
-    m_name = a_name;
-}
-void sak::Component::set_description(QString const& a_description)
-{
-    m_description = a_description;
-}
+//---------------------------------------------------------------------------
+// File
+//---------------------------------------------------------------------------
+//
 sak::File::File():
-    Component()
-{}
-sak::File::File(QString const& a_name, QString const& a_description):
-    Component(a_name, a_description)
+    m_common_data{}
 {}
 
+
+sak::File::File(QString const& a_name, QString const& a_description):
+    m_common_data{a_name, a_description}
+{}
+
+sak::Common_Data& sak::File::get_common_data()
+{
+    return m_common_data;
+}
+
+sak::Common_Data const& sak::File::cget_common_data() const
+{
+    return m_common_data;
+}

@@ -5,17 +5,38 @@
 #include <QFormLayout>
 #include <QLabel>
 #include <QLineEdit>
+#include <QVBoxLayout>
+#include "common_data_widget.h"
 
 //---------------------------------------------------------------------------
 // File_Widget
 //---------------------------------------------------------------------------
 // Internal constants and implementation
 //============================================================
-namespace
+namespace sak
 {
-    QString const c_title_name{u8"Name"};
-    QString const c_title_description{u8"Description"};
+    namespace
+    {
+
+        // dummy for now
+        class File_Data_Widget :
+                public QLabel
+        {
+        public:
+            explicit File_Data_Widget(File_Handle& a_file, QWidget* a_parent = nullptr):
+                QLabel(u8"This is the File_Data_Widget", a_parent),
+                m_file{a_file}
+            {}
+            ~File_Data_Widget() override = default;
+            void update() {}
+            void update_at(std::size_t) {}
+        private:
+            File_Handle& m_file;
+        };
+
+    }
 }
+
 // Pimpl Data
 //============================================================
 namespace sak
@@ -25,44 +46,41 @@ namespace sak
     public:
         File_Handle m_file;
 
-        std::unique_ptr<QFormLayout> m_layout;
-        std::unique_ptr<QLabel> m_name_label;
-        std::unique_ptr<QLineEdit> m_name_edit;
-        std::unique_ptr<QLabel> m_description_label;
-        std::unique_ptr<QLineEdit> m_description_edit;
+        std::unique_ptr<QVBoxLayout> m_layout;
+        std::unique_ptr<Common_Data_Widget<File_Handle>> m_common_data_widget;
+        std::unique_ptr<File_Data_Widget> m_file_data_widget;
 
         explicit Implementation(File_Handle const& a_file):
             m_file{a_file},
-            m_layout{ std::make_unique<QFormLayout>(nullptr)},
-            m_name_label{ std::make_unique<QLabel>(c_title_name,nullptr)},
-            m_name_edit{ std::make_unique<QLineEdit>(nullptr)},
-            m_description_label{ std::make_unique<QLabel>(c_title_description,nullptr)},
-            m_description_edit{ std::make_unique<QLineEdit>(nullptr)}
+            m_layout{ std::make_unique<QVBoxLayout>(nullptr)},
+            m_common_data_widget{ std::make_unique<Common_Data_Widget<File_Handle>>(m_file, nullptr) },
+            m_file_data_widget{ std::make_unique<File_Data_Widget>(m_file, nullptr) }
         {
-            m_layout->addRow(m_name_label.get(), m_name_edit.get());
-            m_layout->addRow(m_description_label.get(), m_description_edit.get());
-
-            // When the user has finished inputting, send the data to the handle.
-            // The data change should come back to here as an update call, which means
-            // if the name had to be changed the data in the line edit should be changed
-            // to the final value.
-            QObject::connect(m_name_edit.get(), &QLineEdit::editingFinished, [this]()
-            {
-                this->m_file.get().set_name(this->m_name_edit->text());
-            });
-
-            // When the user has finished inputting, send the data to the handle.
-            QObject::connect(m_description_edit.get(), &QLineEdit::editingFinished, [this]()
-            {
-                this->m_file.get().set_description(this->m_description_edit->text());
-            });
-            update();
+            m_layout->addWidget(m_common_data_widget.get());
+            m_layout->addWidget(m_file_data_widget.get());
+            m_layout->addStretch();
         }
 
         void update()
         {
-            m_name_edit->setText(m_file.cget().cget_name());
-            m_description_edit->setText(m_file.cget().cget_description());
+            m_common_data_widget->update();
+            m_file_data_widget->update();
+        }
+        void update_name()
+        {
+            m_common_data_widget->update_name();
+        }
+        void update_description()
+        {
+            m_common_data_widget->update_description();
+        }
+        void update_data()
+        {
+            m_file_data_widget->update();
+        }
+        void update_data_at(std::size_t a_section)
+        {
+            m_file_data_widget->update_at(a_section);
         }
     };
 }
@@ -92,6 +110,24 @@ sak::File_Handle const& sak::File_Widget::cget_file() const
 void sak::File_Widget::update()
 {
     imp().update();
+}
+void sak::File_Widget::update_name()
+{
+    imp().update_name();
+}
+
+void sak::File_Widget::update_description()
+{
+    imp().update_description();
+}
+
+void sak::File_Widget::update_data()
+{
+    imp().update_data();
+}
+void sak::File_Widget::update_data_at(std::size_t a_section)
+{
+    imp().update_data_at(a_section);
 }
 
 

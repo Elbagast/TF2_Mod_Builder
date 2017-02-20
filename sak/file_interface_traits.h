@@ -3,6 +3,7 @@
 
 #include "file_basic_manager.h"
 class QString;
+#include "common_data_interface_traits.h"
 
 namespace sak
 {

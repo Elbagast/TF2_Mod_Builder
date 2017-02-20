@@ -13,12 +13,12 @@ sak::File_Const_Interface::File_Const_Interface(File_Basic_Handle const& a_handl
 
 QString const& sak::File_Const_Interface::cget_name() const
 {
-    return m_handle.cget().cget_name();
+    return m_handle.cget().cget_common_data().cget_name();
 }
 
 QString const& sak::File_Const_Interface::cget_description() const
 {
-    return m_handle.cget().cget_description();
+    return m_handle.cget().cget_common_data().cget_description();
 }
 
 sak::File_Interface::File_Interface(File_Basic_Handle const& a_handle, Project* a_project):
@@ -29,7 +29,7 @@ sak::File_Interface::File_Interface(File_Basic_Handle const& a_handle, Project* 
 void sak::File_Interface::set_name(QString const& a_name)
 {
     // If it is the same as the name we already have, we don't bother making a change.
-    if (a_name == cget_name())
+    if (a_name == this->cget_name())
     {
         return;
     }
@@ -42,7 +42,8 @@ void sak::File_Interface::set_name(QString const& a_name)
     QString l_final_name{a_name};
     uniqueify_name(l_final_name, l_names);
 
-    m_handle.get().set_name(l_final_name);
+    // open the handle, then the common data, then set that part of it.
+    m_handle.get().get_common_data().set_name(l_final_name);
     // signal the change through m_project...
     m_project->file_name_changed(m_handle);
 }
@@ -50,14 +51,15 @@ void sak::File_Interface::set_name(QString const& a_name)
 void sak::File_Interface::set_description(QString const& a_description)
 {
     // If it is the same as the name we already have, we don't bother making a change.
-    if (a_description == m_handle.cget().cget_description())
+    if (a_description == this->cget_description())
     {
         return;
     }
 
-    m_handle.get().set_description(a_description);
+    // open the handle, then the common data, then set that part of it.
+    m_handle.get().get_common_data().set_description(a_description);
     // signal the change through m_project...
-    m_project->file_data_changed(m_handle);
+    m_project->file_description_changed(m_handle);
 }
 
 

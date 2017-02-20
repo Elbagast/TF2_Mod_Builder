@@ -32,7 +32,7 @@ namespace
 namespace sak
 {
     class Project_Widget::Implementation :
-            public Project_File_Signalbox
+            public Project_Signalbox_Out
     {
     public:
         Project_Widget* m_owner;
@@ -52,19 +52,22 @@ namespace sak
         Implementation(Project_Widget* a_owner, std::unique_ptr<Project>&& a_data);
 
         // When a File has had its name changed, this is called.
-        void file_name_changed(File_Handle const& a_file) override final;
+        void name_changed(File_Handle const& a_file) override final;
+
         // When a File has its data changed(anything but the name), this is called.
-        void file_data_changed(File_Handle const& a_file) override final;
+        void data_changed(File_Handle const& a_file) override final;
+        // When a File has had its description changed, this is called.
+        void description_changed(File_Handle const& a_file) override final;
         // When a File has its data changed in a specific place, this is called.
-        void file_data_changed_at(File_Handle const& a_file, std::size_t a_section) override final;
+        void data_changed_at(File_Handle const& a_file, std::size_t a_section) override final;
         // When a File has been added, this is called.
-        void file_added(File_Handle const& a_file) override final;
+        void added(File_Handle const& a_file) override final;
         // When a File has been removed, this is called.
-        void file_removed(File_Handle const& a_file) override final;
+        void removed(File_Handle const& a_file) override final;
         // When a File editor is to be opened, this is called.
-        void file_requests_editor(File_Handle const& a_file) override final;
+        void requests_editor(File_Handle const& a_file) override final;
         // When focus is changed to be on a File, call this
-        void file_requests_focus(File_Handle const& a_file) override final;
+        void requests_focus(File_Handle const& a_file) override final;
 
         void signal_unsaved_edits_change(bool a_state);
     };
@@ -94,37 +97,42 @@ sak::Project_Widget::Implementation::Implementation(Project_Widget* a_owner, std
 }
 
 // When a File has had its name changed, this is called.
-void sak::Project_Widget::Implementation::file_name_changed(File_Handle const& )
+void sak::Project_Widget::Implementation::name_changed(File_Handle const& )
+{
+    signal_unsaved_edits_change(true);
+}
+// When a File has had its description changed, this is called.
+void sak::Project_Widget::Implementation::description_changed(File_Handle const& )
 {
     signal_unsaved_edits_change(true);
 }
 // When a File has its data changed(anything but the name), this is called.
-void sak::Project_Widget::Implementation::file_data_changed(File_Handle const& )
+void sak::Project_Widget::Implementation::data_changed(File_Handle const& )
 {
     signal_unsaved_edits_change(true);
 }
 // When a File has its data changed in a specific place, this is called.
-void sak::Project_Widget::Implementation::file_data_changed_at(File_Handle const&, std::size_t )
+void sak::Project_Widget::Implementation::data_changed_at(File_Handle const&, std::size_t )
 {
     signal_unsaved_edits_change(true);
 }
 // When a File has been added, this is called.
-void sak::Project_Widget::Implementation::file_added(File_Handle const& )
+void sak::Project_Widget::Implementation::added(File_Handle const& )
 {
     signal_unsaved_edits_change(true);
 }
 // When a File has been removed, this is called.
-void sak::Project_Widget::Implementation::file_removed(File_Handle const& )
+void sak::Project_Widget::Implementation::removed(File_Handle const& )
 {
     signal_unsaved_edits_change(true);
 }
 // When a File editor is to be opened, this is called.
-void sak::Project_Widget::Implementation::file_requests_editor(File_Handle const& )
+void sak::Project_Widget::Implementation::requests_editor(File_Handle const& )
 {
 
 }
 // When focus is changed to be on a File, call this
-void sak::Project_Widget::Implementation::file_requests_focus(File_Handle const& )
+void sak::Project_Widget::Implementation::requests_focus(File_Handle const& )
 {
 
 }

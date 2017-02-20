@@ -108,12 +108,15 @@ SOURCES += \
     generic/uintid_traits.cpp \
     qtlib/outliner/outliner_orphan_item.cpp \
     sak/file_interface_traits.cpp \
-    sak/file.cpp \
     sak/name_utilities.cpp \
     sak/file_manager.cpp \
     sak/file_widget.cpp \
     sak/project_outliner.cpp \
-    sak/project_editor.cpp
+    sak/project_editor.cpp \
+    sak/file.cpp \
+    sak/common_data.cpp \
+    sak/common_data_widget.cpp \
+    sak/common_data_interface_traits.cpp
     
 
 HEADERS  += \
@@ -150,7 +153,6 @@ HEADERS  += \
     generic/extended_manager.h \
     qtlib/outliner/outliner_orphan_item.h \
     sak/file_interface_traits.h \
-    sak/file.h \
     generic/fwd_uintid.h \
     generic/fwd_manager.h \
     generic/fwd_uintid_manager.h \
@@ -162,7 +164,11 @@ HEADERS  += \
     sak/file_widget.h \
     sak/project_outliner.h \
     sak/project_signalbox.h \
-    sak/project_editor.h
+    sak/project_editor.h \
+    sak/file.h \
+    sak/common_data.h \
+    sak/common_data_widget.h \
+    sak/common_data_interface_traits.h
     
 
 FORMS

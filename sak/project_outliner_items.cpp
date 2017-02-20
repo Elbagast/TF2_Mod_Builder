@@ -365,6 +365,10 @@ QVariant sak::outliner::File_Item::get_data(int a_role) const
     {
         return QVariant(QIcon(QPixmap("D:\\Temp\\sak\\file_icon.png")));
     }
+    else if (a_role == Qt::ToolTipRole)
+    {
+        return QVariant(cget_file().cget().cget_description());
+    }
     else
     {
         return QVariant();

@@ -26,6 +26,10 @@ namespace sak
 
         // update all the data to match the handle.
         void update();
+        void update_name();
+        void update_description();
+        void update_data();
+        void update_data_at(std::size_t a_section);
     private:
         // Pimpl Data
         //============================================================

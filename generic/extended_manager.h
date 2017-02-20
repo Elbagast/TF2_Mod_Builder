@@ -11,6 +11,15 @@ namespace generic
     {
     public:
         using basic_handle_type = H;
+        //we can deduce the full handle type...
+        using handle_type =
+        Extended_Handle
+        <
+            typename basic_handle_type::manager_type::id_manager_type,
+            typename basic_handle_type::manager_type::value_type,
+            No_Interface_Traits<H>
+        >;
+        // which means we can use a reference to it....
 
         using interface_type = typename basic_handle_type::value_type&;
         using const_interface_type = typename basic_handle_type::value_type const&;
@@ -86,9 +95,9 @@ namespace generic
         using interface_traits_type = typename extended_manager_type::interface_traits_type;
         using interface_type = typename extended_manager_type::interface_type;
         using const_interface_type = typename extended_manager_type::const_interface_type;
+        using basic_handle_type = typename extended_manager_type::basic_handle_type;
 
     private:
-        using basic_handle_type = typename extended_manager_type::basic_handle_type;
         Extended_Handle(basic_handle_type const& a_handle, extended_manager_type* a_manager, interface_traits_type const& a_interface);
     public:
         Extended_Handle();

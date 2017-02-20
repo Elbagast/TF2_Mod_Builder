@@ -224,10 +224,6 @@ namespace sak
         // act on it and return true if the action was never cancelled.
         bool ask_to_save();
 
-        //Project_Widget* project_widget();
-        //Project_Widget const* project_widget() const;
-        //Project_Widget const* cproject_widget() const;
-
         // Virtuals
         //============================================================
         // Needed so that we can ask to save when we use the x button in the corner to close.
@@ -250,12 +246,11 @@ namespace sak
 
         // Pimpl Data
         //============================================================
-        class Data;
-        std::unique_ptr<Data> m_data;
+        class Implementation;
+        std::unique_ptr<Implementation> m_data;
 
-        Data& data()                { return *m_data; }
-        Data const& data() const    { return *m_data; }
-        Data const& cdata() const   { return *m_data; }
+        Implementation& imp()                { return *m_data; }
+        Implementation const& cimp() const   { return *m_data; }
     };
 }
 

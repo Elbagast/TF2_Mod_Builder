@@ -97,38 +97,11 @@ namespace
         }
         ~Background_Widget() override = default;
     };
-
-/*
-    //---------------------------------------------------------------------------
-    // Project_Widget
-    //---------------------------------------------------------------------------
-    // Temporary class to build functionality.
-    class Project_Widget :
-            public QWidget
-    {
-    public:
-        explicit Project_Widget(QString const& a_name, QString const& a_location, QWidget* a_parent = nullptr):
-            QWidget(a_parent)
-        {
-            //barebones as all hell for now.
-
-            auto l_layout = std::make_unique<QVBoxLayout>();
-            auto l_name = std::make_unique<QLabel>(a_name,nullptr);
-            auto l_location = std::make_unique<QLabel>(a_location,nullptr);
-
-            l_layout->addWidget(l_name.release());
-            l_layout->addWidget(l_location.release());
-            this->setLayout(l_layout.release());
-
-        }
-        ~Project_Widget() override = default;
-    };
-*/
 }
 
 // Pimpl Data
 //============================================================
-class sak::Project_Window::Data
+class sak::Project_Window::Implementation
 {
 public:
     std::unique_ptr<QStackedWidget> m_central_stack;
@@ -184,7 +157,7 @@ public:
     std::unique_ptr<QAction> m_help_help;
     std::unique_ptr<QAction> m_help_about;
 
-    Data():
+    Implementation():
         m_central_stack{std::make_unique<QStackedWidget>()},
         m_background_widget{std::make_unique<Background_Widget>()},
         m_project_widget{},
@@ -242,13 +215,13 @@ public:
 //============================================================
 sak::Project_Window::Project_Window(QWidget* a_parent):
     QMainWindow(a_parent),
-    m_data{std::make_unique<Data>()}
+    m_data{std::make_unique<Implementation>()}
 {
     // Add the background widget to the stack.
-    data().m_central_stack->addWidget(data().m_background_widget.get());
+    imp().m_central_stack->addWidget(imp().m_background_widget.get());
 
     // Set the central widget to be the stack. We modify the stack to change what the window is displaying.
-    this->setCentralWidget(data().m_central_stack.get());
+    this->setCentralWidget(imp().m_central_stack.get());
 
     // Window Title
     //this->setWindowTitle(c_title_application);
@@ -260,135 +233,135 @@ sak::Project_Window::Project_Window(QWidget* a_parent):
     // Menu Bar -> File
     //============================================================
     // Configure the menu items
-    QObject::connect(data().m_file_new_project.get(), &QAction::triggered, this, &Project_Window::new_project);
-    QObject::connect(data().m_file_open_project.get(), &QAction::triggered, this, &Project_Window::open_project);
-    QObject::connect(data().m_file_save_project.get(), &QAction::triggered, this, &Project_Window::save_project);
-    QObject::connect(data().m_file_close_project.get(), &QAction::triggered, this, &Project_Window::close_project);
-    QObject::connect(data().m_file_exit.get(), &QAction::triggered, this, &Project_Window::exit);
+    QObject::connect(imp().m_file_new_project.get(), &QAction::triggered, this, &Project_Window::new_project);
+    QObject::connect(imp().m_file_open_project.get(), &QAction::triggered, this, &Project_Window::open_project);
+    QObject::connect(imp().m_file_save_project.get(), &QAction::triggered, this, &Project_Window::save_project);
+    QObject::connect(imp().m_file_close_project.get(), &QAction::triggered, this, &Project_Window::close_project);
+    QObject::connect(imp().m_file_exit.get(), &QAction::triggered, this, &Project_Window::exit);
 
     // Build the File menu. It does not take ownership of the QActions.
-    data().m_file->addAction(data().m_file_new_project.get());
-    data().m_file->addAction(data().m_file_open_project.get());
-    data().m_file->addSeparator();
-    data().m_file->addAction(data().m_file_save_project.get());
-    data().m_file->addSeparator();
-    data().m_file->addAction(data().m_file_close_project.get());
-    data().m_file->addSeparator();
-    data().m_file->addAction(data().m_file_exit.get());
+    imp().m_file->addAction(imp().m_file_new_project.get());
+    imp().m_file->addAction(imp().m_file_open_project.get());
+    imp().m_file->addSeparator();
+    imp().m_file->addAction(imp().m_file_save_project.get());
+    imp().m_file->addSeparator();
+    imp().m_file->addAction(imp().m_file_close_project.get());
+    imp().m_file->addSeparator();
+    imp().m_file->addAction(imp().m_file_exit.get());
 
     // Add the File menu to the menubar. It does not take ownership of the QMenu.
-    this->menuBar()->addMenu(data().m_file.get());
+    this->menuBar()->addMenu(imp().m_file.get());
 
     // Menu Bar -> Edit
     //============================================================
     // Configure the menu items
-    QObject::connect(data().m_edit_undo.get(), &QAction::triggered, this, &Project_Window::undo);
-    QObject::connect(data().m_edit_redo.get(), &QAction::triggered, this, &Project_Window::redo);
-    QObject::connect(data().m_edit_view_history.get(), &QAction::triggered, this, &Project_Window::view_history);
-    QObject::connect(data().m_edit_clear_history.get(), &QAction::triggered, this, &Project_Window::clear_history);
+    QObject::connect(imp().m_edit_undo.get(), &QAction::triggered, this, &Project_Window::undo);
+    QObject::connect(imp().m_edit_redo.get(), &QAction::triggered, this, &Project_Window::redo);
+    QObject::connect(imp().m_edit_view_history.get(), &QAction::triggered, this, &Project_Window::view_history);
+    QObject::connect(imp().m_edit_clear_history.get(), &QAction::triggered, this, &Project_Window::clear_history);
 
     // Build the File menu. It does not take ownership of the QActions.
-    data().m_edit->addAction(data().m_edit_undo.get());
-    data().m_edit->addAction(data().m_edit_redo.get());
-    data().m_edit->addSeparator();
-    data().m_edit->addAction(data().m_edit_view_history.get());
-    data().m_edit->addAction(data().m_edit_clear_history.get());
+    imp().m_edit->addAction(imp().m_edit_undo.get());
+    imp().m_edit->addAction(imp().m_edit_redo.get());
+    imp().m_edit->addSeparator();
+    imp().m_edit->addAction(imp().m_edit_view_history.get());
+    imp().m_edit->addAction(imp().m_edit_clear_history.get());
 
     // Add the File menu to the menubar. It does not take ownership of the QMenu.
-    this->menuBar()->addMenu(data().m_edit.get());
+    this->menuBar()->addMenu(imp().m_edit.get());
 
     // Menu Bar -> Create
     //============================================================
     // Configure the menu items
-    QObject::connect(data().m_component_create_file.get(), &QAction::triggered, this, &Project_Window::create_file);
-    QObject::connect(data().m_component_create_texture.get(), &QAction::triggered, this, &Project_Window::create_texture);
-    QObject::connect(data().m_component_create_material.get(), &QAction::triggered, this, &Project_Window::create_material);
-    QObject::connect(data().m_component_create_model.get(), &QAction::triggered, this, &Project_Window::create_model);
-    QObject::connect(data().m_component_create_package.get(), &QAction::triggered, this, &Project_Window::create_package);
-    QObject::connect(data().m_component_create_release.get(), &QAction::triggered, this, &Project_Window::create_release);
+    QObject::connect(imp().m_component_create_file.get(), &QAction::triggered, this, &Project_Window::create_file);
+    QObject::connect(imp().m_component_create_texture.get(), &QAction::triggered, this, &Project_Window::create_texture);
+    QObject::connect(imp().m_component_create_material.get(), &QAction::triggered, this, &Project_Window::create_material);
+    QObject::connect(imp().m_component_create_model.get(), &QAction::triggered, this, &Project_Window::create_model);
+    QObject::connect(imp().m_component_create_package.get(), &QAction::triggered, this, &Project_Window::create_package);
+    QObject::connect(imp().m_component_create_release.get(), &QAction::triggered, this, &Project_Window::create_release);
 
     // Build the File menu. It does not take ownership of the QActions.
-    data().m_component_create->addAction(data().m_component_create_file.get());
-    data().m_component_create->addAction(data().m_component_create_texture.get());
-    data().m_component_create->addAction(data().m_component_create_material.get());
-    data().m_component_create->addAction(data().m_component_create_model.get());
-    data().m_component_create->addAction(data().m_component_create_package.get());
-    data().m_component_create->addAction(data().m_component_create_release.get());
+    imp().m_component_create->addAction(imp().m_component_create_file.get());
+    imp().m_component_create->addAction(imp().m_component_create_texture.get());
+    imp().m_component_create->addAction(imp().m_component_create_material.get());
+    imp().m_component_create->addAction(imp().m_component_create_model.get());
+    imp().m_component_create->addAction(imp().m_component_create_package.get());
+    imp().m_component_create->addAction(imp().m_component_create_release.get());
 
-    data().m_component->addMenu(data().m_component_create.get());
+    imp().m_component->addMenu(imp().m_component_create.get());
 
     // Add the File menu to the menubar. It does not take ownership of the QMenu.
-    this->menuBar()->addMenu(data().m_component.get());
+    this->menuBar()->addMenu(imp().m_component.get());
 
     // Menu Bar -> Build
     //============================================================
     // Configure the menu items
-    QObject::connect(data().m_build_build_project.get(), &QAction::triggered, this, &Project_Window::build_project);
-    QObject::connect(data().m_build_rebuild_project.get(), &QAction::triggered, this, &Project_Window::rebuild_project);
-    QObject::connect(data().m_build_clean_project.get(), &QAction::triggered, this, &Project_Window::clean_project);
-    QObject::connect(data().m_build_build_component.get(), &QAction::triggered, this, &Project_Window::build_component);
-    QObject::connect(data().m_build_rebuild_component.get(), &QAction::triggered, this, &Project_Window::rebuild_component);
-    QObject::connect(data().m_build_clean_component.get(), &QAction::triggered, this, &Project_Window::clean_component);
+    QObject::connect(imp().m_build_build_project.get(), &QAction::triggered, this, &Project_Window::build_project);
+    QObject::connect(imp().m_build_rebuild_project.get(), &QAction::triggered, this, &Project_Window::rebuild_project);
+    QObject::connect(imp().m_build_clean_project.get(), &QAction::triggered, this, &Project_Window::clean_project);
+    QObject::connect(imp().m_build_build_component.get(), &QAction::triggered, this, &Project_Window::build_component);
+    QObject::connect(imp().m_build_rebuild_component.get(), &QAction::triggered, this, &Project_Window::rebuild_component);
+    QObject::connect(imp().m_build_clean_component.get(), &QAction::triggered, this, &Project_Window::clean_component);
 
     // Build the File menu. It does not take ownership of the QActions.
-    data().m_build->addAction(data().m_build_build_project.get());
-    data().m_build->addAction(data().m_build_rebuild_project.get());
-    data().m_build->addAction(data().m_build_clean_project.get());
-    data().m_build->addSeparator();
-    data().m_build->addAction(data().m_build_build_component.get());
-    data().m_build->addAction(data().m_build_rebuild_component.get());
-    data().m_build->addAction(data().m_build_clean_component.get());
+    imp().m_build->addAction(imp().m_build_build_project.get());
+    imp().m_build->addAction(imp().m_build_rebuild_project.get());
+    imp().m_build->addAction(imp().m_build_clean_project.get());
+    imp().m_build->addSeparator();
+    imp().m_build->addAction(imp().m_build_build_component.get());
+    imp().m_build->addAction(imp().m_build_rebuild_component.get());
+    imp().m_build->addAction(imp().m_build_clean_component.get());
 
     // Add the File menu to the menubar. It does not take ownership of the QMenu.
-    this->menuBar()->addMenu(data().m_build.get());
+    this->menuBar()->addMenu(imp().m_build.get());
 
 
     // Menu Bar -> Install
     //============================================================
     // Configure the menu items
-    QObject::connect(data().m_install_install_status.get(), &QAction::triggered, this, &Project_Window::install_status);
-    QObject::connect(data().m_install_install_component.get(), &QAction::triggered, this, &Project_Window::install_component);
-    QObject::connect(data().m_install_uninstall_component.get(), &QAction::triggered, this, &Project_Window::uninstall_component);
-    QObject::connect(data().m_install_uninstall_all.get(), &QAction::triggered, this, &Project_Window::uninstall_all);
+    QObject::connect(imp().m_install_install_status.get(), &QAction::triggered, this, &Project_Window::install_status);
+    QObject::connect(imp().m_install_install_component.get(), &QAction::triggered, this, &Project_Window::install_component);
+    QObject::connect(imp().m_install_uninstall_component.get(), &QAction::triggered, this, &Project_Window::uninstall_component);
+    QObject::connect(imp().m_install_uninstall_all.get(), &QAction::triggered, this, &Project_Window::uninstall_all);
 
     // Build the File menu. It does not take ownership of the QActions.
-    data().m_install->addAction(data().m_install_install_status.get());
-    data().m_install->addSeparator();
-    data().m_install->addAction(data().m_install_install_component.get());
-    data().m_install->addAction(data().m_install_uninstall_component.get());
-    data().m_install->addSeparator();
-    data().m_install->addAction(data().m_install_uninstall_all.get());
+    imp().m_install->addAction(imp().m_install_install_status.get());
+    imp().m_install->addSeparator();
+    imp().m_install->addAction(imp().m_install_install_component.get());
+    imp().m_install->addAction(imp().m_install_uninstall_component.get());
+    imp().m_install->addSeparator();
+    imp().m_install->addAction(imp().m_install_uninstall_all.get());
 
     // Add the File menu to the menubar. It does not take ownership of the QMenu.
-    this->menuBar()->addMenu(data().m_install.get());
+    this->menuBar()->addMenu(imp().m_install.get());
 
     // Menu Bar -> Settings
     //============================================================
     // Configure the menu items
-    QObject::connect(data().m_settings_settings.get(), &QAction::triggered, this, &Project_Window::settings);
-    QObject::connect(data().m_settings_tf2_settings.get(), &QAction::triggered, this, &Project_Window::tf2_settings);
-    QObject::connect(data().m_settings_sfm_settings.get(), &QAction::triggered, this, &Project_Window::sfm_settings);
+    QObject::connect(imp().m_settings_settings.get(), &QAction::triggered, this, &Project_Window::settings);
+    QObject::connect(imp().m_settings_tf2_settings.get(), &QAction::triggered, this, &Project_Window::tf2_settings);
+    QObject::connect(imp().m_settings_sfm_settings.get(), &QAction::triggered, this, &Project_Window::sfm_settings);
 
     // Build the File menu. It does not take ownership of the QActions.
-    data().m_settings->addAction(data().m_settings_settings.get());
-    data().m_settings->addAction(data().m_settings_tf2_settings.get());
-    data().m_settings->addAction(data().m_settings_sfm_settings.get());
+    imp().m_settings->addAction(imp().m_settings_settings.get());
+    imp().m_settings->addAction(imp().m_settings_tf2_settings.get());
+    imp().m_settings->addAction(imp().m_settings_sfm_settings.get());
 
     // Add the File menu to the menubar. It does not take ownership of the QMenu.
-    this->menuBar()->addMenu(data().m_settings.get());
+    this->menuBar()->addMenu(imp().m_settings.get());
 
     // Menu Bar -> Help
     //============================================================
     // Configure the menu items
-    QObject::connect(data().m_help_help.get(), &QAction::triggered, this, &Project_Window::help);
-    QObject::connect(data().m_help_about.get(), &QAction::triggered, this, &Project_Window::about);
+    QObject::connect(imp().m_help_help.get(), &QAction::triggered, this, &Project_Window::help);
+    QObject::connect(imp().m_help_about.get(), &QAction::triggered, this, &Project_Window::about);
 
     // Build the File menu. It does not take ownership of the QActions.
-    data().m_help->addAction(data().m_help_help.get());
-    data().m_help->addAction(data().m_help_about.get());
+    imp().m_help->addAction(imp().m_help_help.get());
+    imp().m_help->addAction(imp().m_help_about.get());
 
     // Add the File menu to the menubar. It does not take ownership of the QMenu.
-    this->menuBar()->addMenu(data().m_help.get());
+    this->menuBar()->addMenu(imp().m_help.get());
 
 
     // Update everything
@@ -398,8 +371,8 @@ sak::Project_Window::Project_Window(QWidget* a_parent):
 sak::Project_Window::~Project_Window()
 {
     // If this is owned by the stack it will be double-deleted.
-    data().m_background_widget->setParent(nullptr);
-    if(data().m_project_widget) data().m_project_widget->setParent(nullptr);
+    imp().m_background_widget->setParent(nullptr);
+    if(imp().m_project_widget) imp().m_project_widget->setParent(nullptr);
 }
 
 // Menu Bar -> File
@@ -456,7 +429,7 @@ bool sak::Project_Window::new_project()
         auto l_project = std::make_unique<Project>(l_filepath);
 
         // Make the widget
-        data().m_project_widget = std::make_unique<Project_Widget>(std::move(l_project));
+        imp().m_project_widget = std::make_unique<Project_Widget>(std::move(l_project));
     }
     catch(Filesystem_Error& e)
     {
@@ -464,8 +437,8 @@ bool sak::Project_Window::new_project()
         return false;
     }
 
-    data().m_central_stack->addWidget(data().m_project_widget.get());
-    data().m_central_stack->setCurrentIndex(1);
+    imp().m_central_stack->addWidget(imp().m_project_widget.get());
+    imp().m_central_stack->setCurrentIndex(1);
 
     notify_project_changes();
     return true;
@@ -507,7 +480,7 @@ bool sak::Project_Window::open_project()
         auto l_widget = std::make_unique<Project_Widget>(std::move(l_project));
 
         // Install the widget
-        std::swap(data().m_project_widget,l_widget);
+        std::swap(imp().m_project_widget,l_widget);
     }
     catch(Filesystem_Error& e)
     {
@@ -515,8 +488,8 @@ bool sak::Project_Window::open_project()
         return false;
     }
 
-    data().m_central_stack->addWidget(data().m_project_widget.get());
-    data().m_central_stack->setCurrentIndex(1);
+    imp().m_central_stack->addWidget(imp().m_project_widget.get());
+    imp().m_central_stack->setCurrentIndex(1);
 
     notify_project_changes();
     return true;
@@ -527,7 +500,7 @@ void sak::Project_Window::save_project()
 {
     if(is_project_open())
     {
-        data().m_project_widget->save_project();
+        imp().m_project_widget->save_project();
     }
 }
 
@@ -542,11 +515,11 @@ bool sak::Project_Window::close_project()
             // user has not cancelled, do the close
 
             // Unhook the project widget.
-            data().m_central_stack->removeWidget(data().m_project_widget.get());
+            imp().m_central_stack->removeWidget(imp().m_project_widget.get());
             // Now destory it.
-            data().m_project_widget.reset();
+            imp().m_project_widget.reset();
             // Set the stack to point to the first widget again.
-            data().m_central_stack->setCurrentIndex(0);
+            imp().m_central_stack->setCurrentIndex(0);
             notify_project_changes();
 
             // closing success
@@ -578,7 +551,7 @@ void sak::Project_Window::undo()
 {
     if(is_project_open())
     {
-        data().m_project_widget->undo();
+        imp().m_project_widget->undo();
     }
 }
 
@@ -587,7 +560,7 @@ void sak::Project_Window::redo()
 {
     if(is_project_open())
     {
-        data().m_project_widget->redo();
+        imp().m_project_widget->redo();
     }
 }
 
@@ -596,7 +569,7 @@ void sak::Project_Window::view_history()
 {
     if(is_project_open())
     {
-        data().m_project_widget->view_history();
+        imp().m_project_widget->view_history();
     }
 }
 
@@ -605,7 +578,7 @@ void sak::Project_Window::clear_history()
 {
     if(is_project_open())
     {
-        data().m_project_widget->clear_history();
+        imp().m_project_widget->clear_history();
     }
 }
 
@@ -616,7 +589,7 @@ void sak::Project_Window::create_file()
 {
     if(is_project_open())
     {
-        data().m_project_widget->create_file();
+        imp().m_project_widget->create_file();
     }
 }
 
@@ -625,7 +598,7 @@ void sak::Project_Window::create_texture()
 {
     if(is_project_open())
     {
-        data().m_project_widget->create_texture();
+        imp().m_project_widget->create_texture();
     }
 }
 
@@ -634,7 +607,7 @@ void sak::Project_Window::create_material()
 {
     if(is_project_open())
     {
-        data().m_project_widget->create_material();
+        imp().m_project_widget->create_material();
     }
 }
 
@@ -643,7 +616,7 @@ void sak::Project_Window::create_model()
 {
     if(is_project_open())
     {
-        data().m_project_widget->create_model();
+        imp().m_project_widget->create_model();
     }
 }
 
@@ -652,7 +625,7 @@ void sak::Project_Window::create_package()
 {
     if(is_project_open())
     {
-        data().m_project_widget->create_package();
+        imp().m_project_widget->create_package();
     }
 }
 
@@ -661,7 +634,7 @@ void sak::Project_Window::create_release()
 {
     if(is_project_open())
     {
-        data().m_project_widget->create_release();
+        imp().m_project_widget->create_release();
     }
 }
 
@@ -672,7 +645,7 @@ void sak::Project_Window::build_project()
 {
     if(is_project_open())
     {
-        data().m_project_widget->build_project();
+        imp().m_project_widget->build_project();
     }
 }
 
@@ -681,7 +654,7 @@ void sak::Project_Window::rebuild_project()
 {
     if(is_project_open())
     {
-        data().m_project_widget->rebuild_project();
+        imp().m_project_widget->rebuild_project();
     }
 }
 
@@ -690,7 +663,7 @@ void sak::Project_Window::clean_project()
 {
     if(is_project_open())
     {
-        data().m_project_widget->clean_project();
+        imp().m_project_widget->clean_project();
     }
 }
 
@@ -699,7 +672,7 @@ void sak::Project_Window::build_component()
 {
     if(is_project_open())
     {
-        data().m_project_widget->build_component();
+        imp().m_project_widget->build_component();
     }
 }
 
@@ -708,7 +681,7 @@ void sak::Project_Window::rebuild_component()
 {
     if(is_project_open())
     {
-        data().m_project_widget->rebuild_component();
+        imp().m_project_widget->rebuild_component();
     }
 }
 
@@ -718,7 +691,7 @@ void sak::Project_Window::clean_component()
 {
     if(is_project_open())
     {
-        data().m_project_widget->clean_component();
+        imp().m_project_widget->clean_component();
     }
 }
 
@@ -729,7 +702,7 @@ void sak::Project_Window::install_status()
 {
     if(is_project_open())
     {
-        data().m_project_widget->install_status();
+        imp().m_project_widget->install_status();
     }
 }
 
@@ -739,7 +712,7 @@ void sak::Project_Window::install_component()
 {
     if(is_project_open())
     {
-        data().m_project_widget->install_component();
+        imp().m_project_widget->install_component();
     }
 }
 
@@ -748,7 +721,7 @@ void sak::Project_Window::uninstall_component()
 {
     if(is_project_open())
     {
-        data().m_project_widget->uninstall_component();
+        imp().m_project_widget->uninstall_component();
     }
 }
 
@@ -757,7 +730,7 @@ void sak::Project_Window::uninstall_all()
 {
     if(is_project_open())
     {
-        data().m_project_widget->uninstall_all();
+        imp().m_project_widget->uninstall_all();
     }
 }
 
@@ -806,7 +779,7 @@ void sak::Project_Window::about()
 bool sak::Project_Window::is_project_open() const
 {
     // Whether or not the stack contains a second widget (the Project_Widget).
-    return cdata().m_project_widget != nullptr;
+    return cimp().m_project_widget != nullptr;
 }
 
 // Can we currently call undo?
@@ -814,7 +787,7 @@ bool sak::Project_Window::can_undo() const
 {
     if(is_project_open())
     {
-        return cdata().m_project_widget->can_undo();
+        return cimp().m_project_widget->can_undo();
     }
     else
     {
@@ -827,7 +800,7 @@ bool sak::Project_Window::can_redo() const
 {
     if(is_project_open())
     {
-        return cdata().m_project_widget->can_redo();
+        return cimp().m_project_widget->can_redo();
     }
     else
     {
@@ -840,7 +813,7 @@ QString sak::Project_Window::selected_component_name() const
 {
     if(is_project_open())
     {
-        return cdata().m_project_widget->selected_component_name();
+        return cimp().m_project_widget->selected_component_name();
     }
     else
     {
@@ -853,7 +826,7 @@ bool sak::Project_Window::is_component_selected() const
 {
     if(is_project_open())
     {
-        return cdata().m_project_widget->is_component_selected();
+        return cimp().m_project_widget->is_component_selected();
     }
     else
     {
@@ -866,7 +839,7 @@ bool sak::Project_Window::is_component_buildable() const
 {
     if(is_project_open())
     {
-        return cdata().m_project_widget->is_component_buildable();
+        return cimp().m_project_widget->is_component_buildable();
     }
     else
     {
@@ -879,7 +852,7 @@ bool sak::Project_Window::is_component_installable() const
 {
     if(is_project_open())
     {
-        return cdata().m_project_widget->is_component_installable();
+        return cimp().m_project_widget->is_component_installable();
     }
     else
     {
@@ -892,7 +865,7 @@ bool sak::Project_Window::is_component_installable() const
 // act on it and return true if the action was never cancelled.
 bool sak::Project_Window::ask_to_save()
 {
-    if (is_project_open() && cdata().m_project_widget->has_unsaved_edits())
+    if (is_project_open() && cimp().m_project_widget->has_unsaved_edits())
     {
         int msgBoxRet = QMessageBox::question(this,
                                                   c_title_application,
@@ -956,16 +929,16 @@ void sak::Project_Window::notify_project_changes()
 {
     bool l_project_open_state{is_project_open()};
 
-    data().m_file_save_project.get()->setEnabled(l_project_open_state);
-    data().m_file_close_project.get()->setEnabled(l_project_open_state);
+    imp().m_file_save_project.get()->setEnabled(l_project_open_state);
+    imp().m_file_close_project.get()->setEnabled(l_project_open_state);
 
-    data().m_edit.get()->setEnabled(l_project_open_state);
+    imp().m_edit.get()->setEnabled(l_project_open_state);
 
-    data().m_component.get()->setEnabled(l_project_open_state);
+    imp().m_component.get()->setEnabled(l_project_open_state);
 
-    data().m_build.get()->setEnabled(l_project_open_state);
+    imp().m_build.get()->setEnabled(l_project_open_state);
 
-    data().m_install.get()->setEnabled(l_project_open_state);
+    imp().m_install.get()->setEnabled(l_project_open_state);
 
     // Since undo changes are dependent on the Project, check that too.
     notify_undo_changes();
@@ -982,8 +955,8 @@ void sak::Project_Window::notify_undo_changes()
     // the menu that these actions are in so they may already be inaccessable)
     // set the action statuses to what is needed.
 
-    data().m_edit_undo.get()->setEnabled(can_undo());
-    data().m_edit_redo.get()->setEnabled(can_redo());
+    imp().m_edit_undo.get()->setEnabled(can_undo());
+    imp().m_edit_redo.get()->setEnabled(can_redo());
 }
 
 
@@ -994,35 +967,35 @@ void sak::Project_Window::notify_component_changes()
 
     // Buildable?
     bool l_is_component_buildable{is_component_buildable()};
-    data().m_build_build_component->setEnabled(l_is_component_buildable);
-    data().m_build_rebuild_component->setEnabled(l_is_component_buildable);
-    data().m_build_clean_component->setEnabled(l_is_component_buildable);
+    imp().m_build_build_component->setEnabled(l_is_component_buildable);
+    imp().m_build_rebuild_component->setEnabled(l_is_component_buildable);
+    imp().m_build_clean_component->setEnabled(l_is_component_buildable);
     if (l_is_component_buildable)
     {
-        data().m_build_build_component->setText(c_title_build_build_component_front + l_component_name);
-        data().m_build_rebuild_component->setText(c_title_build_rebuild_component_front + l_component_name);
-        data().m_build_clean_component->setText(c_title_build_clean_component_front + l_component_name);
+        imp().m_build_build_component->setText(c_title_build_build_component_front + l_component_name);
+        imp().m_build_rebuild_component->setText(c_title_build_rebuild_component_front + l_component_name);
+        imp().m_build_clean_component->setText(c_title_build_clean_component_front + l_component_name);
     }
     else
     {
-        data().m_build_build_component->setText(c_title_build_build_component);
-        data().m_build_rebuild_component->setText(c_title_build_rebuild_component);
-        data().m_build_clean_component->setText(c_title_build_clean_component);
+        imp().m_build_build_component->setText(c_title_build_build_component);
+        imp().m_build_rebuild_component->setText(c_title_build_rebuild_component);
+        imp().m_build_clean_component->setText(c_title_build_clean_component);
     }
 
     // Installable?
     bool l_is_component_installable{is_component_buildable()};
-    data().m_install_install_component->setEnabled(l_is_component_installable);
-    data().m_install_uninstall_component->setEnabled(l_is_component_installable);
+    imp().m_install_install_component->setEnabled(l_is_component_installable);
+    imp().m_install_uninstall_component->setEnabled(l_is_component_installable);
     if (l_is_component_installable)
     {
-        data().m_install_install_component->setText(c_title_install_install_component_front + l_component_name);
-        data().m_install_uninstall_component->setText(c_title_install_uninstall_component_front + l_component_name);
+        imp().m_install_install_component->setText(c_title_install_install_component_front + l_component_name);
+        imp().m_install_uninstall_component->setText(c_title_install_uninstall_component_front + l_component_name);
     }
     else
     {
-        data().m_install_install_component->setText(c_title_install_install_component);
-        data().m_install_uninstall_component->setText(c_title_install_uninstall_component);
+        imp().m_install_install_component->setText(c_title_install_install_component);
+        imp().m_install_uninstall_component->setText(c_title_install_uninstall_component);
     }
 }
 
@@ -1033,7 +1006,7 @@ void sak::Project_Window::update_window_title()
     QString l_title{};
     if (is_project_open())
     {
-        l_title += data().m_project_widget->name() + " - ";
+        l_title += imp().m_project_widget->name() + " - ";
     }
     l_title += c_title_application;
     this->setWindowTitle(l_title);

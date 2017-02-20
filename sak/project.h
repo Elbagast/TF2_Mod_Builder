@@ -10,7 +10,7 @@ class QString;
 
 namespace sak
 {
-    class Project_Signalbox;
+    class Project_Signalbox_Out;
     class Project_File_Signalbox;
     //---------------------------------------------------------------------------
     // Project
@@ -91,10 +91,10 @@ namespace sak
         QString filepath() const;
 
         // Add an object that will rely on the Project's signals. If nulltpr, nothing happens.
-        void add_signalbox(Project_File_Signalbox* a_signalbox);
+        void add_signalbox(Project_Signalbox_Out* a_signalbox);
 
         // Remove an object that will rely on the Project's signals. If nulltpr, nothing happens.
-        void remove_signalbox(Project_File_Signalbox* a_signalbox);
+        void remove_signalbox(Project_Signalbox_Out* a_signalbox);
 
 
         // File Interface
@@ -139,9 +139,17 @@ namespace sak
         // to propagate the changes to where they need to go.
         void file_name_changed(File_Basic_Handle const& a_file);
 
+        // File_Interface will call this when the File's description is changed. This causes Project
+        // to propagate the changes to where they need to go.
+        void file_description_changed(File_Basic_Handle const& a_file);
+
         // File_Interface will call this when the File's data is changed. This causes Project
         // to propagate the changes to where they need to go.
         void file_data_changed(File_Basic_Handle const& a_file);
+
+        // File_Interface will call this when the File's data is changed. This causes Project
+        // to propagate the changes to where they need to go.
+        void file_data_changed_at(File_Basic_Handle const& a_file, std::size_t a_section);
 
 
         // Outliner File_Item Interface

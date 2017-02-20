@@ -24,7 +24,7 @@
 namespace sak
 {
     class Project_Outliner::Implementation :
-            public Project_File_Signalbox
+            public Project_Signalbox_Out
     {
     public:
         Project& m_project;
@@ -41,26 +41,28 @@ namespace sak
         explicit Implementation(Project& a_project);
 
         // When a File has had its name changed, this is called.
-        void file_name_changed(File_Handle const& a_file) override final;
+        void name_changed(File_Handle const& a_file) override final;
+        // When a File has had its description changed, this is called.
+        void description_changed(File_Handle const& a_file) override final;
         // When a File has its data changed(anything but the name), this is called.
-        void file_data_changed(File_Handle const& a_file) override final;
+        void data_changed(File_Handle const& a_file) override final;
         // When a File has its data changed in a specific place, this is called.
-        void file_data_changed_at(File_Handle const& a_file, std::size_t a_section) override final;
+        void data_changed_at(File_Handle const& a_file, std::size_t a_section) override final;
         // When a File has been added, this is called.
-        void file_added(File_Handle const& a_file) override final;
+        void added(File_Handle const& a_file) override final;
         // When a File has been removed, this is called.
-        void file_removed(File_Handle const& a_file) override final;
+        void removed(File_Handle const& a_file) override final;
         // When a File editor is to be opened, this is called.
-        void file_requests_editor(File_Handle const& a_file) override final;
+        void requests_editor(File_Handle const& a_file) override final;
         // When focus is changed to be on a File, call this
-        void file_requests_focus(File_Handle const& a_file) override final;
+        void requests_focus(File_Handle const& a_file) override final;
     };
 }
 
 sak::Project_Outliner::Implementation::~Implementation() = default;
 
 sak::Project_Outliner::Implementation::Implementation(Project& a_project):
-    Project_File_Signalbox(),
+    Project_Signalbox_Out(),
     m_project{a_project},
     m_model{},
     m_delegate{},
@@ -89,7 +91,7 @@ sak::Project_Outliner::Implementation::Implementation(Project& a_project):
 }
 
 // When a File has had its name changed, this is called.
-void sak::Project_Outliner::Implementation::file_name_changed(File_Handle const& a_file)
+void sak::Project_Outliner::Implementation::name_changed(File_Handle const& a_file)
 {
     auto l_files_item = m_root->file_header_item();
     auto l_model_index = m_model.create_index_from_item(l_files_item);
@@ -99,18 +101,23 @@ void sak::Project_Outliner::Implementation::file_name_changed(File_Handle const&
     l_files_item->name_changed(a_file);
     m_model.data_changed(l_file_index, l_file_index, QVector<int>(Qt::DisplayRole));
 }
+// When a File has had its description changed, this is called.
+void sak::Project_Outliner::Implementation::description_changed(File_Handle const& )
+{
+    // don't actively care about description, it will jsut be different next time it's looked up.
+}
 // When a File has its data changed(anything but the name), this is called.
-void sak::Project_Outliner::Implementation::file_data_changed(File_Handle const&)
+void sak::Project_Outliner::Implementation::data_changed(File_Handle const&)
 {
     // don't care about data
 }
 // When a File has its data changed in a specific place, this is called.
-void sak::Project_Outliner::Implementation::file_data_changed_at(File_Handle const&, std::size_t)
+void sak::Project_Outliner::Implementation::data_changed_at(File_Handle const&, std::size_t)
 {
     // don't care about data
 }
 // When a File has been added, this is called.
-void sak::Project_Outliner::Implementation::file_added(File_Handle const& a_file)
+void sak::Project_Outliner::Implementation::added(File_Handle const& a_file)
 {
     auto l_files_item = m_root->file_header_item();
 
@@ -136,7 +143,7 @@ void sak::Project_Outliner::Implementation::file_added(File_Handle const& a_file
 }
 
 // When a File has been removed, this is called.
-void sak::Project_Outliner::Implementation::file_removed(File_Handle const& a_file)
+void sak::Project_Outliner::Implementation::removed(File_Handle const& a_file)
 {
     auto l_files_item = m_root->file_header_item();
     auto l_model_index = m_model.create_index_from_item(l_files_item);
@@ -161,13 +168,13 @@ void sak::Project_Outliner::Implementation::file_removed(File_Handle const& a_fi
 }
 
 // When a File editor is to be opened, this is called.
-void sak::Project_Outliner::Implementation::file_requests_editor(File_Handle const&)
+void sak::Project_Outliner::Implementation::requests_editor(File_Handle const&)
 {
     // Don't care.
 }
 
 // When focus is changed to be on a File, call this
-void sak::Project_Outliner::Implementation::file_requests_focus(File_Handle const& a_file)
+void sak::Project_Outliner::Implementation::requests_focus(File_Handle const& a_file)
 {
     // Change the item selection in the outliner to this File.
     auto l_item = m_root->file_header_item()->item_of_file(a_file);

@@ -2,36 +2,25 @@
 #define FILE_H
 
 #include "fwd_file.h"
-
-#include <QString>
+#include "common_data.h"
 
 namespace sak
 {
     //---------------------------------------------------------------------------
-    // Component
+    // File
     //---------------------------------------------------------------------------
-    // temp classes
-    class Component
-    {
-    public:
-        Component();
-        explicit Component(QString const& a_name, QString const& a_description = QString());
+    //
 
-        QString const& cget_name() const;
-        QString const& cget_description() const;
-
-        void set_name(QString const& a_name);
-        void set_description(QString const& a_description);
-    private:
-        QString m_name;
-        QString m_description;
-    };
-    class File : public Component
+    class File
     {
     public:
         File();
         explicit File(QString const& a_name, QString const& a_description = QString());
+
+        Common_Data& get_common_data();
+        Common_Data const& cget_common_data() const;
+    private:
+        Common_Data m_common_data;
     };
 }
-
 #endif // FILE_H
