@@ -5,7 +5,7 @@
 
 namespace generic
 {
-    template <typename H>
+    template <typename IDM, typename T>
     class No_Interface_Traits;
 
     //---------------------------------------------------------------------------
@@ -22,10 +22,13 @@ namespace generic
     // It can have state for e.g. intercepting the calls and logging the changes,
     // or diverting them to
 
-    template <typename IDM, typename T, typename IT = No_Interface_Traits<typename Manager<IDM,T>::handle_type>>
+    template <typename IDM, typename T, typename IT = No_Interface_Traits<IDM,T>>
+    struct Extended_Manager_Types;
+
+    template <typename IDM, typename T, typename IT = No_Interface_Traits<IDM,T>>
     class Extended_Manager;
 
-    template <typename IDM, typename T, typename IT = No_Interface_Traits<typename Manager<IDM,T>::handle_type>>
+    template <typename IDM, typename T, typename IT = No_Interface_Traits<IDM,T>>
     class Extended_Handle;
 }
 

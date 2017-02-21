@@ -7,6 +7,7 @@
 #include <vector>
 #include <exception>
 #include <cassert>
+#include <type_traits>
 
 namespace generic
 {
@@ -25,7 +26,8 @@ namespace generic
         using id_type = typename id_manager_type::id_type;
         using value_type = T;
         using handle_type = Handle<IDM,T>;
-        friend class Handle<IDM,T>;
+
+        friend class handle_type;
     private:
         class Holder
         {
@@ -47,6 +49,11 @@ namespace generic
             bool operator==(Holder const& a_other) const;
             bool operator!=(Holder const& a_other) const;
 
+            bool operator<(Holder const& a_other) const;
+            bool operator>(Holder const& a_other) const;
+            bool operator<=(Holder const& a_other) const;
+            bool operator>=(Holder const& a_other) const;
+
             using shared_ptr_type = std::shared_ptr<std::pair<id_type, value_type>>;
 
             shared_ptr_type const& data() const { return m_data; }
@@ -54,6 +61,8 @@ namespace generic
             shared_ptr_type m_data;
         };
     public:
+        using map_type = std::map<id_type, Holder>;
+        using pair_type = std::pair<id_type, Holder>;
 
         handle_type make_null_handle() const;
         handle_type emplace_data(value_type&& a_value);
@@ -61,13 +70,13 @@ namespace generic
         std::size_t ref_count(id_type const& a_id) const;
 
         std::vector<id_type> all_ids() const;
-        std::vector<handle_type> all_handles() const;
+        std::vector<handle_type> all_handles();
 
     private:
         bool if_unused_destroy(id_type const& a_id);
 
         id_manager_type m_id_manager;
-        std::map<id_type, Holder> m_data;
+        map_type m_data;
     };
 
     //---------------------------------------------------------------------------
@@ -78,15 +87,16 @@ namespace generic
     template <typename IDM, typename T>
     class Handle
     {
-        friend class Manager<IDM,T>;
     public:
         using manager_type = Manager<IDM,T>;
         using id_type = typename manager_type::id_type;
         using value_type = typename manager_type::value_type;
 
+        friend class manager_type;
+
     private:
         using holder_type = typename manager_type::Holder;
-        Handle(typename holder_type const& a_holder, manager_type* a_manager);
+        Handle(holder_type const& a_holder, manager_type* a_manager);
     public:
         Handle();
         ~Handle();
@@ -104,21 +114,15 @@ namespace generic
         bool operator==(Handle const& a_other) const;
         bool operator!=(Handle const& a_other) const;
 
+        bool operator<(Handle const& a_other) const;
+        bool operator>(Handle const& a_other) const;
+        bool operator<=(Handle const& a_other) const;
+        bool operator>=(Handle const& a_other) const;
+
     private:
         holder_type m_holder;
         manager_type* m_manager;
     };
-
-    /*
-    template <typename IDM, typename T>
-    bool operator< (Handle<IDM,T> const& a_lhs, Handle<IDM,T> const& a_rhs);
-    template <typename IDM, typename T>
-    bool operator> (Handle<IDM,T> const& a_lhs, Handle<IDM,T> const& a_rhs);
-    template <typename IDM, typename T>
-    bool operator<=(Handle<IDM,T> const& a_lhs, Handle<IDM,T> const& a_rhs);
-    template <typename IDM, typename T>
-    bool operator>=(Handle<IDM,T> const& a_lhs, Handle<IDM,T> const& a_rhs);
-    */
 }
 
 
@@ -168,13 +172,14 @@ std::vector<typename generic::Manager<IDM,T>::id_type> generic::Manager<IDM,T>::
 }
 
 template <typename IDM, typename T>
-std::vector<typename generic::Manager<IDM,T>::handle_type> generic::Manager<IDM,T>::all_handles() const
+std::vector<typename generic::Manager<IDM,T>::handle_type> generic::Manager<IDM,T>::all_handles()
 {
     std::vector<handle_type> l_result{};
     l_result.reserve(m_data.size());
     for (auto const& l_item : m_data)
     {
-        l_result.push_back(handle_type(l_item.second, this));
+        auto l_handle = handle_type(l_item.second, this);
+        l_result.push_back(std::move(l_handle));
     }
     return l_result;
 }
@@ -258,8 +263,32 @@ bool generic::Manager<IDM,T>::Holder::operator==(Holder const& a_other) const
 template <typename IDM, typename T>
 bool generic::Manager<IDM,T>::Holder::operator!=(Holder const& a_other) const
 {
-    return m_data != a_other.m_data;
+   return !this->operator==(a_other);
 }
+
+template <typename IDM, typename T>
+bool generic::Manager<IDM,T>::Holder::operator<(Holder const& a_other) const
+{
+   return m_data < a_other.m_data;
+}
+
+template <typename IDM, typename T>
+bool generic::Manager<IDM,T>::Holder::operator>(Holder const& a_other) const
+{
+   return a_other.operator<(*this);
+}
+template <typename IDM, typename T>
+bool generic::Manager<IDM,T>::Holder::operator<=(Holder const& a_other) const
+{
+   return !this->operator>(a_other);
+}
+
+template <typename IDM, typename T>
+bool generic::Manager<IDM,T>::Holder::operator>=(Holder const& a_other) const
+{
+   return !this->operator<(a_other);
+}
+
 
 //---------------------------------------------------------------------------
 // generic::Handle<ID Manager, Type>
@@ -346,7 +375,30 @@ bool generic::Handle<IDM,T>::operator==(Handle<IDM,T> const& a_other) const
 template <typename IDM, typename T>
 bool generic::Handle<IDM,T>::operator!=(Handle<IDM,T> const& a_other) const
 {
-    return !(m_manager == a_other.m_manager && m_holder == a_other.m_holder);
+    return !this->operator==(a_other);
+}
+
+template <typename IDM, typename T>
+bool generic::Handle<IDM,T>::operator<(Handle<IDM,T> const& a_other) const
+{
+    return m_manager < a_other.m_manager && m_holder < a_other.m_holder;
+}
+
+template <typename IDM, typename T>
+bool generic::Handle<IDM,T>::operator>(Handle<IDM,T> const& a_other) const
+{
+    return a_other.operator<(*this);
+}
+template <typename IDM, typename T>
+bool generic::Handle<IDM,T>::operator<=(Handle<IDM,T> const& a_other) const
+{
+    return !this->operator>(a_other);
+}
+
+template <typename IDM, typename T>
+bool generic::Handle<IDM,T>::operator>=(Handle<IDM,T> const& a_other) const
+{
+    return !this->operator<(a_other);
 }
 
 

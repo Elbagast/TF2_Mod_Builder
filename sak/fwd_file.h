@@ -28,6 +28,7 @@ namespace sak
     class File_Interface_Traits;
 
     //#include "file_manager.h"
+    using File_Manager_Types = generic::Extended_Manager_Types<generic::Uint32ID_Manager, File, File_Interface_Traits>;
     using File_Manager = generic::Extended_Manager<generic::Uint32ID_Manager, File, File_Interface_Traits>;
     using File_Handle = generic::Extended_Handle<generic::Uint32ID_Manager, File, File_Interface_Traits>;
 }

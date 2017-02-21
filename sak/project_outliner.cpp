@@ -24,7 +24,7 @@
 namespace sak
 {
     class Project_Outliner::Implementation :
-            public Project_Signalbox_Out
+            public Project_Signalbox
     {
     public:
         Project& m_project;
@@ -62,7 +62,7 @@ namespace sak
 sak::Project_Outliner::Implementation::~Implementation() = default;
 
 sak::Project_Outliner::Implementation::Implementation(Project& a_project):
-    Project_Signalbox_Out(),
+    Project_Signalbox(),
     m_project{a_project},
     m_model{},
     m_delegate{},

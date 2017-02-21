@@ -198,6 +198,7 @@ namespace sak
 
     signals:
         void signal_unsaved_edits_change(bool a_state);
+        void signal_undo_change();
 
     private:
 

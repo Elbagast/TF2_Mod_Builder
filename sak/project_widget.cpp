@@ -32,7 +32,7 @@ namespace
 namespace sak
 {
     class Project_Widget::Implementation :
-            public Project_Signalbox_Out
+            public Project_Signalbox
     {
     public:
         Project_Widget* m_owner;
@@ -70,6 +70,7 @@ namespace sak
         void requests_focus(File_Handle const& a_file) override final;
 
         void signal_unsaved_edits_change(bool a_state);
+        void signal_undo_change();
     };
 }
 
@@ -100,31 +101,37 @@ sak::Project_Widget::Implementation::Implementation(Project_Widget* a_owner, std
 void sak::Project_Widget::Implementation::name_changed(File_Handle const& )
 {
     signal_unsaved_edits_change(true);
+    signal_undo_change();
 }
 // When a File has had its description changed, this is called.
 void sak::Project_Widget::Implementation::description_changed(File_Handle const& )
 {
     signal_unsaved_edits_change(true);
+    signal_undo_change();
 }
 // When a File has its data changed(anything but the name), this is called.
 void sak::Project_Widget::Implementation::data_changed(File_Handle const& )
 {
     signal_unsaved_edits_change(true);
+    signal_undo_change();
 }
 // When a File has its data changed in a specific place, this is called.
 void sak::Project_Widget::Implementation::data_changed_at(File_Handle const&, std::size_t )
 {
     signal_unsaved_edits_change(true);
+    signal_undo_change();
 }
 // When a File has been added, this is called.
 void sak::Project_Widget::Implementation::added(File_Handle const& )
 {
     signal_unsaved_edits_change(true);
+    signal_undo_change();
 }
 // When a File has been removed, this is called.
 void sak::Project_Widget::Implementation::removed(File_Handle const& )
 {
     signal_unsaved_edits_change(true);
+    signal_undo_change();
 }
 // When a File editor is to be opened, this is called.
 void sak::Project_Widget::Implementation::requests_editor(File_Handle const& )
@@ -143,6 +150,11 @@ void sak::Project_Widget::Implementation::signal_unsaved_edits_change(bool a_sta
         m_unsaved_edits = a_state;
         m_owner->emit signal_unsaved_edits_change(m_unsaved_edits);
     }
+}
+
+void sak::Project_Widget::Implementation::signal_undo_change()
+{
+    m_owner->emit signal_undo_change();
 }
 
 // Special 6
@@ -182,13 +194,13 @@ void sak::Project_Widget::save_project()
 // Undo the last command issued.
 void sak::Project_Widget::undo()
 {
-
+    imp().m_project->undo();
 }
 
 // Redo the last undone command in the command history
 void sak::Project_Widget::redo()
 {
-
+    imp().m_project->redo();
 }
 
 // View the entire command history of the project.
@@ -208,7 +220,7 @@ void sak::Project_Widget::clear_history()
 // Create a new File in the active Project;
 void sak::Project_Widget::create_file()
 {
-    imp().m_project->add_new_file();
+    imp().m_project->get_signalbox()->added(imp().m_project->make_file());
 }
 
 // Create a new Texture in the active Project;
@@ -334,13 +346,13 @@ bool sak::Project_Widget::has_unsaved_edits() const
 // Can we currently call undo?
 bool sak::Project_Widget::can_undo() const
 {
-    return false;
+    return cimp().m_project->can_undo();
 }
 
 // Can we currently call redo?
 bool sak::Project_Widget::can_redo() const
 {
-    return false;
+    return cimp().m_project->can_redo();
 }
 
 // Get the name of the currently selected component. Empty if none is selected.

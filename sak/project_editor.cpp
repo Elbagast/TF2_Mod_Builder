@@ -13,6 +13,7 @@
 #include "file_manager.h"
 #include "file_widget.h"
 #include "project.h"
+#include "file_interface.h"
 
 //---------------------------------------------------------------------------
 // Project_Editor
@@ -47,7 +48,7 @@ namespace
 namespace sak
 {
     class Project_Editor::Implementation :
-            public Project_Signalbox_Out
+            public Project_Signalbox
     {
     public:
         Project& m_project;
@@ -88,7 +89,7 @@ namespace sak
 sak::Project_Editor::Implementation::~Implementation() = default;
 
 sak::Project_Editor::Implementation::Implementation(Project& a_project):
-    Project_Signalbox_Out(),
+    Project_Signalbox(),
     m_project{a_project},
     m_layout{std::make_unique<QHBoxLayout>()},
     m_stackwidget{std::make_unique<QStackedWidget>()},
@@ -122,7 +123,7 @@ sak::Project_Editor::Implementation::Implementation(Project& a_project):
             if (l_widget != nullptr)
             {
                 File_Handle const& l_file = l_widget->cget_file();
-                this->m_project.file_requests_focus(l_file);
+                this->m_project.get_signalbox()->requests_focus(l_file);
             }
         }
     });
@@ -228,7 +229,6 @@ void sak::Project_Editor::Implementation::added(File_Handle const& a_file)
 // When a File has been removed, this is called.
 void sak::Project_Editor::Implementation::removed(File_Handle const& a_file)
 {
-    // Find the editor for this handle
     auto l_found = std::find_if(m_file_widgets.begin(),
                                 m_file_widgets.end(),
                                 File_Widget_Equals_Handle(a_file));

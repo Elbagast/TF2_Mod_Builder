@@ -3,6 +3,7 @@
 
 #include "fwd_file.h"
 #include "file.h"
+#include "file_basic_manager.h"
 #include "file_interface_traits.h"
 #include "../generic/uintid.h"
 #include "../generic/uintid_manager.h"
@@ -10,6 +11,12 @@
 
 namespace sak
 {
+    //---------------------------------------------------------------------------
+    // using File_Manager_Types
+    //---------------------------------------------------------------------------
+    // Allows use of:
+    //using File_Manager_Types = generic::Extended_Manager_Types<generic::Uint32ID_Manager, File, File_Interface_Traits>;
+
     //---------------------------------------------------------------------------
     // using File_Manager
     //---------------------------------------------------------------------------

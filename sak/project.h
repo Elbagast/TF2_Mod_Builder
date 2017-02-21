@@ -7,11 +7,11 @@ class QString;
 #include <QString>
 
 #include "fwd_file.h"
+#include "project_signalbox.h"
+#include "../generic/command.h"
 
 namespace sak
 {
-    class Project_Signalbox_Out;
-    class Project_File_Signalbox;
     //---------------------------------------------------------------------------
     // Project
     //---------------------------------------------------------------------------
@@ -55,6 +55,10 @@ namespace sak
         - owning Project.
         - owning widgets.
         - maintaining model accuracy.
+
+    Structure:
+    - Currently the Project does not actually need to own the data management system.
+    - It should probably own its undo system?
     */
     class Project
     {
@@ -91,14 +95,30 @@ namespace sak
         QString filepath() const;
 
         // Add an object that will rely on the Project's signals. If nulltpr, nothing happens.
-        void add_signalbox(Project_Signalbox_Out* a_signalbox);
+        void add_signalbox(Project_Signalbox* a_signalbox);
 
         // Remove an object that will rely on the Project's signals. If nulltpr, nothing happens.
-        void remove_signalbox(Project_Signalbox_Out* a_signalbox);
+        void remove_signalbox(Project_Signalbox* a_signalbox);
+
+        // Can we currently call undo?
+        bool can_undo() const;
+
+        // Can we currently call redo?
+        bool can_redo() const;
+
+        // Undo the last command issued.
+        void undo();
+
+        // Redo the last undone command in the command history
+        void redo();
+
+        // Commands get sent here.
+        void emplace_execute(std::unique_ptr<generic::abstract::Command>&& a_command);
 
 
         // File Interface
         //============================================================
+        // This is the interface that deals with Files.
 
         // Are there any Files in this Project?
         bool has_files() const;
@@ -115,56 +135,29 @@ namespace sak
         // Get all the Files names
         std::vector<QString> get_all_file_names() const;
 
-        // Add a new file. Project takes ownership of the File. File is inserted in
-        // the appropriate place to maintain sorting and Project signals that the File list
-        // has gained an item at that positon.
-        File_Handle add_file(File&& a_file);
+        // You may create new Files using these two functions. Files created in this way
+        // are part of the Project's data management system but have not yet been added to the
+        // Project properly. That will only happen when the Project recieves a signal via its
+        // Project_Signalbox that it should be addeed.
 
-        // Add a new default parameters File.
-        File_Handle add_new_file();
+        // Make a new file using the supplied data. Project's data management system owns it but
+        // it is not part of the Project.
+        File_Handle make_emplace_file(File&& a_file);
 
-        // Remove the File with this handle.
-        void remove_file(File_Handle const& a_file);
+        // Make a new file using the default parameters. Project's data management system owns it
+        // but it is not part of the Project.
+        File_Handle make_file();
+
+        // To signal that something should be done to the project, you may access the signalbox
+        // for a specific type, then call the signals to make and propagate changes.
+        Project_Signalbox* get_signalbox() const;
+
+        // If we're exposing the signals like this should we not just supply the functions outright here?
 
 
-
-        //-----------
-        // File_Handle gives File_Interface.
-        // File_Interface does what needs to be done without revealing it.
-        // Only File_Interface needs these functions, so they should probably be hidden somehow.
-
-        // Outliner File_Interface Interface
         //============================================================
-        // File_Interface will call this when the File's name is changed. This causes Project
-        // to propagate the changes to where they need to go.
-        void file_name_changed(File_Basic_Handle const& a_file);
-
-        // File_Interface will call this when the File's description is changed. This causes Project
-        // to propagate the changes to where they need to go.
-        void file_description_changed(File_Basic_Handle const& a_file);
-
-        // File_Interface will call this when the File's data is changed. This causes Project
-        // to propagate the changes to where they need to go.
-        void file_data_changed(File_Basic_Handle const& a_file);
-
-        // File_Interface will call this when the File's data is changed. This causes Project
-        // to propagate the changes to where they need to go.
-        void file_data_changed_at(File_Basic_Handle const& a_file, std::size_t a_section);
-
-
-        // Outliner File_Item Interface
-        //============================================================
-        // outliner::File_Item calls this to request an editor. Project propagates the signal
-        // to anything that needs to change as a result.
-        void file_requests_editor(File_Handle const& a_file);
-        // This could be in the handle....
-
-        // Project_Editor calls this to request a File be focused on.
-        void file_requests_focus(File_Handle const& a_file);
 
     private:
-
-
         // Pimpl Data
         //============================================================
         class Implementation;

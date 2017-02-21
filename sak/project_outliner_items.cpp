@@ -17,6 +17,8 @@
 
 #include "../qtlib/outliner/outliner_model.h"
 #include "project.h"
+#include "project_signalbox.h"
+#include "file_interface.h"
 
 namespace
 {
@@ -144,7 +146,8 @@ void sak::outliner::Project_Item::do_context_menu(QAbstractItemView* a_view, mod
     QObject::connect(l_action_add_file, &QAction::triggered, [this]()
     {
         // Either this call triggers the data change in model, or we have to make that call here.
-        this->get_project().add_new_file();
+        auto l_file = this->get_project().make_file();
+        this->get_project().get_signalbox()->added(l_file); // outbound signal to project
     });
 
     menu.exec(a_view->viewport()->mapToGlobal(a_position));
@@ -243,7 +246,8 @@ void sak::outliner::File_Header_Item::do_context_menu(QAbstractItemView* a_view,
     QObject::connect(l_action_add_file, &QAction::triggered, [=]()
     {
         // Either this call triggers the data change in model, or we have to make that call here.
-        this->get_project().add_new_file();
+        auto l_file = this->get_project().make_file();
+        this->get_project().get_signalbox()->added(l_file); // outbound signal to project
     });
 
     auto l_action_debug = menu.addAction("debug");
@@ -428,7 +432,7 @@ void sak::outliner::File_Item::do_context_menu(QAbstractItemView* a_view, model_
     {
         // We need access to a means to open an editor.
         // We probably need to talk to the Project_Widget then.
-        this->get_project().file_requests_editor(m_file); // outbound signal. currently to project.
+        this->get_project().get_signalbox()->requests_editor(m_file); // outbound signal. currently to project.
     });
 
     // Commence an edit operation in the outliner
@@ -443,7 +447,7 @@ void sak::outliner::File_Item::do_context_menu(QAbstractItemView* a_view, model_
     QObject::connect(l_action_delete, &QAction::triggered, [=]()
     {
         // get rid of the data
-        this->get_project().remove_file(m_file); // outbound signal. currently to project.
+        this->get_project().get_signalbox()->removed(m_file); // outbound signal. currently to project.
     });
 
     // Execute the menu at the global posiiton.
@@ -453,7 +457,7 @@ void sak::outliner::File_Item::do_context_menu(QAbstractItemView* a_view, model_
 // Do whatever we want when an item has been double clicked on.
 void sak::outliner::File_Item::do_double_clicked(QAbstractItemView*, model_type*)
 {
-    this->get_project().file_requests_editor(m_file); // outbound signal. currently to project.
+    this->get_project().get_signalbox()->requests_editor(m_file); // outbound signal. currently to project.
 }
 
 // Additional Interface

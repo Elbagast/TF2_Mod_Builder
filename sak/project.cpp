@@ -16,16 +16,32 @@
 #include "exceptions/exception.h"
 #include "file_manager.h"
 #include "name_utilities.h"
+#include "file_interface.h"
+#include "../generic/command_history.h"
 
 //---------------------------------------------------------------------------
 // Project
 //---------------------------------------------------------------------------
+namespace
+{
+    template <typename T, typename... Args>
+    void emit_signals_for(std::vector<T*>& a_vector, void(T::*a_func)(Args...), Args&&... a_args)
+    {
+        for (auto l_item : a_vector)
+        {
+            l_item.(*a_func)(std::forward<Args>(a_args)...);
+        }
+    }
+}
+
+
 
 // Pimpl Data
 //============================================================
 namespace sak
 {
-    class Project::Implementation
+    class Project::Implementation :
+            public Project_Signalbox
     {
     public:
         QFileInfo m_filepath;
@@ -35,13 +51,16 @@ namespace sak
 
         std::vector<File_Handle> m_files;
 
-        std::vector<Project_Signalbox_Out*> m_dependents;
+        std::vector<Project_Signalbox*> m_dependents;
+        generic::Command_History m_command_history;
 
         Implementation(QString const& a_filepath, Project* a_owner):
+            Project_Signalbox(),
             m_filepath{a_filepath},
             m_file_manager{File_Interface_Traits(a_owner)},
             m_files{},
-            m_dependents{}
+            m_dependents{},
+            m_command_history{}
         {
         }
         ~Implementation() = default;
@@ -51,56 +70,91 @@ namespace sak
         // Call these to call the signalbox functions in all dependents.
 
         // When a File has had its name changed, this is called.
-        void signal_file_name_changed(File_Handle const& a_file)
+        void name_changed(File_Handle const& a_file) override final
         {
+            // This thing must exist
+            assert(a_file.is_valid());
+            assert(std::find(m_files.cbegin(), m_files.cend(), a_file) != m_files.cend());
             for (auto l_item : m_dependents)
             {
                 l_item->name_changed(a_file);
             }
         }
         // When a File has its data changed(anything but the name), this is called.
-        void signal_file_description_changed(File_Handle const& a_file)
+        void description_changed(File_Handle const& a_file) override final
         {
+            // This thing must exist
+            assert(a_file.is_valid());
+            assert(std::find(m_files.cbegin(), m_files.cend(), a_file) != m_files.cend());
             for (auto l_item : m_dependents)
             {
                 l_item->description_changed(a_file);
             }
         }
         // When a File has its data changed(anything but the name), this is called.
-        void signal_file_data_changed(File_Handle const& a_file)
+        void data_changed(File_Handle const& a_file) override final
         {
+            // This thing must exist
+            assert(a_file.is_valid());
+            assert(std::find(m_files.cbegin(), m_files.cend(), a_file) != m_files.cend());
             for (auto l_item : m_dependents)
             {
                 l_item->data_changed(a_file);
             }
         }
         // When a File has its data changed in a specific place, this is called.
-        void signal_file_data_changed_at(File_Handle const& a_file, std::size_t a_section)
+        void data_changed_at(File_Handle const& a_file, std::size_t a_section) override final
         {
+            // This thing must exist
+            assert(a_file.is_valid());
+            assert(std::find(m_files.cbegin(), m_files.cend(), a_file) != m_files.cend());
             for (auto l_item : m_dependents)
             {
                 l_item->data_changed_at(a_file, a_section);
             }
         }
         // When a File has been added, this is called.
-        void signal_file_added(File_Handle const& a_file)
+        void added(File_Handle const& a_file) override final
         {
+            // This thing must exist
+            assert(a_file.is_valid());
+            // but not yet be part of the Project
+            assert(std::find(m_files.cbegin(), m_files.cend(), a_file) == m_files.cend());
+            m_files.push_back(a_file);
+
             for (auto l_item : m_dependents)
             {
                 l_item->added(a_file);
             }
         }
         // When a File has been removed, this is called.
-        void signal_file_removed(File_Handle const& a_file)
+        void removed(File_Handle const& a_file) override final
         {
+            assert(a_file.is_valid());
+            auto l_found = std::find(m_files.begin(), m_files.end(), a_file);
+            assert(l_found != m_files.cend());
+            assert(std::addressof(a_file) != std::addressof(*l_found));
+
+            // Copy the File_Handle locally. We don't know where it came from and have to propagate
+            // the signal from here rather than who knows where to insure the signal reference stays
+            // valid for all that need it.
+            File_Handle l_file = a_file;
+            // Now kill it, because if it's still in the project the signal will call back to find it
+            // is still present.
+            m_files.erase(l_found);
+
+            // Now signal with the copy we made.
             for (auto l_item : m_dependents)
             {
-                l_item->removed(a_file);
+                l_item->removed(l_file);
             }
         }
         // When a File requests an editor, this is called.
-        void signal_file_requests_editor(File_Handle const& a_file)
+        void requests_editor(File_Handle const& a_file) override final
         {
+            // This thing must exist
+            assert(a_file.is_valid());
+            assert(std::find(m_files.cbegin(), m_files.cend(), a_file) != m_files.cend());
             for (auto l_item : m_dependents)
             {
                 l_item->requests_editor(a_file);
@@ -108,8 +162,11 @@ namespace sak
         }
 
         // When a File requests an editor, this is called.
-        void signal_file_requests_focus(File_Handle const& a_file)
+        void requests_focus(File_Handle const& a_file) override final
         {
+            // This thing must exist
+            assert(a_file.is_valid());
+            assert(std::find(m_files.cbegin(), m_files.cend(), a_file) != m_files.cend());
             for (auto l_item : m_dependents)
             {
                 l_item->requests_focus(a_file);
@@ -360,16 +417,18 @@ QString sak::Project::filepath() const
 
 
 // Add an object that will rely on the Project's signals. If nulltpr, nothing happens.
-void sak::Project::add_signalbox(Project_Signalbox_Out* a_signalbox)
+void sak::Project::add_signalbox(Project_Signalbox* a_signalbox)
 {
-    if (a_signalbox != nullptr && std::find(cimp().m_dependents.cbegin(), cimp().m_dependents.cend(), a_signalbox) == cimp().m_dependents.cend())
+    if (a_signalbox != nullptr
+        && a_signalbox != m_data.get()
+        && std::find(cimp().m_dependents.cbegin(), cimp().m_dependents.cend(), a_signalbox) == cimp().m_dependents.cend())
     {
         imp().m_dependents.push_back(a_signalbox);
     }
 }
 
 // Remove an object that will rely on the Project's signals. If nulltpr, nothing happens.
-void sak::Project::remove_signalbox(Project_Signalbox_Out* a_signalbox)
+void sak::Project::remove_signalbox(Project_Signalbox* a_signalbox)
 {
     auto l_found = std::find(cimp().m_dependents.cbegin(), cimp().m_dependents.cend(), a_signalbox);
     if (l_found != cimp().m_dependents.cend())
@@ -377,6 +436,40 @@ void sak::Project::remove_signalbox(Project_Signalbox_Out* a_signalbox)
         imp().m_dependents.erase(l_found);
     }
 }
+
+// Can we currently call undo?
+bool sak::Project::can_undo() const
+{
+    return cimp().m_command_history.can_undo();
+}
+
+// Can we currently call redo?
+bool sak::Project::can_redo() const
+{
+    return cimp().m_command_history.can_redo();
+}
+
+// Undo the last command issued.
+void sak::Project::undo()
+{
+    imp().m_command_history.undo();
+}
+
+// Redo the last undone command in the command history
+void sak::Project::redo()
+{
+    imp().m_command_history.redo();
+}
+
+// Commands get sent here.
+void sak::Project::emplace_execute(std::unique_ptr<generic::abstract::Command>&& a_command)
+{
+    if (a_command != nullptr)
+    {
+        imp().m_command_history.add_execute(std::move(a_command));
+    }
+}
+
 
 // File Interface
 //============================================================
@@ -418,107 +511,33 @@ std::vector<QString> sak::Project::get_all_file_names() const
     return l_result;
 }
 
-// Add a new file. Project takes ownership of the File. File is inserted in
-// the appropriate place to maintain sorting and Project signals that the File list
-// has gained an item at that positon.
-sak::File_Handle sak::Project::add_file(File&& a_file)
-{
-    auto l_handle = imp().m_file_manager.emplace_data(std::move(a_file));
-    imp().m_files.push_back(l_handle);
+// You may create new Files using these two functions. Files created in this way
+// are part of the Project's data management system but have not yet been added to the
+// Project properly. That will only happen when the Project recieves a signal via its
+// Project_Signalbox that it should be addeed.
 
-    assert(l_handle.ref_count() == 2);
-    imp().signal_file_added(l_handle);
-    return l_handle;
+// Make a new file using the supplied data. Project's data management system owns it but
+// it is not part of the Proeject.
+sak::File_Handle sak::Project::make_emplace_file(File&& a_file)
+{
+    return imp().m_file_manager.emplace_data(std::move(a_file));
 }
 
-// Add a new default parameters File.
-sak::File_Handle sak::Project::add_new_file()
+// Make a new file using the default parameters. Project's data management system owns it
+// but it is not part of the Project.
+sak::File_Handle sak::Project::make_file()
 {
     // uniqueify the name.
     QString l_name{u8"New File"};
     uniqueify_name(l_name, get_all_file_names());
-    return add_file(File(l_name));
+    return make_emplace_file(File(l_name));
 }
 
-// Remove the File with this handle.
-void sak::Project::remove_file(File_Handle const& a_file)
+// To signal that something should be done to the project, you may access the signalbox
+// for a specific type, then call the signals to make and propagate changes.
+sak::Project_Signalbox* sak::Project::get_signalbox() const
 {
-    assert(a_file.is_valid());
-    auto l_found = std::find(imp().m_files.begin(), imp().m_files.end(), a_file);
-    assert(l_found != cimp().m_files.cend());
-    assert(std::addressof(a_file) != std::addressof(*l_found));
-
-    // Copy the File_Handle locally. We don't know where it came from and have to propagate
-    // the signal from here rather than who knows where to insure the signal reference stays
-    // valid for all that need it.
-    File_Handle l_file = a_file;
-    // Now kill it, because if it's still in the project the signal will call back to find it
-    // is still present.
-    imp().m_files.erase(l_found);
-    // Get rid of all external references to this file.
-    imp().signal_file_removed(l_file);
-}
-
-// Outliner File_Interface Interface
-//============================================================
-// File_Interface will call this when the File's name is changed. This causes Project
-// to propagate the changes to where they need to go.
-void sak::Project::file_name_changed(File_Basic_Handle const& a_file)
-{
-    assert(a_file.is_valid());
-    auto l_found = std::find(cimp().m_files.cbegin(), cimp().m_files.cend(), a_file);
-    assert(l_found != cimp().m_files.cend());
-    imp().signal_file_name_changed(*l_found);
-}
-
-// File_Interface will call this when the File's description is changed. This causes Project
-// to propagate the changes to where they need to go.
-void sak::Project::file_description_changed(File_Basic_Handle const& a_file)
-{
-    assert(a_file.is_valid());
-    auto l_found = std::find(cimp().m_files.cbegin(), cimp().m_files.cend(), a_file);
-    assert(l_found != cimp().m_files.cend());
-    imp().signal_file_description_changed(*l_found);
-}
-
-// File_Interface will call this when the File's data is changed. This causes Project
-// to propagate the changes to where they need to go.
-void sak::Project::file_data_changed(File_Basic_Handle const& a_file)
-{
-    assert(a_file.is_valid());
-    auto l_found = std::find(cimp().m_files.cbegin(), cimp().m_files.cend(), a_file);
-    assert(l_found != cimp().m_files.cend());
-    imp().signal_file_data_changed(*l_found);
-}
-
-// File_Interface will call this when the File's data is changed. This causes Project
-// to propagate the changes to where they need to go.
-void sak::Project::file_data_changed_at(File_Basic_Handle const& a_file, std::size_t a_section)
-{
-    assert(a_file.is_valid());
-    auto l_found = std::find(cimp().m_files.cbegin(), cimp().m_files.cend(), a_file);
-    assert(l_found != cimp().m_files.cend());
-    imp().signal_file_data_changed_at(*l_found, a_section);
-}
-
-// Outliner File_Item Interface
-//============================================================
-// outliner::File_Item calls this to request an editor. Project propagates the signal
-// to anything that needs to change as a result.
-void sak::Project::file_requests_editor(File_Handle const& a_file)
-{
-    // This thing must exist
-    assert(a_file.is_valid());
-    assert(std::find(cimp().m_files.cbegin(), cimp().m_files.cend(), a_file) != cimp().m_files.cend());
-    imp().signal_file_requests_editor(a_file);
+    return m_data.get();
 }
 
 
-// Project_Editor calls this to request a File be focused on.
-void sak::Project::file_requests_focus(File_Handle const& a_file)
-{
-    // This thing must exist
-    assert(a_file.is_valid());
-    assert(std::find(cimp().m_files.cbegin(), cimp().m_files.cend(), a_file) != cimp().m_files.cend());
-    imp().signal_file_requests_focus(a_file);
-}

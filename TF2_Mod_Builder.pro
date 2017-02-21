@@ -116,7 +116,13 @@ SOURCES += \
     sak/file.cpp \
     sak/common_data.cpp \
     sak/common_data_widget.cpp \
-    sak/common_data_interface_traits.cpp
+    generic/command_history.cpp \
+    generic/command.cpp \
+    sak/file_command.cpp \
+    sak/file_interface.cpp \
+    sak/file_basic_manager.cpp \
+    sak/common_data_interface.cpp \
+    sak/common_data_command.cpp
     
 
 HEADERS  += \
@@ -168,7 +174,12 @@ HEADERS  += \
     sak/file.h \
     sak/common_data.h \
     sak/common_data_widget.h \
-    sak/common_data_interface_traits.h
+    generic/command_history.h \
+    generic/command.h \
+    sak/file_command.h \
+    sak/file_interface.h \
+    sak/common_data_interface.h \
+    sak/common_data_command.h
     
 
 FORMS

@@ -430,6 +430,8 @@ bool sak::Project_Window::new_project()
 
         // Make the widget
         imp().m_project_widget = std::make_unique<Project_Widget>(std::move(l_project));
+        QObject::connect(imp().m_project_widget.get(), &Project_Widget::signal_undo_change,
+                         this, &Project_Window::notify_undo_changes);
     }
     catch(Filesystem_Error& e)
     {
@@ -481,6 +483,8 @@ bool sak::Project_Window::open_project()
 
         // Install the widget
         std::swap(imp().m_project_widget,l_widget);
+        QObject::connect(imp().m_project_widget.get(), &Project_Widget::signal_undo_change,
+                         this, &Project_Window::notify_undo_changes);
     }
     catch(Filesystem_Error& e)
     {

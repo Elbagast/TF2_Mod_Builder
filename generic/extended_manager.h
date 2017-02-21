@@ -6,28 +6,36 @@
 
 namespace generic
 {
-    template <typename H>
-    class No_Interface_Traits
+    // Using these 3 parameters, create typedefs of all the relevent types.
+    template <typename IDM, typename T, typename IT>
+    struct Extended_Manager_Types
+    {
+        using id_manager_type = IDM;
+        //using id_type = typename id_manager_type::id_type;
+        using value_type = T;
+        using basic_manager_type = Manager<IDM,T>;
+        using basic_handle_type = Handle<IDM,T>;
+        using manager_type = Extended_Manager<IDM,T,IT>;
+        using handle_type = Extended_Handle<IDM,T,IT>;
+
+        using interface_traits_type = IT;
+        //using interface_type = typename interface_traits_type::interface_type;
+        //using const_interface_type = typename interface_traits_type::const_interface_type;
+    };
+
+
+    template <typename IDM, typename T>
+    class No_Interface_Traits :
+            public Extended_Manager_Types<IDM, T, No_Interface_Traits<IDM,T>>
     {
     public:
-        using basic_handle_type = H;
-        //we can deduce the full handle type...
-        using handle_type =
-        Extended_Handle
-        <
-            typename basic_handle_type::manager_type::id_manager_type,
-            typename basic_handle_type::manager_type::value_type,
-            No_Interface_Traits<H>
-        >;
-        // which means we can use a reference to it....
-
         using interface_type = typename basic_handle_type::value_type&;
         using const_interface_type = typename basic_handle_type::value_type const&;
 
-        interface_type get(basic_handle_type& a_ref)                    { return a_ref.get(); }
-        const_interface_type cget(basic_handle_type const& a_ref) const { return a_ref.cget(); }
-
+        interface_type get(handle_type const& a_handle, basic_handle_type& a_data)                    { return a_data.get(); }
+        const_interface_type cget(handle_type const& a_handle, basic_handle_type const& a_data) const { return a_data.cget(); }
     };
+
 
     //---------------------------------------------------------------------------
     // generic::Extended_Manager<ID Manager, Type, Interface Traits>
@@ -70,8 +78,8 @@ namespace generic
         std::size_t ref_count(id_type const& a_id) const;
 
         std::vector<id_type> all_ids() const;
-        std::vector<basic_handle_type> all_basic_handles() const;
-        std::vector<handle_type> all_handles() const;
+        std::vector<basic_handle_type> all_basic_handles();
+        std::vector<handle_type> all_handles();
 
     private:
         basic_manager_type m_manager;
@@ -87,7 +95,6 @@ namespace generic
     template <typename IDM, typename T, typename IT>
     class Extended_Handle
     {
-        friend class Extended_Manager<IDM,T,IT>;
     public:
         using extended_manager_type = Extended_Manager<IDM,T,IT>;
         using id_type = typename extended_manager_type::id_type;
@@ -97,8 +104,13 @@ namespace generic
         using const_interface_type = typename extended_manager_type::const_interface_type;
         using basic_handle_type = typename extended_manager_type::basic_handle_type;
 
+        friend class extended_manager_type;
+        //friend class interface_type;
+        //friend class const_interface_type;
+
     private:
         Extended_Handle(basic_handle_type const& a_handle, extended_manager_type* a_manager, interface_traits_type const& a_interface);
+        Extended_Handle(basic_handle_type && a_handle, extended_manager_type* a_manager, interface_traits_type const& a_interface);
     public:
         Extended_Handle();
         ~Extended_Handle();
@@ -112,6 +124,9 @@ namespace generic
         std::size_t ref_count() const;
         interface_type get();
         const_interface_type cget() const;
+
+        basic_handle_type& get_basic_handle();
+        basic_handle_type const& cget_basic_handle() const;
 
         bool operator==(Extended_Handle const& a_other) const;
         bool operator!=(Extended_Handle const& a_other) const;
@@ -183,21 +198,21 @@ std::vector<typename generic::Extended_Manager<IDM,T,IT>::id_type> generic::Exte
 }
 
 template <typename IDM, typename T, typename IT>
-std::vector<typename generic::Extended_Manager<IDM,T,IT>::basic_handle_type> generic::Extended_Manager<IDM,T,IT>::all_basic_handles() const
+std::vector<typename generic::Extended_Manager<IDM,T,IT>::basic_handle_type> generic::Extended_Manager<IDM,T,IT>::all_basic_handles()
 {
     return m_manager.all_handles();
 }
 
 template <typename IDM, typename T, typename IT>
-std::vector<typename generic::Extended_Manager<IDM,T,IT>::handle_type> generic::Extended_Manager<IDM,T,IT>::all_handles() const
+std::vector<typename generic::Extended_Manager<IDM,T,IT>::handle_type> generic::Extended_Manager<IDM,T,IT>::all_handles()
 {
     auto l_basic_handles = m_manager.all_handles();
     std::vector<handle_type> l_result{};
     l_result.reserve(l_basic_handles.size());
-    for (auto const& l_item : l_basic_handles)
+    for (auto& l_item : l_basic_handles)
     {
-        // move calls instead?
-        l_result.push_back(handle_type(l_item, this, m_interface_traits));
+        auto l_handle = handle_type(std::move(l_item), this,m_interface_traits);
+        l_result.push_back(std::move(l_handle));
     }
     return l_result;
 }
@@ -212,6 +227,13 @@ std::vector<typename generic::Extended_Manager<IDM,T,IT>::handle_type> generic::
 template <typename IDM, typename T, typename IT>
 generic::Extended_Handle<IDM,T,IT>::Extended_Handle(basic_handle_type const& a_handle, extended_manager_type* a_manager, interface_traits_type const& a_interface):
     m_handle{a_handle},
+    m_manager{a_manager},
+    m_interface_traits{a_interface}
+{}
+
+template <typename IDM, typename T, typename IT>
+generic::Extended_Handle<IDM,T,IT>::Extended_Handle(basic_handle_type && a_handle, extended_manager_type* a_manager, interface_traits_type const& a_interface):
+    m_handle{std::move(a_handle)},
     m_manager{a_manager},
     m_interface_traits{a_interface}
 {}
@@ -259,13 +281,24 @@ std::size_t generic::Extended_Handle<IDM,T,IT>::ref_count() const
 template <typename IDM, typename T, typename IT>
 typename generic::Extended_Handle<IDM,T,IT>::interface_type generic::Extended_Handle<IDM,T,IT>::get()
 {
-    return m_interface_traits.get(m_handle);
+    return m_interface_traits.get(*this, m_handle);
 }
 
 template <typename IDM, typename T, typename IT>
 typename generic::Extended_Handle<IDM,T,IT>::const_interface_type generic::Extended_Handle<IDM,T,IT>::cget() const
 {
-    return m_interface_traits.cget(m_handle);
+    return m_interface_traits.cget(*this, m_handle);
+}
+
+template <typename IDM, typename T, typename IT>
+typename generic::Extended_Handle<IDM,T,IT>::basic_handle_type& generic::Extended_Handle<IDM,T,IT>::get_basic_handle()
+{
+    return m_handle;
+}
+template <typename IDM, typename T, typename IT>
+typename generic::Extended_Handle<IDM,T,IT>::basic_handle_type const& generic::Extended_Handle<IDM,T,IT>::cget_basic_handle() const
+{
+    return m_handle;
 }
 
 template <typename IDM, typename T, typename IT>
