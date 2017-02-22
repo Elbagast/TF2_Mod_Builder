@@ -204,12 +204,14 @@ void sak::Project_Widget::save_project()
 void sak::Project_Widget::undo()
 {
     imp().m_project->undo();
+    //imp().signal_undo_change(); // Gets called if data changes and those changes make it back here.
 }
 
 // Redo the last undone command in the command history
 void sak::Project_Widget::redo()
 {
     imp().m_project->redo();
+    //imp().signal_undo_change(); // Gets called if data changes and those changes make it back here.
 }
 
 // View the entire command history of the project.
@@ -221,7 +223,8 @@ void sak::Project_Widget::view_history()
 // Cleat the undo/redo history of of the Project.
 void sak::Project_Widget::clear_history()
 {
-
+    imp().m_project->clear_history();
+    imp().signal_undo_change();
 }
 
 // Menu Bar -> Component

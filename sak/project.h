@@ -121,6 +121,9 @@ namespace sak
         // Commands get sent here.
         void emplace_execute(std::unique_ptr<generic::abstract::Command>&& a_command);
 
+        // Clear the undo/redo history.
+        void clear_history();
+
 
         // File Interface
         //============================================================

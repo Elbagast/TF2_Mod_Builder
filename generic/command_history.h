@@ -96,9 +96,7 @@ namespace generic
         // Data Members
         //============================================================
         container_type m_container;
-
-        iterator m_next_undo;
-        iterator m_next_redo;
+        iterator m_position;
     };
 }
 

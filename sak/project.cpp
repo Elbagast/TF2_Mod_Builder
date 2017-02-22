@@ -490,6 +490,11 @@ void sak::Project::emplace_execute(std::unique_ptr<generic::abstract::Command>&&
     }
 }
 
+// Clear the undo/redo history.
+void sak::Project::clear_history()
+{
+    imp().m_command_history.clear();
+}
 
 // File Interface
 //============================================================

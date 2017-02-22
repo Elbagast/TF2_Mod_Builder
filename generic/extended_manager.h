@@ -135,7 +135,7 @@ namespace generic
         bool operator!=(basic_handle_type const& a_other) const;
     private:
         basic_handle_type m_handle;
-        extended_manager_type* m_manager;
+        extended_manager_type* m_manager; // is this even needed? it isn't being used right now...
         interface_traits_type m_interface_traits;
     };
 }

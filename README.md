@@ -10,4 +10,4 @@ Current progress:
 - Editor for individual sections of the Project, that update if the data changes elsewhere. 
 - Editors can be opened and closed as needed via the Outliner.
 - Section names have unique names that maintain uniqueness when edited.
-- Rudimentary undo and redo behaviour that is in need of debugging.
+- Undo, redo and clear history to edit what currently exists.
