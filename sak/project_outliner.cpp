@@ -93,6 +93,7 @@ sak::Project_Outliner::Implementation::Implementation(Project& a_project):
 // When a File has had its name changed, this is called.
 void sak::Project_Outliner::Implementation::name_changed(File_Handle const& a_file)
 {
+    qDebug() << "Project_Outliner::Implementation::name_changed";
     auto l_files_item = m_root->file_header_item();
     auto l_model_index = m_model.create_index_from_item(l_files_item);
     auto l_file_index = m_model.index(static_cast<int>(l_files_item->index_of_file(a_file)),0,l_model_index);
@@ -104,21 +105,25 @@ void sak::Project_Outliner::Implementation::name_changed(File_Handle const& a_fi
 // When a File has had its description changed, this is called.
 void sak::Project_Outliner::Implementation::description_changed(File_Handle const& )
 {
+    qDebug() << "Project_Outliner::Implementation::description_changed";
     // don't actively care about description, it will jsut be different next time it's looked up.
 }
 // When a File has its data changed(anything but the name), this is called.
 void sak::Project_Outliner::Implementation::data_changed(File_Handle const&)
 {
+    qDebug() << "Project_Outliner::Implementation::data_changed";
     // don't care about data
 }
 // When a File has its data changed in a specific place, this is called.
 void sak::Project_Outliner::Implementation::data_changed_at(File_Handle const&, std::size_t)
 {
+    qDebug() << "Project_Outliner::Implementation::data_changed_at";
     // don't care about data
 }
 // When a File has been added, this is called.
 void sak::Project_Outliner::Implementation::added(File_Handle const& a_file)
 {
+    qDebug() << "Project_Outliner::Implementation::added";
     auto l_files_item = m_root->file_header_item();
 
     // if the file header doesn't exist (we previously had no files), make it
@@ -145,6 +150,7 @@ void sak::Project_Outliner::Implementation::added(File_Handle const& a_file)
 // When a File has been removed, this is called.
 void sak::Project_Outliner::Implementation::removed(File_Handle const& a_file)
 {
+    qDebug() << "Project_Outliner::Implementation::removed";
     auto l_files_item = m_root->file_header_item();
     auto l_model_index = m_model.create_index_from_item(l_files_item);
     auto l_file_position = static_cast<int>(l_files_item->index_of_file(a_file));
@@ -170,12 +176,14 @@ void sak::Project_Outliner::Implementation::removed(File_Handle const& a_file)
 // When a File editor is to be opened, this is called.
 void sak::Project_Outliner::Implementation::requests_editor(File_Handle const&)
 {
+    qDebug() << "Project_Outliner::Implementation::requests_editor";
     // Don't care.
 }
 
 // When focus is changed to be on a File, call this
 void sak::Project_Outliner::Implementation::requests_focus(File_Handle const& a_file)
 {
+    qDebug() << "Project_Outliner::Implementation::requests_focus";
     // Change the item selection in the outliner to this File.
     auto l_item = m_root->file_header_item()->item_of_file(a_file);
     auto l_index = m_model.create_index_from_item(l_item);

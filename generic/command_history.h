@@ -70,14 +70,14 @@ namespace generic
         bool can_redo() const;
 
         // How many commands are stored?
-        std::size_t cget_command_count() const;
+        std::size_t command_count() const;
         // Is the container empty?
         bool has_commands() const;
 
         // How many times can undo() be called?
-        std::size_t cget_undo_count() const;
+        std::size_t undo_count() const;
         // How many times can redo() be called?
-        std::size_t cget_redo_count() const;
+        std::size_t redo_count() const;
 
         // Call unexecute() in the current command and step back one in the history.
         bool undo();

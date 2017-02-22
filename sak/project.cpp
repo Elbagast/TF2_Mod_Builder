@@ -72,6 +72,7 @@ namespace sak
         // When a File has had its name changed, this is called.
         void name_changed(File_Handle const& a_file) override final
         {
+            qDebug() << "\nProject::Implementation::name_changed";
             // This thing must exist
             assert(a_file.is_valid());
             assert(std::find(m_files.cbegin(), m_files.cend(), a_file) != m_files.cend());
@@ -83,6 +84,7 @@ namespace sak
         // When a File has its data changed(anything but the name), this is called.
         void description_changed(File_Handle const& a_file) override final
         {
+            qDebug() << "\nProject::Implementation::description_changed";
             // This thing must exist
             assert(a_file.is_valid());
             assert(std::find(m_files.cbegin(), m_files.cend(), a_file) != m_files.cend());
@@ -94,6 +96,7 @@ namespace sak
         // When a File has its data changed(anything but the name), this is called.
         void data_changed(File_Handle const& a_file) override final
         {
+            qDebug() << "\nProject::Implementation::data_changed";
             // This thing must exist
             assert(a_file.is_valid());
             assert(std::find(m_files.cbegin(), m_files.cend(), a_file) != m_files.cend());
@@ -105,6 +108,7 @@ namespace sak
         // When a File has its data changed in a specific place, this is called.
         void data_changed_at(File_Handle const& a_file, std::size_t a_section) override final
         {
+            qDebug() << "\nProject::Implementation::data_changed_at";
             // This thing must exist
             assert(a_file.is_valid());
             assert(std::find(m_files.cbegin(), m_files.cend(), a_file) != m_files.cend());
@@ -116,6 +120,7 @@ namespace sak
         // When a File has been added, this is called.
         void added(File_Handle const& a_file) override final
         {
+            qDebug() << "\nProject::Implementation::added";
             // This thing must exist
             assert(a_file.is_valid());
             // but not yet be part of the Project
@@ -130,6 +135,7 @@ namespace sak
         // When a File has been removed, this is called.
         void removed(File_Handle const& a_file) override final
         {
+            qDebug() << "\nProject::Implementation::removed";
             assert(a_file.is_valid());
             auto l_found = std::find(m_files.begin(), m_files.end(), a_file);
             assert(l_found != m_files.cend());
@@ -152,6 +158,7 @@ namespace sak
         // When a File requests an editor, this is called.
         void requests_editor(File_Handle const& a_file) override final
         {
+            qDebug() << "\nProject::Implementation::requests_editor";
             // This thing must exist
             assert(a_file.is_valid());
             assert(std::find(m_files.cbegin(), m_files.cend(), a_file) != m_files.cend());
@@ -164,6 +171,7 @@ namespace sak
         // When a File requests an editor, this is called.
         void requests_focus(File_Handle const& a_file) override final
         {
+            qDebug() << "\nProject::Implementation::requests_focus";
             // This thing must exist
             assert(a_file.is_valid());
             assert(std::find(m_files.cbegin(), m_files.cend(), a_file) != m_files.cend());
@@ -447,6 +455,18 @@ bool sak::Project::can_undo() const
 bool sak::Project::can_redo() const
 {
     return cimp().m_command_history.can_redo();
+}
+
+// How many times can undo() be called?
+std::size_t sak::Project::undo_count() const
+{
+    return cimp().m_command_history.undo_count();
+}
+
+// How many times can redo() be called?
+std::size_t sak::Project::redo_count() const
+{
+    return cimp().m_command_history.redo_count();
 }
 
 // Undo the last command issued.

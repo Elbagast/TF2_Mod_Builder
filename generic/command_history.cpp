@@ -74,7 +74,7 @@ bool generic::Command_History::can_redo() const
 }
 
 // How many commands are stored?
-std::size_t generic::Command_History::cget_command_count() const
+std::size_t generic::Command_History::command_count() const
 {
     return m_container.size();
 }
@@ -86,7 +86,7 @@ bool generic::Command_History::has_commands() const
 }
 
 // How many times can undo() be called?
-std::size_t generic::Command_History::cget_undo_count() const
+std::size_t generic::Command_History::undo_count() const
 {
     // If there are no commands, or only one command but it is already undone,
     if (m_container.empty() || m_next_undo == m_next_redo)
@@ -97,7 +97,7 @@ std::size_t generic::Command_History::cget_undo_count() const
         return std::distance(m_container.begin(), const_iterator(m_next_redo));
 }
 // How many times can redo() be called?
-std::size_t generic::Command_History::cget_redo_count() const
+std::size_t generic::Command_History::redo_count() const
 {
     // This one is simpler than undo count
     return std::distance(const_iterator(m_next_redo), m_container.end());

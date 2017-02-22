@@ -106,6 +106,12 @@ namespace sak
         // Can we currently call redo?
         bool can_redo() const;
 
+        // How many times can undo() be called?
+        std::size_t undo_count() const;
+
+        // How many times can redo() be called?
+        std::size_t redo_count() const;
+
         // Undo the last command issued.
         void undo();
 

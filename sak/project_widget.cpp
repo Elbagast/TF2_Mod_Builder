@@ -100,51 +100,58 @@ sak::Project_Widget::Implementation::Implementation(Project_Widget* a_owner, std
 // When a File has had its name changed, this is called.
 void sak::Project_Widget::Implementation::name_changed(File_Handle const& )
 {
+    qDebug() << "Project_Widget::Implementation::name_changed";
     signal_unsaved_edits_change(true);
     signal_undo_change();
 }
 // When a File has had its description changed, this is called.
 void sak::Project_Widget::Implementation::description_changed(File_Handle const& )
 {
+    qDebug() << "Project_Widget::Implementation::description_changed";
     signal_unsaved_edits_change(true);
     signal_undo_change();
 }
 // When a File has its data changed(anything but the name), this is called.
 void sak::Project_Widget::Implementation::data_changed(File_Handle const& )
 {
+    qDebug() << "Project_Widget::Implementation::data_changed";
     signal_unsaved_edits_change(true);
     signal_undo_change();
 }
 // When a File has its data changed in a specific place, this is called.
 void sak::Project_Widget::Implementation::data_changed_at(File_Handle const&, std::size_t )
 {
+    qDebug() << "Project_Widget::Implementation::data_changed_at";
     signal_unsaved_edits_change(true);
     signal_undo_change();
 }
 // When a File has been added, this is called.
 void sak::Project_Widget::Implementation::added(File_Handle const& )
 {
+    qDebug() << "Project_Widget::Implementation::added";
     signal_unsaved_edits_change(true);
     signal_undo_change();
 }
 // When a File has been removed, this is called.
 void sak::Project_Widget::Implementation::removed(File_Handle const& )
 {
+    qDebug() << "Project_Widget::Implementation::removed";
     signal_unsaved_edits_change(true);
     signal_undo_change();
 }
 // When a File editor is to be opened, this is called.
 void sak::Project_Widget::Implementation::requests_editor(File_Handle const& )
 {
-
+    qDebug() << "Project_Widget::Implementation::requests_editor";
 }
 // When focus is changed to be on a File, call this
 void sak::Project_Widget::Implementation::requests_focus(File_Handle const& )
 {
-
+    qDebug() << "Project_Widget::Implementation::requests_focus";
 }
 void sak::Project_Widget::Implementation::signal_unsaved_edits_change(bool a_state)
 {
+    qDebug() << "Project_Widget::Implementation::signal_unsaved_edits_change";
     if (m_unsaved_edits != a_state)
     {
         m_unsaved_edits = a_state;
@@ -154,6 +161,8 @@ void sak::Project_Widget::Implementation::signal_unsaved_edits_change(bool a_sta
 
 void sak::Project_Widget::Implementation::signal_undo_change()
 {
+    qDebug() << "Project_Widget::Implementation::signal_undo_change";
+    qDebug() << "Undo = " << m_project->undo_count() << " Redo = " << m_project->redo_count();
     m_owner->emit signal_undo_change();
 }
 
