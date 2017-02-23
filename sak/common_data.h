@@ -23,6 +23,7 @@ namespace sak
     public:
         Common_Data();
         explicit Common_Data(QString const& a_name, QString const& a_description = QString());
+        virtual ~Common_Data();
 
         QString const& cget_name() const;
         QString const& cget_description() const;

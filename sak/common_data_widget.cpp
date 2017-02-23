@@ -8,6 +8,12 @@
 #include "file_manager.h"
 #include "file_interface.h"
 
+namespace
+{
+    QString const c_name_title{u8"Name"};
+    QString const c_description_title{u8"Description"};
+}
+
 QString sak::internal::common_data_widget_name_title()
 {
     static QString const s_name_title{u8"Name"};
@@ -27,13 +33,11 @@ sak::Common_Data_Widget<H>::Common_Data_Widget(handle_type& a_handle, QWidget* a
     QWidget(a_parent),
     m_handle{a_handle},
     m_layout{ std::make_unique<QFormLayout>(nullptr)},
-    m_name_label{ std::make_unique<QLabel>(internal::common_data_widget_name_title(),nullptr)},
     m_name_edit{ std::make_unique<QLineEdit>(nullptr)},
-    m_description_label{ std::make_unique<QLabel>(internal::common_data_widget_description_title(),nullptr)},
     m_description_edit{ std::make_unique<QLineEdit>(nullptr)}
 {
-    m_layout->addRow(m_name_label.get(), m_name_edit.get());
-    m_layout->addRow(m_description_label.get(), m_description_edit.get());
+    m_layout->addRow(c_name_title, m_name_edit.get());
+    m_layout->addRow(c_description_title, m_description_edit.get());
     this->setLayout(m_layout.get());
 
     // When the user has finished inputting, send the data to the handle.

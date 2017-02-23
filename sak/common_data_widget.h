@@ -38,9 +38,7 @@ namespace sak
     private:
         handle_type& m_handle;
         std::unique_ptr<QFormLayout> m_layout;
-        std::unique_ptr<QLabel> m_name_label;
         std::unique_ptr<QLineEdit> m_name_edit;
-        std::unique_ptr<QLabel> m_description_label;
         std::unique_ptr<QLineEdit> m_description_edit;
     };
 }

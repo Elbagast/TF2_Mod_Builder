@@ -48,7 +48,7 @@ namespace sak
             using inherited_type = Common_Data_Command_Get_Set_Base<H,BH, QString>;
 
             Common_Data_Command_Set_Name(QString const& a_value, handle_type const& a_handle, Project* a_project):
-                inherited_type(a_handle, a_project, a_value, a_handle.cget_basic_handle().cget().cget_common_data().cget_name())
+                inherited_type(a_handle, a_project, a_value, a_handle.cget_basic_handle().cget().cget_name())
             {}
 
             ~Common_Data_Command_Set_Name() = default;
@@ -56,13 +56,13 @@ namespace sak
             void do_execute() override final
             {
                 // open the handle, then the common data, then set that part of it.
-                m_handle.get_basic_handle().get().get_common_data().set_name(m_new_value);
+                m_handle.get_basic_handle().get().set_name(m_new_value);
                 m_project->get_signalbox()->name_changed(m_handle); // outbound signal to project
             }
             void do_unexecute() override final
             {
                 // open the handle, then the common data, then set that part of it.
-                m_handle.get_basic_handle().get().get_common_data().set_name(m_old_value);
+                m_handle.get_basic_handle().get().set_name(m_old_value);
                 m_project->get_signalbox()->name_changed(m_handle); // outbound signal to project
             }
         };
@@ -76,7 +76,7 @@ namespace sak
             using inherited_type = Common_Data_Command_Get_Set_Base<H,BH, QString>;
 
             Common_Data_Command_Set_Description(QString const& a_value, handle_type const& a_handle, Project* a_project):
-                inherited_type(a_handle, a_project, a_value, a_handle.cget_basic_handle().cget().cget_common_data().cget_description())
+                inherited_type(a_handle, a_project, a_value, a_handle.cget_basic_handle().cget().cget_description())
             {}
 
             ~Common_Data_Command_Set_Description() = default;
@@ -84,13 +84,13 @@ namespace sak
             void do_execute() override final
             {
                 // open the handle, then the common data, then set that part of it.
-                m_handle.get_basic_handle().get().get_common_data().set_description(m_new_value);
+                m_handle.get_basic_handle().get().set_description(m_new_value);
                 m_project->get_signalbox()->description_changed(m_handle); // outbound signal to project
             }
             void do_unexecute() override final
             {
                 // open the handle, then the common data, then set that part of it.
-                m_handle.get_basic_handle().get().get_common_data().set_description(m_old_value);
+                m_handle.get_basic_handle().get().set_description(m_old_value);
                 m_project->get_signalbox()->description_changed(m_handle); // outbound signal to project
             }
         };

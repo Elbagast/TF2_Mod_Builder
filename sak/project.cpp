@@ -266,6 +266,8 @@ void sak::Project::save() const
            xml_stream.writeStartElement("File");
            xml_stream.writeTextElement("Name", l_file.cget().cget_name());
            xml_stream.writeTextElement("Description", l_file.cget().cget_description());
+           xml_stream.writeTextElement("Buildpath", l_file.cget().cget_buildpath());
+           xml_stream.writeTextElement("Sourcepath", l_file.cget().cget_sourcepath());
            xml_stream.writeEndElement();
        }
 
@@ -340,7 +342,7 @@ void sak::Project::load()
                         {
                             auto l_data = xml_stream.readElementText();
                             //qDebug() << "Name: " << l_data;
-                            l_file.get_common_data().set_name(l_data);
+                            l_file.set_name(l_data);
 
                             // </Name>
                             xml_stream.readNext();
@@ -354,7 +356,7 @@ void sak::Project::load()
                         {
                             auto l_data = xml_stream.readElementText();
                             //qDebug() << "Description:" << l_data;
-                            l_file.get_common_data().set_description(l_data);
+                            l_file.set_description(l_data);
 
                             // </Description>
                             xml_stream.readNext();
@@ -362,6 +364,34 @@ void sak::Project::load()
                         else
                         {
                             qDebug() << "Didn't find Description" ;
+                        }
+                        // <Buildpath>
+                        if (xml_stream.readNextStartElement() && xml_stream.name().toString() == "Buildpath")
+                        {
+                            auto l_data = xml_stream.readElementText();
+                            //qDebug() << "Description:" << l_data;
+                            l_file.set_buildpath(l_data);
+
+                            // </Buildpath>
+                            xml_stream.readNext();
+                        }
+                        else
+                        {
+                            qDebug() << "Didn't find Buildpath" ;
+                        }
+                        // <Sourcepath>
+                        if (xml_stream.readNextStartElement() && xml_stream.name().toString() == "Sourcepath")
+                        {
+                            auto l_data = xml_stream.readElementText();
+                            //qDebug() << "Description:" << l_data;
+                            l_file.set_sourcepath(l_data);
+
+                            // </Sourcepath>
+                            xml_stream.readNext();
+                        }
+                        else
+                        {
+                            qDebug() << "Didn't find Sourcepath" ;
                         }
                         // Read the end element
                         xml_stream.readNext();

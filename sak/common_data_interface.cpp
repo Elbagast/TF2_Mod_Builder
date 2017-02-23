@@ -24,13 +24,13 @@ sak::Common_Data_Const_Interface<H,BH>::~Common_Data_Const_Interface() = default
 template <typename H, typename BH>
 QString const& sak::Common_Data_Const_Interface<H,BH>::cget_name() const
 {
-    return m_data.cget().cget_common_data().cget_name();
+    return m_data.cget().cget_name();
 }
 
 template <typename H, typename BH>
 QString const& sak::Common_Data_Const_Interface<H,BH>::cget_description() const
 {
-    return m_data.cget().cget_common_data().cget_description();
+    return m_data.cget().cget_description();
 }
 
 template <typename H, typename BH>
@@ -47,14 +47,14 @@ template <typename H, typename BH>
 void sak::Common_Data_Interface<H,BH>::set_name(QString const& a_name)
 {
     // If it is the same as the name we already have, we don't bother making a change.
-    if (a_name == m_data.cget().cget_common_data().cget_name())
+    if (a_name == m_data.cget().cget_name())
     {
         return;
     }
     // We must make sure the name does not already exist among the other names.
     auto l_names = m_project->get_all_file_names();
     // Get rid of the name of this one, since it is going to change.
-    auto l_old_name_found = std::find(l_names.cbegin(), l_names.cend(), m_data.cget().cget_common_data().cget_name());
+    auto l_old_name_found = std::find(l_names.cbegin(), l_names.cend(), m_data.cget().cget_name());
     l_names.erase(l_old_name_found);
 
     QString l_final_name{a_name};
@@ -66,7 +66,7 @@ void sak::Common_Data_Interface<H,BH>::set_name(QString const& a_name)
 
 
     // open the handle, then the common data, then set that part of it.
-    //m_data.get().get_common_data().set_name(l_final_name);
+    //m_data.get().set_name(l_final_name);
     // signal the change through m_project...
     //m_project->get_signalbox()->name_changed(m_handle); // outbound signal to project
 }
@@ -75,7 +75,7 @@ template <typename H, typename BH>
 void sak::Common_Data_Interface<H,BH>::set_description(QString const& a_description)
 {
     // If it is the same as the name we already have, we don't bother making a change.
-    if (a_description == m_data.cget().cget_common_data().cget_description())
+    if (a_description == m_data.cget().cget_description())
     {
         return;
     }
@@ -87,7 +87,7 @@ void sak::Common_Data_Interface<H,BH>::set_description(QString const& a_descript
     m_project->emplace_execute(make_command_set_description(a_description, m_handle, m_project));
 
     // open the handle, then the common data, then set that part of it.
-    //m_data.get().get_common_data().set_description(a_description);
+    //m_data.get().set_description(a_description);
     // signal the change through m_project...
     //m_project->get_signalbox()->description_changed(m_handle); // outbound signal to project
 }

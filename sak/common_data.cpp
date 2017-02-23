@@ -23,6 +23,8 @@ sak::Common_Data::Common_Data(QString const& a_name, QString const& a_descriptio
     m_description{a_description}
 {}
 
+sak::Common_Data::~Common_Data() = default;
+
 QString const& sak::Common_Data::cget_name() const
 {
     return m_name;

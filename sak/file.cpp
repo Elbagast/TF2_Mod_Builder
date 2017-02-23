@@ -5,20 +5,36 @@
 //---------------------------------------------------------------------------
 //
 sak::File::File():
-    m_common_data{}
+    Common_Data{},
+    m_buildpath{},
+    m_sourcepath{}
 {}
-
 
 sak::File::File(QString const& a_name, QString const& a_description):
-    m_common_data{a_name, a_description}
+    Common_Data{a_name, a_description},
+    m_buildpath{},
+    m_sourcepath{}
 {}
 
-sak::Common_Data& sak::File::get_common_data()
+sak::File::~File() = default;
+
+
+QString const& sak::File::cget_buildpath() const
 {
-    return m_common_data;
+    return m_buildpath;
 }
 
-sak::Common_Data const& sak::File::cget_common_data() const
+QString const& sak::File::cget_sourcepath() const
 {
-    return m_common_data;
+    return m_sourcepath;
+}
+
+void sak::File::set_buildpath(QString const& a_buildpath)
+{
+    m_buildpath = a_buildpath;
+}
+
+void sak::File::set_sourcepath(QString const& a_sourcepath)
+{
+    m_sourcepath = a_sourcepath;
 }

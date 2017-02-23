@@ -1,6 +1,7 @@
 #include "file_widget.h"
 
 #include "file_manager.h"
+#include "file_interface.h"
 #include <QString>
 #include <QFormLayout>
 #include <QLabel>
@@ -13,29 +14,81 @@
 //---------------------------------------------------------------------------
 // Internal constants and implementation
 //============================================================
+namespace
+{
+    QString const c_buildpath_title{u8"Build Path"};
+    QString const c_sourcepath_title{u8"Source File Path"};
+}
+
+
 namespace sak
 {
     namespace
     {
 
-        // dummy for now
+        // Temporary
         class File_Data_Widget :
-                public QLabel
+                public QWidget
         {
         public:
-            explicit File_Data_Widget(File_Handle& a_file, QWidget* a_parent = nullptr):
-                QLabel(u8"This is the File_Data_Widget", a_parent),
-                m_file{a_file}
-            {}
-            ~File_Data_Widget() override = default;
-            void update() {}
-            void update_at(std::size_t) {}
+            explicit File_Data_Widget(File_Handle& a_handle, QWidget* a_parent = nullptr);
+            ~File_Data_Widget() override;
+            void update();
+            void update_at(std::size_t a_section);
         private:
-            File_Handle& m_file;
+            File_Handle& m_handle;
+            std::unique_ptr<QFormLayout> m_layout;
+            std::unique_ptr<QLineEdit> m_buildpath_edit;
+            std::unique_ptr<QLineEdit> m_sourcepath_edit;
         };
 
     }
 }
+
+sak::File_Data_Widget::File_Data_Widget(File_Handle& a_handle, QWidget* a_parent):
+    QWidget(a_parent),
+    m_handle{a_handle},
+    m_layout{ std::make_unique<QFormLayout>(nullptr)},
+    m_buildpath_edit{ std::make_unique<QLineEdit>(nullptr)},
+    m_sourcepath_edit{ std::make_unique<QLineEdit>(nullptr)}
+{
+    m_layout->addRow(c_buildpath_title, m_buildpath_edit.get());
+    m_layout->addRow(c_sourcepath_title, m_sourcepath_edit.get());
+    this->setLayout(m_layout.get());
+
+    // When the user has finished inputting, send the data to the handle.
+    // The data change should come back to here as an update call, which means
+    // if the name had to be changed the data in the line edit should be changed
+    // to the final value.
+    QObject::connect(m_buildpath_edit.get(), &QLineEdit::editingFinished, [this]()
+    {
+        this->m_handle.get().set_buildpath(this->m_buildpath_edit->text());
+    });
+
+    // When the user has finished inputting, send the data to the handle.
+    QObject::connect(m_sourcepath_edit.get(), &QLineEdit::editingFinished, [this]()
+    {
+        this->m_handle.get().set_sourcepath(this->m_sourcepath_edit->text());
+    });
+    update();
+}
+sak::File_Data_Widget::~File_Data_Widget() = default;
+void sak::File_Data_Widget::update()
+{
+    update_at(0);
+    update_at(1);
+}
+
+void sak::File_Data_Widget::update_at(std::size_t a_section)
+{
+    switch(a_section)
+    {
+    case 0: m_buildpath_edit->setText(m_handle.cget().cget_buildpath()); break;
+    case 1: m_sourcepath_edit->setText(m_handle.cget().cget_sourcepath()); break;
+    default: break;
+    }
+}
+
 
 // Pimpl Data
 //============================================================

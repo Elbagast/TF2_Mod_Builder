@@ -122,7 +122,10 @@ SOURCES += \
     sak/file_interface.cpp \
     sak/file_basic_manager.cpp \
     sak/common_data_interface.cpp \
-    sak/common_data_command.cpp
+    sak/common_data_command.cpp \
+    sak/filepath.cpp \
+    valve/asset_filepath.cpp \
+    generic/data.cpp
     
 
 HEADERS  += \
@@ -179,7 +182,10 @@ HEADERS  += \
     sak/file_command.h \
     sak/file_interface.h \
     sak/common_data_interface.h \
-    sak/common_data_command.h
+    sak/common_data_command.h \
+    sak/filepath.h \
+    valve/asset_filepath.h \
+    generic/data.h
     
 
 FORMS
