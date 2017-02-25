@@ -1,4 +1,4 @@
-#include "outliner_abstract_item.h"
+#include "outliner_abstract_item.hpp"
 
 #include <QVariant>
 #include <QModelIndex>

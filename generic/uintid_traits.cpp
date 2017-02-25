@@ -1,4 +1,4 @@
-#include "uintid_traits.h"
+#include "uintid_traits.hpp"
 
 template <typename T>
 typename generic::internal::UintID_Traits<T>::id_type generic::internal::UintID_Traits<T>::make_null_id() noexcept

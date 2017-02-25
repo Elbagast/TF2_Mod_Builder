@@ -1,4 +1,4 @@
-#include "project_outliner.h"
+#include "project_outliner.hpp"
 
 #include <QHBoxLayout>
 #include <QTreeView>
@@ -6,14 +6,14 @@
 #include <QDebug>
 #include <cassert>
 
-#include "file_manager.h"
-#include "file_widget.h"
-#include "project.h"
-#include "project_signalbox.h"
-#include "../qtlib/outliner/outliner_model.h"
-#include "../qtlib/outliner/outliner_delegate.h"
-#include "../qtlib/outliner/outliner_treeview.h"
-#include "project_outliner_items.h"
+#include "file_manager.hpp"
+#include "file_widget.hpp"
+#include "project.hpp"
+#include "project_signalbox.hpp"
+#include "../qtlib/outliner/outliner_model.hpp"
+#include "../qtlib/outliner/outliner_delegate.hpp"
+#include "../qtlib/outliner/outliner_treeview.hpp"
+#include "project_outliner_items.hpp"
 
 //---------------------------------------------------------------------------
 // Project_Outliner

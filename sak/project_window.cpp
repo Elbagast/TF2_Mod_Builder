@@ -1,4 +1,4 @@
-#include "project_window.h"
+#include "project_window.hpp"
 #include <QMenuBar>
 #include <QMenu>
 #include <QAction>
@@ -11,11 +11,11 @@
 #include <QFileDialog>
 #include <QDebug>
 
-#include "project_widget.h"
-#include "dialog/new_project_dialog.h"
-#include "fixed_settings.h"
-#include "project.h"
-#include "exceptions/exception.h"
+#include "project_widget.hpp"
+#include "dialog/new_project_dialog.hpp"
+#include "fixed_settings.hpp"
+#include "project.hpp"
+#include "exceptions/exception.hpp"
 
 //---------------------------------------------------------------------------
 // Project_Window

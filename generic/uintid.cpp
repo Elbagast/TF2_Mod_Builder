@@ -1,4 +1,4 @@
-#include "uintid.h"
+#include "uintid.hpp"
 
 template <typename T>
 generic::internal::UintID<T>::UintID(uint_type a_value) noexcept:

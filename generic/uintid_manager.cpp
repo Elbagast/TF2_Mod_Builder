@@ -1,4 +1,4 @@
-#include "uintid_manager.h"
+#include "uintid_manager.hpp"
 
 #include <deque>
 #include <algorithm>

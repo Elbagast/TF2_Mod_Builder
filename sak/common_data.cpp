@@ -1,4 +1,4 @@
-#include "common_data.h"
+#include "common_data.hpp"
 
 //---------------------------------------------------------------------------
 // Common_Data

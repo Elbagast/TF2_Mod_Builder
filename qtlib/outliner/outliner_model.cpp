@@ -1,5 +1,5 @@
-#include "outliner_model.h"
-#include "outliner_abstract_item.h"
+#include "outliner_model.hpp"
+#include "outliner_abstract_item.hpp"
 #include <cassert>
 #include <QDebug>
 

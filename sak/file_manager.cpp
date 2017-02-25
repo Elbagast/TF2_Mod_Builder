@@ -1,6 +1,6 @@
-#include "file_manager.h"
-#include "file.h"
-#include "file_interface.h"
+#include "file_manager.hpp"
+#include "file.hpp"
+#include "file_interface.hpp"
 
 //---------------------------------------------------------------------------
 // using File_Manager_Types

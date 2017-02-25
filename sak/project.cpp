@@ -1,4 +1,4 @@
-#include "project.h"
+#include "project.hpp"
 
 #include <QString>
 #include <QFileInfo>
@@ -12,12 +12,12 @@
 #include <algorithm>
 #include <iterator>
 
-#include "project_signalbox.h"
-#include "exceptions/exception.h"
-#include "file_manager.h"
-#include "name_utilities.h"
-#include "file_interface.h"
-#include "../generic/command_history.h"
+#include "project_signalbox.hpp"
+#include "exceptions/exception.hpp"
+#include "file_manager.hpp"
+#include "name_utilities.hpp"
+#include "file_interface.hpp"
+#include "../generic/command_history.hpp"
 
 //---------------------------------------------------------------------------
 // Project
@@ -52,7 +52,7 @@ namespace sak
         std::vector<File_Handle> m_files;
 
         std::vector<Project_Signalbox*> m_dependents;
-        generic::Command_History m_command_history;
+        generic::Command_HPPistory m_command_history;
 
         Implementation(QString const& a_filepath, Project* a_owner):
             Project_Signalbox(),

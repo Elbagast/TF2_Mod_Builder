@@ -1,38 +1,38 @@
-#include "command_history.h"
+#include "command_history.hpp"
 #include <cassert>
 #include <iterator>
 
 // Special 6
 //============================================================
 
-generic::Command_History::Command_History():
+generic::Command_HPPistory::Command_HPPistory():
     m_container{},
     m_position{m_container.begin()} // position marks the next command to be executed. position-1 is the next to be unexecuted.
 {}
 
-generic::Command_History::~Command_History() = default;
+generic::Command_HPPistory::~Command_HPPistory() = default;
 
 // Default move
-//Command_History(Command_History && a_other) = default;
-//Command_History& operator=(Command_History && a_other) = default;
+//Command_HPPistory(Command_HPPistory && a_other) = default;
+//Command_HPPistory& operator=(Command_HPPistory && a_other) = default;
 
 // Interface
 //============================================================
 
 // Take ownership of the given command pointer, adding it to the top of the queue and calling
 // the Command::execute() on it.
-void generic::Command_History::add_execute(command_type* a_command)
+void generic::Command_HPPistory::add_execute(command_type* a_command)
 {
     add_execute(std::move(std::unique_ptr<command_type>(a_command)));
 }
-void generic::Command_History::add_execute(std::unique_ptr<command_type>& a_command)
+void generic::Command_HPPistory::add_execute(std::unique_ptr<command_type>& a_command)
 {
     // capture the pointer without releasing it.
     std::unique_ptr<command_type> l_command{nullptr};
     std::swap(l_command, a_command);
     add_execute(std::move(l_command));
 }
-void generic::Command_History::add_execute(std::unique_ptr<command_type>&& a_command)
+void generic::Command_HPPistory::add_execute(std::unique_ptr<command_type>&& a_command)
 {
     // Chop off everything between m_position and the end.
     // If m_position is already at the end, this does nothing.
@@ -49,42 +49,42 @@ void generic::Command_History::add_execute(std::unique_ptr<command_type>&& a_com
 }
 
 // Will calling undo do anything?
-bool generic::Command_History::can_undo() const
+bool generic::Command_HPPistory::can_undo() const
 {
     return !m_container.empty() && m_position != m_container.cbegin();
 }
 
 // Will calling redo do anything?
-bool generic::Command_History::can_redo() const
+bool generic::Command_HPPistory::can_redo() const
 {
     return !m_container.empty() && m_position != m_container.cend();
 }
 
 // How many commands are stored?
-std::size_t generic::Command_History::command_count() const
+std::size_t generic::Command_HPPistory::command_count() const
 {
     return m_container.size();
 }
 
 // Is the container empty?
-bool generic::Command_History::has_commands() const
+bool generic::Command_HPPistory::has_commands() const
 {
     return m_container.empty();
 }
 
 // How many times can undo() be called?
-std::size_t generic::Command_History::undo_count() const
+std::size_t generic::Command_HPPistory::undo_count() const
 {
     return std::distance(m_container.cbegin(), const_iterator(m_position));
 }
 // How many times can redo() be called?
-std::size_t generic::Command_History::redo_count() const
+std::size_t generic::Command_HPPistory::redo_count() const
 {
     return std::distance(const_iterator(m_position), m_container.cend());
 }
 
 // Call unexecute() in the current command and step back one in the history.
-bool generic::Command_History::undo()
+bool generic::Command_HPPistory::undo()
 {
     if (can_undo())
     {
@@ -99,7 +99,7 @@ bool generic::Command_History::undo()
     }
 }
 // Step forward one in the history and call execute() on that command.
-bool generic::Command_History::redo()
+bool generic::Command_HPPistory::redo()
 {
     if (can_redo())
     {
@@ -118,7 +118,7 @@ bool generic::Command_History::redo()
 }
 
 // Clear all stored commands.
-void generic::Command_History::clear()
+void generic::Command_HPPistory::clear()
 {
     // Clear the underlying container.
     m_container.clear();

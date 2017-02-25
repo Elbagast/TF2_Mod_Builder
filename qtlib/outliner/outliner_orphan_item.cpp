@@ -1,4 +1,4 @@
-#include "outliner_orphan_item.h"
+#include "outliner_orphan_item.hpp"
 
 #include <QVariant>
 

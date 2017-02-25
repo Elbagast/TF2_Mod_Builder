@@ -1,4 +1,4 @@
-#include "new_project_dialog.h"
+#include "new_project_dialog.hpp"
 
 #include <QVBoxLayout>
 #include <QHBoxLayout>
@@ -7,11 +7,11 @@
 #include <QFormLayout>
 #include <QLabel>
 #include <QLineEdit>
-#include "../../qtlib/validating_line_edit.h"
-#include "../../qtlib/text_colour_state_changer.h"
-#include "../../qtlib/directory_name_validator.h"
-#include "../../qtlib/existing_directory_validator.h"
-#include "../fixed_settings.h"
+#include "../../qtlib/validating_line_edit.hpp"
+#include "../../qtlib/text_colour_state_changer.hpp"
+#include "../../qtlib/directory_name_validator.hpp"
+#include "../../qtlib/existing_directory_validator.hpp"
+#include "../fixed_settings.hpp"
 #include <QFileDialog>
 
 

@@ -1,4 +1,4 @@
-#include "project_outliner_items.h"
+#include "project_outliner_items.hpp"
 
 #include <cassert>
 #include <algorithm>
@@ -15,10 +15,10 @@
 #include <QPixmap>
 #include <QIcon>
 
-#include "../qtlib/outliner/outliner_model.h"
-#include "project.h"
-#include "project_signalbox.h"
-#include "file_interface.h"
+#include "../qtlib/outliner/outliner_model.hpp"
+#include "project.hpp"
+#include "project_signalbox.hpp"
+#include "file_interface.hpp"
 
 namespace
 {
@@ -86,7 +86,7 @@ sak::outliner::Project_Item* sak::outliner::Root_Item::project_item() const
 {
     return this->get_true_child();
 }
-sak::outliner::File_Header_Item* sak::outliner::Root_Item::file_header_item() const
+sak::outliner::File_HPPeader_Item* sak::outliner::Root_Item::file_header_item() const
 {
     return this->get_true_child()->file_header_item();
 }
@@ -170,7 +170,7 @@ sak::Project const& sak::outliner::Project_Item::cget_project() const
     return get_true_parent()->cget_project();
 }
 
-sak::outliner::File_Header_Item* sak::outliner::Project_Item::file_header_item() const
+sak::outliner::File_HPPeader_Item* sak::outliner::Project_Item::file_header_item() const
 {
     return this->get_true_child<0>();
 }
@@ -189,14 +189,14 @@ void sak::outliner::Project_Item::close_files()
 }
 //------------------------------------------------------------------------------------------------------------------------------------------------------
 //---------------------------------------------------------------------------
-// sak::outliner::File_Header_Item
+// sak::outliner::File_HPPeader_Item
 //---------------------------------------------------------------------------
 // Outliner item that represents the File container of a Project. It's children
 // are all the Files present in the Project.
 
 // Special 6
 //============================================================
-sak::outliner::File_Header_Item::File_Header_Item(parent_type* a_parent, bool a_read_files):
+sak::outliner::File_HPPeader_Item::File_HPPeader_Item(parent_type* a_parent, bool a_read_files):
     inherited_type(a_parent)
 {
     if (a_read_files)
@@ -210,14 +210,14 @@ sak::outliner::File_Header_Item::File_Header_Item(parent_type* a_parent, bool a_
     }
 }
 
-sak::outliner::File_Header_Item::~File_Header_Item() = default;
+sak::outliner::File_HPPeader_Item::~File_HPPeader_Item() = default;
 
 // Virtual Interface
 //============================================================
 // Underlying data access
 //----------------------------------------
 // Get the item data for a given column and role
-QVariant sak::outliner::File_Header_Item::get_data(int a_role) const
+QVariant sak::outliner::File_HPPeader_Item::get_data(int a_role) const
 {
     if (a_role == Qt::DisplayRole)
     {
@@ -234,7 +234,7 @@ QVariant sak::outliner::File_Header_Item::get_data(int a_role) const
 // actions can call functions in it for editing.  Position is the position in terms of
 // the widget rather than the window. Use a_view->viewport()->mapToGlobal(a_position)
 // to get the position relative to the window for a properly placed menu.
-void sak::outliner::File_Header_Item::do_context_menu(QAbstractItemView* a_view, model_type* a_model, QPoint const& a_position)
+void sak::outliner::File_HPPeader_Item::do_context_menu(QAbstractItemView* a_view, model_type* a_model, QPoint const& a_position)
 {
     shadup(a_view, a_model,a_position);
 
@@ -267,26 +267,26 @@ void sak::outliner::File_Header_Item::do_context_menu(QAbstractItemView* a_view,
 }
 
 // Do whatever we want when an item has been double clicked on.
-void sak::outliner::File_Header_Item::do_double_clicked(QAbstractItemView* a_view, model_type* a_model)
+void sak::outliner::File_HPPeader_Item::do_double_clicked(QAbstractItemView* a_view, model_type* a_model)
 {
     return this->item_type::do_double_clicked(a_view, a_model);
 }
 
 // Additional Interface
 //============================================================
-sak::Project& sak::outliner::File_Header_Item::get_project()
+sak::Project& sak::outliner::File_HPPeader_Item::get_project()
 {
     return get_true_parent()->get_project();
 }
 
-sak::Project const& sak::outliner::File_Header_Item::cget_project() const
+sak::Project const& sak::outliner::File_HPPeader_Item::cget_project() const
 {
     return get_true_parent()->cget_project();
 }
 
 // What index is the File_Item that holds this File_Handle reside at?
 // Returns get_child_count() if it is not found.
-std::size_t sak::outliner::File_Header_Item::index_of_file(File_Handle const& a_file) const
+std::size_t sak::outliner::File_HPPeader_Item::index_of_file(File_Handle const& a_file) const
 {
     std::size_t l_index{0};
     for(auto l_end = static_cast<std::size_t>(inherited_type::get_child_count()); l_index != l_end; ++l_index)
@@ -300,7 +300,7 @@ std::size_t sak::outliner::File_Header_Item::index_of_file(File_Handle const& a_
 }
 
 // What File_Item holds this File_Handle? Returns nullptr if not found.
-sak::outliner::File_Item* sak::outliner::File_Header_Item::item_of_file(File_Handle const& a_file) const
+sak::outliner::File_Item* sak::outliner::File_HPPeader_Item::item_of_file(File_Handle const& a_file) const
 {
     auto l_index = static_cast<int>(index_of_file(a_file));
     if (l_index != get_child_count())
@@ -314,14 +314,14 @@ sak::outliner::File_Item* sak::outliner::File_Header_Item::item_of_file(File_Han
 }
 
 // When a File has had its name changed, this is called.
-void sak::outliner::File_Header_Item::name_changed(File_Handle const& a_file)
+void sak::outliner::File_HPPeader_Item::name_changed(File_Handle const& a_file)
 {
     assert(a_file.is_valid());
     // reorder the Files based on the sorting...
 }
 
 // When a File has been added, this is called.
-void sak::outliner::File_Header_Item::added(File_Handle const& a_file)
+void sak::outliner::File_HPPeader_Item::added(File_Handle const& a_file)
 {
     assert(a_file.is_valid());
     // insert a child in a location that obeys the sorting...
@@ -329,7 +329,7 @@ void sak::outliner::File_Header_Item::added(File_Handle const& a_file)
 }
 
 // When a File has been removed, this is called.
-void sak::outliner::File_Header_Item::removed(File_Handle const& a_file)
+void sak::outliner::File_HPPeader_Item::removed(File_Handle const& a_file)
 {
     assert(a_file.is_valid());
     // insert the child with this data...

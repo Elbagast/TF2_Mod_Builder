@@ -1,7 +1,7 @@
-#include "validating_line_edit.h"
+#include "validating_line_edit.hpp"
 
 #include <QValidator>
-#include "state_changer.h"
+#include "state_changer.hpp"
 
 //---------------------------------------------------------------------------
 // Validating_Line_Edit

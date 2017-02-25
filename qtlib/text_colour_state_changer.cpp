@@ -1,4 +1,4 @@
-#include "text_colour_state_changer.h"
+#include "text_colour_state_changer.hpp"
 #include <QLineEdit>
 
 //---------------------------------------------------------------------------

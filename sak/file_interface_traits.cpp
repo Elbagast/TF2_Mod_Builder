@@ -1,5 +1,5 @@
-#include "file_interface_traits.h"
-#include "file_interface.h"
+#include "file_interface_traits.hpp"
+#include "file_interface.hpp"
 #include <cassert>
 
 sak::File_Interface_Traits::File_Interface_Traits():

@@ -1,4 +1,4 @@
-#include "project_widget.h"
+#include "project_widget.hpp"
 
 #include <cassert>
 #include <iterator>
@@ -8,13 +8,13 @@
 #include <QHBoxLayout>
 #include <QSplitter>
 
-#include "file_manager.h"
-#include "file_widget.h"
-#include "project.h"
-#include "project_outliner.h"
-#include "project_editor.h"
-#include "project_signalbox.h"
-#include "exceptions/exception.h"
+#include "file_manager.hpp"
+#include "file_widget.hpp"
+#include "project.hpp"
+#include "project_outliner.hpp"
+#include "project_editor.hpp"
+#include "project_signalbox.hpp"
+#include "exceptions/exception.hpp"
 
 
 //---------------------------------------------------------------------------

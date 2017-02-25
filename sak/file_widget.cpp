@@ -1,13 +1,13 @@
-#include "file_widget.h"
+#include "file_widget.hpp"
 
-#include "file_manager.h"
-#include "file_interface.h"
+#include "file_manager.hpp"
+#include "file_interface.hpp"
 #include <QString>
 #include <QFormLayout>
 #include <QLabel>
 #include <QLineEdit>
 #include <QVBoxLayout>
-#include "common_data_widget.h"
+#include "common_data_widget.hpp"
 
 //---------------------------------------------------------------------------
 // File_Widget
@@ -190,11 +190,11 @@ bool sak::File_Widget_Less_By_Name::operator()(std::unique_ptr<File_Widget> cons
 }
 
 
-sak::File_Widget_Equals_Handle::File_Widget_Equals_Handle(File_Handle const& a_file):
+sak::File_Widget_Equals_HPPandle::File_Widget_Equals_HPPandle(File_Handle const& a_file):
     m_file{a_file}
 {}
 
-bool sak::File_Widget_Equals_Handle::operator()(std::unique_ptr<File_Widget> const& a_widget) const
+bool sak::File_Widget_Equals_HPPandle::operator()(std::unique_ptr<File_Widget> const& a_widget) const
 {
     return m_file == a_widget->cget_file();
 }

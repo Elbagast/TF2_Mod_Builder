@@ -1,12 +1,12 @@
-#include "common_data_widget.h"
+#include "common_data_widget.hpp"
 
 #include <QString>
 #include <QLabel>
 #include <QLineEdit>
 #include <QFormLayout>
-#include "fwd_file.h"
-#include "file_manager.h"
-#include "file_interface.h"
+#include "fwd_file.hpp"
+#include "file_manager.hpp"
+#include "file_interface.hpp"
 
 namespace
 {

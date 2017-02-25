@@ -1,4 +1,4 @@
-#include "project_editor.h"
+#include "project_editor.hpp"
 
 #include <QHBoxLayout>
 #include <QStackedWidget>
@@ -9,11 +9,11 @@
 #include <iterator>
 #include <algorithm>
 
-#include "project_signalbox.h"
-#include "file_manager.h"
-#include "file_widget.h"
-#include "project.h"
-#include "file_interface.h"
+#include "project_signalbox.hpp"
+#include "file_manager.hpp"
+#include "file_widget.hpp"
+#include "project.hpp"
+#include "file_interface.hpp"
 
 //---------------------------------------------------------------------------
 // Project_Editor
@@ -136,7 +136,7 @@ void sak::Project_Editor::Implementation::name_changed(File_Handle const& a_file
     // Find the editor for this handle
     auto l_found = std::find_if(m_file_widgets.cbegin(),
                                 m_file_widgets.cend(),
-                                File_Widget_Equals_Handle(a_file));
+                                File_Widget_Equals_HPPandle(a_file));
 
     // if it exists, update it
     if (l_found != m_file_widgets.cend())
@@ -168,7 +168,7 @@ void sak::Project_Editor::Implementation::description_changed(File_Handle const&
     // Find the editor for this handle
     auto l_found = std::find_if(m_file_widgets.cbegin(),
                                 m_file_widgets.cend(),
-                                File_Widget_Equals_Handle(a_file));
+                                File_Widget_Equals_HPPandle(a_file));
 
     // if it exists, update it
     if (l_found != m_file_widgets.cend())
@@ -184,7 +184,7 @@ void sak::Project_Editor::Implementation::data_changed(File_Handle const& a_file
     // Find the editor for this handle
     auto l_found = std::find_if(m_file_widgets.cbegin(),
                                 m_file_widgets.cend(),
-                                File_Widget_Equals_Handle(a_file));
+                                File_Widget_Equals_HPPandle(a_file));
 
     // if it exists, update it
     if (l_found != m_file_widgets.cend())
@@ -200,7 +200,7 @@ void sak::Project_Editor::Implementation::data_changed_at(File_Handle const& a_f
     // Find the editor for this handle
     auto l_found = std::find_if(m_file_widgets.cbegin(),
                                 m_file_widgets.cend(),
-                                File_Widget_Equals_Handle(a_file));
+                                File_Widget_Equals_HPPandle(a_file));
 
     // if it exists, update it
     if (l_found != m_file_widgets.cend())
@@ -217,7 +217,7 @@ void sak::Project_Editor::Implementation::added(File_Handle const& a_file)
     // Shouldn't exist yet
     assert(std::find_if(m_file_widgets.cbegin(),
                         m_file_widgets.cend(),
-                        File_Widget_Equals_Handle(a_file))
+                        File_Widget_Equals_HPPandle(a_file))
             == m_file_widgets.cend());
     m_file_widgets.push_back(std::make_unique<File_Widget>(a_file, nullptr));
 
@@ -237,7 +237,7 @@ void sak::Project_Editor::Implementation::removed(File_Handle const& a_file)
     qDebug() << "Project_Editor::Implementation::removed";
     auto l_found = std::find_if(m_file_widgets.begin(),
                                 m_file_widgets.end(),
-                                File_Widget_Equals_Handle(a_file));
+                                File_Widget_Equals_HPPandle(a_file));
 
     // if it exists, remove it
     if (l_found != m_file_widgets.cend())
@@ -271,7 +271,7 @@ void sak::Project_Editor::Implementation::requests_editor(File_Handle const& a_f
     // Find the editor for this handle
     auto l_found = std::find_if(m_file_widgets.begin(),
                                 m_file_widgets.end(),
-                                File_Widget_Equals_Handle(a_file));
+                                File_Widget_Equals_HPPandle(a_file));
     // if it exists, focus on it
     if (l_found != m_file_widgets.cend())
     {
