@@ -1,10 +1,8 @@
 #ifndef SAK_FILE_FWD_MANAGER_HPP
 #define SAK_FILE_FWD_MANAGER_HPP
 
-#include "data.hpp"
-#include <generic/fwd/uintid.hpp>
-#include <generic/fwd/uintid_manager.hpp>
-#include <generic/fwd/manager.hpp>
+#include "object.hpp"
+#include <sak/shared/fwd/manager.hpp>
 
 namespace sak
 {
@@ -13,12 +11,12 @@ namespace sak
     //---------------------------------------------------------------------------
     // file::manager
     //---------------------------------------------------------------------------
-    using manager = generic::Manager<generic::Uint32ID_Manager, data>;
+    using manager = shared::manager<object>;
 
     //---------------------------------------------------------------------------
     // file::handle
     //---------------------------------------------------------------------------
-    using handle = generic::Handle<generic::Uint32ID_Manager, data>;
+    using handle = shared::handle<object>;
   }
 }
 

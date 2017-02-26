@@ -130,7 +130,13 @@ SOURCES += \
     dclib/litype/testing/test_float.cpp \
     dclib/litype/testing/test_integer.cpp \
     dclib/litype/testing/test_string.cpp \
-    dclib/rt/testing/test_object.cpp
+    dclib/rt/testing/test_object.cpp \
+    sak/file/interface_traits.cpp \
+    sak/file/interface.cpp \
+    sak/file/command.cpp \
+    sak/shared/command.cpp \
+    sak/shared/interface.cpp \
+    sak/shared/interface_traits.cpp
     
 
 HEADERS  += \
@@ -237,8 +243,6 @@ HEADERS  += \
     sak/system_settings.hpp \
     sak/project_window.hpp \
     valve/asset_filepath.hpp \
-    sak/file/fwd/data.hpp \
-    sak/file/data.hpp \
     sak/file/fwd/manager.hpp \
     sak/file/manager.hpp \
     sak/file/extended_manager.hpp \
@@ -246,7 +250,27 @@ HEADERS  += \
     sak/file/fwd/interface_traits.hpp \
     sak/file/fwd/interface.hpp \
     sak/file/interface_traits.hpp \
-    sak/file/interface.hpp
+    sak/file/interface.hpp \
+    sak/file/command.hpp \
+    sak/file/fwd/command.hpp \
+    sak/shared/fwd/command.hpp \
+    sak/shared/fwd/extended_manager.hpp \
+    sak/shared/fwd/interface.hpp \
+    sak/shared/fwd/interface_traits.hpp \
+    sak/shared/fwd/manager.hpp \
+    sak/shared/command.hpp \
+    sak/shared/extended_manager.hpp \
+    sak/shared/interface.hpp \
+    sak/shared/interface_traits.hpp \
+    sak/shared/manager.hpp \
+    sak/file/fwd/object.hpp \
+    sak/shared/fwd/object.hpp \
+    sak/shared/object.hpp \
+    sak/file/object.hpp \
+    sak/shared/fwd/signalbox.hpp \
+    sak/shared/signalbox.hpp \
+    sak/file/fwd/signalbox.hpp \
+    sak/file/signalbox.hpp
     
 
 FORMS

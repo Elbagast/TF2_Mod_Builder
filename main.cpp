@@ -9,6 +9,8 @@
 #include <dclib/ct/testing/test_object.hpp>
 #include <dclib/rt/testing/test_object.hpp>
 
+#include <sak/file/extended_manager.hpp>
+
 void myMessageOutput(QtMsgType type, QMessageLogContext const& context, QString const& msg)
 {
     QByteArray localMsg = msg.toLocal8Bit();
@@ -48,6 +50,8 @@ int main(int argc, char *argv[])
 
     dclib::ct::test_object();
     dclib::rt::test_object();
+
+    sak::file::extended_manager fem{};
 
     return l_application.exec();
 

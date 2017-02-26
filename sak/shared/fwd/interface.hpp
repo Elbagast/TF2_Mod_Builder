@@ -1,23 +1,22 @@
-#ifndef SAK_FILE_FWD_INTERFACE_HPP
-#define SAK_FILE_FWD_INTERFACE_HPP
-
-#include <sak/shared/fwd/interface.hpp>
-#include "object.hpp"
+#ifndef SAK_SHARED_FWD_INTERFACE_HPP
+#define SAK_SHARED_FWD_INTERFACE_HPP
 
 namespace sak
 {
-  namespace file
+  namespace shared
   {
     //---------------------------------------------------------------------------
-    // file::interface
+    // shared::interface
     //---------------------------------------------------------------------------
-    using interface = shared::interface<object>;
+    template <typename T>
+    class interface;
 
     //---------------------------------------------------------------------------
-    // file::const_interface
+    // shared::const_interface
     //---------------------------------------------------------------------------
-    using const_interface = shared::interface<object>;
+    template <typename T>
+    class const_interface;
   }
 }
 
-#endif // SAK_FILE_FWD_INTERFACE_HPP
+#endif // SAK_SHARED_FWD_INTERFACE_HPP

@@ -141,6 +141,19 @@ namespace dclib
         template <typename T, typename... Args>
         struct is_object<object<T,Args...>> : public std::true_type {};
 
+        //---------------------------------------------------------------------------
+        // Metafunction object_member<T,I>
+        //---------------------------------------------------------------------------
+        // For a given object type retrieve the member type at the supplied index.
+        template <std::size_t I, typename T, typename...Ms >
+        struct object_member<object<T,Ms...>,I>
+        {
+          using type = meta::mf::type_at_t<typename object<T,Ms...>::member_typelist, I>;
+        };
+
+        template <typename T, std::size_t I>
+        using object_member_t = typename object_member<T,I>::type;
+
       } // namespace mf
 
     } // namespace v1

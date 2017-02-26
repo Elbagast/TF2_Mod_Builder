@@ -1,8 +1,7 @@
 #ifndef SAK_FILE_FWD_DATA_HPP
 #define SAK_FILE_FWD_DATA_HPP
 
-#include <dclib/ct/fwd/object.hpp>
-#include <dclib/ct/fwd/member.hpp>
+#include <sak/shared/fwd/object.hpp>
 #include <dclib/litype/string.hpp>
 class QString;
 
@@ -11,7 +10,7 @@ namespace sak
   namespace file
   {
     //---------------------------------------------------------------------------
-    // file::data
+    // file::object
     //---------------------------------------------------------------------------
     // Forward declare the file data class
     /*
@@ -31,15 +30,19 @@ namespace sak
         - When selected ask the user whether we are going to cache the file or not.
     */
 
-    using data =
-    dclib::ct::object
+    //---------------------------------------------------------------------------
+    // shared::member
+    //---------------------------------------------------------------------------
+    using object =
+    shared::object
     <
     DCLIB_LITYPE_STRING(u8"File")
-    ,dclib::ct::member<DCLIB_LITYPE_STRING(u8"Name"),QString>
-    ,dclib::ct::member<DCLIB_LITYPE_STRING(u8"Description"),QString>
-    ,dclib::ct::member<DCLIB_LITYPE_STRING(u8"Buildpath"),QString>
-    ,dclib::ct::member<DCLIB_LITYPE_STRING(u8"Sourcepath"),QString>
+    ,shared::member<DCLIB_LITYPE_STRING(u8"Name"),QString>
+    ,shared::member<DCLIB_LITYPE_STRING(u8"Description"),QString>
+    ,shared::member<DCLIB_LITYPE_STRING(u8"Buildpath"),QString>
+    ,shared::member<DCLIB_LITYPE_STRING(u8"Sourcepath"),QString>
     >;
+
   }
 }
 

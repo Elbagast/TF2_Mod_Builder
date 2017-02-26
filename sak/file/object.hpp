@@ -1,9 +1,10 @@
-#ifndef SAK_FILE_DATA_HPP
-#define SAK_FILE_DATA_HPP
+#ifndef SAK_FILE_OBJECT_HPP
+#define SAK_FILE_OBJECT_HPP
 
-#include "fwd/data.hpp"
-#include <dclib/ct/object.hpp>
-#include <dclib/ct/member.hpp>
+#include "fwd/object.hpp"
+#include <sak/shared/object.hpp>
+
+// member type implementations
 #include <QString>
 
 namespace sak

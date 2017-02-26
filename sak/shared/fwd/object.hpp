@@ -1,49 +1,50 @@
-#ifndef DCLIB_RT_FWD_OBJECT_HPP
-#define DCLIB_RT_FWD_OBJECT_HPP
+#ifndef SAK_SHARED_FWD_DATA_HPP
+#define SAK_SHARED_FWD_DATA_HPP
 
-#include <dclib/rt/v1/fwd/object.hpp>
+#include <dclib/ct/fwd/object.hpp>
+#include <dclib/ct/fwd/member.hpp>
 
-namespace dclib
+namespace sak
 {
-  namespace rt
+  namespace shared
   {
     //---------------------------------------------------------------------------
-    // abstract::object
+    // shared::member
     //---------------------------------------------------------------------------
-    // Abstract class that describes the runtime interface of objects.
-    namespace abstract
-    {
-      template <typename C>
-      using object = v1::abstract::object<C>;
-    }
+    template <typename N, typename T>
+    using member = dclib::ct::member<N,T>;
 
     //---------------------------------------------------------------------------
-    // object<T1, Args...>
+    // shared::object
     //---------------------------------------------------------------------------
-    // Data class object. Acceptable template instantiations:
-    //
-    // A Data type with members.
-    // class object<litype::string<...>, members<...>...>
-    //
     template <typename T, typename... Args>
-    using object = v1::object<T,Args...>;
+    using object = dclib::ct::object<T,Args...>;
+
     namespace mf
     {
+      //---------------------------------------------------------------------------
+      // Metafunction is_member<T>
+      //---------------------------------------------------------------------------
+      // Identify whether or not a type is a member.
+      template <typename T>
+      using is_member = dclib::ct::mf::is_member<T>;
+
       //---------------------------------------------------------------------------
       // Metafunction is_object<T>
       //---------------------------------------------------------------------------
       // Identify whether or not a type is an object.
       template <typename T>
-      using is_object = v1::mf::is_object<T>;
+      using is_object = dclib::ct::mf::is_object<T>;
 
       //---------------------------------------------------------------------------
       // Metafunction object_member<T,I>
       //---------------------------------------------------------------------------
       // For a given object type retrieve the member type at the supplied index.
       template <typename T, std::size_t I>
-      using object_member = v1::mf::object_member<T,I>;
+      using object_member = dclib::ct::mf::object_member<T,I>;
     } // namespace mf
-  } // namespace rt
-} // namespace dclib
+  }
+}
 
-#endif // DCLIB_RT_FWD_OBJECT_HPP
+
+#endif // SAK_SHARED_FWD_DATA_HPP
