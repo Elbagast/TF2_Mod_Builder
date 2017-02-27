@@ -1,7 +1,7 @@
 #ifndef OUTLINER_MUTITRUNK_ITEM_HPP
 #define OUTLINER_MUTITRUNK_ITEM_HPP
 
-#include "outliner_parented_item.hpp"
+#include "parented_item.hpp"
 #include <memory>
 #include <vector>
 #include <tuple>

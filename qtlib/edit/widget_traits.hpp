@@ -21,6 +21,7 @@ namespace qtlib
     {
       using value_type = T;
       using widget_type = QLineEdit;
+      using editing_finished_signal_type = void (widget_type::*)();
 
       static std::unique_ptr<widget_type> make_empty_widget()
       {
@@ -40,6 +41,11 @@ namespace qtlib
       static value_type get_widget_value(widget_type* ap_widget)
       {
         return ap_widget->text();
+      }
+
+      static editing_finished_signal_type editing_finished_signal()
+      {
+        return &QLineEdit::editingFinished;
       }
     };
   } // namespace display

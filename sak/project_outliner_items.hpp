@@ -1,12 +1,12 @@
 #ifndef PROJECT_OUTLINER_ITEMS_HPP
 #define PROJECT_OUTLINER_ITEMS_HPP
 
-#include "../qtlib/outliner/outliner_abstract_root_item.hpp"
-#include "../qtlib/outliner/outliner_abstract_readonly_item.hpp"
-#include "../qtlib/outliner/outliner_branch_item.hpp"
-#include "../qtlib/outliner/outliner_leaf_item.hpp"
-#include "../qtlib/outliner/outliner_root_trunk_item.hpp"
-#include "../qtlib/outliner/outliner_multitrunk_item.hpp"
+#include "../qtlib/outliner/abstract_root_item.hpp"
+#include "../qtlib/outliner/abstract_readonly_item.hpp"
+#include "../qtlib/outliner/branch_item.hpp"
+#include "../qtlib/outliner/leaf_item.hpp"
+#include "../qtlib/outliner/root_trunk_item.hpp"
+#include "../qtlib/outliner/multitrunk_item.hpp"
 #include <memory>
 #include "file_manager.hpp"
 

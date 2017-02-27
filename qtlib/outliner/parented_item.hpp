@@ -1,7 +1,7 @@
 #ifndef OUTLINER_PARENTED_ITEM_HPP
 #define OUTLINER_PARENTED_ITEM_HPP
 
-#include "outliner_abstract_item.hpp"
+#include "abstract_item.hpp"
 //#include <type_traits>
 
 namespace qtlib

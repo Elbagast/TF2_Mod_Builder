@@ -90,24 +90,10 @@ SOURCES += \
     sak/project.cpp \
     sak/exceptions/exception.cpp \
     sak/system_settings.cpp \
-    qtlib/outliner/outliner_delegate.cpp \
-    qtlib/outliner/outliner_model.cpp \
-    qtlib/outliner/outliner_treeview.cpp \
     sak/project_outliner_items.cpp \
-    qtlib/outliner/outliner_abstract_item.cpp \
-    qtlib/outliner/outliner_abstract_root_item.cpp \
-    qtlib/outliner/outliner_abstract_readonly_item.cpp \
-    qtlib/outliner/outliner_branch_item.cpp \
-    qtlib/outliner/outliner_leaf_item.cpp \
-    qtlib/outliner/outliner_trunk_item.cpp \
-    qtlib/outliner/outliner_root_branch_item.cpp \
-    qtlib/outliner/outliner_root_trunk_item.cpp \
-    qtlib/outliner/outliner_parented_item.cpp \
-    qtlib/outliner/outliner_multitrunk_item.cpp \
     generic/uintid.cpp \
     generic/uintid_manager.cpp \
     generic/uintid_traits.cpp \
-    qtlib/outliner/outliner_orphan_item.cpp \
     sak/file_interface_traits.cpp \
     sak/name_utilities.cpp \
     sak/file_manager.cpp \
@@ -138,7 +124,22 @@ SOURCES += \
     sak/shared/interface.cpp \
     sak/shared/interface_traits.cpp \
     generic/string_conversion.cpp \
-    qtlib/string_conversion.cpp
+    qtlib/string_conversion.cpp \
+    sak/file/widget.cpp \
+    qtlib/outliner/abstract_item.cpp \
+    qtlib/outliner/abstract_readonly_item.cpp \
+    qtlib/outliner/abstract_root_item.cpp \
+    qtlib/outliner/branch_item.cpp \
+    qtlib/outliner/delegate.cpp \
+    qtlib/outliner/leaf_item.cpp \
+    qtlib/outliner/model.cpp \
+    qtlib/outliner/multitrunk_item.cpp \
+    qtlib/outliner/orphan_item.cpp \
+    qtlib/outliner/parented_item.cpp \
+    qtlib/outliner/root_trunk_item.cpp \
+    qtlib/outliner/root_branch_item.cpp \
+    qtlib/outliner/trunk_item.cpp \
+    qtlib/outliner/treeview.cpp
     
 
 HEADERS  += \
@@ -200,20 +201,6 @@ HEADERS  += \
     generic/extended_manager.hpp \
     generic/command_history.hpp \
     generic/command.hpp \
-    qtlib/outliner/outliner_abstract_item.hpp \
-    qtlib/outliner/outliner_abstract_readonly_item.hpp \
-    qtlib/outliner/outliner_abstract_root_item.hpp \
-    qtlib/outliner/outliner_branch_item.hpp \
-    qtlib/outliner/outliner_delegate.hpp \
-    qtlib/outliner/outliner_leaf_item.hpp \
-    qtlib/outliner/outliner_model.hpp \
-    qtlib/outliner/outliner_multitrunk_item.hpp \
-    qtlib/outliner/outliner_orphan_item.hpp \
-    qtlib/outliner/outliner_parented_item.hpp \
-    qtlib/outliner/outliner_root_branch_item.hpp \
-    qtlib/outliner/outliner_root_trunk_item.hpp \
-    qtlib/outliner/outliner_treeview.hpp \
-    qtlib/outliner/outliner_trunk_item.hpp \
     qtlib/directory_name_validator.hpp \
     qtlib/existing_directory_validator.hpp \
     qtlib/state_changer.hpp \
@@ -285,7 +272,24 @@ HEADERS  += \
     qtlib/edit/widget_traits.hpp \
     qtlib/edit/widget.hpp \
     qtlib/edit/anon_widget_traits.hpp \
-    qtlib/display/widget.hpp
+    qtlib/display/widget.hpp \
+    sak/file/fwd/widget.hpp \
+    sak/file/widget.hpp \
+    sak/shared/outliner_item.hpp \
+    qtlib/outliner/abstract_item.hpp \
+    qtlib/outliner/abstract_readonly_item.hpp \
+    qtlib/outliner/abstract_root_item.hpp \
+    qtlib/outliner/branch_item.hpp \
+    qtlib/outliner/delegate.hpp \
+    qtlib/outliner/leaf_item.hpp \
+    qtlib/outliner/model.hpp \
+    qtlib/outliner/multitrunk_item.hpp \
+    qtlib/outliner/orphan_item.hpp \
+    qtlib/outliner/parented_item.hpp \
+    qtlib/outliner/root_trunk_item.hpp \
+    qtlib/outliner/root_branch_item.hpp \
+    qtlib/outliner/treeview.hpp \
+    qtlib/outliner/trunk_item.hpp
     
 
 FORMS

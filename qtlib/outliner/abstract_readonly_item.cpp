@@ -1,4 +1,4 @@
-#include "outliner_abstract_readonly_item.hpp"
+#include "abstract_readonly_item.hpp"
 
 #include <QVariant>
 

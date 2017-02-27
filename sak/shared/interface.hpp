@@ -26,11 +26,11 @@ namespace sak
       using handle_type = handle<object_type>;
       using extended_handle_type = extended_handle<object_type>;
 
-      template <std::size_t I>
+      template <std::size_t Index>
       class member_interface
       {
       public:
-        using member_type = mf::object_member_t<object_type, I>;
+        using member_type = mf::object_member_t<object_type, Index>;
         using value_type = typename member_type::value_type;
 
         member_interface(extended_handle_type const& a_ehandle, handle_type& a_handle, Project* a_project):
@@ -47,7 +47,7 @@ namespace sak
               return;
           }
           value_type l_value{a_value};
-          fixup_value<I>(l_value);
+          fixup_value<Index>(l_value);
 
           m_project->emplace_execute(make_command_assign<object_type, Index>(m_project, m_ehandle, l_value));
         }
@@ -119,10 +119,10 @@ namespace sak
       using handle_type = handle<object_type>;
       using extended_handle_type = extended_handle<object_type>;
 
-      const_interface(extended_handle_type const& a_ehandle, handle_type const& a_handle, Project* a_project):
+      const_interface(extended_handle_type const& a_ehandle, handle_type const& a_handle)://, Project* a_project):
         m_ehandle{a_ehandle},
-        m_handle{a_handle},
-        m_project{a_project}
+        m_handle{a_handle}//,
+        //m_project{a_project}
       {}
 
       template <std::size_t I>
@@ -134,7 +134,7 @@ namespace sak
     private:
       extended_handle_type const& m_ehandle;
       handle_type const& m_handle;
-      Project* m_project;
+      //Project* m_project;
     };
   }
 }

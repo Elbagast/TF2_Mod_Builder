@@ -1,7 +1,7 @@
 #ifndef OUTLINER_ROOT_BRANCH_ITEM_HPP
 #define OUTLINER_ROOT_BRANCH_ITEM_HPP
 
-#include "outliner_abstract_root_item.hpp"
+#include "abstract_root_item.hpp"
 #include <vector>
 #include <memory>
 //#include <type_traits>

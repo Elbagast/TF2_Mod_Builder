@@ -9,6 +9,7 @@ namespace qtlib
   {
     namespace abstract
     {
+      /*
       //---------------------------------------------------------------------------
       // edit::abstract::widget
       //---------------------------------------------------------------------------
@@ -45,7 +46,7 @@ namespace qtlib
 
         virtual T get_value() const = 0;
       };
-
+*/
     } // namespace abstract
   } // namespace edit
 } // namespace qtlib

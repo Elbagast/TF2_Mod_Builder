@@ -1,5 +1,5 @@
-#ifndef SAK_SHARED_FWD_DATA_HPP
-#define SAK_SHARED_FWD_DATA_HPP
+#ifndef SAK_SHARED_FWD_OBJECT_HPP
+#define SAK_SHARED_FWD_OBJECT_HPP
 
 #include <dclib/ct/fwd/object.hpp>
 #include <dclib/ct/fwd/member.hpp>
@@ -46,5 +46,4 @@ namespace sak
   }
 }
 
-
-#endif // SAK_SHARED_FWD_DATA_HPP
+#endif // SAK_SHARED_FWD_OBJECT_HPP

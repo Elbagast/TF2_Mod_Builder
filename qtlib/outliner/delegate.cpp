@@ -1,5 +1,5 @@
-#include "outliner_delegate.hpp"
-#include "outliner_abstract_item.hpp"
+#include "delegate.hpp"
+#include "abstract_item.hpp"
 
 //---------------------------------------------------------------------------
 // outliner::Delegate

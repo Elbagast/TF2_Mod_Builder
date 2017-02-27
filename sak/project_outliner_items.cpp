@@ -15,7 +15,7 @@
 #include <QPixmap>
 #include <QIcon>
 
-#include "../qtlib/outliner/outliner_model.hpp"
+#include "../qtlib/outliner/model.hpp"
 #include "project.hpp"
 #include "project_signalbox.hpp"
 #include "file_interface.hpp"

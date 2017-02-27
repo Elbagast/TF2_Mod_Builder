@@ -1,7 +1,7 @@
 #ifndef OUTLINER_ROOT_HPP
 #define OUTLINER_ROOT_HPP
 
-#include "outliner_abstract_item.hpp"
+#include "abstract_item.hpp"
 
 namespace qtlib
 {

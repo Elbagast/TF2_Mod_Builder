@@ -1,7 +1,7 @@
 #ifndef OUTLINER_ITEM_HPP
 #define OUTLINER_ITEM_HPP
 
-#include "outliner_parented_item.hpp"
+#include "parented_item.hpp"
 #include <vector>
 #include <memory>
 #include <type_traits>

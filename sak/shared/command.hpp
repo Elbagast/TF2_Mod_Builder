@@ -26,7 +26,7 @@ namespace sak
       using inherited_type = generic::abstract::Command;
       using object_type = object<T,Ms...>;
       //using member_type = typename object_type::member_type<Index>;
-      using member_type = object_member_t<object_type,Index>;
+      using member_type = mf::object_member_t<object_type,Index>;
       using value_type = typename member_type::value_type;
 
       using extended_handle_type = extended_handle<object_type>;

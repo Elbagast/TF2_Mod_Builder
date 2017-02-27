@@ -10,9 +10,9 @@
 #include "file_widget.hpp"
 #include "project.hpp"
 #include "project_signalbox.hpp"
-#include "../qtlib/outliner/outliner_model.hpp"
-#include "../qtlib/outliner/outliner_delegate.hpp"
-#include "../qtlib/outliner/outliner_treeview.hpp"
+#include "../qtlib/outliner/model.hpp"
+#include "../qtlib/outliner/delegate.hpp"
+#include "../qtlib/outliner/treeview.hpp"
 #include "project_outliner_items.hpp"
 
 //---------------------------------------------------------------------------

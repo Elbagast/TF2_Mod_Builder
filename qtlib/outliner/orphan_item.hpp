@@ -1,7 +1,7 @@
-#ifndef OUTLINER_ABSTRACT_READONLY_ITEM_HPP
-#define OUTLINER_ABSTRACT_READONLY_ITEM_HPP
+#ifndef OUTLINER_ORPHAN_ITEM_HPP
+#define OUTLINER_ORPHAN_ITEM_HPP
 
-#include "outliner_abstract_item.hpp"
+#include "abstract_item.hpp"
 
 namespace qtlib
 {
@@ -10,13 +10,11 @@ namespace qtlib
         namespace abstract
         {
             //---------------------------------------------------------------------------
-            // outliner::abstract::Readonly_Item
+            // outliner::abstract::Orphan_Item
             //---------------------------------------------------------------------------
-            // Abstract subclass of abstract::Item. Subclass from this for items that will
-            // not be editable inside the outliner. Write functions are finalised with
-            // dummy implemenations.
+            // Subclass of abstract::Item which implements the item having no parent item.
 
-            class Readonly_Item :
+            class Orphan_Item :
                     public abstract::Item
             {
             public:
@@ -25,22 +23,22 @@ namespace qtlib
 
                 // Special 6
                 //============================================================
-                ~Readonly_Item() override;
+                ~Orphan_Item() override;
 
                 // Virtual Interface
                 //============================================================
                 // Parent
                 //----------------------------------------
                 // Does this item have a parent item?
-                bool has_parent() const override = 0;
+                bool has_parent() const override final;
                 // Get the item that is the parent of this
-                item_type* get_parent() const override = 0;
+                item_type* get_parent() const override final;
                 // Get the item at the root of the structure
-                item_type* get_root() const override = 0;
+                item_type* get_root() const override final;
                 // The row that this item is in relative to the parent e.g. if the parent has
                 // 5 children, and this is the third, then row is 2. If this has no parent
                 // then -1 is returned.
-                int index_in_parent() const override = 0;
+                int index_in_parent() const override final;
 
                 // Children
                 //----------------------------------------
@@ -51,28 +49,28 @@ namespace qtlib
                 // Does this item have a child item at this index?
                 bool has_child_at(int a_index) const override = 0;
                 // Get the child at a given row, return nullptr if there is no child at row
-                item_type* get_child_at(int a_index) const override = 0;
+                item_type* get_child_at(int a_row) const override = 0;
 
                 // Underlying data access
                 //----------------------------------------
                 // Get the item data for a given column and role
                 QVariant get_data(int a_role = Qt::DisplayRole) const override = 0;
                 // Set the data in item with the given value
-                void set_data(QVariant const& a_value) override final;
+                void set_data(QVariant const& a_value) override = 0;
 
                 // Editors
                 //----------------------------------------
                 // Make the appropriate editor for this item, parenting it to parent
-                QWidget* get_editor(QWidget* a_parent) override final;
+                QWidget* get_editor(QWidget* a_parent) override = 0;
                 // Set the data in the editor to the value in the item
-                void set_editor_data(QWidget* a_editor) override final;
+                void set_editor_data(QWidget* a_editor) override = 0;
                 // Get the data in the editor and return it
-                QVariant get_editor_data(QWidget* a_editor) override final;
+                QVariant get_editor_data(QWidget* a_editor) override = 0;
 
                 // Other
                 //----------------------------------------
                 // Get the flags for this item
-                Qt::ItemFlags get_flags() const override final;
+                Qt::ItemFlags get_flags() const override = 0;
                 // Make and act on the context menu for this item. Need the model pointer here so that
                 // actions can call functions in it for editing.  Position is the position in terms of
                 // the widget rather than the window. Use a_view->viewport()->mapToGlobal(a_position)
@@ -85,4 +83,4 @@ namespace qtlib
     } // namespace outliner
 } // namespace qtlib
 
-#endif // OUTLINER_ABSTRACT_READONLY_ITEM_HPP
+#endif // OUTLINER_ORPHAN_ITEM_HPP

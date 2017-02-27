@@ -10,6 +10,10 @@
 #include <dclib/rt/testing/test_object.hpp>
 
 #include <sak/file/extended_manager.hpp>
+#include <sak/file/interface.hpp>
+#include <sak/file/interface_traits.hpp>
+#include <sak/file/command.hpp>
+#include <sak/file/widget.hpp>
 
 void myMessageOutput(QtMsgType type, QMessageLogContext const& context, QString const& msg)
 {
@@ -52,6 +56,7 @@ int main(int argc, char *argv[])
     dclib::rt::test_object();
 
     sak::file::extended_manager fem{};
+    sak::file::widget fw{fem.make_null_handle(), nullptr};
 
     return l_application.exec();
 

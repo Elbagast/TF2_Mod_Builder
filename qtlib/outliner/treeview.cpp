@@ -1,6 +1,6 @@
-#include "outliner_treeview.hpp"
-#include "outliner_model.hpp"
-#include "outliner_abstract_item.hpp"
+#include "treeview.hpp"
+#include "model.hpp"
+#include "abstract_item.hpp"
 #include <QHeaderView>
 #include <QMenu>
 
