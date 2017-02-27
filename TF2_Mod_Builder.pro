@@ -136,7 +136,9 @@ SOURCES += \
     sak/file/command.cpp \
     sak/shared/command.cpp \
     sak/shared/interface.cpp \
-    sak/shared/interface_traits.cpp
+    sak/shared/interface_traits.cpp \
+    generic/string_conversion.cpp \
+    qtlib/string_conversion.cpp
     
 
 HEADERS  += \
@@ -270,7 +272,20 @@ HEADERS  += \
     sak/shared/fwd/signalbox.hpp \
     sak/shared/signalbox.hpp \
     sak/file/fwd/signalbox.hpp \
-    sak/file/signalbox.hpp
+    sak/file/signalbox.hpp \
+    sak/shared/fwd/widget.hpp \
+    sak/shared/fwd/outliner_item.hpp \
+    sak/shared/widget.hpp \
+    qtlib/display_widget_traits.hpp \
+    generic/string_conversion_formats.hpp \
+    generic/string_conversion.hpp \
+    qtlib/string_conversion.hpp \
+    qtlib/display/widget_traits.hpp \
+    qtlib/display/anon_widget_traits.hpp \
+    qtlib/edit/widget_traits.hpp \
+    qtlib/edit/widget.hpp \
+    qtlib/edit/anon_widget_traits.hpp \
+    qtlib/display/widget.hpp
     
 
 FORMS

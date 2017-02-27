@@ -47,10 +47,10 @@ namespace sak
         bool operator()(std::unique_ptr<File_Widget> const& a_lhs, std::unique_ptr<File_Widget> const& a_rhs) const;
     };
 
-    class File_Widget_Equals_HPPandle
+    class File_Widget_Equals_Handle
     {
     public:
-        explicit File_Widget_Equals_HPPandle(File_Handle const& a_file);
+        explicit File_Widget_Equals_Handle(File_Handle const& a_file);
 
         bool operator()(std::unique_ptr<File_Widget> const& a_widget) const;
     private:
