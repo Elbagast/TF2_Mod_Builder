@@ -1,5 +1,5 @@
-#ifndef FLOAT_TOOLS_HPP
-#define FLOAT_TOOLS_HPP
+#ifndef DCLIB_LITYPE_V1_FLOAT_TOOLS_HPP
+#define DCLIB_LITYPE_V1_FLOAT_TOOLS_HPP
 
 #include "fwd/float_class.hpp"
 #include <dclib/litype/v1/string_class.hpp>
@@ -506,4 +506,4 @@ constexpr dclib::litype::v1::float_exponent_type const dclib::litype::v1::Float_
 // Now we make sure it all works...
 
 
-#endif // FLOAT_TOOLS_HPP
+#endif // DCLIB_LITYPE_V1_FLOAT_TOOLS_HPP

@@ -3,6 +3,8 @@
 
 #include <dclib/ct/fwd/object.hpp>
 #include <dclib/ct/fwd/member.hpp>
+#include <dclib/litype/string.hpp>
+class QString;
 
 namespace sak
 {
@@ -44,6 +46,20 @@ namespace sak
       using object_member = dclib::ct::mf::object_member<T,I>;
     } // namespace mf
   }
+
+  namespace file
+  {
+    using object =
+    shared::object
+    <
+    DCLIB_LITYPE_STRING(u8"File")
+    ,shared::member<DCLIB_LITYPE_STRING(u8"Name"),QString>
+    ,shared::member<DCLIB_LITYPE_STRING(u8"Description"),QString>
+    ,shared::member<DCLIB_LITYPE_STRING(u8"Buildpath"),QString>
+    ,shared::member<DCLIB_LITYPE_STRING(u8"Sourcepath"),QString>
+    >;
+  }
+
 }
 
 #endif // SAK_SHARED_FWD_OBJECT_HPP

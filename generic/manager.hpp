@@ -11,119 +11,219 @@
 
 namespace generic
 {
-    //---------------------------------------------------------------------------
-    // generic::Manager<ID Manager, Type>
-    //---------------------------------------------------------------------------
-    // Object that manages a pool of objects allowing for shared referencing
-    // via handles that can be expanded. When data is emplaced, a handle is
-    // returned. If the last handle is destroyed, the data is destroyed.
-
-    template <typename IDM, typename T>
-    class Manager
+  namespace internal
+  {
+    template <typename ID, typename T>
+    class Holder
     {
     public:
-        using id_manager_type = IDM;
-        using id_type = typename id_manager_type::id_type;
-        using value_type = T;
-        using handle_type = Handle<IDM,T>;
+      using id_type = ID;
+      using value_type = T;
 
-        friend class handle_type;
+      Holder();
+      Holder(id_type const& a_id, value_type&& a_value);
+
+      id_type const& id() const;
+      std::size_t ref_count() const;
+      value_type& get();
+      value_type const& cget() const;
+
+      bool is_valid() const;
+      void clear();
+
+      bool operator==(Holder const& a_other) const;
+      bool operator!=(Holder const& a_other) const;
+
+      bool operator<(Holder const& a_other) const;
+      bool operator>(Holder const& a_other) const;
+      bool operator<=(Holder const& a_other) const;
+      bool operator>=(Holder const& a_other) const;
+
+      using shared_ptr_type = std::shared_ptr<std::pair<id_type, value_type>>;
+
+      shared_ptr_type const& data() const { return m_data; }
     private:
-        class Holder
-        {
-        public:
-            using id_type = typename Manager::id_type;
-            using value_type = typename Manager::value_type;
-
-            Holder();
-            Holder(id_type const& a_id, value_type&& a_value);
-
-            id_type const& id() const;
-            std::size_t ref_count() const;
-            value_type& get();
-            value_type const& cget() const;
-
-            bool is_valid() const;
-            void clear();
-
-            bool operator==(Holder const& a_other) const;
-            bool operator!=(Holder const& a_other) const;
-
-            bool operator<(Holder const& a_other) const;
-            bool operator>(Holder const& a_other) const;
-            bool operator<=(Holder const& a_other) const;
-            bool operator>=(Holder const& a_other) const;
-
-            using shared_ptr_type = std::shared_ptr<std::pair<id_type, value_type>>;
-
-            shared_ptr_type const& data() const { return m_data; }
-        private:
-            shared_ptr_type m_data;
-        };
-    public:
-        using map_type = std::map<id_type, Holder>;
-        using pair_type = std::pair<id_type, Holder>;
-
-        handle_type make_null_handle() const;
-        handle_type emplace_data(value_type&& a_value);
-        handle_type get_handle(id_type const& a_id);
-        std::size_t ref_count(id_type const& a_id) const;
-
-        std::vector<id_type> all_ids() const;
-        std::vector<handle_type> all_handles();
-
-    private:
-        bool if_unused_destroy(id_type const& a_id);
-
-        id_manager_type m_id_manager;
-        map_type m_data;
+      shared_ptr_type m_data;
     };
+  }
 
-    //---------------------------------------------------------------------------
-    // generic::Handle<ID Manager, Type>
-    //---------------------------------------------------------------------------
-    // Corresponding handle for Manager. This is outside Manager to allow for
-    // forward declaration.
-    template <typename IDM, typename T>
-    class Handle
-    {
-    public:
-        using manager_type = Manager<IDM,T>;
-        using id_type = typename manager_type::id_type;
-        using value_type = typename manager_type::value_type;
 
-        friend class manager_type;
+  //---------------------------------------------------------------------------
+  // generic::Manager<ID Manager, Type>
+  //---------------------------------------------------------------------------
+  // Object that manages a pool of objects allowing for shared referencing
+  // via handles that can be expanded. When data is emplaced, a handle is
+  // returned. If the last handle is destroyed, the data is destroyed.
 
-    private:
-        using holder_type = typename manager_type::Holder;
-        Handle(holder_type const& a_holder, manager_type* a_manager);
-    public:
-        Handle();
-        ~Handle();
-        Handle(Handle const& a_other);
-        Handle& operator=(Handle const& a_other);
-        Handle(Handle && a_other);
-        Handle& operator=(Handle && a_other);
+  template <typename IDM, typename T>
+  class Manager
+  {
+  public:
+    using id_manager_type = IDM;
+    using id_type = typename id_manager_type::id_type;
+    using value_type = T;
+    using handle_type = Handle<IDM,T>;
+    friend class handle_type;
 
-        bool is_valid() const;
-        id_type const& id() const;
-        std::size_t ref_count() const;
-        value_type& get();
-        value_type const& cget() const;
+    using holder_type = internal::Holder<id_type, value_type>;
+    using map_type = std::map<id_type, holder_type>;
+    using pair_type = std::pair<id_type, holder_type>;
 
-        bool operator==(Handle const& a_other) const;
-        bool operator!=(Handle const& a_other) const;
+    handle_type make_null_handle() const;
+    handle_type emplace_data(value_type&& a_value);
+    handle_type get_handle(id_type const& a_id);
+    std::size_t ref_count(id_type const& a_id) const;
 
-        bool operator<(Handle const& a_other) const;
-        bool operator>(Handle const& a_other) const;
-        bool operator<=(Handle const& a_other) const;
-        bool operator>=(Handle const& a_other) const;
+    std::vector<id_type> all_ids() const;
+    std::vector<handle_type> all_handles();
 
-    private:
-        holder_type m_holder;
-        manager_type* m_manager;
-    };
+  private:
+    bool if_unused_destroy(id_type const& a_id);
+
+    id_manager_type m_id_manager;
+    map_type m_data;
+  };
+
+  //---------------------------------------------------------------------------
+  // generic::Handle<ID Manager, Type>
+  //---------------------------------------------------------------------------
+  // Corresponding handle for Manager. This is outside Manager to allow for
+  // forward declaration.
+  template <typename IDM, typename T>
+  class Handle
+  {
+  public:
+    using manager_type = Manager<IDM,T>;
+    using id_type = typename manager_type::id_type;
+    using value_type = typename manager_type::value_type;
+
+    friend class manager_type;
+
+  private:
+    using holder_type = typename manager_type::holder_type;
+    Handle(holder_type const& a_holder, manager_type* a_manager);
+  public:
+    Handle();
+    ~Handle();
+    Handle(Handle const& a_other);
+    Handle& operator=(Handle const& a_other);
+    Handle(Handle && a_other);
+    Handle& operator=(Handle && a_other);
+
+    bool is_valid() const;
+    id_type const& id() const;
+    std::size_t ref_count() const;
+    value_type& get();
+    value_type const& cget() const;
+
+    bool operator==(Handle const& a_other) const;
+    bool operator!=(Handle const& a_other) const;
+
+    bool operator<(Handle const& a_other) const;
+    bool operator>(Handle const& a_other) const;
+    bool operator<=(Handle const& a_other) const;
+    bool operator>=(Handle const& a_other) const;
+
+  private:
+    holder_type m_holder;
+    manager_type* m_manager;
+  };
 }
+
+
+
+//---------------------------------------------------------------------------
+// generic::internal::Holder<ID, Type>
+//---------------------------------------------------------------------------
+// Nested convenience class.
+
+template <typename ID, typename T>
+generic::internal::Holder<ID,T>::Holder():
+    m_data{nullptr}
+{
+
+}
+
+template <typename ID, typename T>
+generic::internal::Holder<ID,T>::Holder(id_type const& a_id, value_type&& a_value):
+    m_data{std::make_shared<std::pair<id_type, value_type>>(std::pair<id_type, value_type>(a_id, std::move(a_value)))}
+{}
+
+template <typename ID, typename T>
+typename generic::internal::Holder<ID,T>::id_type const& generic::internal::Holder<ID,T>::id() const
+{
+    return m_data->first;
+}
+
+template <typename ID, typename T>
+std::size_t generic::internal::Holder<ID,T>::ref_count() const
+{
+    return m_data.use_count() - 1;
+}
+
+template <typename ID, typename T>
+typename generic::internal::Holder<ID,T>::value_type& generic::internal::Holder<ID,T>::get()
+{
+    if (!m_data) throw std::out_of_range("already deleted");
+    return m_data->second;
+}
+
+template <typename ID, typename T>
+typename generic::internal::Holder<ID,T>::value_type const& generic::internal::Holder<ID,T>::cget() const
+{
+    if (!m_data) throw std::out_of_range("already deleted");
+    return m_data->second;
+}
+
+template <typename ID, typename T>
+bool generic::internal::Holder<ID,T>::is_valid() const
+{
+    return m_data.get() != nullptr;
+}
+
+template <typename ID, typename T>
+void generic::internal::Holder<ID,T>::clear()
+{
+    m_data = shared_ptr_type(nullptr);
+}
+
+template <typename ID, typename T>
+bool generic::internal::Holder<ID,T>::operator==(Holder const& a_other) const
+{
+    return m_data == a_other.m_data;
+}
+
+template <typename ID, typename T>
+bool generic::internal::Holder<ID,T>::operator!=(Holder const& a_other) const
+{
+   return !this->operator==(a_other);
+}
+
+template <typename ID, typename T>
+bool generic::internal::Holder<ID,T>::operator<(Holder const& a_other) const
+{
+   return m_data < a_other.m_data;
+}
+
+template <typename ID, typename T>
+bool generic::internal::Holder<ID,T>::operator>(Holder const& a_other) const
+{
+   return a_other.operator<(*this);
+}
+template <typename ID, typename T>
+bool generic::internal::Holder<ID,T>::operator<=(Holder const& a_other) const
+{
+   return !this->operator>(a_other);
+}
+
+template <typename ID, typename T>
+bool generic::internal::Holder<ID,T>::operator>=(Holder const& a_other) const
+{
+   return !this->operator<(a_other);
+}
+
+
+
 
 
 //---------------------------------------------------------------------------
@@ -143,7 +243,7 @@ template <typename IDM, typename T>
 typename generic::Manager<IDM,T>::handle_type generic::Manager<IDM,T>::emplace_data(value_type&& a_value)
 {
     auto l_id = m_id_manager.make_id();
-    m_data.emplace(l_id, Holder(l_id, std::move(a_value)));
+    m_data.emplace(l_id, holder_type(l_id, std::move(a_value)));
     return get_handle(l_id);
 }
 
@@ -197,96 +297,6 @@ bool generic::Manager<IDM,T>::if_unused_destroy(id_type const& a_id)
     {
         return false;
     }
-}
-
-//---------------------------------------------------------------------------
-// generic::Manager<ID Manager, Type>::Holder
-//---------------------------------------------------------------------------
-// Nested convenience class.
-
-template <typename IDM, typename T>
-generic::Manager<IDM,T>::Holder::Holder():
-    m_data{nullptr}
-{
-
-}
-
-template <typename IDM, typename T>
-generic::Manager<IDM,T>::Holder::Holder(id_type const& a_id, value_type&& a_value):
-    m_data{std::make_shared<std::pair<id_type, value_type>>(std::pair<id_type, value_type>(a_id, std::move(a_value)))}
-{}
-
-template <typename IDM, typename T>
-typename generic::Manager<IDM,T>::Holder::id_type const& generic::Manager<IDM,T>::Holder::id() const
-{
-    return m_data->first;
-}
-
-template <typename IDM, typename T>
-std::size_t generic::Manager<IDM,T>::Holder::ref_count() const
-{
-    return m_data.use_count() - 1;
-}
-
-template <typename IDM, typename T>
-typename generic::Manager<IDM,T>::Holder::value_type& generic::Manager<IDM,T>::Holder::get()
-{
-    if (!m_data) throw std::out_of_range("already deleted");
-    return m_data->second;
-}
-
-template <typename IDM, typename T>
-typename generic::Manager<IDM,T>::Holder::value_type const& generic::Manager<IDM,T>::Holder::cget() const
-{
-    if (!m_data) throw std::out_of_range("already deleted");
-    return m_data->second;
-}
-
-template <typename IDM, typename T>
-bool generic::Manager<IDM,T>::Holder::is_valid() const
-{
-    return m_data.get() != nullptr;
-}
-
-template <typename IDM, typename T>
-void generic::Manager<IDM,T>::Holder::clear()
-{
-    m_data = shared_ptr_type(nullptr);
-}
-
-template <typename IDM, typename T>
-bool generic::Manager<IDM,T>::Holder::operator==(Holder const& a_other) const
-{
-    return m_data == a_other.m_data;
-}
-
-template <typename IDM, typename T>
-bool generic::Manager<IDM,T>::Holder::operator!=(Holder const& a_other) const
-{
-   return !this->operator==(a_other);
-}
-
-template <typename IDM, typename T>
-bool generic::Manager<IDM,T>::Holder::operator<(Holder const& a_other) const
-{
-   return m_data < a_other.m_data;
-}
-
-template <typename IDM, typename T>
-bool generic::Manager<IDM,T>::Holder::operator>(Holder const& a_other) const
-{
-   return a_other.operator<(*this);
-}
-template <typename IDM, typename T>
-bool generic::Manager<IDM,T>::Holder::operator<=(Holder const& a_other) const
-{
-   return !this->operator>(a_other);
-}
-
-template <typename IDM, typename T>
-bool generic::Manager<IDM,T>::Holder::operator>=(Holder const& a_other) const
-{
-   return !this->operator<(a_other);
 }
 
 

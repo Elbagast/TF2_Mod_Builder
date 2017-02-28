@@ -1,4 +1,4 @@
-#include "project_outliner.hpp"
+#include "widget.hpp"
 
 #include <QHBoxLayout>
 #include <QTreeView>
@@ -6,14 +6,23 @@
 #include <QDebug>
 #include <cassert>
 
-#include "file_manager.hpp"
-#include "file_widget.hpp"
-#include "project.hpp"
-#include "project_signalbox.hpp"
-#include "../qtlib/outliner/model.hpp"
-#include "../qtlib/outliner/delegate.hpp"
-#include "../qtlib/outliner/treeview.hpp"
-#include "project_outliner_items.hpp"
+#include <sak/shared/object.hpp>
+#include <sak/shared/manager.hpp>
+#include <sak/shared/extended_manager.hpp>
+#include <sak/shared/interface_traits.hpp>
+#include <sak/shared/interface.hpp>
+#include <sak/shared/outliner_item.hpp>
+
+#include <sak/project.hpp>
+#include <sak/project_signalbox.hpp>
+#include <qtlib/outliner/model.hpp>
+#include <qtlib/outliner/delegate.hpp>
+#include <qtlib/outliner/treeview.hpp>
+#include "root_item.hpp"
+#include "project_item.hpp"
+
+// For reasons unknown right now, this file can't see the sak::shared::outliner::header_item<T> interface...
+// WHAT THE FUCK
 
 //---------------------------------------------------------------------------
 // Project_Outliner
@@ -23,7 +32,9 @@
 //============================================================
 namespace sak
 {
-    class Project_Outliner::Implementation :
+  namespace outliner
+  {
+    class widget::Implementation :
             public Project_Signalbox
     {
     public:
@@ -40,28 +51,25 @@ namespace sak
 
         explicit Implementation(Project& a_project);
 
-        // When a File has had its name changed, this is called.
-        void name_changed(File_Handle const& a_file) override final;
-        // When a File has had its description changed, this is called.
-        void description_changed(File_Handle const& a_file) override final;
         // When a File has its data changed(anything but the name), this is called.
-        void data_changed(File_Handle const& a_file) override final;
+        void changed(file::extended_handle const& a_file) override final;
         // When a File has its data changed in a specific place, this is called.
-        void data_changed_at(File_Handle const& a_file, std::size_t a_section) override final;
+        void changed_at(file::extended_handle const& a_file, std::size_t a_section) override final;
         // When a File has been added, this is called.
-        void added(File_Handle const& a_file) override final;
+        void added(file::extended_handle const& a_file) override final;
         // When a File has been removed, this is called.
-        void removed(File_Handle const& a_file) override final;
+        void removed(file::extended_handle const& a_file) override final;
         // When a File editor is to be opened, this is called.
-        void requests_editor(File_Handle const& a_file) override final;
+        void requests_editor(file::extended_handle const& a_file) override final;
         // When focus is changed to be on a File, call this
-        void requests_focus(File_Handle const& a_file) override final;
+        void requests_focus(file::extended_handle const& a_file) override final;
     };
+  }
 }
 
-sak::Project_Outliner::Implementation::~Implementation() = default;
+sak::outliner::widget::Implementation::~Implementation() = default;
 
-sak::Project_Outliner::Implementation::Implementation(Project& a_project):
+sak::outliner::widget::Implementation::Implementation(Project& a_project):
     Project_Signalbox(),
     m_project{a_project},
     m_model{},
@@ -90,40 +98,35 @@ sak::Project_Outliner::Implementation::Implementation(Project& a_project):
     m_layout->addWidget(m_treeview.get());
 }
 
-// When a File has had its name changed, this is called.
-void sak::Project_Outliner::Implementation::name_changed(File_Handle const& a_file)
-{
-    qDebug() << "Project_Outliner::Implementation::name_changed";
-    auto l_files_item = m_root->file_header_item();
-    auto l_model_index = m_model.create_index_from_item(l_files_item);
-    auto l_file_index = m_model.index(static_cast<int>(l_files_item->index_of_file(a_file)),0,l_model_index);
-
-    // no movement right now....
-    l_files_item->name_changed(a_file);
-    m_model.data_changed(l_file_index, l_file_index, QVector<int>(Qt::DisplayRole));
-}
-// When a File has had its description changed, this is called.
-void sak::Project_Outliner::Implementation::description_changed(File_Handle const& )
-{
-    qDebug() << "Project_Outliner::Implementation::description_changed";
-    // don't actively care about description, it will jsut be different next time it's looked up.
-}
 // When a File has its data changed(anything but the name), this is called.
-void sak::Project_Outliner::Implementation::data_changed(File_Handle const&)
+void sak::outliner::widget::Implementation::changed(file::extended_handle const& a_file)
 {
-    qDebug() << "Project_Outliner::Implementation::data_changed";
-    // don't care about data
+    qDebug() << "outliner::widget::Implementation::data_changed";
+    // don't care about except for the name, so pass it on
+    changed_at(a_file, 0);
 }
 // When a File has its data changed in a specific place, this is called.
-void sak::Project_Outliner::Implementation::data_changed_at(File_Handle const&, std::size_t)
+void sak::outliner::widget::Implementation::changed_at(file::extended_handle const& a_file, std::size_t a_section)
 {
-    qDebug() << "Project_Outliner::Implementation::data_changed_at";
+    qDebug() << "outliner::widget::Implementation::data_changed_at";
     // don't care about data
+    if (a_section == 0)
+    {
+      auto l_files_item = m_root->file_header_item();
+
+      assert(l_files_item != nullptr);
+      auto l_model_index = m_model.create_index_from_item(l_files_item); //don't know the full type of shared::outliner::header_item?....
+      auto l_file_index = m_model.index(static_cast<int>(l_files_item->index_of(a_file)),0,l_model_index);
+
+      // no movement right now....
+      l_files_item->name_changed(a_file);
+      m_model.data_changed(l_file_index, l_file_index, QVector<int>(Qt::DisplayRole));
+    }
 }
 // When a File has been added, this is called.
-void sak::Project_Outliner::Implementation::added(File_Handle const& a_file)
+void sak::outliner::widget::Implementation::added(file::extended_handle const& a_file)
 {
-    qDebug() << "Project_Outliner::Implementation::added";
+    qDebug() << "outliner::widget::Implementation::added";
     auto l_files_item = m_root->file_header_item();
 
     // if the file header doesn't exist (we previously had no files), make it
@@ -137,7 +140,7 @@ void sak::Project_Outliner::Implementation::added(File_Handle const& a_file)
     }
     // add the file
     auto l_model_index = m_model.create_index_from_item(l_files_item);
-    auto l_file_position = static_cast<int>(l_files_item->index_of_file(a_file));
+    auto l_file_position = static_cast<int>(l_files_item->index_of(a_file));
     auto l_inserter = m_model.make_row_inserter(l_file_position,l_model_index);
     // add a new file
 
@@ -148,12 +151,12 @@ void sak::Project_Outliner::Implementation::added(File_Handle const& a_file)
 }
 
 // When a File has been removed, this is called.
-void sak::Project_Outliner::Implementation::removed(File_Handle const& a_file)
+void sak::outliner::widget::Implementation::removed(file::extended_handle const& a_file)
 {
-    qDebug() << "Project_Outliner::Implementation::removed";
+    qDebug() << "outliner::widget::Implementation::removed";
     auto l_files_item = m_root->file_header_item();
     auto l_model_index = m_model.create_index_from_item(l_files_item);
-    auto l_file_position = static_cast<int>(l_files_item->index_of_file(a_file));
+    auto l_file_position = static_cast<int>(l_files_item->index_of(a_file));
     {
         auto l_remover = m_model.make_row_remover(l_file_position,l_model_index);
         auto l_old = l_files_item->get_child_count();
@@ -174,28 +177,28 @@ void sak::Project_Outliner::Implementation::removed(File_Handle const& a_file)
 }
 
 // When a File editor is to be opened, this is called.
-void sak::Project_Outliner::Implementation::requests_editor(File_Handle const&)
+void sak::outliner::widget::Implementation::requests_editor(file::extended_handle const&)
 {
-    qDebug() << "Project_Outliner::Implementation::requests_editor";
+    qDebug() << "outliner::widget::Implementation::requests_editor";
     // Don't care.
 }
 
 // When focus is changed to be on a File, call this
-void sak::Project_Outliner::Implementation::requests_focus(File_Handle const& a_file)
+void sak::outliner::widget::Implementation::requests_focus(file::extended_handle const& a_file)
 {
-    qDebug() << "Project_Outliner::Implementation::requests_focus";
+    qDebug() << "outliner::widget::Implementation::requests_focus";
     // Change the item selection in the outliner to this File.
-    auto l_item = m_root->file_header_item()->item_of_file(a_file);
+    auto l_item = m_root->file_header_item()->item_of(a_file);
     auto l_index = m_model.create_index_from_item(l_item);
     m_treeview->setCurrentIndex(l_index);
 }
 
 // Special 6
 //============================================================
-sak::Project_Outliner::Project_Outliner(Project& a_project, QWidget* a_parent):
+sak::outliner::widget::widget(Project& a_project, QWidget* a_parent):
     QWidget(a_parent),
     m_data{std::make_unique<Implementation>(a_project)}
 {
     this->setLayout(imp().m_layout.get());
 }
-sak::Project_Outliner::~Project_Outliner() = default;
+sak::outliner::widget::~widget() = default;

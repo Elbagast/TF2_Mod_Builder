@@ -1,5 +1,5 @@
-#ifndef FLOAT_CLASS_HPP
-#define FLOAT_CLASS_HPP
+#ifndef DCLIB_LITYPE_V1_FLOAT_CLASS_HPP
+#define DCLIB_LITYPE_V1_FLOAT_CLASS_HPP
 
 #include "fwd/float_class.hpp"
 #include <type_traits>
@@ -102,4 +102,4 @@ typename dclib::litype::v1::floating_point<T_Float,Mantissa,Exponent,Sign>::valu
 
 
 
-#endif // FLOAT_CLASS_HPP
+#endif // DCLIB_LITYPE_V1_FLOAT_CLASS_HPP

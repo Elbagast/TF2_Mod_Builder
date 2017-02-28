@@ -14,14 +14,15 @@ namespace sak
       //---------------------------------------------------------------------------
       // shared::abstract::signalbox<T>
       //---------------------------------------------------------------------------
-      // All signals that are dispatched from Project for a given handle type.
+      // All signals that are dispatched from Project for a given object type.
       template <typename T>
       class signalbox
       {
       public:
+        using object_type = T;
         using extended_handle_type = extended_handle<T>;
 
-        virtual ~signalbox() = default;
+        virtual ~signalbox() = 0;
 
         // When a handle has its data changed, this is called.
         virtual void changed(extended_handle_type const& a_ehandle) = 0;

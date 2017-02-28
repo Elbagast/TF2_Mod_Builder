@@ -90,26 +90,13 @@ SOURCES += \
     sak/project.cpp \
     sak/exceptions/exception.cpp \
     sak/system_settings.cpp \
-    sak/project_outliner_items.cpp \
     generic/uintid.cpp \
     generic/uintid_manager.cpp \
     generic/uintid_traits.cpp \
-    sak/file_interface_traits.cpp \
     sak/name_utilities.cpp \
-    sak/file_manager.cpp \
-    sak/file_widget.cpp \
-    sak/project_outliner.cpp \
     sak/project_editor.cpp \
-    sak/file.cpp \
-    sak/common_data.cpp \
-    sak/common_data_widget.cpp \
     generic/command_history.cpp \
     generic/command.cpp \
-    sak/file_command.cpp \
-    sak/file_interface.cpp \
-    sak/file_basic_manager.cpp \
-    sak/common_data_interface.cpp \
-    sak/common_data_command.cpp \
     sak/filepath.cpp \
     valve/asset_filepath.cpp \
     dclib/ct/testing/test_object.cpp \
@@ -117,15 +104,11 @@ SOURCES += \
     dclib/litype/testing/test_integer.cpp \
     dclib/litype/testing/test_string.cpp \
     dclib/rt/testing/test_object.cpp \
-    sak/file/interface_traits.cpp \
-    sak/file/interface.cpp \
-    sak/file/command.cpp \
     sak/shared/command.cpp \
     sak/shared/interface.cpp \
     sak/shared/interface_traits.cpp \
     generic/string_conversion.cpp \
     qtlib/string_conversion.cpp \
-    sak/file/widget.cpp \
     qtlib/outliner/abstract_item.cpp \
     qtlib/outliner/abstract_readonly_item.cpp \
     qtlib/outliner/abstract_root_item.cpp \
@@ -139,7 +122,16 @@ SOURCES += \
     qtlib/outliner/root_trunk_item.cpp \
     qtlib/outliner/root_branch_item.cpp \
     qtlib/outliner/trunk_item.cpp \
-    qtlib/outliner/treeview.cpp
+    qtlib/outliner/treeview.cpp \
+    sak/shared/outliner_item.cpp \
+    sak/shared/object.cpp \
+    sak/shared/manager.cpp \
+    sak/shared/extended_manager.cpp \
+    sak/shared/signalbox.cpp \
+    sak/shared/widget.cpp \
+    sak/outliner/root_item.cpp \
+    sak/outliner/project_item.cpp \
+    sak/outliner/widget.cpp
     
 
 HEADERS  += \
@@ -208,40 +200,16 @@ HEADERS  += \
     qtlib/validating_line_edit.hpp \
     sak/dialog/new_project_dialog.hpp \
     sak/exceptions/exception.hpp \
-    sak/common_data.hpp \
-    sak/common_data_command.hpp \
-    sak/common_data_interface.hpp \
-    sak/common_data_widget.hpp \
-    sak/file.hpp \
-    sak/file_basic_manager.hpp \
-    sak/file_command.hpp \
-    sak/file_interface.hpp \
-    sak/file_interface_traits.hpp \
-    sak/file_manager.hpp \
-    sak/file_widget.hpp \
     sak/filepath.hpp \
     sak/fixed_settings.hpp \
-    sak/fwd_file.hpp \
     sak/name_utilities.hpp \
     sak/project.hpp \
     sak/project_editor.hpp \
-    sak/project_outliner.hpp \
-    sak/project_outliner_items.hpp \
     sak/project_signalbox.hpp \
     sak/project_widget.hpp \
     sak/system_settings.hpp \
     sak/project_window.hpp \
     valve/asset_filepath.hpp \
-    sak/file/fwd/manager.hpp \
-    sak/file/manager.hpp \
-    sak/file/extended_manager.hpp \
-    sak/file/fwd/extended_manager.hpp \
-    sak/file/fwd/interface_traits.hpp \
-    sak/file/fwd/interface.hpp \
-    sak/file/interface_traits.hpp \
-    sak/file/interface.hpp \
-    sak/file/command.hpp \
-    sak/file/fwd/command.hpp \
     sak/shared/fwd/command.hpp \
     sak/shared/fwd/extended_manager.hpp \
     sak/shared/fwd/interface.hpp \
@@ -252,14 +220,10 @@ HEADERS  += \
     sak/shared/interface.hpp \
     sak/shared/interface_traits.hpp \
     sak/shared/manager.hpp \
-    sak/file/fwd/object.hpp \
     sak/shared/fwd/object.hpp \
     sak/shared/object.hpp \
-    sak/file/object.hpp \
     sak/shared/fwd/signalbox.hpp \
     sak/shared/signalbox.hpp \
-    sak/file/fwd/signalbox.hpp \
-    sak/file/signalbox.hpp \
     sak/shared/fwd/widget.hpp \
     sak/shared/fwd/outliner_item.hpp \
     sak/shared/widget.hpp \
@@ -270,11 +234,7 @@ HEADERS  += \
     qtlib/display/widget_traits.hpp \
     qtlib/display/anon_widget_traits.hpp \
     qtlib/edit/widget_traits.hpp \
-    qtlib/edit/widget.hpp \
     qtlib/edit/anon_widget_traits.hpp \
-    qtlib/display/widget.hpp \
-    sak/file/fwd/widget.hpp \
-    sak/file/widget.hpp \
     sak/shared/outliner_item.hpp \
     qtlib/outliner/abstract_item.hpp \
     qtlib/outliner/abstract_readonly_item.hpp \
@@ -289,7 +249,10 @@ HEADERS  += \
     qtlib/outliner/root_trunk_item.hpp \
     qtlib/outliner/root_branch_item.hpp \
     qtlib/outliner/treeview.hpp \
-    qtlib/outliner/trunk_item.hpp
+    qtlib/outliner/trunk_item.hpp \
+    sak/outliner/root_item.hpp \
+    sak/outliner/project_item.hpp \
+    sak/outliner/widget.hpp
     
 
 FORMS

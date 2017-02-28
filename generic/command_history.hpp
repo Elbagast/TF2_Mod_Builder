@@ -21,19 +21,19 @@ namespace generic
     // If you want commands that give more information you should probably make a different version of this
     // class that uses a different base Command class.
 
-    class Command_HPPistory
+    class Command_History
     {
     public:
         using command_type = abstract::Command;
 
         // Special 6
         //============================================================
-        Command_HPPistory();
-        ~Command_HPPistory();
+        Command_History();
+        ~Command_History();
 
         // NO COPYING
-        Command_HPPistory(Command_HPPistory const& a_other) = delete;
-        Command_HPPistory& operator=(Command_HPPistory const& a_other) = delete;
+        Command_History(Command_History const& a_other) = delete;
+        Command_History& operator=(Command_History const& a_other) = delete;
 
         // Default move
         //Command_HPPistory(Command_HPPistory && a_other);

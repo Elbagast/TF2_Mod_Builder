@@ -3,10 +3,8 @@
 
 #include "fwd/interface.hpp"
 #include "object.hpp"
-#include "command.hpp"
-#include "manager.hpp"
-#include "extended_manager.hpp"
-#include <QString>
+#include "fwd/manager.hpp"
+#include "fwd/extended_manager.hpp"
 
 namespace sak
 {
@@ -14,127 +12,94 @@ namespace sak
 
   namespace shared
   {
+    namespace internal
+    {
+      //---------------------------------------------------------------------------
+      // shared::internal::fixup_value<T,I>
+      //---------------------------------------------------------------------------
+      // Seperating out the call to constrain the name so we can hide the workings.
+
+      template <typename T, std::size_t Index>
+      struct do_set
+      {
+        using object_type = T;
+        using extended_handle_type = extended_handle<object_type>;
+        using member_type = mf::object_member_t<object_type, Index>;
+        using value_type = typename member_type::value_type;
+
+        void operator()(value_type const& a_value, extended_handle_type const& a_ehandle, Project* a_project) const;
+      };
+
+      template <typename T>
+      struct do_set<T,0>
+      {
+        using object_type = T;
+        using extended_handle_type = extended_handle<object_type>;
+        using member_type = mf::object_member_t<object_type, 0>;
+        using value_type = typename member_type::value_type;
+
+        void operator()(value_type const& a_value, extended_handle_type const& a_ehandle, Project* a_project) const;
+      };
+    }
+
+    // since these classes only use references and pointers, we are fine with them being exposed. The
+    // bit that does the work is hidden.
+
     //---------------------------------------------------------------------------
-    // shared::interface
+    // shared::member_interface<T>
     //---------------------------------------------------------------------------
-    template <typename T, typename...Ms>
-    class interface<object<T,Ms...>>
+    template <typename T, std::size_t Index>
+    class member_interface
     {
     public:
-      using object_type = object<T,Ms...>;
+      using object_type = T;
+
+      using handle_type = handle<object_type>;
+      using extended_handle_type = extended_handle<object_type>;
+      using member_type = mf::object_member_t<object_type, Index>;
+      using value_type = typename member_type::value_type;
+
+      member_interface(extended_handle_type& a_ehandle, Project* a_project):
+        m_ehandle{a_ehandle},
+        m_project{a_project}
+      {}
+
+      void set(value_type const& a_value)
+      {
+        internal::do_set<object_type, Index>()(a_value, m_ehandle, m_project);
+      }
+
+      private:
+        extended_handle_type& m_ehandle;
+        Project* m_project;
+    };
+
+    //---------------------------------------------------------------------------
+    // shared::interface<T>
+    //---------------------------------------------------------------------------
+    template <typename T>
+    class interface
+    {
+    public:
+      using object_type = T;
 
       using handle_type = handle<object_type>;
       using extended_handle_type = extended_handle<object_type>;
 
-      template <std::size_t Index>
-      class member_interface
-      {
-      public:
-        using member_type = mf::object_member_t<object_type, Index>;
-        using value_type = typename member_type::value_type;
-
-        member_interface(extended_handle_type const& a_ehandle, handle_type& a_handle, Project* a_project):
-          m_ehandle{a_ehandle},
-          m_handle{a_handle},
-          m_project{a_project}
-        {}
-
-        void set(value_type const& a_value)
-        {
-          // If it is the same as the name we already have, we don't bother making a change.
-          if (a_value == cget())
-          {
-              return;
-          }
-          value_type l_value{a_value};
-          fixup_value<Index>(l_value);
-
-          m_project->emplace_execute(make_command_assign<object_type, Index>(m_project, m_ehandle, l_value));
-        }
-
-        value_type const& cget() const
-        {
-          return m_handle.cget().cat<I>().cget();
-        }
-
-        private:
-          extended_handle_type const& m_ehandle;
-          handle_type& m_handle;
-          Project* m_project;
-
-        template <std::size_t I2>
-        void fixup_value(value_type& a_value)
-        {
-          return a_value;
-        }
-
-        template <>
-        void fixup_value<0>(value_type& a_value)
-        {
-          // We must make sure the name does not already exist among the other names.
-          auto l_names = m_project->get_all_file_names();
-          // Get rid of the name of this one, since it is going to change.
-          auto l_old_name_found = std::find(l_names.cbegin(), l_names.cend(), m_handle.cget().cat<0>().cget());
-          l_names.erase(l_old_name_found);
-
-          QString l_final_name{a_name};
-          uniqueify_name(l_final_name, l_names);
-        }
-      };
-
-      interface(extended_handle_type const& a_ehandle, handle_type& a_handle, Project* a_project):
+      interface(extended_handle_type& a_ehandle, handle_type& a_handle, Project* a_project):
         m_ehandle{a_ehandle},
-        m_handle{a_handle},
         m_project{a_project}
       {}
 
       template <std::size_t I>
-      member_interface<I> at()
+      member_interface<object_type, I> at()
       {
-        return member_interface<I>(m_ehandle, m_handle, m_project);
-      }
-
-      template <std::size_t I>
-      decltype(auto) cat() const
-      {
-        return m_handle.cget().cat<I>();
+        return member_interface<object_type,I>(m_ehandle, m_project);
       }
 
     private:
-      extended_handle_type const& m_ehandle;
-      handle_type& m_handle;
+      extended_handle_type& m_ehandle;
       Project* m_project;
-    };
-
-
-    //---------------------------------------------------------------------------
-    // shared::const_interface
-    //---------------------------------------------------------------------------
-     template <typename T, typename...Ms>
-    class const_interface<object<T,Ms...>>
-    {
-    public:
-      using object_type = object<T,Ms...>;
-
-      using handle_type = handle<object_type>;
-      using extended_handle_type = extended_handle<object_type>;
-
-      const_interface(extended_handle_type const& a_ehandle, handle_type const& a_handle)://, Project* a_project):
-        m_ehandle{a_ehandle},
-        m_handle{a_handle}//,
-        //m_project{a_project}
-      {}
-
-      template <std::size_t I>
-      decltype(auto) cat() const
-      {
-        return m_handle.cget().cat<I>();
-      }
-
-    private:
-      extended_handle_type const& m_ehandle;
-      handle_type const& m_handle;
-      //Project* m_project;
     };
   }
 }

@@ -10,10 +10,15 @@
 #include <algorithm>
 
 #include "project_signalbox.hpp"
-#include "file_manager.hpp"
-#include "file_widget.hpp"
+
+#include "shared/object.hpp"
+#include "shared/manager.hpp"
+#include "shared/extended_manager.hpp"
+#include "shared/interface_traits.hpp"
+#include "shared/interface.hpp"
+#include "shared/widget.hpp"
+
 #include "project.hpp"
-#include "file_interface.hpp"
 
 //---------------------------------------------------------------------------
 // Project_Editor
@@ -39,6 +44,26 @@ namespace
         }
         ~Background_Widget() override = default;
     };
+
+
+    template <typename T>
+    struct widget_equals_handle
+    {
+
+      using extended_handle_type = sak::shared::extended_handle<T>;
+      using widget_type = sak::shared::widget<T>;
+
+      extended_handle_type const& m_ehandle;
+
+      explicit widget_equals_handle(extended_handle_type const& a_ehandle):
+        m_ehandle{a_ehandle}
+      {}
+
+      bool operator()(std::unique_ptr<widget_type> const& a_widget)
+      {
+        return m_ehandle == a_widget->cget_handle();
+      }
+    };
 }
 
 
@@ -56,28 +81,24 @@ namespace sak
         std::unique_ptr<QStackedWidget> m_stackwidget;
         std::unique_ptr<Background_Widget> m_background;
         std::unique_ptr<QTabWidget> m_tabwidget;
-        std::vector<std::unique_ptr<File_Widget>> m_file_widgets;
+        std::vector<std::unique_ptr<file::widget>> m_file_widgets;
 
         ~Implementation() override;
 
         explicit Implementation(Project& a_project);
 
-        // When a File has had its name changed, this is called.
-        void name_changed(File_Handle const& a_file) override final;
-        // When a File has had its description changed, this is called.
-        void description_changed(File_Handle const& a_file) override final;
         // When a File has its data changed(anything but the name), this is called.
-        void data_changed(File_Handle const& a_file) override final;
+        void changed(file::extended_handle const& a_file) override final;
         // When a File has its data changed in a specific place, this is called.
-        void data_changed_at(File_Handle const& a_file, std::size_t a_section) override final;
+        void changed_at(file::extended_handle const& a_file, std::size_t a_section) override final;
         // When a File has been added, this is called.
-        void added(File_Handle const& a_file) override final;
+        void added(file::extended_handle const& a_file) override final;
         // When a File has been removed, this is called.
-        void removed(File_Handle const& a_file) override final;
+        void removed(file::extended_handle const& a_file) override final;
         // When a File editor is to be opened, this is called.
-        void requests_editor(File_Handle const& a_file) override final;
+        void requests_editor(file::extended_handle const& a_file) override final;
         // When focus is changed to be on a File, call this
-        void requests_focus(File_Handle const& a_file) override final;
+        void requests_focus(file::extended_handle const& a_file) override final;
 
         void close_tab(int a_index);
 
@@ -119,33 +140,50 @@ sak::Project_Editor::Implementation::Implementation(Project& a_project):
     {
         if (a_index != -1)
         {
-            auto l_widget = static_cast<File_Widget*>(this->m_tabwidget->widget(a_index));
+            auto l_widget = static_cast<file::widget*>(this->m_tabwidget->widget(a_index));
             if (l_widget != nullptr)
             {
-                File_Handle const& l_file = l_widget->cget_file();
+                file::extended_handle const& l_file = l_widget->cget_handle();
                 this->m_project.get_signalbox()->requests_focus(l_file);
             }
         }
     });
 }
 
-// When a File has had its name changed, this is called.
-void sak::Project_Editor::Implementation::name_changed(File_Handle const& a_file)
+// When a File has its data changed(anything but the name), this is called.
+void sak::Project_Editor::Implementation::changed(file::extended_handle const& a_file)
 {
-    qDebug() << "Project_Editor::Implementation::name_changed";
+    qDebug() << "Project_Editor::Implementation::data_changed";
     // Find the editor for this handle
     auto l_found = std::find_if(m_file_widgets.cbegin(),
                                 m_file_widgets.cend(),
-                                File_Widget_Equals_Handle(a_file));
+                                widget_equals_handle<file::object>(a_file));
+    // if it exists, update it
+    if (l_found != m_file_widgets.cend())
+    {
+        l_found->get()->data_changed();
+    }
+
+}
+// When a File has its data changed(anything but the name), this is called.
+void sak::Project_Editor::Implementation::changed_at(file::extended_handle const& a_file, std::size_t a_section)
+{
+    qDebug() << "Project_Editor::Implementation::data_changed_at";
+    // Find the editor for this handle
+    auto l_found = std::find_if(m_file_widgets.cbegin(),
+                                m_file_widgets.cend(),
+                                widget_equals_handle<file::object>(a_file));
 
     // if it exists, update it
     if (l_found != m_file_widgets.cend())
     {
-        // update the widget contents
-        l_found->get()->update_name();
+      // tell the widget to update
+      l_found->get()->data_changed_at(a_section);
 
-        // update the tab name
-
+      // If it's section 0, i.e. the name, we have more to do
+      if (a_section == 0)
+      {
+        // Update the tab title
         m_tabwidget->setUpdatesEnabled(false);
         // If we want an icon it goes in here....
 
@@ -153,91 +191,45 @@ void sak::Project_Editor::Implementation::name_changed(File_Handle const& a_file
         {
             if (m_tabwidget->widget(l_index) == l_found->get())
             {
-                m_tabwidget->setTabText(l_index, a_file.cget().cget_name());
+                m_tabwidget->setTabText(l_index, a_file.cget().cat<0>().cget());
                 break;
             }
         }
 
         m_tabwidget->setUpdatesEnabled(true);
-    }
-}
-// When a File has had its description changed, this is called.
-void sak::Project_Editor::Implementation::description_changed(File_Handle const& a_file)
-{
-    qDebug() << "Project_Editor::Implementation::description_changed";
-    // Find the editor for this handle
-    auto l_found = std::find_if(m_file_widgets.cbegin(),
-                                m_file_widgets.cend(),
-                                File_Widget_Equals_Handle(a_file));
-
-    // if it exists, update it
-    if (l_found != m_file_widgets.cend())
-    {
-        // update the widget contents
-        l_found->get()->update_description();
-    }
-}
-// When a File has its data changed(anything but the name), this is called.
-void sak::Project_Editor::Implementation::data_changed(File_Handle const& a_file)
-{
-    qDebug() << "Project_Editor::Implementation::data_changed";
-    // Find the editor for this handle
-    auto l_found = std::find_if(m_file_widgets.cbegin(),
-                                m_file_widgets.cend(),
-                                File_Widget_Equals_Handle(a_file));
-
-    // if it exists, update it
-    if (l_found != m_file_widgets.cend())
-    {
-        l_found->get()->update_data();
-    }
-
-}
-// When a File has its data changed(anything but the name), this is called.
-void sak::Project_Editor::Implementation::data_changed_at(File_Handle const& a_file, std::size_t a_section)
-{
-    qDebug() << "Project_Editor::Implementation::data_changed_at";
-    // Find the editor for this handle
-    auto l_found = std::find_if(m_file_widgets.cbegin(),
-                                m_file_widgets.cend(),
-                                File_Widget_Equals_Handle(a_file));
-
-    // if it exists, update it
-    if (l_found != m_file_widgets.cend())
-    {
-        l_found->get()->update_data_at(a_section);
+      }
     }
 
 }
 // When a File has been added, this is called.
-void sak::Project_Editor::Implementation::added(File_Handle const& a_file)
+void sak::Project_Editor::Implementation::added(file::extended_handle const& a_file)
 {
     qDebug() << "Project_Editor::Implementation::added";
     // update the file widget count and open the widget for it.
     // Shouldn't exist yet
     assert(std::find_if(m_file_widgets.cbegin(),
                         m_file_widgets.cend(),
-                        File_Widget_Equals_Handle(a_file))
+                        widget_equals_handle<file::object>(a_file))
             == m_file_widgets.cend());
-    m_file_widgets.push_back(std::make_unique<File_Widget>(a_file, nullptr));
+    m_file_widgets.push_back(std::make_unique<file::widget>(a_file, nullptr));
 
     // Add it to the tabwidget
     m_tabwidget->setUpdatesEnabled(false);
     // insert the tab at the front
     // If we want an icon it goes in here....
-    m_tabwidget->insertTab(0,m_file_widgets.back().get(), a_file.cget().cget_name());
+    m_tabwidget->insertTab(0,m_file_widgets.back().get(), a_file.cget().cat<0>().cget());
     m_tabwidget->setUpdatesEnabled(true);
     m_tabwidget->setCurrentIndex(0);
     update_visible();
 }
 
 // When a File has been removed, this is called.
-void sak::Project_Editor::Implementation::removed(File_Handle const& a_file)
+void sak::Project_Editor::Implementation::removed(file::extended_handle const& a_file)
 {
     qDebug() << "Project_Editor::Implementation::removed";
     auto l_found = std::find_if(m_file_widgets.begin(),
                                 m_file_widgets.end(),
-                                File_Widget_Equals_Handle(a_file));
+                                widget_equals_handle<file::object>(a_file));
 
     // if it exists, remove it
     if (l_found != m_file_widgets.cend())
@@ -265,13 +257,13 @@ void sak::Project_Editor::Implementation::removed(File_Handle const& a_file)
     update_visible();
 }
 
-void sak::Project_Editor::Implementation::requests_editor(File_Handle const& a_file)
+void sak::Project_Editor::Implementation::requests_editor(file::extended_handle const& a_file)
 {
     qDebug() << "Project_Editor::Implementation::requests_editor";
     // Find the editor for this handle
     auto l_found = std::find_if(m_file_widgets.begin(),
                                 m_file_widgets.end(),
-                                File_Widget_Equals_Handle(a_file));
+                                widget_equals_handle<file::object>(a_file));
     // if it exists, focus on it
     if (l_found != m_file_widgets.cend())
     {
@@ -287,20 +279,20 @@ void sak::Project_Editor::Implementation::requests_editor(File_Handle const& a_f
     // otherwise make it and focus on it
     else
     {
-        m_file_widgets.push_back(std::make_unique<File_Widget>(a_file, nullptr));
+        m_file_widgets.push_back(std::make_unique<file::widget>(a_file, nullptr));
 
         // Add it to the tabwidget
         m_tabwidget->setUpdatesEnabled(false);
         // insert the tab at the front
         // If we want an icon it goes in here....
-        m_tabwidget->insertTab(0,m_file_widgets.back().get(), a_file.cget().cget_name());
+        m_tabwidget->insertTab(0,m_file_widgets.back().get(), a_file.cget().cat<0>().cget());
         m_tabwidget->setUpdatesEnabled(true);
         m_tabwidget->setCurrentIndex(0);
     }
     update_visible();
 }
 
-void sak::Project_Editor::Implementation::requests_focus(File_Handle const&)
+void sak::Project_Editor::Implementation::requests_focus(file::extended_handle const&)
 {
     qDebug() << "Project_Editor::Implementation::requests_focus";
     // nothing for now
@@ -308,12 +300,12 @@ void sak::Project_Editor::Implementation::requests_focus(File_Handle const&)
 
 void sak::Project_Editor::Implementation::close_tab(int a_index)
 {
-    auto l_editor = static_cast<File_Widget*>(m_tabwidget->widget(a_index));
+    auto l_editor = static_cast<file::widget*>(m_tabwidget->widget(a_index));
     m_tabwidget->removeTab(a_index);
     // Now kill the actual widget
     auto l_found = std::find_if(m_file_widgets.begin(),
                                 m_file_widgets.end(),
-                                [l_editor](std::unique_ptr<File_Widget> const& a_widget){ return a_widget.get() == l_editor; });
+                                [l_editor](std::unique_ptr<file::widget> const& a_widget){ return a_widget.get() == l_editor; });
     l_found->reset();
     m_file_widgets.erase(l_found);
     update_visible();

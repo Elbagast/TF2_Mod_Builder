@@ -1,6 +1,8 @@
 #ifndef SAK_SHARED_FWD_OUTLINER_ITEM_HPP
 #define SAK_SHARED_FWD_OUTLINER_ITEM_HPP
 
+#include "object.hpp"
+
 namespace sak
 {
   namespace shared
@@ -18,6 +20,22 @@ namespace sak
       //---------------------------------------------------------------------------
       template <typename T>
       class item;
+    }
+  }
+
+  namespace file
+  {
+    namespace outliner
+    {
+      //---------------------------------------------------------------------------
+      // file::outliner::header_item
+      //---------------------------------------------------------------------------
+      using header_item = shared::outliner::item<object>;
+
+      //---------------------------------------------------------------------------
+      // file::outliner::item
+      //---------------------------------------------------------------------------
+      using item = shared::outliner::item<object>;
     }
   }
 }

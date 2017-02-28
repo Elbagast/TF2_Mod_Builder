@@ -2,6 +2,7 @@
 #define SAK_SHARED_FWD_WIDGET_HPP
 
 #include <cstddef>
+#include "object.hpp"
 
 namespace sak
 {
@@ -19,20 +20,19 @@ namespace sak
     }
 
     //---------------------------------------------------------------------------
-    // shared::member_edit_widget
-    //---------------------------------------------------------------------------
-    // Wraps the editor for the member value and normalises the signals so that we
-    // can use it. This widget is responsible for dispatching the call to change
-    // the member value when it is edited.
-
-    template <typename T, std::size_t Index>
-    class member_edit_widget;
-
-    //---------------------------------------------------------------------------
     // shared::widget<T>
     //---------------------------------------------------------------------------
     template <typename T>
     class widget;
+  }
+
+
+  namespace file
+  {
+    //---------------------------------------------------------------------------
+    // shared::widget<T>
+    //---------------------------------------------------------------------------
+    using widget = shared::widget<object>;
   }
 }
 

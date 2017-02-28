@@ -4,6 +4,7 @@
 #include "fwd/extended_manager.hpp"
 #include "manager.hpp"
 #include "interface_traits.hpp"
+#include "interface.hpp"
 #include <generic/extended_manager.hpp>
 
 namespace sak

@@ -1,21 +1,24 @@
-#ifndef PROJECT_OUTLINER_HPP
-#define PROJECT_OUTLINER_HPP
+#ifndef SAK_OUTLINER_WIDGET_HPP
+#define SAK_OUTLINER_WIDGET_HPP
 
 #include <memory>
 #include <QWidget>
 
 namespace sak
 {
-    class Project;
+  class Project;
+
+  namespace outliner
+  {
     //---------------------------------------------------------------------------
-    // Project_Outliner
+    // outliner::widget
     //---------------------------------------------------------------------------
-    class Project_Outliner :
+    class widget :
             public QWidget
     {
     public:
-        explicit Project_Outliner(Project& a_project, QWidget* a_parent = nullptr);
-        ~Project_Outliner() override;
+        explicit widget(Project& a_project, QWidget* a_parent = nullptr);
+        ~widget() override;
 
     private:
         // Pimpl Data
@@ -26,6 +29,7 @@ namespace sak
         Implementation& imp()                { return *m_data; }
         Implementation const& cimp() const   { return *m_data; }
     };
+  }
 }
 
-#endif // PROJECT_OUTLINER_HPP
+#endif // SAK_OUTLINER_WIDGET_HPP

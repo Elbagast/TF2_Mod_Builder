@@ -25,7 +25,6 @@ namespace sak
     public:
       using inherited_type = generic::abstract::Command;
       using object_type = object<T,Ms...>;
-      //using member_type = typename object_type::member_type<Index>;
       using member_type = mf::object_member_t<object_type,Index>;
       using value_type = typename member_type::value_type;
 
@@ -37,7 +36,7 @@ namespace sak
         m_ehandle{a_ehandle},
         m_new_value{a_value},
         // get the basic handle, then get the data held, then get the member, then get the value
-        m_old_value{m_ehandle.cget_basic_handle().cget().cat<Index>().cget()}
+        m_old_value{m_ehandle.cget_handle().cget().cat<Index>().cget()}
       {}
 
       ~command_assign() override = default;
@@ -45,14 +44,14 @@ namespace sak
         void do_execute() override final
         {
           // open the handle, then the common data, then set that part of it.
-          m_ehandle.get_basic_handle().get().at<Index>().get() = m_new_value;
-          m_project->get_signalbox()->data_changed_at(m_ehandle,Index); // outbound signal to project
+          m_ehandle.get_handle().get().at<Index>().get() = m_new_value;
+          //m_project->get_signalbox()->data_changed_at(m_ehandle,Index); // outbound signal to project
         }
         void do_unexecute() override final
         {
           // open the handle, then the common data, then set that part of it.
-          m_ehandle.get_basic_handle().get().at<Index>().get() = m_old_value;
-          m_project->get_signalbox()->data_changed_at(m_ehandle,Index); // outbound signal to project
+          m_ehandle.get_handle().get().at<Index>().get() = m_old_value;
+          //m_project->get_signalbox()->data_changed_at(m_ehandle,Index); // outbound signal to project
         }
     private:
         Project* m_project;

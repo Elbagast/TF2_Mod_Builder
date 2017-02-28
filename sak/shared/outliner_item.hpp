@@ -6,10 +6,15 @@
 #include "extended_manager.hpp"
 #include <qtlib/outliner/branch_item.hpp>
 #include <qtlib/outliner/leaf_item.hpp>
-#include <sak/project_outliner_items.hpp>
 
 namespace sak
 {
+  namespace outliner
+  {
+    class Root_Item;
+    class Project_Item;
+  }
+
   namespace shared
   {
     namespace outliner
@@ -17,13 +22,17 @@ namespace sak
       //---------------------------------------------------------------------------
       // shared::outliner::header_item<T>
       //---------------------------------------------------------------------------
-      template <typename T, typename...Ms>
-      class header_item<object<T,Ms...>> :
-          public qtlib::outliner::Readonly_Branch_Item<sak::outliner::Project_Item, item<object<T,Ms...>>>
+      template <typename T>
+      class header_item :
+          public qtlib::outliner::Readonly_Branch_Item<sak::outliner::Project_Item, item<T>>
       {
-        using inherited_type = qtlib::outliner::Readonly_Branch_Item<sak::outliner::Project_Item, item<object<T,Ms...>>>;
+        using inherited_type = qtlib::outliner::Readonly_Branch_Item<sak::outliner::Project_Item, item<T>>;
       public:
-        using object_type = object<T,Ms...>;
+        // Typedefs
+        //============================================================
+        using object_type = T;
+        using extended_handle_type = extended_handle<object_type>;
+
         // Special 6
         //============================================================
         explicit header_item(parent_type* a_parent, bool a_read_files = true);
@@ -51,34 +60,40 @@ namespace sak
         Project const& cget_project() const;
         // What index is the File_Item that holds this File_Handle reside at?
         // Returns get_child_count() if it is not found.
-        std::size_t index_of_file(File_Handle const& a_file) const;
+        std::size_t index_of(extended_handle_type const& a_ehandle) const;
         // What File_Item holds this File_Handle? Returns nullptr if not found.
-        item<object<T,Ms...>>* item_of_file(File_Handle const& a_file) const;
+        child_type* item_of(extended_handle_type const& a_ehandle) const;
 
         // When a File has had its name changed, this is called.
-        void name_changed(File_Handle const& a_file);
+        void name_changed(extended_handle_type const& a_ehandle);
         // When a File has been added, this is called.
-        void added(File_Handle const& a_file);
+        void added(extended_handle_type const& a_ehandle);
         // When a File has been removed, this is called.
-        void removed(File_Handle const& a_file);
+        void removed(extended_handle_type const& a_ehandle);
       };
 
       //---------------------------------------------------------------------------
       // shared::outliner::item<T>
       //---------------------------------------------------------------------------
 
-      template <typename T, typename...Ms>
-      class item<object<T,Ms...>> :
-          public qtlib::outliner::Leaf_Item<header_item<object<T,Ms...>>>
+      template <typename T>
+      class item :
+          public qtlib::outliner::Leaf_Item<header_item<T>>
       {
-        using inherited_type = qtlib::outliner::Leaf_Item<header_item<object<T,Ms...>>>;
+        using inherited_type = qtlib::outliner::Leaf_Item<header_item<T>>;
+      //template <typename T, typename...Ms>
+      //class item<object<T,Ms...>> :
+      //    public qtlib::outliner::Leaf_Item<header_item<object<T,Ms...>>>
+      //{
+      //  using inherited_type = qtlib::outliner::Leaf_Item<header_item<object<T,Ms...>>>;
       public:
-        using object_type = object<T,Ms...>;
+        //using object_type = object<T,Ms...>;
+        using object_type = T;
         using extended_handle_type = extended_handle<object_type>;
 
         // Special 6
         //============================================================
-        item(parent_type* a_parent, File_Handle const& a_file);
+        item(parent_type* a_parent, extended_handle_type const& a_ehandle);
         ~item() override;
 
         // Virtual Interface
@@ -116,9 +131,11 @@ namespace sak
         //============================================================
         Project& get_project();
         Project const& cget_project() const;
-        extended_handle_type const& ehandle() const;
+        extended_handle_type const& cget_ehandle() const;
         QString cget_name() const;
         void set_name(QString const& a_name);
+
+        QString cget_description() const;
 
     private:
         extended_handle_type m_ehandle;

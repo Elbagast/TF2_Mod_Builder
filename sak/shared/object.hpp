@@ -5,6 +5,8 @@
 #include <dclib/ct/object.hpp>
 #include <dclib/ct/member.hpp>
 
+#include <QString>
+
 namespace sak
 {
   namespace shared

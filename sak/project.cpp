@@ -14,10 +14,10 @@
 
 #include "project_signalbox.hpp"
 #include "exceptions/exception.hpp"
-#include "file_manager.hpp"
-#include "name_utilities.hpp"
-#include "file_interface.hpp"
+#include "shared/manager.hpp"
+#include "shared/extended_manager.hpp"
 #include "../generic/command_history.hpp"
+#include "name_utilities.hpp"
 
 //---------------------------------------------------------------------------
 // Project
@@ -47,17 +47,17 @@ namespace sak
         QFileInfo m_filepath;
         QString m_message;
         QString m_data;
-        File_Manager m_file_manager;
+        file::extended_manager m_file_manager;
 
-        std::vector<File_Handle> m_files;
+        std::vector<file::extended_handle> m_files;
 
         std::vector<Project_Signalbox*> m_dependents;
-        generic::Command_HPPistory m_command_history;
+        generic::Command_History m_command_history;
 
         Implementation(QString const& a_filepath, Project* a_owner):
             Project_Signalbox(),
             m_filepath{a_filepath},
-            m_file_manager{File_Interface_Traits(a_owner)},
+            m_file_manager{file::interface_traits(a_owner)},
             m_files{},
             m_dependents{},
             m_command_history{}
@@ -69,56 +69,32 @@ namespace sak
         //============================================================
         // Call these to call the signalbox functions in all dependents.
 
-        // When a File has had its name changed, this is called.
-        void name_changed(File_Handle const& a_file) override final
-        {
-            qDebug() << "\nProject::Implementation::name_changed";
-            // This thing must exist
-            assert(a_file.is_valid());
-            assert(std::find(m_files.cbegin(), m_files.cend(), a_file) != m_files.cend());
-            for (auto l_item : m_dependents)
-            {
-                l_item->name_changed(a_file);
-            }
-        }
         // When a File has its data changed(anything but the name), this is called.
-        void description_changed(File_Handle const& a_file) override final
+        void changed(file::extended_handle const& a_file) override final
         {
-            qDebug() << "\nProject::Implementation::description_changed";
+            qDebug() << "\nProject::Implementation::change";
             // This thing must exist
             assert(a_file.is_valid());
             assert(std::find(m_files.cbegin(), m_files.cend(), a_file) != m_files.cend());
             for (auto l_item : m_dependents)
             {
-                l_item->description_changed(a_file);
-            }
-        }
-        // When a File has its data changed(anything but the name), this is called.
-        void data_changed(File_Handle const& a_file) override final
-        {
-            qDebug() << "\nProject::Implementation::data_changed";
-            // This thing must exist
-            assert(a_file.is_valid());
-            assert(std::find(m_files.cbegin(), m_files.cend(), a_file) != m_files.cend());
-            for (auto l_item : m_dependents)
-            {
-                l_item->data_changed(a_file);
+                l_item->changed(a_file);
             }
         }
         // When a File has its data changed in a specific place, this is called.
-        void data_changed_at(File_Handle const& a_file, std::size_t a_section) override final
+        void changed_at(file::extended_handle const& a_file, std::size_t a_section) override final
         {
-            qDebug() << "\nProject::Implementation::data_changed_at";
+            qDebug() << "\nProject::Implementation::changed_at " << a_section;
             // This thing must exist
             assert(a_file.is_valid());
             assert(std::find(m_files.cbegin(), m_files.cend(), a_file) != m_files.cend());
             for (auto l_item : m_dependents)
             {
-                l_item->data_changed_at(a_file, a_section);
+                l_item->changed_at(a_file, a_section);
             }
         }
         // When a File has been added, this is called.
-        void added(File_Handle const& a_file) override final
+        void added(file::extended_handle const& a_file) override final
         {
             qDebug() << "\nProject::Implementation::added";
             // This thing must exist
@@ -133,7 +109,7 @@ namespace sak
             }
         }
         // When a File has been removed, this is called.
-        void removed(File_Handle const& a_file) override final
+        void removed(file::extended_handle const& a_file) override final
         {
             qDebug() << "\nProject::Implementation::removed";
             assert(a_file.is_valid());
@@ -141,10 +117,10 @@ namespace sak
             assert(l_found != m_files.cend());
             assert(std::addressof(a_file) != std::addressof(*l_found));
 
-            // Copy the File_Handle locally. We don't know where it came from and have to propagate
+            // Copy the file::extended_handle locally. We don't know where it came from and have to propagate
             // the signal from here rather than who knows where to insure the signal reference stays
             // valid for all that need it.
-            File_Handle l_file = a_file;
+            file::extended_handle l_file = a_file;
             // Now kill it, because if it's still in the project the signal will call back to find it
             // is still present.
             m_files.erase(l_found);
@@ -156,7 +132,7 @@ namespace sak
             }
         }
         // When a File requests an editor, this is called.
-        void requests_editor(File_Handle const& a_file) override final
+        void requests_editor(file::extended_handle const& a_file) override final
         {
             qDebug() << "\nProject::Implementation::requests_editor";
             // This thing must exist
@@ -169,7 +145,7 @@ namespace sak
         }
 
         // When a File requests an editor, this is called.
-        void requests_focus(File_Handle const& a_file) override final
+        void requests_focus(file::extended_handle const& a_file) override final
         {
             qDebug() << "\nProject::Implementation::requests_focus";
             // This thing must exist
@@ -264,10 +240,10 @@ void sak::Project::save() const
        for (auto const& l_file : cimp().m_files)
        {
            xml_stream.writeStartElement("File");
-           xml_stream.writeTextElement("Name", l_file.cget().cget_name());
-           xml_stream.writeTextElement("Description", l_file.cget().cget_description());
-           xml_stream.writeTextElement("Buildpath", l_file.cget().cget_buildpath());
-           xml_stream.writeTextElement("Sourcepath", l_file.cget().cget_sourcepath());
+           xml_stream.writeTextElement("Name", l_file.cget().cat<0>().cget());
+           xml_stream.writeTextElement("Description", l_file.cget().cat<1>().cget());
+           xml_stream.writeTextElement("Buildpath", l_file.cget().cat<2>().cget());
+           xml_stream.writeTextElement("Sourcepath", l_file.cget().cat<3>().cget());
            xml_stream.writeEndElement();
        }
 
@@ -335,14 +311,14 @@ void sak::Project::load()
                 {
                     if (xml_stream.readNextStartElement() && xml_stream.name().toString() == "File")
                     {
-                        File l_file{};
+                        file::object l_file{};
                         //qDebug() << "File: "<< l_index ;
                         // <Name>
                         if (xml_stream.readNextStartElement() && xml_stream.name().toString() == "Name")
                         {
                             auto l_data = xml_stream.readElementText();
                             //qDebug() << "Name: " << l_data;
-                            l_file.set_name(l_data);
+                            l_file.at<0>().get() = l_data;
 
                             // </Name>
                             xml_stream.readNext();
@@ -356,7 +332,7 @@ void sak::Project::load()
                         {
                             auto l_data = xml_stream.readElementText();
                             //qDebug() << "Description:" << l_data;
-                            l_file.set_description(l_data);
+                            l_file.at<1>().get() = l_data;
 
                             // </Description>
                             xml_stream.readNext();
@@ -370,7 +346,7 @@ void sak::Project::load()
                         {
                             auto l_data = xml_stream.readElementText();
                             //qDebug() << "Description:" << l_data;
-                            l_file.set_buildpath(l_data);
+                            l_file.at<2>().get() = l_data;
 
                             // </Buildpath>
                             xml_stream.readNext();
@@ -384,7 +360,7 @@ void sak::Project::load()
                         {
                             auto l_data = xml_stream.readElementText();
                             //qDebug() << "Description:" << l_data;
-                            l_file.set_sourcepath(l_data);
+                            l_file.at<3>().get() = l_data;
 
                             // </Sourcepath>
                             xml_stream.readNext();
@@ -512,7 +488,7 @@ void sak::Project::redo()
 }
 
 // Commands get sent here.
-void sak::Project::emplace_execute(std::unique_ptr<generic::abstract::Command>&& a_command)
+void sak::Project::emplace_execute(std::unique_ptr<command_type>&& a_command)
 {
     if (a_command != nullptr)
     {
@@ -542,13 +518,13 @@ std::size_t sak::Project::file_count() const
 }
 
 // Get the file at this index, asssuming the Files are alphabetically sorted by name
-sak::File_Handle sak::Project::get_file_at(std::size_t a_index) const
+sak::file::extended_handle sak::Project::get_file_at(std::size_t a_index) const
 {
     return cimp().m_files.at(a_index);
 }
 
 // Get all the Files alphabetically sorted by name
-std::vector<sak::File_Handle> sak::Project::get_all_files() const
+std::vector<sak::file::extended_handle> sak::Project::get_all_files() const
 {
     return cimp().m_files;
 }
@@ -561,7 +537,7 @@ std::vector<QString> sak::Project::get_all_file_names() const
     l_result.reserve(cimp().m_files.size());
     for (auto const& l_file : cimp().m_files)
     {
-        l_result.push_back(l_file.cget().cget_name());
+        l_result.push_back(l_file.cget().cat<0>().cget());
     }
     return l_result;
 }
@@ -573,19 +549,21 @@ std::vector<QString> sak::Project::get_all_file_names() const
 
 // Make a new file using the supplied data. Project's data management system owns it but
 // it is not part of the Proeject.
-sak::File_Handle sak::Project::make_emplace_file(File&& a_file)
+sak::file::extended_handle sak::Project::make_emplace_file(file::object&& a_file)
 {
     return imp().m_file_manager.emplace_data(std::move(a_file));
 }
 
 // Make a new file using the default parameters. Project's data management system owns it
 // but it is not part of the Project.
-sak::File_Handle sak::Project::make_file()
+sak::file::extended_handle sak::Project::make_file()
 {
     // uniqueify the name.
     QString l_name{u8"New File"};
     uniqueify_name(l_name, get_all_file_names());
-    return make_emplace_file(File(l_name));
+    file::object l_file{};
+    l_file.at<0>().get() = l_name;
+    return make_emplace_file(std::move(l_file));
 }
 
 // To signal that something should be done to the project, you may access the signalbox

@@ -1,6 +1,8 @@
 #ifndef SAK_SHARED_FWD_INTERFACE_HPP
 #define SAK_SHARED_FWD_INTERFACE_HPP
 
+#include "object.hpp"
+
 namespace sak
 {
   namespace shared
@@ -16,6 +18,19 @@ namespace sak
     //---------------------------------------------------------------------------
     template <typename T>
     class const_interface;
+  }
+
+  namespace file
+  {
+    //---------------------------------------------------------------------------
+    // file::interface
+    //---------------------------------------------------------------------------
+    using interface = shared::interface<object>;
+
+    //---------------------------------------------------------------------------
+    // file::const_interface
+    //---------------------------------------------------------------------------
+    using const_interface = shared::interface<object>;
   }
 }
 

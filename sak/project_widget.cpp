@@ -7,7 +7,7 @@
 #include <QDebug>
 #include <QHBoxLayout>
 #include <QSplitter>
-
+/*
 #include "file_manager.hpp"
 #include "file_widget.hpp"
 #include "project.hpp"
@@ -15,7 +15,21 @@
 #include "project_editor.hpp"
 #include "project_signalbox.hpp"
 #include "exceptions/exception.hpp"
+*/
+#include "exceptions/exception.hpp"
 
+#include "project_signalbox.hpp"
+
+#include "shared/object.hpp"
+#include "shared/manager.hpp"
+#include "shared/extended_manager.hpp"
+#include "shared/interface_traits.hpp"
+#include "shared/interface.hpp"
+#include "shared/widget.hpp"
+#include "project_editor.hpp"
+#include "outliner/widget.hpp"
+
+#include "project.hpp"
 
 //---------------------------------------------------------------------------
 // Project_Widget
@@ -44,30 +58,25 @@ namespace sak
         // Because QSplitter takes ownership it must be before the widgets it holds.
         // This means the unique_ptr destructor is called after it knows its children are dead.
         std::unique_ptr<QSplitter> m_splitter;
-        std::unique_ptr<Project_Outliner> m_outliner;
+        std::unique_ptr<outliner::widget> m_outliner;
         std::unique_ptr<Project_Editor> m_editor;
 
         ~Implementation() override;
 
         Implementation(Project_Widget* a_owner, std::unique_ptr<Project>&& a_data);
 
-        // When a File has had its name changed, this is called.
-        void name_changed(File_Handle const& a_file) override final;
-
         // When a File has its data changed(anything but the name), this is called.
-        void data_changed(File_Handle const& a_file) override final;
-        // When a File has had its description changed, this is called.
-        void description_changed(File_Handle const& a_file) override final;
+        void changed(file::extended_handle const& a_file) override final;
         // When a File has its data changed in a specific place, this is called.
-        void data_changed_at(File_Handle const& a_file, std::size_t a_section) override final;
+        void changed_at(file::extended_handle const& a_file, std::size_t a_section) override final;
         // When a File has been added, this is called.
-        void added(File_Handle const& a_file) override final;
+        void added(file::extended_handle const& a_file) override final;
         // When a File has been removed, this is called.
-        void removed(File_Handle const& a_file) override final;
+        void removed(file::extended_handle const& a_file) override final;
         // When a File editor is to be opened, this is called.
-        void requests_editor(File_Handle const& a_file) override final;
+        void requests_editor(file::extended_handle const& a_file) override final;
         // When focus is changed to be on a File, call this
-        void requests_focus(File_Handle const& a_file) override final;
+        void requests_focus(file::extended_handle const& a_file) override final;
 
         void signal_unsaved_edits_change(bool a_state);
         void signal_undo_change();
@@ -82,7 +91,7 @@ sak::Project_Widget::Implementation::Implementation(Project_Widget* a_owner, std
     m_project{std::move(a_data)},
     m_layout{std::make_unique<QHBoxLayout>()},
     m_splitter{std::make_unique<QSplitter>(Qt::Horizontal, nullptr)},
-    m_outliner{std::make_unique<Project_Outliner>(*m_project, nullptr)},
+    m_outliner{std::make_unique<outliner::widget>(*m_project, nullptr)},
     m_editor{std::make_unique<Project_Editor>(*m_project, nullptr)}
 {
     m_project->add_signalbox(this);
@@ -97,55 +106,41 @@ sak::Project_Widget::Implementation::Implementation(Project_Widget* a_owner, std
     m_layout->setSpacing(0);
 }
 
-// When a File has had its name changed, this is called.
-void sak::Project_Widget::Implementation::name_changed(File_Handle const& )
-{
-    qDebug() << "Project_Widget::Implementation::name_changed";
-    signal_unsaved_edits_change(true);
-    signal_undo_change();
-}
-// When a File has had its description changed, this is called.
-void sak::Project_Widget::Implementation::description_changed(File_Handle const& )
-{
-    qDebug() << "Project_Widget::Implementation::description_changed";
-    signal_unsaved_edits_change(true);
-    signal_undo_change();
-}
 // When a File has its data changed(anything but the name), this is called.
-void sak::Project_Widget::Implementation::data_changed(File_Handle const& )
+void sak::Project_Widget::Implementation::changed(file::extended_handle const& )
 {
     qDebug() << "Project_Widget::Implementation::data_changed";
     signal_unsaved_edits_change(true);
     signal_undo_change();
 }
 // When a File has its data changed in a specific place, this is called.
-void sak::Project_Widget::Implementation::data_changed_at(File_Handle const&, std::size_t )
+void sak::Project_Widget::Implementation::changed_at(file::extended_handle const&, std::size_t )
 {
     qDebug() << "Project_Widget::Implementation::data_changed_at";
     signal_unsaved_edits_change(true);
     signal_undo_change();
 }
 // When a File has been added, this is called.
-void sak::Project_Widget::Implementation::added(File_Handle const& )
+void sak::Project_Widget::Implementation::added(file::extended_handle const& )
 {
     qDebug() << "Project_Widget::Implementation::added";
     signal_unsaved_edits_change(true);
     signal_undo_change();
 }
 // When a File has been removed, this is called.
-void sak::Project_Widget::Implementation::removed(File_Handle const& )
+void sak::Project_Widget::Implementation::removed(file::extended_handle const& )
 {
     qDebug() << "Project_Widget::Implementation::removed";
     signal_unsaved_edits_change(true);
     signal_undo_change();
 }
 // When a File editor is to be opened, this is called.
-void sak::Project_Widget::Implementation::requests_editor(File_Handle const& )
+void sak::Project_Widget::Implementation::requests_editor(file::extended_handle const& )
 {
     qDebug() << "Project_Widget::Implementation::requests_editor";
 }
 // When focus is changed to be on a File, call this
-void sak::Project_Widget::Implementation::requests_focus(File_Handle const& )
+void sak::Project_Widget::Implementation::requests_focus(file::extended_handle const& )
 {
     qDebug() << "Project_Widget::Implementation::requests_focus";
 }

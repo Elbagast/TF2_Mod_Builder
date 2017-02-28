@@ -125,8 +125,8 @@ namespace generic
         interface_type get();
         const_interface_type cget() const;
 
-        basic_handle_type& get_basic_handle();
-        basic_handle_type const& cget_basic_handle() const;
+        basic_handle_type& get_handle();
+        basic_handle_type const& cget_handle() const;
 
         bool operator==(Extended_Handle const& a_other) const;
         bool operator!=(Extended_Handle const& a_other) const;
@@ -291,12 +291,12 @@ typename generic::Extended_Handle<IDM,T,IT>::const_interface_type generic::Exten
 }
 
 template <typename IDM, typename T, typename IT>
-typename generic::Extended_Handle<IDM,T,IT>::basic_handle_type& generic::Extended_Handle<IDM,T,IT>::get_basic_handle()
+typename generic::Extended_Handle<IDM,T,IT>::basic_handle_type& generic::Extended_Handle<IDM,T,IT>::get_handle()
 {
     return m_handle;
 }
 template <typename IDM, typename T, typename IT>
-typename generic::Extended_Handle<IDM,T,IT>::basic_handle_type const& generic::Extended_Handle<IDM,T,IT>::cget_basic_handle() const
+typename generic::Extended_Handle<IDM,T,IT>::basic_handle_type const& generic::Extended_Handle<IDM,T,IT>::cget_handle() const
 {
     return m_handle;
 }

@@ -4,16 +4,16 @@
 
 #include <dclib/litype/testing/test_string.hpp>
 #include <dclib/litype/testing/test_integer.hpp>
-#include <dclib/litype/testing/test_float.hpp>
+//#include <dclib/litype/testing/test_float.hpp>
 
 #include <dclib/ct/testing/test_object.hpp>
 #include <dclib/rt/testing/test_object.hpp>
 
-#include <sak/file/extended_manager.hpp>
-#include <sak/file/interface.hpp>
-#include <sak/file/interface_traits.hpp>
-#include <sak/file/command.hpp>
-#include <sak/file/widget.hpp>
+#include <sak/shared/extended_manager.hpp>
+#include <sak/shared/interface.hpp>
+#include <sak/shared/interface_traits.hpp>
+#include <sak/shared/command.hpp>
+#include <sak/shared/widget.hpp>
 
 void myMessageOutput(QtMsgType type, QMessageLogContext const& context, QString const& msg)
 {
@@ -50,7 +50,7 @@ int main(int argc, char *argv[])
 
     dclib::litype::test_string();
     dclib::litype::test_integer();
-    dclib::litype::test_float();
+    //dclib::litype::test_float();
 
     dclib::ct::test_object();
     dclib::rt::test_object();
