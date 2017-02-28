@@ -131,7 +131,8 @@ SOURCES += \
     sak/shared/widget.cpp \
     sak/outliner/root_item.cpp \
     sak/outliner/project_item.cpp \
-    sak/outliner/widget.cpp
+    sak/outliner/widget.cpp \
+    sak/shared/dispatch_signals.cpp
     
 
 HEADERS  += \
@@ -252,7 +253,9 @@ HEADERS  += \
     qtlib/outliner/trunk_item.hpp \
     sak/outliner/root_item.hpp \
     sak/outliner/project_item.hpp \
-    sak/outliner/widget.hpp
+    sak/outliner/widget.hpp \
+    sak/shared/dispatch_signals.hpp \
+    sak/shared/fwd/dispatch_signals.hpp
     
 
 FORMS

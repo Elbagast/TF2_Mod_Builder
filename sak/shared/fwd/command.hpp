@@ -8,6 +8,18 @@ namespace sak
 {
   namespace shared
   {
+    namespace abstract
+    {
+      //---------------------------------------------------------------------------
+      // abstract::command_assign<T>
+      //---------------------------------------------------------------------------
+      // Base class for commands for the assignment of member values. This class
+      // captures the common details and allows us to hide the signaling methods.
+
+      template <typename T>
+      class command_assign;
+    }
+
     //---------------------------------------------------------------------------
     // command_assign<T,Index>
     //---------------------------------------------------------------------------
@@ -40,6 +52,17 @@ namespace sak
 
   namespace file
   {
+    namespace abstract
+    {
+      //---------------------------------------------------------------------------
+      // abstract::command_assign<T>
+      //---------------------------------------------------------------------------
+      // Base class for commands for the assignment of member values. This class
+      // captures the common details and allows us to hide the signaling methods.
+
+      using command_assign = shared::abstract::command_assign<object>;
+    }
+
     template <std::size_t Index>
     using command_assign = shared::command_assign<object,Index>;
 

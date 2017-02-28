@@ -6,6 +6,7 @@
 #include "manager.hpp"
 #include "extended_manager.hpp"
 #include "command.hpp"
+#include <sak/project.hpp>
 
 //---------------------------------------------------------------------------
 // shared::internal::fixup_value<T,I>
@@ -51,29 +52,3 @@ template sak::shared::internal::do_set<sak::file::object,1>;
 template sak::shared::internal::do_set<sak::file::object,2>;
 template sak::shared::internal::do_set<sak::file::object,3>;
 
-/*
-//---------------------------------------------------------------------------
-// shared::const_interface<T>
-//---------------------------------------------------------------------------
-template <typename T, typename...Ms>
-sak::shared::const_interface<sak::shared::object<T,Ms...>>::const_interface(extended_handle_type const& a_ehandle, handle_type const& a_handle):
-  m_ehandle{a_ehandle},
-  m_handle{a_handle}
-{}
-
-template <typename T, typename...Ms>
-constexpr std::size_t sak::shared::const_interface<sak::shared::object<T,Ms...>>::size()
-{
-  return object_type::size();
-}
-
-template <std::size_t I, typename T, typename...Ms>
-sak::shared::mf::object_member_t<typename sak::shared::const_interface<sak::shared::object<T,Ms...>>::object_type,I> const& sak::shared::const_interface<sak::shared::object<T,Ms...>>::cat() const
-{
-  return m_handle.cget().cat<I>();
-}
-
-// Forced Instantiations
-//============================================================
-template sak::file::const_interface;
-*/

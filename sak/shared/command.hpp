@@ -5,7 +5,7 @@
 #include "object.hpp"
 #include "manager.hpp"
 #include "extended_manager.hpp"
-#include "../project.hpp"
+#include "dispatch_signals.hpp"
 #include <generic/command.hpp>
 
 namespace sak
@@ -23,13 +23,16 @@ namespace sak
         public generic::abstract::Command
     {
     public:
+      // Typedefs
+      //============================================================
       using inherited_type = generic::abstract::Command;
       using object_type = object<T,Ms...>;
       using member_type = mf::object_member_t<object_type,Index>;
       using value_type = typename member_type::value_type;
-
       using extended_handle_type = extended_handle<object_type>;
 
+      // Special 6
+      //============================================================
       command_assign(Project* a_project, extended_handle_type const& a_ehandle, value_type const& a_value):
         inherited_type(),
         m_project{a_project},
@@ -39,25 +42,31 @@ namespace sak
         m_old_value{m_ehandle.cget_handle().cget().cat<Index>().cget()}
       {}
 
-      ~command_assign() override = default;
+      ~command_assign() override final = default;
+
     protected:
-        void do_execute() override final
-        {
-          // open the handle, then the common data, then set that part of it.
-          m_ehandle.get_handle().get().at<Index>().get() = m_new_value;
-          m_project->get_signalbox()->changed_at(m_ehandle,Index); // outbound signal to project
-        }
-        void do_unexecute() override final
-        {
-          // open the handle, then the common data, then set that part of it.
-          m_ehandle.get_handle().get().at<Index>().get() = m_old_value;
-          m_project->get_signalbox()->changed_at(m_ehandle,Index); // outbound signal to project
-        }
+      // Virtuals
+      //============================================================
+      void do_execute() override final
+      {
+        // open the handle, then the common data, then set that part of it.
+        m_ehandle.get_handle().get().at<Index>().get() = m_new_value;
+        dispatch_signals<object_type>::changed_at(m_project, m_ehandle, Index); // outbound signal.
+      }
+      void do_unexecute() override final
+      {
+        // open the handle, then the common data, then set that part of it.
+        m_ehandle.get_handle().get().at<Index>().get() = m_old_value;
+        dispatch_signals<object_type>::changed_at(m_project, m_ehandle, Index); // outbound signal.
+      }
+
     private:
-        Project* m_project;
-        extended_handle_type m_ehandle;
-        value_type m_new_value;
-        value_type m_old_value;
+      // Data Members
+      //============================================================
+      Project* m_project;
+      extended_handle_type m_ehandle;
+      value_type m_new_value;
+      value_type m_old_value;
     };
 
     template <typename T, std::size_t Index>
@@ -78,10 +87,14 @@ namespace sak
         public generic::abstract::Command
     {
     public:
+      // Typedefs
+      //============================================================
       using inherited_type = generic::abstract::Command;
       using object_type = object<T,Ms...>;
       using extended_handle_type = extended_handle<object_type>;
 
+      // Special 6
+      //============================================================
       command_added(Project* a_project, extended_handle_type const& a_ehandle):
         inherited_type(),
         m_project{a_project},
@@ -94,19 +107,25 @@ namespace sak
         m_ehandle{std::move(a_ehandle)}
       {}
 
-      ~command_added() override = default;
+      ~command_added() override final = default;
+
     protected:
-        void do_execute() override final
-        {
-          m_project->get_signalbox()->added(m_ehandle); // outbound signal to project
-        }
-        void do_unexecute() override final
-        {
-          m_project->get_signalbox()->removed(m_ehandle); // outbound signal to project
-        }
+      // Virtuals
+      //============================================================
+      void do_execute() override final
+      {
+        dispatch_signals<object_type>::added(m_project, m_ehandle); // outbound signal.
+      }
+      void do_unexecute() override final
+      {
+        dispatch_signals<object_type>::removed(m_project, m_ehandle); // outbound signal.
+      }
+
     private:
-        Project* m_project;
-        extended_handle_type m_ehandle;
+      // Data Members
+      //============================================================
+      Project* m_project;
+      extended_handle_type m_ehandle;
     };
 
     template <typename T>
@@ -133,10 +152,14 @@ namespace sak
         public generic::abstract::Command
     {
     public:
+      // Typedefs
+      //============================================================
       using inherited_type = generic::abstract::Command;
       using object_type = object<T,Ms...>;
       using extended_handle_type = extended_handle<object_type>;
 
+      // Special 6
+      //============================================================
       command_removed(Project* a_project, extended_handle_type const& a_ehandle):
         inherited_type(),
         m_project{a_project},
@@ -149,19 +172,25 @@ namespace sak
         m_ehandle{std::move(a_ehandle)}
       {}
 
-      ~command_removed() override = default;
+      ~command_removed() override final = default;
+
     protected:
-        void do_execute() override final
-        {
-          m_project->get_signalbox()->removed(m_ehandle); // outbound signal to project
-        }
-        void do_unexecute() override final
-        {
-          m_project->get_signalbox()->added(m_ehandle); // outbound signal to project
-        }
+      // Virtuals
+      //============================================================
+      void do_execute() override final
+      {
+        dispatch_signals<object_type>::removed(m_project, m_ehandle); // outbound signal.
+      }
+      void do_unexecute() override final
+      {
+        dispatch_signals<object_type>::added(m_project, m_ehandle); // outbound signal.
+      }
+
     private:
-        Project* m_project;
-        extended_handle_type m_ehandle;
+      // Data Members
+      //============================================================
+      Project* m_project;
+      extended_handle_type m_ehandle;
     };
 
     template <typename T>
@@ -178,6 +207,5 @@ namespace sak
 
   } // namespace shared
 } // namespace sak
-
 
 #endif // SAK_SHARED_COMMAND_HPP

@@ -67,12 +67,6 @@ namespace sak
     can be held in a runtime array with only the initialisation being the problem.
     Then the editors just need a baseclass...
     */
-    //template <typename T, typename...Ms>
-    //class widget<object<T,Ms...>> :
-    //    public QWidget
-    //{
-    //public:
-    //  using object_type = object<T,Ms...>;
     template <typename T>
     class widget :
         public QWidget

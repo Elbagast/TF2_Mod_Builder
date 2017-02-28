@@ -17,16 +17,15 @@
 
 #include <qtlib/outliner/model.hpp>
 #include <sak/project.hpp>
-#include <sak/project_signalbox.hpp>
 #include <sak/outliner/project_item.hpp>
 #include <sak/outliner/root_item.hpp>
+#include <sak/shared/dispatch_signals.hpp> // does the signal stuff.
 
 #include "object.hpp"
 #include "manager.hpp"
 #include "extended_manager.hpp"
 #include "interface_traits.hpp"
 #include "interface.hpp"
-#include "command.hpp"
 
 namespace
 {
@@ -99,22 +98,7 @@ void sak::shared::outliner::header_item<T>::do_context_menu(QAbstractItemView* a
   auto l_action_add_file = menu.addAction("Add new File");
   QObject::connect(l_action_add_file, &QAction::triggered, [=]()
   {
-    // Either this call triggers the data change in model, or we have to make that call here.
-    auto l_file = this->get_project().make_file();
-
-    // we need to wrap this as a command so it can be undone.
-    this->get_project().emplace_execute(make_command_added<T>(&(get_project()), std::move(l_file)));
-    //this->get_project().get_signalbox()->added(l_file); // outbound signal to project
-  });
-
-  auto l_action_debug = menu.addAction("debug");
-  QObject::connect(l_action_debug, &QAction::triggered, [=]()
-  {
-    qDebug() << "file list:";
-    for (auto const& l_file : cget_project().get_all_file_names())
-    {
-      qDebug() << l_file;
-    }
+    dispatch_signals<object_type>::command_make_new(&(this->get_project())); // outbound signal.
   });
 
   menu.addAction(QString::number(this->get_child_count()));
@@ -302,11 +286,9 @@ void sak::shared::outliner::item<T>::do_context_menu(QAbstractItemView* a_view, 
 
   // Open the main editor or focus on it if already open
   auto l_action_open = menu.addAction("Open");
-  QObject::connect(l_action_open, &QAction::triggered, [=]()
+  QObject::connect(l_action_open, &QAction::triggered, [this]()
   {
-    // We need access to a means to open an editor.
-    // We probably need to talk to the Project_Widget then.
-    this->get_project().get_signalbox()->requests_editor(m_ehandle); // outbound signal. currently to project.
+    dispatch_signals<object_type>::requests_editor(&(this->get_project()), this->m_ehandle);
   });
 
   // Commence an edit operation in the outliner
@@ -320,10 +302,7 @@ void sak::shared::outliner::item<T>::do_context_menu(QAbstractItemView* a_view, 
   auto l_action_delete = menu.addAction("Delete");
   QObject::connect(l_action_delete, &QAction::triggered, [=]()
   {
-    // get rid of the data
-    // we need to wrap this as a command so it can be undone.
-    this->get_project().emplace_execute(make_command_removed<T>(&(get_project()), m_ehandle));
-    //this->get_project().get_signalbox()->removed(m_ehandle); // outbound signal. currently to project.
+    dispatch_signals<object_type>::requests_editor(&(this->get_project()), this->m_ehandle); // outbound signal.
   });
 
   // Execute the menu at the global posiiton.
@@ -334,7 +313,7 @@ void sak::shared::outliner::item<T>::do_context_menu(QAbstractItemView* a_view, 
 template <typename T>
 void sak::shared::outliner::item<T>::do_double_clicked(QAbstractItemView*, model_type*)
 {
-  this->get_project().get_signalbox()->requests_editor(m_ehandle); // outbound signal. currently to project.
+  dispatch_signals<object_type>::requests_editor(&(get_project()), m_ehandle); // outbound signal.
 }
 
 // Additional Interface

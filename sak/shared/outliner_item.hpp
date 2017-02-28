@@ -9,6 +9,8 @@
 
 namespace sak
 {
+  class Project;
+
   namespace outliner
   {
     class root_item;
@@ -81,13 +83,7 @@ namespace sak
           public qtlib::outliner::Leaf_Item<header_item<T>>
       {
         using inherited_type = qtlib::outliner::Leaf_Item<header_item<T>>;
-      //template <typename T, typename...Ms>
-      //class item<object<T,Ms...>> :
-      //    public qtlib::outliner::Leaf_Item<header_item<object<T,Ms...>>>
-      //{
-      //  using inherited_type = qtlib::outliner::Leaf_Item<header_item<object<T,Ms...>>>;
       public:
-        //using object_type = object<T,Ms...>;
         using object_type = T;
         using extended_handle_type = extended_handle<object_type>;
 

@@ -30,12 +30,6 @@ namespace sak
       // can use it. This widget is responsible for dispatching the call to change
       // the member value when it is edited.
 
-      //template <std::size_t Index, typename T, typename...Ms>
-      //class member_edit_widget<object<T,Ms...>,Index> :
-      //    public abstract::member_edit_widget
-      //{
-      //public:
-      //  using object_type = object<T,Ms...>;
       template <typename T, std::size_t Index>
       class member_edit_widget :
           public abstract::member_edit_widget
@@ -144,53 +138,6 @@ namespace sak
   }
 }
 
-//---------------------------------------------------------------------------
-// shared::member_edit_widget
-//---------------------------------------------------------------------------
-// Wraps the editor for the member value and normalises the signals so that we
-// can use it. This widget is responsible for dispatching the call to change
-// the member value when it is edited.
-/*
-// Special 6
-//============================================================
-template <typename T, std::size_t I>
-sak::shared::member_edit_widget<T,I>::member_edit_widget(extended_handle_type& a_ehandle, QWidget* a_parent):
-  abstract::member_edit_widget(a_parent),
-  m_ehandle{a_ehandle},
-  m_layout{std::make_unique<QHBoxLayout>(nullptr)},
-  m_widget{std::make_unique<widget_type>(nullptr)}
-{
-  m_layout->setContentsMargins(0,0,0,0);
-  m_layout->addWidget(m_widget.get());
-  this->setLayout(m_layout.get());
-
-  // Capture the signal and dispatch it
-  QObject::connect(m_widget.get(), widget_traits_type::editing_finished_signal(), this, &member_edit_widget::editing_finished);
-  //{
-  //  this->editing_finished();
-  //});
-}
-
-template <typename T, std::size_t I>
-sak::shared::member_edit_widget<T,I>::~member_edit_widget() = default;
-
-// Public Interface
-//============================================================
-template <typename T, std::size_t I>
-void sak::shared::member_edit_widget<T,I>::update()
-{
-  widget_traits_type::set_widget_value(m_widget.get(), m_ehandle.cget().cat<Index>().cget());
-}
-
-// Private Interface
-//============================================================
-template <typename T, std::size_t I>
-void sak::shared::member_edit_widget<T,I>::editing_finished()
-{
-  m_ehandle.get().at<Index>().set(widget_traits_type::get_widget_value(m_widget.get()));
-  // hmm. set can fail to do anything. But it only fails if the input is the same as the data?
-}
-*/
 
 
 //---------------------------------------------------------------------------
