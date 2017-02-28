@@ -1,5 +1,5 @@
-#ifndef OUTLINER_ROOT_TRUNK_ITEM_HPP
-#define OUTLINER_ROOT_TRUNK_ITEM_HPP
+#ifndef QTLIB_OUTLINER_ROOT_TRUNK_ITEM_HPP
+#define QTLIB_OUTLINER_ROOT_TRUNK_ITEM_HPP
 
 #include "abstract_root_item.hpp"
 #include <memory>
@@ -137,4 +137,4 @@ void qtlib::outliner::Root_Trunk_Item<C>::set_child(std::unique_ptr<child_type>&
 }
 
 
-#endif // OUTLINER_ROOT_TRUNK_ITEM_HPP
+#endif // QTLIB_OUTLINER_ROOT_TRUNK_ITEM_HPP

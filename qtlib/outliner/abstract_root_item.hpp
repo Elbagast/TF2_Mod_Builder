@@ -1,5 +1,5 @@
-#ifndef OUTLINER_ROOT_HPP
-#define OUTLINER_ROOT_HPP
+#ifndef QTLIB_OUTLINER_ABSTRACT_ROOT_HPP
+#define QTLIB_OUTLINER_ABSTRACT_ROOT_HPP
 
 #include "abstract_item.hpp"
 
@@ -88,4 +88,4 @@ namespace qtlib
     } // namespace outliner
 } // namespace qtlib
 
-#endif // OUTLINER_ROOT_HPP
+#endif // QTLIB_OUTLINER_ABSTRACT_ROOT_HPP

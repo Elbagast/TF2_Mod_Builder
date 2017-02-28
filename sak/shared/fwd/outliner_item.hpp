@@ -30,7 +30,7 @@ namespace sak
       //---------------------------------------------------------------------------
       // file::outliner::header_item
       //---------------------------------------------------------------------------
-      using header_item = shared::outliner::item<object>;
+      using header_item = shared::outliner::header_item<object>;
 
       //---------------------------------------------------------------------------
       // file::outliner::item

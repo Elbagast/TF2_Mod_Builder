@@ -30,13 +30,13 @@ namespace
 
 // Special 6
 //============================================================
-sak::outliner::Root_Item::Root_Item(Project& a_project):
+sak::outliner::root_item::root_item(Project& a_project):
     inherited_type(),
     m_project{a_project}
 {
     this->set_child(std::make_unique<child_type>(this));
 }
-sak::outliner::Root_Item::~Root_Item() = default;
+sak::outliner::root_item::~root_item() = default;
 
 // Virtual Interface
 //============================================================
@@ -46,7 +46,7 @@ sak::outliner::Root_Item::~Root_Item() = default;
 // actions can call functions in it for editing.  Position is the position in terms of
 // the widget rather than the window. Use a_view->viewport()->mapToGlobal(a_position)
 // to get the position relative to the window for a properly placed menu.
-void sak::outliner::Root_Item::do_context_menu(QAbstractItemView* a_view, model_type* a_model, QPoint const& a_position)
+void sak::outliner::root_item::do_context_menu(QAbstractItemView* a_view, model_type* a_model, QPoint const& a_position)
 {
     shadup(a_view, a_model,a_position);
 
@@ -58,28 +58,28 @@ void sak::outliner::Root_Item::do_context_menu(QAbstractItemView* a_view, model_
 }
 
 // Do whatever we want when an item has been double clicked on.
-void sak::outliner::Root_Item::do_double_clicked(QAbstractItemView* a_view, model_type* a_model)
+void sak::outliner::root_item::do_double_clicked(QAbstractItemView* a_view, model_type* a_model)
 {
     return item_type::do_double_clicked(a_view, a_model);
 }
 
 // Additional Interface
 //============================================================
-sak::Project& sak::outliner::Root_Item::get_project()
+sak::Project& sak::outliner::root_item::get_project()
 {
     return m_project;
 }
 
-sak::Project const& sak::outliner::Root_Item::cget_project() const
+sak::Project const& sak::outliner::root_item::cget_project() const
 {
     return m_project;
 }
 
-sak::outliner::Project_Item* sak::outliner::Root_Item::project_item() const
+sak::outliner::project_item* sak::outliner::root_item::get_project_item() const
 {
     return this->get_true_child();
 }
-sak::file::outliner::header_item* sak::outliner::Root_Item::file_header_item() const
+sak::file::outliner::header_item* sak::outliner::root_item::file_header_item() const
 {
     return this->get_true_child()->file_header_item();
 }

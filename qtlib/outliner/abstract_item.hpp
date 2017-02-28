@@ -1,5 +1,5 @@
-#ifndef OUTLINER_ABSTRACT_ITEM_HPP
-#define OUTLINER_ABSTRACT_ITEM_HPP
+#ifndef QTLIB_OUTLINER_ABSTRACT_ITEM_HPP
+#define QTLIB_OUTLINER_ABSTRACT_ITEM_HPP
 
 #include <Qt> // for Qt::ItemFlags
 
@@ -96,4 +96,4 @@ namespace qtlib
     } // namespace outliner
 } // namespace qtlib
 
-#endif // OUTLINER_ABSTRACT_ITEM_HPP
+#endif // QTLIB_OUTLINER_ABSTRACT_ITEM_HPP

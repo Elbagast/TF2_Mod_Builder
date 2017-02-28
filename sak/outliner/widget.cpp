@@ -21,6 +21,17 @@
 #include "root_item.hpp"
 #include "project_item.hpp"
 
+namespace
+{
+  void test()
+  {
+    sak::shared::outliner::header_item<sak::file::object> hi{nullptr, false};
+    auto b = hi.has_children();
+    auto i = hi.index_of(sak::file::extended_handle());
+    sak::shared::outliner::item<sak::file::object> it{&hi, sak::file::extended_handle()};
+  }
+}
+
 // For reasons unknown right now, this file can't see the sak::shared::outliner::header_item<T> interface...
 // WHAT THE FUCK
 
@@ -42,7 +53,7 @@ namespace sak
         qtlib::outliner::Model m_model;
         qtlib::outliner::Delegate m_delegate;
 
-        std::unique_ptr<outliner::Root_Item> m_root;
+        std::unique_ptr<outliner::root_item> m_root;
 
         std::unique_ptr<QHBoxLayout> m_layout;
         std::unique_ptr<qtlib::outliner::Treeview> m_treeview;
@@ -74,7 +85,7 @@ sak::outliner::widget::Implementation::Implementation(Project& a_project):
     m_project{a_project},
     m_model{},
     m_delegate{},
-    m_root{std::make_unique<outliner::Root_Item>(a_project)},
+    m_root{std::make_unique<outliner::root_item>(a_project)},
     m_layout{std::make_unique<QHBoxLayout>()},
     m_treeview{std::make_unique<qtlib::outliner::Treeview>()}
 {
@@ -113,6 +124,10 @@ void sak::outliner::widget::Implementation::changed_at(file::extended_handle con
     if (a_section == 0)
     {
       auto l_files_item = m_root->file_header_item();
+      static_assert(std::is_same<decltype(l_files_item), sak::file::outliner::header_item*>::value, "bad ptr");
+      //sak::file::outliner::header_item* l_files_item = m_root->file_header_item();
+      //l_files_item->
+      auto l_i = l_files_item->index_of(a_file);
 
       assert(l_files_item != nullptr);
       auto l_model_index = m_model.create_index_from_item(l_files_item); //don't know the full type of shared::outliner::header_item?....
@@ -133,9 +148,9 @@ void sak::outliner::widget::Implementation::added(file::extended_handle const& a
     if(l_files_item == nullptr)
     {
         // we previously had no files, so we have to build the header first.
-        auto l_project_index = m_model.create_index_from_item(m_root->project_item());
+        auto l_project_index = m_model.create_index_from_item(m_root->get_project_item());
         auto l_inserter = m_model.make_row_inserter(0,l_project_index);
-        m_root->project_item()->initialise_files(false);
+        m_root->get_project_item()->initialise_files(false);
         l_files_item = m_root->file_header_item();
     }
     // add the file
@@ -166,7 +181,7 @@ void sak::outliner::widget::Implementation::removed(file::extended_handle const&
     // if we no longer have any files, get rid of the file header.
     if (!m_project.has_files())
     {
-        auto l_project_item = m_root->project_item();
+        auto l_project_item = m_root->get_project_item();
         auto l_project_index = m_model.create_index_from_item(l_project_item);
         auto l_files_position = static_cast<int>(l_files_item->index_in_parent());
         auto l_remover = m_model.make_row_remover(l_files_position,l_project_index);

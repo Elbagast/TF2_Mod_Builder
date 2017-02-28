@@ -11,8 +11,8 @@ namespace sak
 {
   namespace outliner
   {
-    class Root_Item;
-    class Project_Item;
+    class root_item;
+    class project_item;
   }
 
   namespace shared
@@ -24,9 +24,9 @@ namespace sak
       //---------------------------------------------------------------------------
       template <typename T>
       class header_item :
-          public qtlib::outliner::Readonly_Branch_Item<sak::outliner::Project_Item, item<T>>
+          public qtlib::outliner::Readonly_Branch_Item<sak::outliner::project_item, item<T>>
       {
-        using inherited_type = qtlib::outliner::Readonly_Branch_Item<sak::outliner::Project_Item, item<T>>;
+        using inherited_type = qtlib::outliner::Readonly_Branch_Item<sak::outliner::project_item, item<T>>;
       public:
         // Typedefs
         //============================================================
@@ -137,7 +137,7 @@ namespace sak
 
         QString cget_description() const;
 
-    private:
+      private:
         extended_handle_type m_ehandle;
       };
     }

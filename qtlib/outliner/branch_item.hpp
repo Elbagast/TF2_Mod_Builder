@@ -1,5 +1,5 @@
-#ifndef OUTLINER_ITEM_HPP
-#define OUTLINER_ITEM_HPP
+#ifndef QTLIB_OUTLINER_BRANCH_ITEM_HPP
+#define QTLIB_OUTLINER_BRANCH_ITEM_HPP
 
 #include "parented_item.hpp"
 #include <vector>
@@ -311,4 +311,4 @@ Qt::ItemFlags qtlib::outliner::Readonly_Branch_Item<P,C>::get_flags() const
 }
 
 
-#endif // OUTLINER_ITEM_HPP
+#endif // QTLIB_OUTLINER_BRANCH_ITEM_HPP

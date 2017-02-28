@@ -1,5 +1,5 @@
-#ifndef OUTLINER_ORPHAN_ITEM_HPP
-#define OUTLINER_ORPHAN_ITEM_HPP
+#ifndef QTLIB_OUTLINER_ORPHAN_ITEM_HPP
+#define QTLIB_OUTLINER_ORPHAN_ITEM_HPP
 
 #include "abstract_item.hpp"
 
@@ -83,4 +83,4 @@ namespace qtlib
     } // namespace outliner
 } // namespace qtlib
 
-#endif // OUTLINER_ORPHAN_ITEM_HPP
+#endif // QTLIB_OUTLINER_ORPHAN_ITEM_HPP

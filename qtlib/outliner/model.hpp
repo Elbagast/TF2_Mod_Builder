@@ -1,5 +1,5 @@
-#ifndef OUTLINER_MODEL_HPP
-#define OUTLINER_MODEL_HPP
+#ifndef QTLIB_OUTLINER_MODEL_HPP
+#define QTLIB_OUTLINER_MODEL_HPP
 
 #include <vector>
 #include <memory>
@@ -151,4 +151,4 @@ namespace qtlib
 
 } // namespace qtlib
 
-#endif // OUTLINER_MODEL_HPP
+#endif // QTLIB_OUTLINER_MODEL_HPP

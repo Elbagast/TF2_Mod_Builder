@@ -1,5 +1,5 @@
-#ifndef OUTLINER_TREEVIEW_HPP
-#define OUTLINER_TREEVIEW_HPP
+#ifndef QTLIB_OUTLINER_TREEVIEW_HPP
+#define QTLIB_OUTLINER_TREEVIEW_HPP
 
 #include <QTreeView>
 
@@ -63,4 +63,4 @@ namespace qtlib
 
 } // namespace qtlib
 
-#endif // OUTLINER_TREEVIEW_HPP
+#endif // QTLIB_OUTLINER_TREEVIEW_HPP

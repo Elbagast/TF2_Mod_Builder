@@ -2,7 +2,7 @@
 #define SAK_OUTLINER_PROJECT_ITEM_HPP
 
 #include <qtlib/outliner/multitrunk_item.hpp>
-#include <sak/shared/fwd/outliner_item.hpp>
+#include <sak/shared/outliner_item.hpp>
 #include <memory>
 //#include "root_item.hpp"
 
@@ -12,7 +12,7 @@ namespace sak
 
   namespace outliner
   {
-    class Root_Item;
+    class root_item;
 
     //------------------------------------------------------------------------------------------------------------------------------------------------------
     //---------------------------------------------------------------------------
@@ -21,16 +21,16 @@ namespace sak
     // Outliner item that represents a Project. It's data is the Project's name.
     // It's children are the section headers which may or may not be present.
 
-    class Project_Item :
-            public qtlib::outliner::Readonly_Multitrunk_item<Root_Item, file::outliner::header_item>
+    class project_item :
+            public qtlib::outliner::Readonly_Multitrunk_Item<root_item, file::outliner::header_item>
     {
-        using inherited_type = qtlib::outliner::Readonly_Multitrunk_item<Root_Item, file::outliner::header_item>;
+        using inherited_type = qtlib::outliner::Readonly_Multitrunk_Item<root_item, file::outliner::header_item>;
     public:
 
         // Special 6
         //============================================================
-        explicit Project_Item(parent_type* a_parent);
-        ~Project_Item() override;
+        explicit project_item(parent_type* a_parent);
+        ~project_item() override;
 
         // Virtual Interface
         //============================================================

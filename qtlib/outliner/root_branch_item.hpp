@@ -1,5 +1,5 @@
-#ifndef OUTLINER_ROOT_BRANCH_ITEM_HPP
-#define OUTLINER_ROOT_BRANCH_ITEM_HPP
+#ifndef QTLIB_OUTLINER_ROOT_BRANCH_ITEM_HPP
+#define QTLIB_OUTLINER_ROOT_BRANCH_ITEM_HPP
 
 #include "abstract_root_item.hpp"
 #include <vector>
@@ -127,4 +127,4 @@ void qtlib::outliner::Root_Branch_Item<C>::append_child(std::unique_ptr<child_ty
 }
 
 
-#endif // OUTLINER_ROOT_BRANCH_ITEM_HPP
+#endif // QTLIB_OUTLINER_ROOT_BRANCH_ITEM_HPP

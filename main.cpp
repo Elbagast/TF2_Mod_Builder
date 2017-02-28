@@ -55,8 +55,8 @@ int main(int argc, char *argv[])
     dclib::ct::test_object();
     dclib::rt::test_object();
 
-    sak::file::extended_manager fem{};
-    sak::file::widget fw{fem.make_null_handle(), nullptr};
+    //sak::file::extended_manager fem{};
+    //sak::file::widget fw{fem.make_null_handle(), nullptr};
 
     return l_application.exec();
 

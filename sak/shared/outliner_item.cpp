@@ -26,6 +26,7 @@
 #include "extended_manager.hpp"
 #include "interface_traits.hpp"
 #include "interface.hpp"
+#include "command.hpp"
 
 namespace
 {
@@ -35,8 +36,6 @@ namespace
 
   }
 }
-
-
 
 //------------------------------------------------------------------------------------------------------------------------------------------------------
 //---------------------------------------------------------------------------
@@ -57,7 +56,7 @@ sak::shared::outliner::header_item<T>::header_item(parent_type* a_parent, bool a
     // sort them into whatever order and make the items
     for (auto const& l_file : l_files)
     {
-      this->append_child(std::make_unique<item>(this, l_file));
+      this->append_child(std::make_unique<item<T>>(this, l_file));
     }
   }
 }
@@ -102,7 +101,10 @@ void sak::shared::outliner::header_item<T>::do_context_menu(QAbstractItemView* a
   {
     // Either this call triggers the data change in model, or we have to make that call here.
     auto l_file = this->get_project().make_file();
-    this->get_project().get_signalbox()->added(l_file); // outbound signal to project
+
+    // we need to wrap this as a command so it can be undone.
+    this->get_project().emplace_execute(make_command_added<T>(&(get_project()), std::move(l_file)));
+    //this->get_project().get_signalbox()->added(l_file); // outbound signal to project
   });
 
   auto l_action_debug = menu.addAction("debug");
@@ -187,7 +189,7 @@ void sak::shared::outliner::header_item<T>::added(extended_handle_type const& a_
 {
   assert(a_ehandle.is_valid());
   // insert a child in a location that obeys the sorting...
-  append_child(std::make_unique<item>(this, a_ehandle));
+  append_child(std::make_unique<item<T>>(this, a_ehandle));
 }
 
 // When a File has been removed, this is called.
@@ -304,7 +306,7 @@ void sak::shared::outliner::item<T>::do_context_menu(QAbstractItemView* a_view, 
   {
     // We need access to a means to open an editor.
     // We probably need to talk to the Project_Widget then.
-    //this->get_project().get_signalbox()->requests_editor(m_ehandle); // outbound signal. currently to project.
+    this->get_project().get_signalbox()->requests_editor(m_ehandle); // outbound signal. currently to project.
   });
 
   // Commence an edit operation in the outliner
@@ -319,6 +321,8 @@ void sak::shared::outliner::item<T>::do_context_menu(QAbstractItemView* a_view, 
   QObject::connect(l_action_delete, &QAction::triggered, [=]()
   {
     // get rid of the data
+    // we need to wrap this as a command so it can be undone.
+    this->get_project().emplace_execute(make_command_removed<T>(&(get_project()), m_ehandle));
     //this->get_project().get_signalbox()->removed(m_ehandle); // outbound signal. currently to project.
   });
 
@@ -330,7 +334,7 @@ void sak::shared::outliner::item<T>::do_context_menu(QAbstractItemView* a_view, 
 template <typename T>
 void sak::shared::outliner::item<T>::do_double_clicked(QAbstractItemView*, model_type*)
 {
-  //this->get_project().get_signalbox()->requests_editor(m_ehandle); // outbound signal. currently to project.
+  this->get_project().get_signalbox()->requests_editor(m_ehandle); // outbound signal. currently to project.
 }
 
 // Additional Interface

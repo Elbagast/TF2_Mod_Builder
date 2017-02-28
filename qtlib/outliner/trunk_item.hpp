@@ -1,5 +1,5 @@
-#ifndef OUTLINER_TRUNK_ITEM_HPP
-#define OUTLINER_TRUNK_ITEM_HPP
+#ifndef QTLIB_OUTLINER_TRUNK_ITEM_HPP
+#define QTLIB_OUTLINER_TRUNK_ITEM_HPP
 
 #include "parented_item.hpp"
 #include <memory>
@@ -291,4 +291,4 @@ Qt::ItemFlags qtlib::outliner::Readonly_Trunk_Item<P,C>::get_flags() const
     return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
 }
 
-#endif // OUTLINER_TRUNK_ITEM_HPP
+#endif // QTLIB_OUTLINER_TRUNK_ITEM_HPP

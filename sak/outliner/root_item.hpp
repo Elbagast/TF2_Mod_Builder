@@ -11,7 +11,7 @@ namespace sak
 
   namespace outliner
   {
-    class Project_Item;
+    class project_item;
 
     //------------------------------------------------------------------------------------------------------------------------------------------------------
     //---------------------------------------------------------------------------
@@ -20,15 +20,15 @@ namespace sak
     // Outliner root item for a single project. This item is invisible and
     // defines the default context menu.
 
-    class Root_Item :
-          public qtlib::outliner::Root_Trunk_Item<Project_Item>
+    class root_item :
+          public qtlib::outliner::Root_Trunk_Item<project_item>
     {
-      using inherited_type = qtlib::outliner::Root_Trunk_Item<Project_Item>;
+      using inherited_type = qtlib::outliner::Root_Trunk_Item<project_item>;
     public:
       // Special 6
       //============================================================
-      explicit Root_Item(Project& a_project);
-      ~Root_Item() override;
+      explicit root_item(Project& a_project);
+      ~root_item() override;
 
       // Virtual Interface
       //============================================================
@@ -47,7 +47,7 @@ namespace sak
       Project& get_project();
       Project const& cget_project() const;
 
-      Project_Item* project_item() const;
+      project_item* get_project_item() const;
       file::outliner::header_item* file_header_item() const;
 
     private:

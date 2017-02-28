@@ -1,5 +1,5 @@
-#ifndef OUTLINER_PARENTED_ITEM_HPP
-#define OUTLINER_PARENTED_ITEM_HPP
+#ifndef QTLIB_OUTLINER_PARENTED_ITEM_HPP
+#define QTLIB_OUTLINER_PARENTED_ITEM_HPP
 
 #include "abstract_item.hpp"
 //#include <type_traits>
@@ -177,4 +177,4 @@ void qtlib::outliner::Parented_Item<P>::set_parent(parent_type* a_parent)
     m_parent = a_parent;
 }
 
-#endif // OUTLINER_PARENTED_ITEM_HPP
+#endif // QTLIB_OUTLINER_PARENTED_ITEM_HPP

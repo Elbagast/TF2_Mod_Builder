@@ -69,6 +69,7 @@ namespace sak
           //{
           //  this->editing_finished();
           //});
+          update();
         }
         ~member_edit_widget() override final= default;
 

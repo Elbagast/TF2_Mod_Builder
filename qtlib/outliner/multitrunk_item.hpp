@@ -1,5 +1,5 @@
-#ifndef OUTLINER_MUTITRUNK_ITEM_HPP
-#define OUTLINER_MUTITRUNK_ITEM_HPP
+#ifndef QTLIB_OUTLINER_MUTITRUNK_ITEM_HPP
+#define QTLIB_OUTLINER_MUTITRUNK_ITEM_HPP
 
 #include "parented_item.hpp"
 #include <memory>
@@ -169,7 +169,7 @@ namespace qtlib
         // child has a distinct type.
 
         template <typename P, typename... Cs>
-        class Multitrunk_item :
+        class Multitrunk_Item :
                 public Parented_Item<P>
         {
             //template <typename...Args>
@@ -191,8 +191,8 @@ namespace qtlib
 
             // Special 6
             //============================================================
-            explicit Multitrunk_item(parent_type* a_parent);
-            ~Multitrunk_item() override;
+            explicit Multitrunk_Item(parent_type* a_parent);
+            ~Multitrunk_Item() override;
 
             // Virtual Interface
             //============================================================
@@ -263,22 +263,22 @@ namespace qtlib
         // problems if you want to use features together.
 
         template <typename P, typename... Cs>
-        class Readonly_Multitrunk_item :
-                public Multitrunk_item<P,Cs...>
+        class Readonly_Multitrunk_Item :
+                public Multitrunk_Item<P,Cs...>
         {
         public:
-            using item_type = typename Multitrunk_item<P,Cs...>::item_type;
-            using model_type = typename Multitrunk_item<P,Cs...>::model_type;
+            using item_type = typename Multitrunk_Item<P,Cs...>::item_type;
+            using model_type = typename Multitrunk_Item<P,Cs...>::model_type;
 
-            using parent_type = typename Multitrunk_item<P,Cs...>::parent_type;
+            using parent_type = typename Multitrunk_Item<P,Cs...>::parent_type;
 
             template <std::size_t N>
-            using child_type = typename Multitrunk_item<P,Cs...>::child_type<N>;
+            using child_type = typename Multitrunk_Item<P,Cs...>::child_type<N>;
 
             // Special 6
             //============================================================
-            explicit Readonly_Multitrunk_item(parent_type* a_parent);
-            ~Readonly_Multitrunk_item() override;
+            explicit Readonly_Multitrunk_Item(parent_type* a_parent);
+            ~Readonly_Multitrunk_Item() override;
 
             // Virtual Interface
             //============================================================
@@ -313,12 +313,12 @@ namespace qtlib
         //protected:
             // Additional Interface
             //============================================================
-            using Multitrunk_item<P,Cs...>::get_true_parent;
-            using Multitrunk_item<P,Cs...>::set_parent;
+            using Multitrunk_Item<P,Cs...>::get_true_parent;
+            using Multitrunk_Item<P,Cs...>::set_parent;
 
-            using Multitrunk_item<P,Cs...>::get_true_child;
-            using Multitrunk_item<P,Cs...>::set_child;
-            using Multitrunk_item<P,Cs...>::remove_child;
+            using Multitrunk_Item<P,Cs...>::get_true_child;
+            using Multitrunk_Item<P,Cs...>::set_child;
+            using Multitrunk_Item<P,Cs...>::remove_child;
         };
     } // namespace outliner
 } // namespace qtlib
@@ -335,13 +335,13 @@ namespace qtlib
 // Special 6
 //============================================================
 template <typename P, typename... Cs>
-qtlib::outliner::Multitrunk_item<P,Cs...>::Multitrunk_item(parent_type* a_parent):
+qtlib::outliner::Multitrunk_Item<P,Cs...>::Multitrunk_Item(parent_type* a_parent):
     Parented_Item<P>(a_parent),
     m_children{}
 {}
 
 template <typename P, typename... Cs>
-qtlib::outliner::Multitrunk_item<P,Cs...>::~Multitrunk_item() = default;
+qtlib::outliner::Multitrunk_Item<P,Cs...>::~Multitrunk_Item() = default;
 
 // Virtual Interface
 //============================================================
@@ -350,20 +350,20 @@ qtlib::outliner::Multitrunk_item<P,Cs...>::~Multitrunk_item() = default;
 
 // Does this item have any child items?
 template <typename P, typename... Cs>
-bool qtlib::outliner::Multitrunk_item<P,Cs...>::has_children() const
+bool qtlib::outliner::Multitrunk_Item<P,Cs...>::has_children() const
 {
     return internal::Has_Active_Ptrs<tuple_type>()(m_children);
 }
 // The number of children this item has
 template <typename P, typename... Cs>
-int qtlib::outliner::Multitrunk_item<P,Cs...>::get_child_count() const
+int qtlib::outliner::Multitrunk_Item<P,Cs...>::get_child_count() const
 {
     return static_cast<int>(internal::Active_Ptr_Count<tuple_type>()(m_children));
 }
 
 // Does this item have a child item at this index?
 template <typename P, typename... Cs>
-bool qtlib::outliner::Multitrunk_item<P,Cs...>::has_child_at(int a_index) const
+bool qtlib::outliner::Multitrunk_Item<P,Cs...>::has_child_at(int a_index) const
 {
     return internal::Has_Active_Ptrs<tuple_type>()(m_children)
             && a_index >= 0
@@ -371,7 +371,7 @@ bool qtlib::outliner::Multitrunk_item<P,Cs...>::has_child_at(int a_index) const
 }
 // Get the child at a given row, return nullptr if there is no child at row
 template <typename P, typename... Cs>
-typename qtlib::outliner::Multitrunk_item<P,Cs...>::item_type* qtlib::outliner::Multitrunk_item<P,Cs...>::get_child_at(int a_index) const
+typename qtlib::outliner::Multitrunk_Item<P,Cs...>::item_type* qtlib::outliner::Multitrunk_Item<P,Cs...>::get_child_at(int a_index) const
 {
     auto l_children{internal::Vector_of_Active_Ptrs<item_type,tuple_type>()(m_children)};
     return l_children.at(a_index);
@@ -381,19 +381,19 @@ typename qtlib::outliner::Multitrunk_item<P,Cs...>::item_type* qtlib::outliner::
 //============================================================
 template <typename P, typename... Cs>
 template <std::size_t N>
-typename qtlib::outliner::Multitrunk_item<P,Cs...>::child_type<N>* qtlib::outliner::Multitrunk_item<P,Cs...>::get_true_child() const
+typename qtlib::outliner::Multitrunk_Item<P,Cs...>::child_type<N>* qtlib::outliner::Multitrunk_Item<P,Cs...>::get_true_child() const
 {
     return std::get<N>(m_children).get();
 }
 template <typename P, typename... Cs>
 template <std::size_t N>
-void qtlib::outliner::Multitrunk_item<P,Cs...>::set_child(std::unique_ptr<child_type<N>>&& a_item)
+void qtlib::outliner::Multitrunk_Item<P,Cs...>::set_child(std::unique_ptr<child_type<N>>&& a_item)
 {
     std::get<N>(m_children) = std::move(a_item);
 }
 template <typename P, typename... Cs>
 template <std::size_t N>
-void qtlib::outliner::Multitrunk_item<P,Cs...>::remove_child()
+void qtlib::outliner::Multitrunk_Item<P,Cs...>::remove_child()
 {
     std::get<N>(m_children).reset();
 }
@@ -408,12 +408,12 @@ void qtlib::outliner::Multitrunk_item<P,Cs...>::remove_child()
 // Special 6
 //============================================================
 template <typename P, typename... Cs>
-qtlib::outliner::Readonly_Multitrunk_item<P,Cs...>::Readonly_Multitrunk_item(parent_type* a_parent):
-    Multitrunk_item<P,Cs...>(a_parent)
+qtlib::outliner::Readonly_Multitrunk_Item<P,Cs...>::Readonly_Multitrunk_Item(parent_type* a_parent):
+    Multitrunk_Item<P,Cs...>(a_parent)
 {}
 
 template <typename P, typename... Cs>
-qtlib::outliner::Readonly_Multitrunk_item<P,Cs...>::~Readonly_Multitrunk_item() = default;
+qtlib::outliner::Readonly_Multitrunk_Item<P,Cs...>::~Readonly_Multitrunk_Item() = default;
 
 // Virtual Interface
 //============================================================
@@ -421,7 +421,7 @@ qtlib::outliner::Readonly_Multitrunk_item<P,Cs...>::~Readonly_Multitrunk_item() 
 //----------------------------------------
 // Set the data in item with the given value
 template <typename P, typename... Cs>
-void qtlib::outliner::Readonly_Multitrunk_item<P,Cs...>::set_data(QVariant const& a_value)
+void qtlib::outliner::Readonly_Multitrunk_Item<P,Cs...>::set_data(QVariant const& a_value)
 {
     this->abstract::Item::set_data(a_value);
 }
@@ -430,19 +430,19 @@ void qtlib::outliner::Readonly_Multitrunk_item<P,Cs...>::set_data(QVariant const
 //----------------------------------------
 // Make the appropriate editor for this item, parenting it to parent
 template <typename P, typename... Cs>
-QWidget* qtlib::outliner::Readonly_Multitrunk_item<P,Cs...>::get_editor(QWidget* a_parent)
+QWidget* qtlib::outliner::Readonly_Multitrunk_Item<P,Cs...>::get_editor(QWidget* a_parent)
 {
     return this->abstract::Item::get_editor(a_parent);
 }
 // Set the data in the editor to the value in the item
 template <typename P, typename... Cs>
-void qtlib::outliner::Readonly_Multitrunk_item<P,Cs...>::set_editor_data(QWidget* a_editor)
+void qtlib::outliner::Readonly_Multitrunk_Item<P,Cs...>::set_editor_data(QWidget* a_editor)
 {
     this->abstract::Item::set_editor_data(a_editor);
 }
 // Get the data in the editor and return it
 template <typename P, typename... Cs>
-QVariant qtlib::outliner::Readonly_Multitrunk_item<P,Cs...>::get_editor_data(QWidget* a_editor)
+QVariant qtlib::outliner::Readonly_Multitrunk_Item<P,Cs...>::get_editor_data(QWidget* a_editor)
 {
     return this->abstract::Item::get_editor_data(a_editor);
 }
@@ -451,10 +451,10 @@ QVariant qtlib::outliner::Readonly_Multitrunk_item<P,Cs...>::get_editor_data(QWi
 //----------------------------------------
 // Get the flags for this item
 template <typename P, typename... Cs>
-Qt::ItemFlags qtlib::outliner::Readonly_Multitrunk_item<P,Cs...>::get_flags() const
+Qt::ItemFlags qtlib::outliner::Readonly_Multitrunk_Item<P,Cs...>::get_flags() const
 {
     return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
 }
 
 
-#endif // OUTLINER_MUTIMultitrunk_item_HPP
+#endif // QTLIB_OUTLINER_MUTITRUNK_ITEM_HPP

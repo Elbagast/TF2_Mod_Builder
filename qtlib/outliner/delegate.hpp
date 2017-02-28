@@ -1,5 +1,5 @@
-#ifndef OUTLINER_DELEGATE_HPP
-#define OUTLINER_DELEGATE_HPP
+#ifndef QTLIB_OUTLINER_DELEGATE_HPP
+#define QTLIB_OUTLINER_DELEGATE_HPP
 
 #include <QItemDelegate>
 
@@ -35,4 +35,4 @@ namespace qtlib
     }
 } // namespace qtlib
 
-#endif // OUTLINER_DELEGATE_HPP
+#endif // QTLIB_OUTLINER_DELEGATE_HPP
