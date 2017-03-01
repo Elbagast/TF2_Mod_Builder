@@ -132,7 +132,10 @@ SOURCES += \
     sak/outliner/root_item.cpp \
     sak/outliner/project_item.cpp \
     sak/outliner/widget.cpp \
-    sak/shared/dispatch_signals.cpp
+    sak/shared/dispatch_signals.cpp \
+    sak/edit/widget_traits.cpp \
+    sak/shared/member_widget.cpp \
+    sak/shared/xml_traits.cpp
     
 
 HEADERS  += \
@@ -255,7 +258,11 @@ HEADERS  += \
     sak/outliner/project_item.hpp \
     sak/outliner/widget.hpp \
     sak/shared/dispatch_signals.hpp \
-    sak/shared/fwd/dispatch_signals.hpp
+    sak/shared/fwd/dispatch_signals.hpp \
+    sak/edit/widget_traits.hpp \
+    sak/shared/member_widget.hpp \
+    sak/shared/fwd/member_widget.hpp \
+    sak/shared/xml_traits.hpp
     
 
 FORMS

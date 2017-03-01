@@ -113,8 +113,16 @@ namespace generic
     std::string operator()(std::wstring const& a_value) const;
   };
 
+
+
   template <typename T>
-  struct From_String {};
+  struct From_Std_String {};
+
+  template <>
+  struct From_Std_String<bool>
+  {
+    bool operator()(std::string const& a_string) const;
+  };
 } // namespace generic
 
 #endif // GENERIC_STRING_CONVERSION_H

@@ -1,19 +1,7 @@
 #include "widget.hpp"
-
-//---------------------------------------------------------------------------
-// shared::abstract::member_edit_widget
-//---------------------------------------------------------------------------
-// This is the base class for member value editor widgets. These are the
-// things that must be supplied. Inherit this class and compose the true
-// editor in it. Also for a signal to be generated it must not be part of a template.
-
-// Special 6
-//============================================================
-sak::shared::abstract::member_edit_widget::member_edit_widget(QWidget* a_parent):
-  QWidget(a_parent)
-{}
-
-sak::shared::abstract::member_edit_widget::~member_edit_widget() = default;
+#include "member_widget.hpp"
+//#include <qtlib/edit/widget_traits.hpp>
+#include <sak/edit/widget_traits.hpp>
 
 namespace sak
 {
@@ -43,8 +31,8 @@ namespace sak
 
         using extended_handle_type = extended_handle<object_type>;
 
-        using widget_traits_type = qtlib::edit::widget_traits<value_type>;
-        using widget_type = typename widget_traits_type::widget_type;
+        using widget_traits_type = sak::edit::widget_traits<value_type>;
+        //using widget_type = typename widget_traits_type::widget_type;
 
         // Special 6
         //============================================================
@@ -52,31 +40,29 @@ namespace sak
           abstract::member_edit_widget(a_parent),
           m_ehandle{a_ehandle},
           m_layout{std::make_unique<QHBoxLayout>(nullptr)},
-          m_widget{std::make_unique<widget_type>(nullptr)}
+          m_widget{widget_traits_type::make_empty_widget()}
         {
           m_layout->setContentsMargins(0,0,0,0);
           m_layout->addWidget(m_widget.get());
           this->setLayout(m_layout.get());
 
+          this->setToolTip("This is a tooltip. Where should we get tooltips from for each type?");
+
           // Capture the signal and dispatch it
-          QObject::connect(m_widget.get(), widget_traits_type::editing_finished_signal(), this, &member_edit_widget::editing_finished);
-          //{
-          //  this->editing_finished();
-          //});
+          //QObject::connect(m_widget.get(), widget_traits_type::editing_finished_signal(), this, &member_edit_widget::editing_finished);
+          widget_traits_type::connect_to(m_widget.get(), this, &abstract::member_edit_widget::editing_finished);
           update();
         }
         ~member_edit_widget() override final= default;
 
-        // Public Interface
+        // Virtuals
         //============================================================
         void update() override final
         {
           widget_traits_type::set_widget_value(m_widget.get(), m_ehandle.cget().cat<Index>().cget());
         }
-      private:
-        // Private Interface
-        //============================================================
-        void editing_finished()
+
+        void editing_finished() override final
         {
           m_ehandle.get().at<Index>().set(widget_traits_type::get_widget_value(m_widget.get()));
           // hmm. set can fail to do anything. But it only fails if the input is the same as the data?
@@ -86,7 +72,7 @@ namespace sak
         //============================================================
         extended_handle_type& m_ehandle;
         std::unique_ptr<QHBoxLayout> m_layout;
-        std::unique_ptr<widget_type> m_widget;
+        std::unique_ptr<QWidget> m_widget;
       };
 
       template <typename T>

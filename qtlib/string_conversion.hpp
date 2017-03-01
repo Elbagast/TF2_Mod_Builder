@@ -114,9 +114,125 @@ namespace qtlib
     QString operator()(std::wstring const& a_value) const;
   };
 
+
+  template <>
+  struct To_QString<QString>
+  {
+    QString operator()(QString const& a_value) const;
+  };
+
+
+
   template <typename T>
   struct From_QString {};
 
+
+  template <>
+  struct From_QString<bool>
+  {
+    bool operator()(QString const& a_string) const;
+  };
+
+
+  template <>
+  struct From_QString<std::int8_t>
+  {
+    std::int8_t operator()(QString const& a_string) const;
+  };
+
+  template <>
+  struct From_QString<std::int16_t>
+  {
+    std::int16_t operator()(QString const& a_string) const;
+  };
+
+  template <>
+  struct From_QString<std::int32_t>
+  {
+    std::int32_t operator()(QString const& a_string) const;
+  };
+
+  template <>
+  struct From_QString<std::int64_t>
+  {
+    std::int64_t operator()(QString const& a_string) const;
+  };
+
+
+  template <>
+  struct From_QString<std::uint8_t>
+  {
+    std::uint8_t operator()(QString const& a_string) const;
+  };
+
+  template <>
+  struct From_QString<std::uint16_t>
+  {
+    std::uint16_t operator()(QString const& a_string) const;
+  };
+
+  template <>
+  struct From_QString<std::uint32_t>
+  {
+    std::uint32_t operator()(QString const& a_string) const;
+  };
+
+  template <>
+  struct From_QString<std::uint64_t>
+  {
+    std::uint64_t operator()(QString const& a_string) const;
+  };
+
+
+  template <>
+  struct From_QString<float>
+  {
+    float operator()(QString const& a_string) const;
+  };
+
+  template <>
+  struct From_QString<double>
+  {
+    double operator()(QString const& a_string) const;
+  };
+
+  template <>
+  struct From_QString<long double>
+  {
+    long double operator()(QString const& a_string) const;
+  };
+
+
+  template <>
+  struct From_QString<std::string>
+  {
+    std::string operator()(QString const& a_string) const;
+  };
+
+  template <>
+  struct From_QString<std::u16string>
+  {
+    std::u16string operator()(QString const& a_string) const;
+  };
+
+  template <>
+  struct From_QString<std::u32string>
+  {
+    std::u32string operator()(QString const& a_string) const;
+  };
+
+  template <>
+  struct From_QString<std::wstring>
+  {
+    std::wstring operator()(QString const& a_string) const;
+  };
+
+
+  template <>
+  struct From_QString<QString>
+  {
+    QString operator()(QString const& a_string) const;
+  };
 
 } // namespace qtlib
 

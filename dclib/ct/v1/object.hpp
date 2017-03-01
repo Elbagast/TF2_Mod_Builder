@@ -145,6 +145,12 @@ namespace dclib
         // Metafunction object_member<T,I>
         //---------------------------------------------------------------------------
         // For a given object type retrieve the member type at the supplied index.
+        template <typename T, std::size_t I>
+        struct object_member
+        {
+          using type = meta::mf::type_at_t<typename T::member_typelist, I>;
+        };
+
         template <std::size_t I, typename T, typename...Ms >
         struct object_member<object<T,Ms...>,I>
         {

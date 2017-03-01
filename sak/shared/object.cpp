@@ -3,4 +3,4 @@
 
 // Forced Instantiations
 //============================================================
-template sak::file::object;
+//template sak::file::object;

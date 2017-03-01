@@ -51,4 +51,6 @@ template sak::shared::internal::do_set<sak::file::object,0>;
 template sak::shared::internal::do_set<sak::file::object,1>;
 template sak::shared::internal::do_set<sak::file::object,2>;
 template sak::shared::internal::do_set<sak::file::object,3>;
+template sak::shared::internal::do_set<sak::file::object,4>;
+template sak::shared::internal::do_set<sak::file::object,5>;
 

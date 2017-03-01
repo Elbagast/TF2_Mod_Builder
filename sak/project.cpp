@@ -19,6 +19,8 @@
 #include "../generic/command_history.hpp"
 #include "name_utilities.hpp"
 
+#include <sak/shared/xml_traits.hpp>
+
 //---------------------------------------------------------------------------
 // Project
 //---------------------------------------------------------------------------
@@ -218,200 +220,209 @@ sak::Project& sak::Project::operator=(Project &&) = default;
 // Save the current data to the file.
 void sak::Project::save() const
 {
-   QFile l_file{(cimp().m_filepath.absoluteFilePath())};
-   if (l_file.open(QFile::WriteOnly | QFile::Truncate | QFile::Text))
+ QFile l_file{(cimp().m_filepath.absoluteFilePath())};
+ if (l_file.open(QFile::WriteOnly | QFile::Truncate | QFile::Text))
+ {
+   //qDebug() << "File opened";
+
+   //QTextStream out_stream(&file);
+
+   //qDebug() << static_cast<QFile*>(out_stream.device())->fileName();
+   QXmlStreamWriter xml_stream{&l_file};
+   xml_stream.setAutoFormatting(true);
+   xml_stream.writeStartDocument();
+
+   // start the element that contains all the data
+   xml_stream.writeStartElement("Project");
+
+   // Start the Files block
+   xml_stream.writeStartElement("Files");
+   xml_stream.writeTextElement("Count", QString::number(cimp().m_files.size()));
+
+   for (auto const& l_file : cimp().m_files)
    {
-       //qDebug() << "File opened";
-
-       //QTextStream out_stream(&file);
-
-       //qDebug() << static_cast<QFile*>(out_stream.device())->fileName();
-       QXmlStreamWriter xml_stream{&l_file};
-       xml_stream.setAutoFormatting(true);
-       xml_stream.writeStartDocument();
-
-       // start the element that contains all the data
-       xml_stream.writeStartElement("Project");
-
-       // Start the Files block
-       xml_stream.writeStartElement("Files");
-       xml_stream.writeTextElement("Count", QString::number(cimp().m_files.size()));
-
-       for (auto const& l_file : cimp().m_files)
-       {
-           xml_stream.writeStartElement("File");
-           xml_stream.writeTextElement("Name", l_file.cget().cat<0>().cget());
-           xml_stream.writeTextElement("Description", l_file.cget().cat<1>().cget());
-           xml_stream.writeTextElement("Buildpath", l_file.cget().cat<2>().cget());
-           xml_stream.writeTextElement("Sourcepath", l_file.cget().cat<3>().cget());
-           xml_stream.writeEndElement();
-       }
-
-       // End the Files block
-       xml_stream.writeEndElement();
-
-
-       // end the element that contains all the data
-       xml_stream.writeEndElement();
-
-       xml_stream.writeEndDocument();
-
-       l_file.close();
+     sak::file::xml_traits::to_stream(xml_stream, l_file.cget());
+     /*
+     xml_stream.writeStartElement("File");
+     xml_stream.writeTextElement("Name", l_file.cget().cat<0>().cget());
+     xml_stream.writeTextElement("Description", l_file.cget().cat<1>().cget());
+     xml_stream.writeTextElement("Buildpath", l_file.cget().cat<2>().cget());
+     xml_stream.writeTextElement("Sourcepath", l_file.cget().cat<3>().cget());
+     xml_stream.writeEndElement();
+     */
    }
-   else
-   {
-       throw File_Write_Error(cimp().m_filepath.absoluteFilePath());
-   }
+
+   // End the Files block
+   xml_stream.writeEndElement();
+
+
+   // end the element that contains all the data
+   xml_stream.writeEndElement();
+
+   xml_stream.writeEndDocument();
+
+   l_file.close();
+ }
+ else
+ {
+    throw File_Write_Error(cimp().m_filepath.absoluteFilePath());
+ }
 }
 
 // Get the data from the file and discard the current data.
 void sak::Project::load()
 {
-    // Initialise new data
-    auto l_data{std::make_unique<Implementation>(cimp().m_filepath.absoluteFilePath(),this)};
+  // Initialise new data
+  auto l_data{std::make_unique<Implementation>(cimp().m_filepath.absoluteFilePath(),this)};
 
-    // Create a file object
-    QFile l_file{cimp().m_filepath.absoluteFilePath()};
+  // Create a file object
+  QFile l_file{cimp().m_filepath.absoluteFilePath()};
 
-    // Attempt to open the file to read it
-    if (l_file.exists() && l_file.open(QFile::ReadOnly | QFile::Text))
+  // Attempt to open the file to read it
+  if (l_file.exists() && l_file.open(QFile::ReadOnly | QFile::Text))
+  {
+    // make an xml stream
+    QXmlStreamReader xml_stream{&l_file};
+
+    // <Project>
+    if (xml_stream.readNextStartElement() && xml_stream.name().toString() == "Project")
     {
-        // make an xml stream
-        QXmlStreamReader xml_stream{&l_file};
+      // Read the Files
+      if (xml_stream.readNextStartElement() && xml_stream.name().toString() == "Files")
+      {
+        //qDebug() << "Files:";
 
-        // <Project>
-        if (xml_stream.readNextStartElement() && xml_stream.name().toString() == "Project")
+
+        int l_count {0};
+
+        // <Count>
+        if (xml_stream.readNextStartElement() && xml_stream.name().toString() == "Count")
         {
-            // Read the Files
-            if (xml_stream.readNextStartElement() && xml_stream.name().toString() == "Files")
-            {
-                //qDebug() << "Files:";
+          l_count = xml_stream.readElementText().toInt();
+          //qDebug() << "Count = " << l_count;
 
-
-                int l_count {0};
-
-                // <Count>
-                if (xml_stream.readNextStartElement() && xml_stream.name().toString() == "Count")
-                {
-                    l_count = xml_stream.readElementText().toInt();
-                    //qDebug() << "Count = " << l_count;
-
-                    // </Count>
-                    xml_stream.readNext();
-                }
-                else
-                {
-                    qDebug() << "Didn't find File Count";
-                    // file format error
-                }
-
-                l_data->m_files.reserve(l_count);
-                // read the files
-                for (int l_index = 0; l_index != l_count; ++l_index)
-                {
-                    if (xml_stream.readNextStartElement() && xml_stream.name().toString() == "File")
-                    {
-                        file::object l_file{};
-                        //qDebug() << "File: "<< l_index ;
-                        // <Name>
-                        if (xml_stream.readNextStartElement() && xml_stream.name().toString() == "Name")
-                        {
-                            auto l_data = xml_stream.readElementText();
-                            //qDebug() << "Name: " << l_data;
-                            l_file.at<0>().get() = l_data;
-
-                            // </Name>
-                            xml_stream.readNext();
-                        }
-                        else
-                        {
-                            qDebug() << "Didn't find Name" ;
-                        }
-                        // <Description>
-                        if (xml_stream.readNextStartElement() && xml_stream.name().toString() == "Description")
-                        {
-                            auto l_data = xml_stream.readElementText();
-                            //qDebug() << "Description:" << l_data;
-                            l_file.at<1>().get() = l_data;
-
-                            // </Description>
-                            xml_stream.readNext();
-                        }
-                        else
-                        {
-                            qDebug() << "Didn't find Description" ;
-                        }
-                        // <Buildpath>
-                        if (xml_stream.readNextStartElement() && xml_stream.name().toString() == "Buildpath")
-                        {
-                            auto l_data = xml_stream.readElementText();
-                            //qDebug() << "Description:" << l_data;
-                            l_file.at<2>().get() = l_data;
-
-                            // </Buildpath>
-                            xml_stream.readNext();
-                        }
-                        else
-                        {
-                            qDebug() << "Didn't find Buildpath" ;
-                        }
-                        // <Sourcepath>
-                        if (xml_stream.readNextStartElement() && xml_stream.name().toString() == "Sourcepath")
-                        {
-                            auto l_data = xml_stream.readElementText();
-                            //qDebug() << "Description:" << l_data;
-                            l_file.at<3>().get() = l_data;
-
-                            // </Sourcepath>
-                            xml_stream.readNext();
-                        }
-                        else
-                        {
-                            qDebug() << "Didn't find Sourcepath" ;
-                        }
-                        // Read the end element
-                        xml_stream.readNext();
-
-                        auto l_handle = l_data->m_file_manager.emplace_data(std::move(l_file));
-                        l_data->m_files.push_back(std::move(l_handle));
-
-                    }
-                    else
-                    {
-                        qDebug() << "Didn't find File " << l_index ;
-                    }
-
-                }
-                // </Files>
-                xml_stream.readNext();
-
-            }
-            else
-            {
-                // Bad file structure
-                qDebug() << "Didn't find Filepath";
-            }
-
-            // </Project>
-            xml_stream.readNext();
+          // </Count>
+          xml_stream.readNext();
         }
         else
         {
-            // Bad file structure
-            qDebug() << "Didn't find Project";
+          qDebug() << "Didn't find File Count";
+          // file format error
         }
 
-        l_file.close();
+        l_data->m_files.reserve(l_count);
+        // read the files
+        for (int l_index = 0; l_index != l_count; ++l_index)
+        {
+          sak::file::object l_file{};
+          sak::file::xml_traits::from_stream(xml_stream, l_file);
 
-        // Replace the current data and consign it to oblivion. The data
-        // is now that which has been loaded.
-        std::swap(m_data, l_data);
+          auto l_handle = l_data->m_file_manager.emplace_data(std::move(l_file));
+          l_data->m_files.push_back(std::move(l_handle));
+          /*
+          if (xml_stream.readNextStartElement() && xml_stream.name().toString() == "File")
+          {
+            file::object l_file{};
+            //qDebug() << "File: "<< l_index ;
+            // <Name>
+            if (xml_stream.readNextStartElement() && xml_stream.name().toString() == "Name")
+            {
+              auto l_data = xml_stream.readElementText();
+              //qDebug() << "Name: " << l_data;
+              l_file.at<0>().get() = l_data;
+
+              // </Name>
+              xml_stream.readNext();
+            }
+            else
+            {
+              qDebug() << "Didn't find Name" ;
+            }
+            // <Description>
+            if (xml_stream.readNextStartElement() && xml_stream.name().toString() == "Description")
+            {
+              auto l_data = xml_stream.readElementText();
+              //qDebug() << "Description:" << l_data;
+              l_file.at<1>().get() = l_data;
+
+              // </Description>
+              xml_stream.readNext();
+            }
+            else
+            {
+              qDebug() << "Didn't find Description" ;
+            }
+            // <Buildpath>
+            if (xml_stream.readNextStartElement() && xml_stream.name().toString() == "Buildpath")
+            {
+              auto l_data = xml_stream.readElementText();
+              //qDebug() << "Description:" << l_data;
+              l_file.at<2>().get() = l_data;
+
+              // </Buildpath>
+              xml_stream.readNext();
+            }
+            else
+            {
+              qDebug() << "Didn't find Buildpath" ;
+            }
+            // <Sourcepath>
+            if (xml_stream.readNextStartElement() && xml_stream.name().toString() == "Sourcepath")
+            {
+              auto l_data = xml_stream.readElementText();
+              //qDebug() << "Description:" << l_data;
+              l_file.at<3>().get() = l_data;
+
+              // </Sourcepath>
+              xml_stream.readNext();
+            }
+            else
+            {
+              qDebug() << "Didn't find Sourcepath" ;
+            }
+            // Read the end element
+            xml_stream.readNext();
+
+            auto l_handle = l_data->m_file_manager.emplace_data(std::move(l_file));
+            l_data->m_files.push_back(std::move(l_handle));
+
+          }
+          else
+          {
+            qDebug() << "Didn't find File " << l_index ;
+          }
+*/
+        }
+        // </Files>
+        xml_stream.readNext();
+
+      }
+      else
+      {
+        // Bad file structure
+        qDebug() << "Didn't find Filepath";
+      }
+
+      // </Project>
+      xml_stream.readNext();
     }
     else
     {
-        // Failure exception for file loading.
-        throw File_Read_Error(imp().m_filepath.absoluteFilePath());
+        // Bad file structure
+        qDebug() << "Didn't find Project";
     }
+
+    l_file.close();
+
+    // Replace the current data and consign it to oblivion. The data
+    // is now that which has been loaded.
+    std::swap(m_data, l_data);
+  }
+  else
+  {
+    // Failure exception for file loading.
+    throw File_Read_Error(imp().m_filepath.absoluteFilePath());
+  }
 }
 
 QString sak::Project::name() const

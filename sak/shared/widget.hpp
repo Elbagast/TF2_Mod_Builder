@@ -2,9 +2,9 @@
 #define SAK_SHARED_WIDGET_HPP
 
 #include "fwd/widget.hpp"
+#include "fwd/member_widget.hpp"
 #include <sak/shared/object.hpp>
 #include <sak/shared/extended_manager.hpp>
-#include <qtlib/edit/widget_traits.hpp>
 #include <QWidget>
 #include <QLineEdit>
 #include <QHBoxLayout>
@@ -21,28 +21,6 @@ namespace sak
 {
   namespace shared
   {
-    namespace abstract
-    {
-      //---------------------------------------------------------------------------
-      // shared::abstract::member_edit_widget
-      //---------------------------------------------------------------------------
-      // This is the base class for member value editor widgets. These are the
-      // things that must be supplied. Inherit this class and compose the true
-      // editor in it. Also for a signal to be generated it must not be part of a template.
-
-      class member_edit_widget :
-          public QWidget
-      {
-      public:
-        // Special 6
-        //============================================================
-        explicit member_edit_widget(QWidget* a_parent = nullptr);
-        ~member_edit_widget() override;
-
-        virtual void update() = 0;
-      };
-    }
-
     //---------------------------------------------------------------------------
     // shared::widget<T>
     //---------------------------------------------------------------------------

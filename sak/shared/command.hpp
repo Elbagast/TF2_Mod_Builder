@@ -18,15 +18,15 @@ namespace sak
     // Class that derives from generic::command that wraps the assignement of a
     // member's data.
 
-    template <std::size_t Index, typename T, typename...Ms>
-    class command_assign<object<T,Ms...>,Index> :
+    template <typename T, std::size_t Index>
+    class command_assign :
         public generic::abstract::Command
     {
     public:
       // Typedefs
       //============================================================
       using inherited_type = generic::abstract::Command;
-      using object_type = object<T,Ms...>;
+      using object_type = T;
       using member_type = mf::object_member_t<object_type,Index>;
       using value_type = typename member_type::value_type;
       using extended_handle_type = extended_handle<object_type>;
@@ -82,15 +82,15 @@ namespace sak
     // Class that derives from generic::command that wraps the addition of an
     // object to the project.
 
-    template <typename T, typename...Ms>
-    class command_added<object<T,Ms...>> :
+    template <typename T>
+    class command_added :
         public generic::abstract::Command
     {
     public:
       // Typedefs
       //============================================================
       using inherited_type = generic::abstract::Command;
-      using object_type = object<T,Ms...>;
+      using object_type = T;
       using extended_handle_type = extended_handle<object_type>;
 
       // Special 6
@@ -147,15 +147,15 @@ namespace sak
     // Class that derives from generic::command that wraps the addition of an
     // object to the project.
 
-    template <typename T, typename...Ms>
-    class command_removed<object<T,Ms...>> :
+    template <typename T>
+    class command_removed :
         public generic::abstract::Command
     {
     public:
       // Typedefs
       //============================================================
       using inherited_type = generic::abstract::Command;
-      using object_type = object<T,Ms...>;
+      using object_type = T;
       using extended_handle_type = extended_handle<object_type>;
 
       // Special 6

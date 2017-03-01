@@ -4,21 +4,30 @@
 #include <iomanip>
 #include <sstream>
 #include <cassert>
+#include <array>
+#include <algorithm>
+
+namespace
+{
+  std::array<std::string,5> const c_true_strings = {u8"true",u8"TRUE",u8"True",u8"1",u8"0x01" };
+  std::array<std::string,5> const c_false_strings = {u8"false",u8"FALSE",u8"False",u8"0",u8"0x00" };
+}
+
 
 std::string generic::To_Std_String<bool>::operator()(bool a_value, generic::Bool_Text_Format a_format) const
 {
     switch(a_format)
     {
     case Bool_Text_Format::Lowercase:
-        return a_value ? u8"true" : u8"false";
+        return a_value ? c_true_strings[0] : c_false_strings[0];
     case Bool_Text_Format::Uppercase:
-        return a_value ? u8"TRUE" : u8"FALSE";
+        return a_value ? c_true_strings[1] : c_false_strings[1];
     case Bool_Text_Format::Capitalised:
-        return a_value ? u8"True" : u8"False";
+        return a_value ? c_true_strings[2] : c_false_strings[2];
     case Bool_Text_Format::Number:
-        return a_value ? u8"1" : u8"0";
+        return a_value ? c_true_strings[3] : c_false_strings[3];
     case Bool_Text_Format::Hexadecimal:
-        return a_value ? u8"0x01" : u8"0x00";
+        return a_value ? c_true_strings[4] : c_false_strings[4];
     default:
         return std::string();
     }
@@ -264,4 +273,23 @@ std::string generic::To_Std_String<std::u32string>::operator()(std::u32string co
 std::string generic::To_Std_String<std::wstring>::operator()(std::wstring const&) const
 {
     return "!!!std::wstring to std::string not implemented.";
+}
+
+
+
+bool generic::From_Std_String<bool>::operator()(std::string const& a_string) const
+{
+  if (std::find(c_true_strings.cbegin(), c_true_strings.cend(), a_string) != c_true_strings.cend())
+  {
+    return true;
+  }
+  else if (std::find(c_false_strings.cbegin(), c_false_strings.cend(), a_string) != c_false_strings.cend())
+  {
+    return false;
+  }
+  else
+  {
+    // unrecognised...therefore
+    return false;
+  }
 }

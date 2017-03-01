@@ -3,7 +3,7 @@
 
 #include <dclib/ct/fwd/object.hpp>
 #include <dclib/ct/fwd/member.hpp>
-#include <dclib/litype/string.hpp>
+//#include <dclib/litype/string.hpp>
 class QString;
 
 namespace sak
@@ -49,6 +49,8 @@ namespace sak
 
   namespace file
   {
+    class object;
+    /*
     using object =
     shared::object
     <
@@ -57,7 +59,8 @@ namespace sak
     ,shared::member<DCLIB_LITYPE_STRING(u8"Description"),QString>
     ,shared::member<DCLIB_LITYPE_STRING(u8"Buildpath"),QString>
     ,shared::member<DCLIB_LITYPE_STRING(u8"Sourcepath"),QString>
-    >;
+    ,shared::member<DCLIB_LITYPE_STRING(u8"Booltest"),bool>
+    >;*/
   }
 
 }
