@@ -36,6 +36,7 @@ BOOST_INCLUDE_DIR = D:/Programming/C++/Boost/boost_1_57_0
 BOOST_LIBRARY_DIR = $${BOOST_INCLUDE_DIR}/stage/lib
 BOOST_LIBRARIES += boost_filesystem
 BOOST_LIBRARIES += boost_any
+BOOST_LIBRARIES += boost_variant
 BOOST_LIBRARIES += boost_bind
 BOOST_LIBRARIES += boost_signals2
 
@@ -135,7 +136,8 @@ SOURCES += \
     sak/shared/member_widget.cpp \
     sak/shared/xml_traits.cpp \
     sak/shared/signalbox.cpp \
-    sak/project/object.cpp
+    sak/project/object.cpp \
+    sak/project/signal_dispatcher.cpp
     
 
 HEADERS  += \
@@ -268,7 +270,10 @@ HEADERS  += \
     sak/project/fwd/object.hpp \
     sak/project/fwd/command.hpp \
     generic/fwd/command.hpp \
-    sak/project/command.hpp
+    sak/project/command.hpp \
+    generic/fwd/variant.hpp \
+    generic/variant.hpp \
+    sak/project/signal_dispatcher.hpp
     
 
 FORMS

@@ -35,6 +35,7 @@ namespace dclib
         // For a given object type retrieve the member type at the supplied index.
         template <typename T, std::size_t I>
         struct object_member;
+
       } // namespace mf
 
     } // namespace v1

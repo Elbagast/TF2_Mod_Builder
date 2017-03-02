@@ -27,7 +27,7 @@ namespace sak
         using member_type = mf::object_member_t<object_type, Index>;
         using value_type = typename member_type::value_type;
 
-        void operator()(value_type const& a_value, extended_handle_type const& a_ehandle, Project* a_project) const;
+        void operator()(value_type const& a_value, extended_handle_type const& a_ehandle, Project& a_project) const;
       };
 
       template <typename T>
@@ -38,7 +38,7 @@ namespace sak
         using member_type = mf::object_member_t<object_type, 0>;
         using value_type = typename member_type::value_type;
 
-        void operator()(value_type const& a_value, extended_handle_type const& a_ehandle, Project* a_project) const;
+        void operator()(value_type const& a_value, extended_handle_type const& a_ehandle, Project& a_project) const;
       };
     }
 
@@ -59,7 +59,7 @@ namespace sak
       using member_type = mf::object_member_t<object_type, Index>;
       using value_type = typename member_type::value_type;
 
-      member_interface(extended_handle_type& a_ehandle, Project* a_project):
+      member_interface(extended_handle_type& a_ehandle, Project& a_project):
         m_ehandle{a_ehandle},
         m_project{a_project}
       {}
@@ -71,7 +71,7 @@ namespace sak
 
       private:
         extended_handle_type& m_ehandle;
-        Project* m_project;
+        Project& m_project;
     };
 
     //---------------------------------------------------------------------------
@@ -86,7 +86,7 @@ namespace sak
       using handle_type = handle<object_type>;
       using extended_handle_type = extended_handle<object_type>;
 
-      interface(extended_handle_type& a_ehandle, handle_type& a_handle, Project* a_project):
+      interface(extended_handle_type& a_ehandle, handle_type& a_handle, Project& a_project):
         m_ehandle{a_ehandle},
         m_project{a_project}
       {}
@@ -99,7 +99,7 @@ namespace sak
 
     private:
       extended_handle_type& m_ehandle;
-      Project* m_project;
+      Project& m_project;
     };
   }
 }

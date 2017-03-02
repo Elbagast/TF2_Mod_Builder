@@ -8,12 +8,26 @@
 #include "type_impl.hpp"
 #include <tuple>
 
+#include <boost/variant.hpp>
+
 namespace dclib
 {
   namespace ct
   {
     namespace v1
     {
+      template <typename List>
+      struct typelist_to_variant;
+
+      template <typename... Args>
+      struct typelist_to_variant<meta::typelist<Args...>>
+      {
+        using type = boost::variant<Args...>;
+      };
+
+      template <typename List>
+      using typelist_to_variant_t = typename typelist_to_variant<List>::type;
+
       //---------------------------------------------------------------------------
       // object<T1, Args...>
       //---------------------------------------------------------------------------
@@ -36,6 +50,8 @@ namespace dclib
         using member_typelist = meta::typelist<member<T1,T2>...>;
         using member_name_typelist = meta::typelist<typename member<T1,T2>::name_literal_type...>;
         using member_value_typelist = meta::typelist<typename member<T1,T2>::value_type...>;
+
+        using member_value_variant = typelist_to_variant_t<meta::mf::remove_duplicates_t<member_value_typelist>>;
 
         template <std::size_t Index>
         using member_type = meta::mf::type_at_t<member_typelist, Index>;
@@ -159,6 +175,7 @@ namespace dclib
 
         template <typename T, std::size_t I>
         using object_member_t = typename object_member<T,I>::type;
+
 
       } // namespace mf
 

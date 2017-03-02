@@ -575,7 +575,72 @@ namespace dclib
             struct all_unique<typelist<>> : public std::false_type {};
 
 
+            //---------------------------------------------------------------------------
+            // Metafunction remove_type<List>
+            //---------------------------------------------------------------------------
+            template <typename List, typename T>
+            struct remove_type;
 
+            template <typename T, typename... Args>
+            struct remove_type<typelist<T,Args...>,T>
+            {
+              using type = typename remove_type<typelist<Args...>,T>::type;
+            };
+
+            template <typename T, typename U, typename... Args>
+            struct remove_type<typelist<U,Args...>,T>
+            {
+              using type = concatenate_t<typelist<U>, typename remove_type<typelist<Args...>,T>::type>;
+            };
+
+
+            template <typename T>
+            struct remove_type<typelist<>,T>
+            {
+              using type = typelist<>;
+            };
+
+            template <typename List, typename T>
+            using remove_type_t = typename remove_type<List,T>::type;
+
+            //---------------------------------------------------------------------------
+            // Metafunction remove_duplicates<List>
+            //---------------------------------------------------------------------------
+            // Make a typelist that only has each type that appears in the input only once.
+
+            template <typename T>
+            struct remove_duplicates;
+
+            template <typename T, typename... Args>
+            struct remove_duplicates<typelist<T,Args...>>
+            {
+              using type = concatenate_t
+              <
+                typelist<T>,
+                typename remove_duplicates<remove_type_t<typelist<Args...>,T>>::type
+              >;
+            };
+
+            template <typename T>
+            struct remove_duplicates<typelist<T>>
+            {
+              using type = typelist<T>;
+            };
+
+            template <>
+            struct remove_duplicates<typelist<>>
+            {
+              using type = typelist<>;
+            };
+
+            // Helper alias
+            template <typename List>
+            using remove_duplicates_t = typename remove_duplicates<List>::type;
+
+
+            static_assert(std::is_same<typelist<bool,int,float>, remove_duplicates_t<typelist<bool,bool,int,float>>>::value,"bad remove_duplicates");
+            static_assert(std::is_same<typelist<bool,int,float>, remove_duplicates_t<typelist<bool,int,bool,float>>>::value,"bad remove_duplicates");
+            static_assert(std::is_same<typelist<bool,int,float>, remove_duplicates_t<typelist<bool,bool,int,bool,int,float,int,float,bool>>>::value,"bad remove_duplicates");
 
 
 

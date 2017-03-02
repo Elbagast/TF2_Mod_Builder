@@ -3,11 +3,11 @@
 
 #include "fwd/object.hpp"
 #include "fwd/signalbox.hpp"
-#include "fwd/command.hpp"
+//#include "fwd/command.hpp"
 
-#include <sak/shared/fwd/object.hpp>
+#include <sak/shared/object.hpp>
 #include <sak/shared/fwd/extended_manager.hpp>
-#include <sak/shared/fwd/signalbox.hpp>
+//#include <sak/shared/fwd/signalbox.hpp>
 
 #include <memory>
 #include <vector>
@@ -131,7 +131,7 @@ namespace sak
       void redo();
 
       // Commands get sent here.
-      void emplace_execute(std::unique_ptr<abstract::command>&& a_command); //should this even be exposed? probably not...
+      //void emplace_execute(std::unique_ptr<abstract::command>&& a_command); //should this even be exposed? probably not...
 
       // Clear the undo/redo history.
       void clear_history();
@@ -169,25 +169,42 @@ namespace sak
       // but it is not part of the Project.
       file::extended_handle make_file();
 
-      // To signal that something should be done to the project, you may access the signalbox
-      // for a specific type, then call the signals to make and propagate changes.
-      file::abstract::signalbox* get_file_signalbox() const;
 
-      // To signal that something should be done to the project, you may access the signalbox
-      // for a specific type, then call the signals to make and propagate changes.
-      abstract::signalbox* get_signalbox() const;
+      // Lets say project doesn't reveal comamnds at all. What functions are needed to provide that?
 
+      // Create a new default file and add it.
+      void file_add_new();
+
+      // Add a new file using the supplied data.
+      void file_add_emplace(file::object&& a_file);
+
+      // Add a new file using the supplied handle. If this handle is invalid or already in the data
+      // then nothing happens.
+      void file_add(file::extended_handle const& a_ehandle);
+
+      // Remove this file. It is removed from the file list and the data of anything that references it.
+      // Data is not deleted until the last reference is deleted.
+      void file_remove(file::extended_handle const& a_ehandle);
+
+      // Change a file's member value.
+      void file_change_at(file::extended_handle const& a_ehandle, std::size_t a_section, typename file::object::member_value_variant const& a_variant);
+
+      // Request that the focus change to this file.
+      void file_request_focus(file::extended_handle const& a_ehandle);
+
+      // Request that the editor for this file be opened or switched to.
+      void file_request_editor(file::extended_handle const& a_ehandle);
 
       //============================================================
 
     private:
       // Pimpl Data
       //============================================================
-      class Implementation;
-      std::unique_ptr<Implementation> m_data;
+      class impl;
+      std::unique_ptr<impl> m_data;
 
-      Implementation& imp()                { return *m_data; }
-      Implementation const& cimp() const   { return *m_data; }
+      impl& imp()                { return *m_data; }
+      impl const& cimp() const   { return *m_data; }
     };
   }
 }

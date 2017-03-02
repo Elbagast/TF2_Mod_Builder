@@ -25,7 +25,7 @@ template <typename T>
 typename sak::shared::interface_traits<T>::interface_type sak::shared::interface_traits<T>::get(extended_handle_type& a_handle, handle_type& a_data)
 {
     assert(m_project != nullptr);
-    return interface_type(a_handle, a_data, m_project);
+    return interface_type(a_handle, a_data, *m_project);
 }
 /*
 template <typename T>
