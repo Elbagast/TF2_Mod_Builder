@@ -200,7 +200,7 @@ namespace sak
     }
 
     template <typename T>
-    decltype(auto) make_command_removed(extended_handle<T> && a_ehandle)
+    decltype(auto) make_command_removed(Project* a_project, extended_handle<T> && a_ehandle)
     {
       return std::unique_ptr<typename command_removed<T>::inherited_type>(Project* a_project, std::make_unique<command_removed<T>>(a_project,std::move(a_ehandle)).release());
     }

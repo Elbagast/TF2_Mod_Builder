@@ -60,6 +60,17 @@ namespace sak
   Structure:
   - Currently the Project does not actually need to own the data management system.
   - It should probably own its undo system?
+
+  Reorganising:
+  - Generalising the internal structure means some stuff needs to be moved around.
+  - However we need an unambiguous interface to all the types it holds.
+  - Thus the public interface of Project is slightly different from the signals that
+    shared:: types must make...
+  - Use shared::dispatch_signals<T> to make the disambiguous functions usable by the templates.
+
+  - This would be simpler if a class could contain a namespace...
+
+
   */
   class Project
   {
@@ -159,6 +170,9 @@ namespace sak
     // Make a new file using the default parameters. Project's data management system owns it
     // but it is not part of the Project.
     file::extended_handle make_file();
+
+
+
 
     // To signal that something should be done to the project, you may access the signalbox
     // for a specific type, then call the signals to make and propagate changes.

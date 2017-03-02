@@ -10,7 +10,7 @@ namespace sak
     namespace abstract
     {
       //---------------------------------------------------------------------------
-      // shared::abstract::signalbox<T>
+      // shared::abstract::signalbox_out<T>
       //---------------------------------------------------------------------------
       // All signals that are dispatched from Project for a given object type.
       template <typename T>
@@ -23,7 +23,7 @@ namespace sak
     namespace abstract
     {
       //---------------------------------------------------------------------------
-      // file::abstract::signalbox
+      // file::abstract::signalbox_out
       //---------------------------------------------------------------------------
       // All signals that are dispatched from Project for a given object type.
       using signalbox = shared::abstract::signalbox<object>;
@@ -31,4 +31,4 @@ namespace sak
   }
 }
 
-#endif // SAK_SHARED_FWD_SIGNALBOX_HPP
+#endif // SAK_SHARED_FWD_SIGNALBOX_OUT_HPP

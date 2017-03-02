@@ -97,7 +97,6 @@ SOURCES += \
     sak/project_editor.cpp \
     generic/command_history.cpp \
     generic/command.cpp \
-    sak/filepath.cpp \
     valve/asset_filepath.cpp \
     dclib/ct/testing/test_object.cpp \
     dclib/litype/testing/test_float.cpp \
@@ -127,7 +126,6 @@ SOURCES += \
     sak/shared/object.cpp \
     sak/shared/manager.cpp \
     sak/shared/extended_manager.cpp \
-    sak/shared/signalbox.cpp \
     sak/shared/widget.cpp \
     sak/outliner/root_item.cpp \
     sak/outliner/project_item.cpp \
@@ -135,7 +133,9 @@ SOURCES += \
     sak/shared/dispatch_signals.cpp \
     sak/edit/widget_traits.cpp \
     sak/shared/member_widget.cpp \
-    sak/shared/xml_traits.cpp
+    sak/shared/xml_traits.cpp \
+    sak/shared/signalbox.cpp \
+    sak/project/object.cpp
     
 
 HEADERS  += \
@@ -204,7 +204,6 @@ HEADERS  += \
     qtlib/validating_line_edit.hpp \
     sak/dialog/new_project_dialog.hpp \
     sak/exceptions/exception.hpp \
-    sak/filepath.hpp \
     sak/fixed_settings.hpp \
     sak/name_utilities.hpp \
     sak/project.hpp \
@@ -226,8 +225,6 @@ HEADERS  += \
     sak/shared/manager.hpp \
     sak/shared/fwd/object.hpp \
     sak/shared/object.hpp \
-    sak/shared/fwd/signalbox.hpp \
-    sak/shared/signalbox.hpp \
     sak/shared/fwd/widget.hpp \
     sak/shared/fwd/outliner_item.hpp \
     sak/shared/widget.hpp \
@@ -262,7 +259,16 @@ HEADERS  += \
     sak/edit/widget_traits.hpp \
     sak/shared/member_widget.hpp \
     sak/shared/fwd/member_widget.hpp \
-    sak/shared/xml_traits.hpp
+    sak/shared/xml_traits.hpp \
+    sak/shared/fwd/signalbox.hpp \
+    sak/shared/signalbox.hpp \
+    sak/project/signalbox.hpp \
+    sak/project/object.hpp \
+    sak/project/fwd/signalbox.hpp \
+    sak/project/fwd/object.hpp \
+    sak/project/fwd/command.hpp \
+    generic/fwd/command.hpp \
+    sak/project/command.hpp
     
 
 FORMS

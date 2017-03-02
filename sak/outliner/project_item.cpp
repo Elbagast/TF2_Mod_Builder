@@ -11,6 +11,7 @@
 #include <qtlib/outliner/model.hpp>
 #include <sak/project.hpp>
 #include <sak/project_signalbox.hpp>
+#include <sak/shared/dispatch_signals.hpp>
 #include <sak/shared/outliner_item.hpp>
 #include "root_item.hpp"
 
@@ -77,8 +78,9 @@ void sak::outliner::project_item::do_context_menu(QAbstractItemView* a_view, mod
     QObject::connect(l_action_add_file, &QAction::triggered, [this]()
     {
         // Either this call triggers the data change in model, or we have to make that call here.
-        auto l_file = this->get_project().make_file();
-        this->get_project().get_signalbox()->added(l_file); // outbound signal to project
+        //auto l_file = this->get_project().make_file();
+        //this->get_project().get_signalbox()->added(l_file); // outbound signal to project
+        file::dispatch_signals::command_make_new(&(this->get_project()));
     });
 
     menu.exec(a_view->viewport()->mapToGlobal(a_position));

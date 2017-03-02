@@ -1,6 +1,7 @@
 #ifndef GENERIC_COMMAND_HPP
 #define GENERIC_COMMAND_HPP
 
+#include "fwd/command.hpp"
 #include <memory>
 
 namespace generic

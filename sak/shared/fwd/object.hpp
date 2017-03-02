@@ -62,7 +62,6 @@ namespace sak
     ,shared::member<DCLIB_LITYPE_STRING(u8"Booltest"),bool>
     >;*/
   }
-
 }
 
 #endif // SAK_SHARED_FWD_OBJECT_HPP

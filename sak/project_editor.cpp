@@ -9,7 +9,8 @@
 #include <iterator>
 #include <algorithm>
 
-#include "project_signalbox.hpp"
+#include <sak/shared/dispatch_signals.hpp>
+//#include "project_signalbox.hpp"
 
 #include "shared/object.hpp"
 #include "shared/manager.hpp"
@@ -144,7 +145,8 @@ sak::Project_Editor::Implementation::Implementation(Project& a_project):
             if (l_widget != nullptr)
             {
                 file::extended_handle const& l_file = l_widget->cget_handle();
-                this->m_project.get_signalbox()->requests_focus(l_file);
+                //this->m_project.get_signalbox()->requests_focus(l_file);
+                file::dispatch_signals::requests_focus(&(m_project), l_file);
             }
         }
     });

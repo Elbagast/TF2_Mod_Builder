@@ -302,7 +302,7 @@ void sak::shared::outliner::item<T>::do_context_menu(QAbstractItemView* a_view, 
   auto l_action_delete = menu.addAction("Delete");
   QObject::connect(l_action_delete, &QAction::triggered, [=]()
   {
-    dispatch_signals<object_type>::requests_editor(&(this->get_project()), this->m_ehandle); // outbound signal.
+    dispatch_signals<object_type>::command_remove(&(this->get_project()), this->m_ehandle); // outbound signal.
   });
 
   // Execute the menu at the global posiiton.

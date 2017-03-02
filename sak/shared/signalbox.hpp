@@ -12,7 +12,7 @@ namespace sak
     namespace abstract
     {
       //---------------------------------------------------------------------------
-      // shared::abstract::signalbox<T>
+      // shared::abstract::signalbox_out<T>
       //---------------------------------------------------------------------------
       // All signals that are dispatched from Project for a given object type.
       template <typename T>
