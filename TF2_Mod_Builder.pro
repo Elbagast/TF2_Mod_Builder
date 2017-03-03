@@ -80,22 +80,18 @@ DEPENDPATH += $${BOOST_LIBRARY_DIR}
 
 SOURCES += \
 	main.cpp \
-    sak/project_window.cpp \
-    sak/project_widget.cpp \
     sak/dialog/new_project_dialog.cpp \
     qtlib/validating_line_edit.cpp \
     qtlib/text_colour_state_changer.cpp \
     qtlib/directory_name_validator.cpp \
     qtlib/existing_directory_validator.cpp \
     sak/fixed_settings.cpp \
-    sak/project.cpp \
     sak/exceptions/exception.cpp \
     sak/system_settings.cpp \
     generic/uintid.cpp \
     generic/uintid_manager.cpp \
     generic/uintid_traits.cpp \
     sak/name_utilities.cpp \
-    sak/project_editor.cpp \
     generic/command_history.cpp \
     generic/command.cpp \
     valve/asset_filepath.cpp \
@@ -123,21 +119,26 @@ SOURCES += \
     qtlib/outliner/root_branch_item.cpp \
     qtlib/outliner/trunk_item.cpp \
     qtlib/outliner/treeview.cpp \
-    sak/shared/outliner_item.cpp \
     sak/shared/object.cpp \
     sak/shared/manager.cpp \
     sak/shared/extended_manager.cpp \
     sak/shared/widget.cpp \
-    sak/outliner/root_item.cpp \
-    sak/outliner/project_item.cpp \
-    sak/outliner/widget.cpp \
-    sak/shared/dispatch_signals.cpp \
     sak/edit/widget_traits.cpp \
     sak/shared/member_widget.cpp \
     sak/shared/xml_traits.cpp \
     sak/shared/signalbox.cpp \
     sak/project/object.cpp \
-    sak/project/signal_dispatcher.cpp
+    sak/project/signal_dispatcher.cpp \
+    sak/shared/data_manager.cpp \
+    sak/project/widget.cpp \
+    sak/project/editor.cpp \
+    sak/project/outliner/widget.cpp \
+    sak/project/outliner/root_item.cpp \
+    sak/project/outliner/project_item.cpp \
+    sak/shared/outliner/item.cpp \
+    sak/shared/outliner/header_item.cpp \
+    sak/project/window.cpp \
+    sak/shared/project_access.cpp
     
 
 HEADERS  += \
@@ -208,12 +209,7 @@ HEADERS  += \
     sak/exceptions/exception.hpp \
     sak/fixed_settings.hpp \
     sak/name_utilities.hpp \
-    sak/project.hpp \
-    sak/project_editor.hpp \
-    sak/project_signalbox.hpp \
-    sak/project_widget.hpp \
     sak/system_settings.hpp \
-    sak/project_window.hpp \
     valve/asset_filepath.hpp \
     sak/shared/fwd/command.hpp \
     sak/shared/fwd/extended_manager.hpp \
@@ -238,7 +234,6 @@ HEADERS  += \
     qtlib/display/anon_widget_traits.hpp \
     qtlib/edit/widget_traits.hpp \
     qtlib/edit/anon_widget_traits.hpp \
-    sak/shared/outliner_item.hpp \
     qtlib/outliner/abstract_item.hpp \
     qtlib/outliner/abstract_readonly_item.hpp \
     qtlib/outliner/abstract_root_item.hpp \
@@ -253,11 +248,6 @@ HEADERS  += \
     qtlib/outliner/root_branch_item.hpp \
     qtlib/outliner/treeview.hpp \
     qtlib/outliner/trunk_item.hpp \
-    sak/outliner/root_item.hpp \
-    sak/outliner/project_item.hpp \
-    sak/outliner/widget.hpp \
-    sak/shared/dispatch_signals.hpp \
-    sak/shared/fwd/dispatch_signals.hpp \
     sak/edit/widget_traits.hpp \
     sak/shared/member_widget.hpp \
     sak/shared/fwd/member_widget.hpp \
@@ -273,7 +263,27 @@ HEADERS  += \
     sak/project/command.hpp \
     generic/fwd/variant.hpp \
     generic/variant.hpp \
-    sak/project/signal_dispatcher.hpp
+    sak/project/signal_dispatcher.hpp \
+    sak/shared/data_manager.hpp \
+    sak/shared/fwd/data_manager.hpp \
+    sak/project/widget.hpp \
+    sak/project/fwd/widget.hpp \
+    sak/project/fwd/editor.hpp \
+    sak/project/editor.hpp \
+    sak/project/outliner/fwd/widget.hpp \
+    sak/project/outliner/widget.hpp \
+    sak/project/outliner/fwd/root_item.hpp \
+    sak/project/outliner/fwd/project_item.hpp \
+    sak/project/outliner/root_item.hpp \
+    sak/project/outliner/project_item.hpp \
+    sak/shared/outliner/fwd/item.hpp \
+    sak/shared/outliner/fwd/header_item.hpp \
+    sak/shared/outliner/item.hpp \
+    sak/shared/outliner/header_item.hpp \
+    sak/project/fwd/window.hpp \
+    sak/project/window.hpp \
+    sak/shared/fwd/project_access.hpp \
+    sak/shared/project_access.hpp
     
 
 FORMS

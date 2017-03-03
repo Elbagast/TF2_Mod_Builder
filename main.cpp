@@ -1,6 +1,6 @@
 #include <QApplication>
 #include <iostream>
-#include "sak/project_window.hpp"
+#include <sak/project/window.hpp>
 
 #include <dclib/litype/testing/test_string.hpp>
 #include <dclib/litype/testing/test_integer.hpp>
@@ -45,7 +45,7 @@ void myMessageOutput(QtMsgType type, QMessageLogContext const& context, QString 
 int main(int argc, char *argv[])
 {    
     QApplication l_application(argc, argv);
-    sak::Project_Window l_window{};
+    sak::project::window l_window{};
     l_window.show();
 
     dclib::litype::test_string();

@@ -3,6 +3,7 @@
 
 #include <cstddef>
 #include "object.hpp"
+#include <generic/fwd/command.hpp>
 
 namespace sak
 {
@@ -10,6 +11,7 @@ namespace sak
   {
     namespace abstract
     {
+      using command = generic::abstract::Command;
       //---------------------------------------------------------------------------
       // abstract::command_assign<T>
       //---------------------------------------------------------------------------
@@ -17,7 +19,7 @@ namespace sak
       // captures the common details and allows us to hide the signaling methods.
 
       template <typename T>
-      class command_assign;
+      class signalling_command;
     }
 
     //---------------------------------------------------------------------------
@@ -52,17 +54,6 @@ namespace sak
 
   namespace file
   {
-    namespace abstract
-    {
-      //---------------------------------------------------------------------------
-      // abstract::command_assign<T>
-      //---------------------------------------------------------------------------
-      // Base class for commands for the assignment of member values. This class
-      // captures the common details and allows us to hide the signaling methods.
-
-      using command_assign = shared::abstract::command_assign<object>;
-    }
-
     template <std::size_t Index>
     using command_assign = shared::command_assign<object,Index>;
 

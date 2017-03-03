@@ -6,11 +6,10 @@
 #include "fwd/interface.hpp"
 #include "fwd/manager.hpp"
 #include "fwd/extended_manager.hpp"
+#include <sak/project/fwd/object.hpp>
 
 namespace sak
 {
-  class Project;
-
   namespace shared
   {
     //---------------------------------------------------------------------------
@@ -33,7 +32,7 @@ namespace sak
       // Special 6
       //============================================================
       interface_traits();
-      explicit interface_traits(Project* a_project);
+      explicit interface_traits(project::object* a_project);
 
       // Public Interface
       //============================================================
@@ -42,7 +41,7 @@ namespace sak
     private:
       // Data Members
       //============================================================
-      Project* m_project;
+      project::object* m_project;
     };
   }
 }

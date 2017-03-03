@@ -1,4 +1,5 @@
-#include "project_window.hpp"
+#include "window.hpp"
+
 #include <QMenuBar>
 #include <QMenu>
 #include <QAction>
@@ -11,17 +12,18 @@
 #include <QFileDialog>
 #include <QDebug>
 
-#include "project_widget.hpp"
-#include "dialog/new_project_dialog.hpp"
-#include "fixed_settings.hpp"
-#include "project.hpp"
-#include "exceptions/exception.hpp"
+#include <sak/project/object.hpp>
+#include <sak/project/widget.hpp>
+
+#include <sak/dialog/new_project_dialog.hpp>
+#include <sak/fixed_settings.hpp>
+#include <sak/exceptions/exception.hpp>
 
 //---------------------------------------------------------------------------
-// Project_Window
+// window
 //---------------------------------------------------------------------------
 
-// Internal constants and implementation
+// Internal constants and impl
 //============================================================
 namespace
 {
@@ -101,121 +103,126 @@ namespace
 
 // Pimpl Data
 //============================================================
-class sak::Project_Window::Implementation
+namespace sak
 {
-public:
-    std::unique_ptr<QStackedWidget> m_central_stack;
+  namespace project
+  {
+    class window::impl
+    {
+    public:
+      std::unique_ptr<QStackedWidget> m_central_stack;
 
-    std::unique_ptr<Background_Widget> m_background_widget;
+      std::unique_ptr<Background_Widget> m_background_widget;
 
-    // Going to need some kind of settings object or reference to one. Or singleton?
+      // Going to need some kind of settings object or reference to one. Or singleton?
 
-    std::unique_ptr<Project_Widget> m_project_widget;
+      std::unique_ptr<widget> m_widget;
 
-    std::unique_ptr<QMenu> m_file;
-    std::unique_ptr<QAction> m_file_new_project;
-    std::unique_ptr<QAction> m_file_open_project;
-    std::unique_ptr<QAction> m_file_save_project;
-    std::unique_ptr<QAction> m_file_close_project;
-    std::unique_ptr<QAction> m_file_exit;
+      std::unique_ptr<QMenu> m_file;
+      std::unique_ptr<QAction> m_file_new_project;
+      std::unique_ptr<QAction> m_file_open_project;
+      std::unique_ptr<QAction> m_file_save_project;
+      std::unique_ptr<QAction> m_file_close_project;
+      std::unique_ptr<QAction> m_file_exit;
 
-    std::unique_ptr<QMenu> m_edit;
-    std::unique_ptr<QAction> m_edit_undo;
-    std::unique_ptr<QAction> m_edit_redo;
-    std::unique_ptr<QAction> m_edit_view_history;
-    std::unique_ptr<QAction> m_edit_clear_history;
+      std::unique_ptr<QMenu> m_edit;
+      std::unique_ptr<QAction> m_edit_undo;
+      std::unique_ptr<QAction> m_edit_redo;
+      std::unique_ptr<QAction> m_edit_view_history;
+      std::unique_ptr<QAction> m_edit_clear_history;
 
-    std::unique_ptr<QMenu> m_component;
-    std::unique_ptr<QMenu> m_component_create;
-    std::unique_ptr<QAction> m_component_create_file;
-    std::unique_ptr<QAction> m_component_create_texture;
-    std::unique_ptr<QAction> m_component_create_material;
-    std::unique_ptr<QAction> m_component_create_model;
-    std::unique_ptr<QAction> m_component_create_package;
-    std::unique_ptr<QAction> m_component_create_release;
+      std::unique_ptr<QMenu> m_component;
+      std::unique_ptr<QMenu> m_component_create;
+      std::unique_ptr<QAction> m_component_create_file;
+      std::unique_ptr<QAction> m_component_create_texture;
+      std::unique_ptr<QAction> m_component_create_material;
+      std::unique_ptr<QAction> m_component_create_model;
+      std::unique_ptr<QAction> m_component_create_package;
+      std::unique_ptr<QAction> m_component_create_release;
 
-    std::unique_ptr<QMenu> m_build;
-    std::unique_ptr<QAction> m_build_build_project;
-    std::unique_ptr<QAction> m_build_rebuild_project;
-    std::unique_ptr<QAction> m_build_clean_project;
-    std::unique_ptr<QAction> m_build_build_component;
-    std::unique_ptr<QAction> m_build_rebuild_component;
-    std::unique_ptr<QAction> m_build_clean_component;
+      std::unique_ptr<QMenu> m_build;
+      std::unique_ptr<QAction> m_build_build_project;
+      std::unique_ptr<QAction> m_build_rebuild_project;
+      std::unique_ptr<QAction> m_build_clean_project;
+      std::unique_ptr<QAction> m_build_build_component;
+      std::unique_ptr<QAction> m_build_rebuild_component;
+      std::unique_ptr<QAction> m_build_clean_component;
 
-    std::unique_ptr<QMenu> m_install;
-    std::unique_ptr<QAction> m_install_install_status;
-    std::unique_ptr<QAction> m_install_install_component;
-    std::unique_ptr<QAction> m_install_uninstall_component;
-    std::unique_ptr<QAction> m_install_uninstall_all;
+      std::unique_ptr<QMenu> m_install;
+      std::unique_ptr<QAction> m_install_install_status;
+      std::unique_ptr<QAction> m_install_install_component;
+      std::unique_ptr<QAction> m_install_uninstall_component;
+      std::unique_ptr<QAction> m_install_uninstall_all;
 
-    std::unique_ptr<QMenu> m_settings;
-    std::unique_ptr<QAction> m_settings_settings;
-    std::unique_ptr<QAction> m_settings_tf2_settings;
-    std::unique_ptr<QAction> m_settings_sfm_settings;
+      std::unique_ptr<QMenu> m_settings;
+      std::unique_ptr<QAction> m_settings_settings;
+      std::unique_ptr<QAction> m_settings_tf2_settings;
+      std::unique_ptr<QAction> m_settings_sfm_settings;
 
-    std::unique_ptr<QMenu> m_help;
-    std::unique_ptr<QAction> m_help_help;
-    std::unique_ptr<QAction> m_help_about;
+      std::unique_ptr<QMenu> m_help;
+      std::unique_ptr<QAction> m_help_help;
+      std::unique_ptr<QAction> m_help_about;
 
-    Implementation():
-        m_central_stack{std::make_unique<QStackedWidget>()},
-        m_background_widget{std::make_unique<Background_Widget>()},
-        m_project_widget{},
+      impl():
+          m_central_stack{std::make_unique<QStackedWidget>()},
+          m_background_widget{std::make_unique<Background_Widget>()},
+          m_widget{},
 
-        m_file{std::make_unique<QMenu>(c_title_file)},
-        m_file_new_project{std::make_unique<QAction>(c_title_file_new_project)},
-        m_file_open_project{std::make_unique<QAction>(c_title_file_open_project)},
-        m_file_save_project{std::make_unique<QAction>(c_title_file_save_project)},
-        m_file_close_project{std::make_unique<QAction>(c_title_file_close_project)},
-        m_file_exit{std::make_unique<QAction>(c_title_file_exit)},
+          m_file{std::make_unique<QMenu>(c_title_file)},
+          m_file_new_project{std::make_unique<QAction>(c_title_file_new_project)},
+          m_file_open_project{std::make_unique<QAction>(c_title_file_open_project)},
+          m_file_save_project{std::make_unique<QAction>(c_title_file_save_project)},
+          m_file_close_project{std::make_unique<QAction>(c_title_file_close_project)},
+          m_file_exit{std::make_unique<QAction>(c_title_file_exit)},
 
-        m_edit{std::make_unique<QMenu>(c_title_edit)},
-        m_edit_undo{std::make_unique<QAction>(c_title_edit_undo)},
-        m_edit_redo{std::make_unique<QAction>(c_title_edit_redo)},
-        m_edit_view_history{std::make_unique<QAction>(c_title_edit_view_history)},
-        m_edit_clear_history{std::make_unique<QAction>(c_title_edit_clear_history)},
+          m_edit{std::make_unique<QMenu>(c_title_edit)},
+          m_edit_undo{std::make_unique<QAction>(c_title_edit_undo)},
+          m_edit_redo{std::make_unique<QAction>(c_title_edit_redo)},
+          m_edit_view_history{std::make_unique<QAction>(c_title_edit_view_history)},
+          m_edit_clear_history{std::make_unique<QAction>(c_title_edit_clear_history)},
 
-        m_component{std::make_unique<QMenu>(c_title_component)},
-        m_component_create{std::make_unique<QMenu>(c_title_component_create)},
-        m_component_create_file{std::make_unique<QAction>(c_title_component_create_file)},
-        m_component_create_texture{std::make_unique<QAction>(c_title_component_create_texture)},
-        m_component_create_material{std::make_unique<QAction>(c_title_component_create_material)},
-        m_component_create_model{std::make_unique<QAction>(c_title_component_create_model)},
-        m_component_create_package{std::make_unique<QAction>(c_title_component_create_package)},
-        m_component_create_release{std::make_unique<QAction>(c_title_component_create_release)},
+          m_component{std::make_unique<QMenu>(c_title_component)},
+          m_component_create{std::make_unique<QMenu>(c_title_component_create)},
+          m_component_create_file{std::make_unique<QAction>(c_title_component_create_file)},
+          m_component_create_texture{std::make_unique<QAction>(c_title_component_create_texture)},
+          m_component_create_material{std::make_unique<QAction>(c_title_component_create_material)},
+          m_component_create_model{std::make_unique<QAction>(c_title_component_create_model)},
+          m_component_create_package{std::make_unique<QAction>(c_title_component_create_package)},
+          m_component_create_release{std::make_unique<QAction>(c_title_component_create_release)},
 
-        m_build{std::make_unique<QMenu>(c_title_build)},
-        m_build_build_project{std::make_unique<QAction>(c_title_build_build_project)},
-        m_build_rebuild_project{std::make_unique<QAction>(c_title_build_rebuild_project)},
-        m_build_clean_project{std::make_unique<QAction>(c_title_build_clean_project)},
-        m_build_build_component{std::make_unique<QAction>(c_title_build_build_component)},
-        m_build_rebuild_component{std::make_unique<QAction>(c_title_build_rebuild_component)},
-        m_build_clean_component{std::make_unique<QAction>(c_title_build_clean_component)},
+          m_build{std::make_unique<QMenu>(c_title_build)},
+          m_build_build_project{std::make_unique<QAction>(c_title_build_build_project)},
+          m_build_rebuild_project{std::make_unique<QAction>(c_title_build_rebuild_project)},
+          m_build_clean_project{std::make_unique<QAction>(c_title_build_clean_project)},
+          m_build_build_component{std::make_unique<QAction>(c_title_build_build_component)},
+          m_build_rebuild_component{std::make_unique<QAction>(c_title_build_rebuild_component)},
+          m_build_clean_component{std::make_unique<QAction>(c_title_build_clean_component)},
 
-        m_install{std::make_unique<QMenu>(c_title_install)},
-        m_install_install_status{std::make_unique<QAction>(c_title_install_install_status)},
-        m_install_install_component{std::make_unique<QAction>(c_title_install_install_component)},
-        m_install_uninstall_component{std::make_unique<QAction>(c_title_install_uninstall_component)},
-        m_install_uninstall_all{std::make_unique<QAction>(c_title_install_uninstall_all)},
+          m_install{std::make_unique<QMenu>(c_title_install)},
+          m_install_install_status{std::make_unique<QAction>(c_title_install_install_status)},
+          m_install_install_component{std::make_unique<QAction>(c_title_install_install_component)},
+          m_install_uninstall_component{std::make_unique<QAction>(c_title_install_uninstall_component)},
+          m_install_uninstall_all{std::make_unique<QAction>(c_title_install_uninstall_all)},
 
-        m_settings{std::make_unique<QMenu>(c_title_settings)},
-        m_settings_settings{std::make_unique<QAction>(c_title_settings_settings)},
-        m_settings_tf2_settings{std::make_unique<QAction>(c_title_settings_tf2_settings)},
-        m_settings_sfm_settings{std::make_unique<QAction>(c_title_settings_sfm_settings)},
+          m_settings{std::make_unique<QMenu>(c_title_settings)},
+          m_settings_settings{std::make_unique<QAction>(c_title_settings_settings)},
+          m_settings_tf2_settings{std::make_unique<QAction>(c_title_settings_tf2_settings)},
+          m_settings_sfm_settings{std::make_unique<QAction>(c_title_settings_sfm_settings)},
 
-        m_help{std::make_unique<QMenu>(c_title_help)},
-        m_help_help{std::make_unique<QAction>(c_title_help_help)},
-        m_help_about{std::make_unique<QAction>(c_title_help_about)}
-    {}
+          m_help{std::make_unique<QMenu>(c_title_help)},
+          m_help_help{std::make_unique<QAction>(c_title_help_help)},
+          m_help_about{std::make_unique<QAction>(c_title_help_about)}
+      {}
+    };
+  }
+}
 
-
-};
 
 // Special 6
 //============================================================
-sak::Project_Window::Project_Window(QWidget* a_parent):
+sak::project::window::window(QWidget* a_parent):
     QMainWindow(a_parent),
-    m_data{std::make_unique<Implementation>()}
+    m_data{std::make_unique<impl>()}
 {
     // Add the background widget to the stack.
     imp().m_central_stack->addWidget(imp().m_background_widget.get());
@@ -233,11 +240,11 @@ sak::Project_Window::Project_Window(QWidget* a_parent):
     // Menu Bar -> File
     //============================================================
     // Configure the menu items
-    QObject::connect(imp().m_file_new_project.get(), &QAction::triggered, this, &Project_Window::new_project);
-    QObject::connect(imp().m_file_open_project.get(), &QAction::triggered, this, &Project_Window::open_project);
-    QObject::connect(imp().m_file_save_project.get(), &QAction::triggered, this, &Project_Window::save_project);
-    QObject::connect(imp().m_file_close_project.get(), &QAction::triggered, this, &Project_Window::close_project);
-    QObject::connect(imp().m_file_exit.get(), &QAction::triggered, this, &Project_Window::exit);
+    QObject::connect(imp().m_file_new_project.get(), &QAction::triggered, this, &window::new_project);
+    QObject::connect(imp().m_file_open_project.get(), &QAction::triggered, this, &window::open_project);
+    QObject::connect(imp().m_file_save_project.get(), &QAction::triggered, this, &window::save_project);
+    QObject::connect(imp().m_file_close_project.get(), &QAction::triggered, this, &window::close_project);
+    QObject::connect(imp().m_file_exit.get(), &QAction::triggered, this, &window::exit);
 
     // Build the File menu. It does not take ownership of the QActions.
     imp().m_file->addAction(imp().m_file_new_project.get());
@@ -255,10 +262,10 @@ sak::Project_Window::Project_Window(QWidget* a_parent):
     // Menu Bar -> Edit
     //============================================================
     // Configure the menu items
-    QObject::connect(imp().m_edit_undo.get(), &QAction::triggered, this, &Project_Window::undo);
-    QObject::connect(imp().m_edit_redo.get(), &QAction::triggered, this, &Project_Window::redo);
-    QObject::connect(imp().m_edit_view_history.get(), &QAction::triggered, this, &Project_Window::view_history);
-    QObject::connect(imp().m_edit_clear_history.get(), &QAction::triggered, this, &Project_Window::clear_history);
+    QObject::connect(imp().m_edit_undo.get(), &QAction::triggered, this, &window::undo);
+    QObject::connect(imp().m_edit_redo.get(), &QAction::triggered, this, &window::redo);
+    QObject::connect(imp().m_edit_view_history.get(), &QAction::triggered, this, &window::view_history);
+    QObject::connect(imp().m_edit_clear_history.get(), &QAction::triggered, this, &window::clear_history);
 
     // Build the File menu. It does not take ownership of the QActions.
     imp().m_edit->addAction(imp().m_edit_undo.get());
@@ -273,12 +280,12 @@ sak::Project_Window::Project_Window(QWidget* a_parent):
     // Menu Bar -> Create
     //============================================================
     // Configure the menu items
-    QObject::connect(imp().m_component_create_file.get(), &QAction::triggered, this, &Project_Window::create_file);
-    QObject::connect(imp().m_component_create_texture.get(), &QAction::triggered, this, &Project_Window::create_texture);
-    QObject::connect(imp().m_component_create_material.get(), &QAction::triggered, this, &Project_Window::create_material);
-    QObject::connect(imp().m_component_create_model.get(), &QAction::triggered, this, &Project_Window::create_model);
-    QObject::connect(imp().m_component_create_package.get(), &QAction::triggered, this, &Project_Window::create_package);
-    QObject::connect(imp().m_component_create_release.get(), &QAction::triggered, this, &Project_Window::create_release);
+    QObject::connect(imp().m_component_create_file.get(), &QAction::triggered, this, &window::create_file);
+    QObject::connect(imp().m_component_create_texture.get(), &QAction::triggered, this, &window::create_texture);
+    QObject::connect(imp().m_component_create_material.get(), &QAction::triggered, this, &window::create_material);
+    QObject::connect(imp().m_component_create_model.get(), &QAction::triggered, this, &window::create_model);
+    QObject::connect(imp().m_component_create_package.get(), &QAction::triggered, this, &window::create_package);
+    QObject::connect(imp().m_component_create_release.get(), &QAction::triggered, this, &window::create_release);
 
     // Build the File menu. It does not take ownership of the QActions.
     imp().m_component_create->addAction(imp().m_component_create_file.get());
@@ -296,12 +303,12 @@ sak::Project_Window::Project_Window(QWidget* a_parent):
     // Menu Bar -> Build
     //============================================================
     // Configure the menu items
-    QObject::connect(imp().m_build_build_project.get(), &QAction::triggered, this, &Project_Window::build_project);
-    QObject::connect(imp().m_build_rebuild_project.get(), &QAction::triggered, this, &Project_Window::rebuild_project);
-    QObject::connect(imp().m_build_clean_project.get(), &QAction::triggered, this, &Project_Window::clean_project);
-    QObject::connect(imp().m_build_build_component.get(), &QAction::triggered, this, &Project_Window::build_component);
-    QObject::connect(imp().m_build_rebuild_component.get(), &QAction::triggered, this, &Project_Window::rebuild_component);
-    QObject::connect(imp().m_build_clean_component.get(), &QAction::triggered, this, &Project_Window::clean_component);
+    QObject::connect(imp().m_build_build_project.get(), &QAction::triggered, this, &window::build_project);
+    QObject::connect(imp().m_build_rebuild_project.get(), &QAction::triggered, this, &window::rebuild_project);
+    QObject::connect(imp().m_build_clean_project.get(), &QAction::triggered, this, &window::clean_project);
+    QObject::connect(imp().m_build_build_component.get(), &QAction::triggered, this, &window::build_component);
+    QObject::connect(imp().m_build_rebuild_component.get(), &QAction::triggered, this, &window::rebuild_component);
+    QObject::connect(imp().m_build_clean_component.get(), &QAction::triggered, this, &window::clean_component);
 
     // Build the File menu. It does not take ownership of the QActions.
     imp().m_build->addAction(imp().m_build_build_project.get());
@@ -319,10 +326,10 @@ sak::Project_Window::Project_Window(QWidget* a_parent):
     // Menu Bar -> Install
     //============================================================
     // Configure the menu items
-    QObject::connect(imp().m_install_install_status.get(), &QAction::triggered, this, &Project_Window::install_status);
-    QObject::connect(imp().m_install_install_component.get(), &QAction::triggered, this, &Project_Window::install_component);
-    QObject::connect(imp().m_install_uninstall_component.get(), &QAction::triggered, this, &Project_Window::uninstall_component);
-    QObject::connect(imp().m_install_uninstall_all.get(), &QAction::triggered, this, &Project_Window::uninstall_all);
+    QObject::connect(imp().m_install_install_status.get(), &QAction::triggered, this, &window::install_status);
+    QObject::connect(imp().m_install_install_component.get(), &QAction::triggered, this, &window::install_component);
+    QObject::connect(imp().m_install_uninstall_component.get(), &QAction::triggered, this, &window::uninstall_component);
+    QObject::connect(imp().m_install_uninstall_all.get(), &QAction::triggered, this, &window::uninstall_all);
 
     // Build the File menu. It does not take ownership of the QActions.
     imp().m_install->addAction(imp().m_install_install_status.get());
@@ -338,9 +345,9 @@ sak::Project_Window::Project_Window(QWidget* a_parent):
     // Menu Bar -> Settings
     //============================================================
     // Configure the menu items
-    QObject::connect(imp().m_settings_settings.get(), &QAction::triggered, this, &Project_Window::settings);
-    QObject::connect(imp().m_settings_tf2_settings.get(), &QAction::triggered, this, &Project_Window::tf2_settings);
-    QObject::connect(imp().m_settings_sfm_settings.get(), &QAction::triggered, this, &Project_Window::sfm_settings);
+    QObject::connect(imp().m_settings_settings.get(), &QAction::triggered, this, &window::settings);
+    QObject::connect(imp().m_settings_tf2_settings.get(), &QAction::triggered, this, &window::tf2_settings);
+    QObject::connect(imp().m_settings_sfm_settings.get(), &QAction::triggered, this, &window::sfm_settings);
 
     // Build the File menu. It does not take ownership of the QActions.
     imp().m_settings->addAction(imp().m_settings_settings.get());
@@ -353,8 +360,8 @@ sak::Project_Window::Project_Window(QWidget* a_parent):
     // Menu Bar -> Help
     //============================================================
     // Configure the menu items
-    QObject::connect(imp().m_help_help.get(), &QAction::triggered, this, &Project_Window::help);
-    QObject::connect(imp().m_help_about.get(), &QAction::triggered, this, &Project_Window::about);
+    QObject::connect(imp().m_help_help.get(), &QAction::triggered, this, &window::help);
+    QObject::connect(imp().m_help_about.get(), &QAction::triggered, this, &window::about);
 
     // Build the File menu. It does not take ownership of the QActions.
     imp().m_help->addAction(imp().m_help_help.get());
@@ -368,18 +375,18 @@ sak::Project_Window::Project_Window(QWidget* a_parent):
     notify_project_changes();
 }
 
-sak::Project_Window::~Project_Window()
+sak::project::window::~window()
 {
     // If this is owned by the stack it will be double-deleted.
     imp().m_background_widget->setParent(nullptr);
-    if(imp().m_project_widget) imp().m_project_widget->setParent(nullptr);
+    if(imp().m_widget) imp().m_widget->setParent(nullptr);
 }
 
 // Menu Bar -> File
 //============================================================
 // Make a new empty Project based on what the user supplies via a dialog.
 // If the user cancels out, nothing happens.
-bool sak::Project_Window::new_project()
+bool sak::project::window::new_project()
 {
     // close the open project or do nothing if there isn't one.
     // if we didn't close it, stop
@@ -426,12 +433,12 @@ bool sak::Project_Window::new_project()
     try
     {
         // Right now this constructor does the file stuff and emits exceptions if it can't
-        auto l_project = std::make_unique<Project>(l_filepath);
+        auto l_project = std::make_unique<object>(l_filepath);
 
         // Make the widget
-        imp().m_project_widget = std::make_unique<Project_Widget>(std::move(l_project));
-        QObject::connect(imp().m_project_widget.get(), &Project_Widget::signal_undo_change,
-                         this, &Project_Window::notify_undo_changes);
+        imp().m_widget = std::make_unique<widget>(std::move(l_project));
+        QObject::connect(imp().m_widget.get(), &widget::signal_undo_change,
+                         this, &window::notify_undo_changes);
     }
     catch(Filesystem_Error& e)
     {
@@ -439,7 +446,7 @@ bool sak::Project_Window::new_project()
         return false;
     }
 
-    imp().m_central_stack->addWidget(imp().m_project_widget.get());
+    imp().m_central_stack->addWidget(imp().m_widget.get());
     imp().m_central_stack->setCurrentIndex(1);
 
     notify_project_changes();
@@ -448,7 +455,7 @@ bool sak::Project_Window::new_project()
 
 // Opens a project and loads the data found based on what the user supplies
 // via a dialog. If the user cancels out, nothing happens.
-bool sak::Project_Window::open_project()
+bool sak::project::window::open_project()
 {
     // close the open project or do nothing if there isn't one.
     // if we didn't close it, stop
@@ -476,15 +483,15 @@ bool sak::Project_Window::open_project()
     try
     {
         // Right now this constructor does the file stuff and emits exceptions if it can't
-        auto l_project = std::make_unique<Project>(l_filepath);
+        auto l_project = std::make_unique<object>(l_filepath);
 
         // Make the widget
-        auto l_widget = std::make_unique<Project_Widget>(std::move(l_project));
+        auto l_widget = std::make_unique<widget>(std::move(l_project));
 
         // Install the widget
-        std::swap(imp().m_project_widget,l_widget);
-        QObject::connect(imp().m_project_widget.get(), &Project_Widget::signal_undo_change,
-                         this, &Project_Window::notify_undo_changes);
+        std::swap(imp().m_widget,l_widget);
+        QObject::connect(imp().m_widget.get(), &widget::signal_undo_change,
+                         this, &window::notify_undo_changes);
     }
     catch(Filesystem_Error& e)
     {
@@ -492,7 +499,7 @@ bool sak::Project_Window::open_project()
         return false;
     }
 
-    imp().m_central_stack->addWidget(imp().m_project_widget.get());
+    imp().m_central_stack->addWidget(imp().m_widget.get());
     imp().m_central_stack->setCurrentIndex(1);
 
     notify_project_changes();
@@ -500,16 +507,16 @@ bool sak::Project_Window::open_project()
 }
 
 // Save the Project data.
-void sak::Project_Window::save_project()
+void sak::project::window::save_project()
 {
     if(is_project_open())
     {
-        imp().m_project_widget->save_project();
+        imp().m_widget->save_project();
     }
 }
 
 // Ask to save then close the Project if that is not cancelled.
-bool sak::Project_Window::close_project()
+bool sak::project::window::close_project()
 {
     // if there's a project ask to save it and stop if the user cancels out
     if (is_project_open())
@@ -519,9 +526,9 @@ bool sak::Project_Window::close_project()
             // user has not cancelled, do the close
 
             // Unhook the project widget.
-            imp().m_central_stack->removeWidget(imp().m_project_widget.get());
+            imp().m_central_stack->removeWidget(imp().m_widget.get());
             // Now destory it.
-            imp().m_project_widget.reset();
+            imp().m_widget.reset();
             // Set the stack to point to the first widget again.
             imp().m_central_stack->setCurrentIndex(0);
             notify_project_changes();
@@ -543,7 +550,7 @@ bool sak::Project_Window::close_project()
 }
 
 // Ask to save then quit if that is not cancelled.
-void sak::Project_Window::exit()
+void sak::project::window::exit()
 {
     this->close();
 }
@@ -551,209 +558,209 @@ void sak::Project_Window::exit()
 // Menu Bar -> Edit
 //============================================================
 // Undo the last command issued.
-void sak::Project_Window::undo()
+void sak::project::window::undo()
 {
     if(is_project_open())
     {
-        imp().m_project_widget->undo();
+        imp().m_widget->undo();
     }
 }
 
 // Redo the last undone command in the command history
-void sak::Project_Window::redo()
+void sak::project::window::redo()
 {
     if(is_project_open())
     {
-        imp().m_project_widget->redo();
+        imp().m_widget->redo();
     }
 }
 
 // View the entire command history of the project.
-void sak::Project_Window::view_history()
+void sak::project::window::view_history()
 {
     if(is_project_open())
     {
-        imp().m_project_widget->view_history();
+        imp().m_widget->view_history();
     }
 }
 
 // Cleat the undo/redo history of of the Project.
-void sak::Project_Window::clear_history()
+void sak::project::window::clear_history()
 {
     if(is_project_open())
     {
-        imp().m_project_widget->clear_history();
+        imp().m_widget->clear_history();
     }
 }
 
 // Menu Bar -> Create
 //============================================================
 // Create a new File in the active Project;
-void sak::Project_Window::create_file()
+void sak::project::window::create_file()
 {
     if(is_project_open())
     {
-        imp().m_project_widget->create_file();
+        imp().m_widget->create_file();
     }
 }
 
 // Create a new Texture in the active Project;
-void sak::Project_Window::create_texture()
+void sak::project::window::create_texture()
 {
     if(is_project_open())
     {
-        imp().m_project_widget->create_texture();
+        imp().m_widget->create_texture();
     }
 }
 
 // Create a new Material in the active Project;
-void sak::Project_Window::create_material()
+void sak::project::window::create_material()
 {
     if(is_project_open())
     {
-        imp().m_project_widget->create_material();
+        imp().m_widget->create_material();
     }
 }
 
 // Create a new Model in the active Project;
-void sak::Project_Window::create_model()
+void sak::project::window::create_model()
 {
     if(is_project_open())
     {
-        imp().m_project_widget->create_model();
+        imp().m_widget->create_model();
     }
 }
 
 // Create a new Package in the active Project;
-void sak::Project_Window::create_package()
+void sak::project::window::create_package()
 {
     if(is_project_open())
     {
-        imp().m_project_widget->create_package();
+        imp().m_widget->create_package();
     }
 }
 
 // Create a new Release in the active Project;
-void sak::Project_Window::create_release()
+void sak::project::window::create_release()
 {
     if(is_project_open())
     {
-        imp().m_project_widget->create_release();
+        imp().m_widget->create_release();
     }
 }
 
 // Menu Bar -> Build
 //============================================================
 // Build all the components of the Project.
-void sak::Project_Window::build_project()
+void sak::project::window::build_project()
 {
     if(is_project_open())
     {
-        imp().m_project_widget->build_project();
+        imp().m_widget->build_project();
     }
 }
 
 // Reuild all the components of the Project.
-void sak::Project_Window::rebuild_project()
+void sak::project::window::rebuild_project()
 {
     if(is_project_open())
     {
-        imp().m_project_widget->rebuild_project();
+        imp().m_widget->rebuild_project();
     }
 }
 
 // Delete all the temporary and resulting files from building the Project.
-void sak::Project_Window::clean_project()
+void sak::project::window::clean_project()
 {
     if(is_project_open())
     {
-        imp().m_project_widget->clean_project();
+        imp().m_widget->clean_project();
     }
 }
 
 // Build the currently selected Component of the Project.
-void sak::Project_Window::build_component()
+void sak::project::window::build_component()
 {
     if(is_project_open())
     {
-        imp().m_project_widget->build_component();
+        imp().m_widget->build_component();
     }
 }
 
 // Reuild the currently selected Component of the Project.
-void sak::Project_Window::rebuild_component()
+void sak::project::window::rebuild_component()
 {
     if(is_project_open())
     {
-        imp().m_project_widget->rebuild_component();
+        imp().m_widget->rebuild_component();
     }
 }
 
 // Delete all the temporary and resulting files from building the currently
 // selected Component of the Project.
-void sak::Project_Window::clean_component()
+void sak::project::window::clean_component()
 {
     if(is_project_open())
     {
-        imp().m_project_widget->clean_component();
+        imp().m_widget->clean_component();
     }
 }
 
 // Menu Bar -> Install
 //============================================================
 // Review the current install status of all components.
-void sak::Project_Window::install_status()
+void sak::project::window::install_status()
 {
     if(is_project_open())
     {
-        imp().m_project_widget->install_status();
+        imp().m_widget->install_status();
     }
 }
 
 // Install the current component. Opens a dialog detailing required options
 // and the status of the install.
-void sak::Project_Window::install_component()
+void sak::project::window::install_component()
 {
     if(is_project_open())
     {
-        imp().m_project_widget->install_component();
+        imp().m_widget->install_component();
     }
 }
 
 // Delete all the temporary and resulting files from building the Project.
-void sak::Project_Window::uninstall_component()
+void sak::project::window::uninstall_component()
 {
     if(is_project_open())
     {
-        imp().m_project_widget->uninstall_component();
+        imp().m_widget->uninstall_component();
     }
 }
 
 // Uninstalls all the components that are currently installed.
-void sak::Project_Window::uninstall_all()
+void sak::project::window::uninstall_all()
 {
     if(is_project_open())
     {
-        imp().m_project_widget->uninstall_all();
+        imp().m_widget->uninstall_all();
     }
 }
 
 // Menu Bar -> System
 //============================================================
 // Open the settings editor.
-void sak::Project_Window::settings()
+void sak::project::window::settings()
 {
 
 }
 
 // Open the settings editor on the tf2 page.
-void sak::Project_Window::tf2_settings()
+void sak::project::window::tf2_settings()
 {
 
 }
 
 // Open the settings editor on the sfm page.
-void sak::Project_Window::sfm_settings()
+void sak::project::window::sfm_settings()
 {
 
 }
@@ -761,13 +768,13 @@ void sak::Project_Window::sfm_settings()
 // Menu Bar -> Help
 //============================================================
 // Open help browser.
-void sak::Project_Window::help()
+void sak::project::window::help()
 {
 
 }
 
 // Open the about dialog.
-void sak::Project_Window::about()
+void sak::project::window::about()
 {
 
 }
@@ -780,18 +787,18 @@ void sak::Project_Window::about()
 // currently active, and what they do.
 
 // Is a project currently open?
-bool sak::Project_Window::is_project_open() const
+bool sak::project::window::is_project_open() const
 {
-    // Whether or not the stack contains a second widget (the Project_Widget).
-    return cimp().m_project_widget != nullptr;
+    // Whether or not the stack contains a second widget (the widget).
+    return cimp().m_widget != nullptr;
 }
 
 // Can we currently call undo?
-bool sak::Project_Window::can_undo() const
+bool sak::project::window::can_undo() const
 {
     if(is_project_open())
     {
-        return cimp().m_project_widget->can_undo();
+        return cimp().m_widget->can_undo();
     }
     else
     {
@@ -800,11 +807,11 @@ bool sak::Project_Window::can_undo() const
 }
 
 // Can we currently call redo?
-bool sak::Project_Window::can_redo() const
+bool sak::project::window::can_redo() const
 {
     if(is_project_open())
     {
-        return cimp().m_project_widget->can_redo();
+        return cimp().m_widget->can_redo();
     }
     else
     {
@@ -813,11 +820,11 @@ bool sak::Project_Window::can_redo() const
 }
 
 // Get the name of the currently selected component. Empty if none is selected.
-QString sak::Project_Window::selected_component_name() const
+QString sak::project::window::selected_component_name() const
 {
     if(is_project_open())
     {
-        return cimp().m_project_widget->selected_component_name();
+        return cimp().m_widget->selected_component_name();
     }
     else
     {
@@ -826,11 +833,11 @@ QString sak::Project_Window::selected_component_name() const
 }
 
 // Is a component selected? If no project is open, this is always false.
-bool sak::Project_Window::is_component_selected() const
+bool sak::project::window::is_component_selected() const
 {
     if(is_project_open())
     {
-        return cimp().m_project_widget->is_component_selected();
+        return cimp().m_widget->is_component_selected();
     }
     else
     {
@@ -839,11 +846,11 @@ bool sak::Project_Window::is_component_selected() const
 }
 
 // Is the selected component buildable? If no component is open, this is always false.
-bool sak::Project_Window::is_component_buildable() const
+bool sak::project::window::is_component_buildable() const
 {
     if(is_project_open())
     {
-        return cimp().m_project_widget->is_component_buildable();
+        return cimp().m_widget->is_component_buildable();
     }
     else
     {
@@ -852,11 +859,11 @@ bool sak::Project_Window::is_component_buildable() const
 }
 
 // Is the selected component installable? If no component is open, this is always false.
-bool sak::Project_Window::is_component_installable() const
+bool sak::project::window::is_component_installable() const
 {
     if(is_project_open())
     {
-        return cimp().m_project_widget->is_component_installable();
+        return cimp().m_widget->is_component_installable();
     }
     else
     {
@@ -867,9 +874,9 @@ bool sak::Project_Window::is_component_installable() const
 
 // Spawn a message box asking if the user wants to save the current project,
 // act on it and return true if the action was never cancelled.
-bool sak::Project_Window::ask_to_save()
+bool sak::project::window::ask_to_save()
 {
-    if (is_project_open() && cimp().m_project_widget->has_unsaved_edits())
+    if (is_project_open() && cimp().m_widget->has_unsaved_edits())
     {
         int msgBoxRet = QMessageBox::question(this,
                                                   c_title_application,
@@ -906,7 +913,7 @@ bool sak::Project_Window::ask_to_save()
 // Virtuals
 //============================================================
 // Needed so that we can ask to save when we use the x button in the corner to close.
-void sak::Project_Window::closeEvent(QCloseEvent *event)
+void sak::project::window::closeEvent(QCloseEvent *event)
 {
     // if any of these are true then we can saftely exit and will
     if (is_project_open() // project is open
@@ -929,7 +936,7 @@ void sak::Project_Window::closeEvent(QCloseEvent *event)
 // Tell parts of the window that these states have changed so they should update.
 
 // Change anything that needs to change if a Project is opended or closed.
-void sak::Project_Window::notify_project_changes()
+void sak::project::window::notify_project_changes()
 {
     bool l_project_open_state{is_project_open()};
 
@@ -953,7 +960,7 @@ void sak::Project_Window::notify_project_changes()
 }
 
 // Change anything that needs to change if undo changes are made.
-void sak::Project_Window::notify_undo_changes()
+void sak::project::window::notify_undo_changes()
 {
     // assuming the project status is already correct (this controls
     // the menu that these actions are in so they may already be inaccessable)
@@ -965,7 +972,7 @@ void sak::Project_Window::notify_undo_changes()
 
 
 // Change anything that needs to change if the selected componenent changes.
-void sak::Project_Window::notify_component_changes()
+void sak::project::window::notify_component_changes()
 {
     QString l_component_name{selected_component_name()};
 
@@ -1005,12 +1012,12 @@ void sak::Project_Window::notify_component_changes()
 
 
 
-void sak::Project_Window::update_window_title()
+void sak::project::window::update_window_title()
 {
     QString l_title{};
     if (is_project_open())
     {
-        l_title += imp().m_project_widget->name() + " - ";
+        l_title += imp().m_widget->name() + " - ";
     }
     l_title += c_title_application;
     this->setWindowTitle(l_title);

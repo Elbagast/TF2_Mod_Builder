@@ -1,32 +1,33 @@
-#include "project_editor.hpp"
+#include "editor.hpp"
+
+#include <cassert>
+#include <iterator>
+#include <algorithm>
 
 #include <QHBoxLayout>
 #include <QStackedWidget>
 #include <QTabWidget>
 #include <QDebug>
 #include <QLabel>
-#include <cassert>
-#include <iterator>
-#include <algorithm>
 
-#include <sak/shared/dispatch_signals.hpp>
-//#include "project_signalbox.hpp"
+#include <sak/shared/project_access.hpp>
 
-#include "shared/object.hpp"
-#include "shared/manager.hpp"
-#include "shared/extended_manager.hpp"
-#include "shared/interface_traits.hpp"
-#include "shared/interface.hpp"
-#include "shared/widget.hpp"
+#include <sak/shared/object.hpp>
+#include <sak/shared/manager.hpp>
+#include <sak/shared/extended_manager.hpp>
+#include <sak/shared/interface_traits.hpp>
+#include <sak/shared/interface.hpp>
+#include <sak/shared/widget.hpp>
 
-#include "project.hpp"
+#include "object.hpp"
+#include "signalbox.hpp"
 
 //---------------------------------------------------------------------------
-// Project_Editor
+// project::editor
 //---------------------------------------------------------------------------
 namespace
 {
-    QString make_background_text(sak::Project& a_project)
+    QString make_background_text(sak::project::object& a_project)
     {
         QString l_result{a_project.name()};
         l_result.append(u8"\n\nNothing open. Open an item from the outliner.");
@@ -38,7 +39,7 @@ namespace
             public QLabel
     {
     public:
-        explicit Background_Widget(sak::Project& a_project):
+        explicit Background_Widget(sak::project::object& a_project):
             QLabel(make_background_text(a_project), nullptr)
         {
             this->setAlignment(Qt::AlignCenter);
@@ -73,45 +74,49 @@ namespace
 //============================================================
 namespace sak
 {
-    class Project_Editor::Implementation :
-            public Project_Signalbox
+  namespace project
+  {
+    class editor::impl :
+        public abstract::signalbox
     {
     public:
-        Project& m_project;
-        std::unique_ptr<QHBoxLayout> m_layout;
-        std::unique_ptr<QStackedWidget> m_stackwidget;
-        std::unique_ptr<Background_Widget> m_background;
-        std::unique_ptr<QTabWidget> m_tabwidget;
-        std::vector<std::unique_ptr<file::widget>> m_file_widgets;
+      object& m_project;
+      std::unique_ptr<QHBoxLayout> m_layout;
+      std::unique_ptr<QStackedWidget> m_stackwidget;
+      std::unique_ptr<Background_Widget> m_background;
+      std::unique_ptr<QTabWidget> m_tabwidget;
+      std::vector<std::unique_ptr<file::widget>> m_file_widgets;
 
-        ~Implementation() override;
+      ~impl() override;
 
-        explicit Implementation(Project& a_project);
+      explicit impl(object& a_project);
 
-        // When a File has its data changed(anything but the name), this is called.
-        void changed(file::extended_handle const& a_file) override final;
-        // When a File has its data changed in a specific place, this is called.
-        void changed_at(file::extended_handle const& a_file, std::size_t a_section) override final;
-        // When a File has been added, this is called.
-        void added(file::extended_handle const& a_file) override final;
-        // When a File has been removed, this is called.
-        void removed(file::extended_handle const& a_file) override final;
-        // When a File editor is to be opened, this is called.
-        void requests_editor(file::extended_handle const& a_file) override final;
-        // When focus is changed to be on a File, call this
-        void requests_focus(file::extended_handle const& a_file) override final;
+      // When a File has its data changed(anything but the name), this is called.
+      void changed(file::extended_handle const& a_file) override final;
+      // When a File has its data changed in a specific place, this is called.
+      void changed_at(file::extended_handle const& a_file, std::size_t a_section) override final;
+      // When a File has been added, this is called.
+      void added(file::extended_handle const& a_file) override final;
+      // When a File has been removed, this is called.
+      void removed(file::extended_handle const& a_file) override final;
+      // When a File editor is to be opened, this is called.
+      void requests_editor(file::extended_handle const& a_file) override final;
+      // When focus is changed to be on a File, call this
+      void requests_focus(file::extended_handle const& a_file) override final;
 
-        void close_tab(int a_index);
+      void close_tab(int a_index);
 
-        void update_visible();
+      void update_visible();
     };
+  }
+
 }
 
 
-sak::Project_Editor::Implementation::~Implementation() = default;
+sak::project::editor::impl::~impl() = default;
 
-sak::Project_Editor::Implementation::Implementation(Project& a_project):
-    Project_Signalbox(),
+sak::project::editor::impl::impl(object& a_project):
+    abstract::signalbox(),
     m_project{a_project},
     m_layout{std::make_unique<QHBoxLayout>()},
     m_stackwidget{std::make_unique<QStackedWidget>()},
@@ -146,16 +151,16 @@ sak::Project_Editor::Implementation::Implementation(Project& a_project):
             {
                 file::extended_handle const& l_file = l_widget->cget_handle();
                 //this->m_project.get_signalbox()->requests_focus(l_file);
-                file::dispatch_signals::requests_focus(&(m_project), l_file);
+                file::project_access::request_focus(&(m_project), l_file);
             }
         }
     });
 }
 
 // When a File has its data changed(anything but the name), this is called.
-void sak::Project_Editor::Implementation::changed(file::extended_handle const& a_file)
+void sak::project::editor::impl::changed(file::extended_handle const& a_file)
 {
-    qDebug() << "Project_Editor::Implementation::data_changed";
+    qDebug() << "project::editor::impl::data_changed";
     // Find the editor for this handle
     auto l_found = std::find_if(m_file_widgets.cbegin(),
                                 m_file_widgets.cend(),
@@ -163,14 +168,14 @@ void sak::Project_Editor::Implementation::changed(file::extended_handle const& a
     // if it exists, update it
     if (l_found != m_file_widgets.cend())
     {
-        l_found->get()->data_changed();
+        l_found->get()->changed();
     }
 
 }
 // When a File has its data changed(anything but the name), this is called.
-void sak::Project_Editor::Implementation::changed_at(file::extended_handle const& a_file, std::size_t a_section)
+void sak::project::editor::impl::changed_at(file::extended_handle const& a_file, std::size_t a_section)
 {
-    qDebug() << "Project_Editor::Implementation::data_changed_at";
+    qDebug() << "project::editor::impl::data_changed_at";
     // Find the editor for this handle
     auto l_found = std::find_if(m_file_widgets.cbegin(),
                                 m_file_widgets.cend(),
@@ -180,7 +185,7 @@ void sak::Project_Editor::Implementation::changed_at(file::extended_handle const
     if (l_found != m_file_widgets.cend())
     {
       // tell the widget to update
-      l_found->get()->data_changed_at(a_section);
+      l_found->get()->changed_at(a_section);
 
       // If it's section 0, i.e. the name, we have more to do
       if (a_section == 0)
@@ -204,9 +209,9 @@ void sak::Project_Editor::Implementation::changed_at(file::extended_handle const
 
 }
 // When a File has been added, this is called.
-void sak::Project_Editor::Implementation::added(file::extended_handle const& a_file)
+void sak::project::editor::impl::added(file::extended_handle const& a_file)
 {
-    qDebug() << "Project_Editor::Implementation::added";
+    qDebug() << "project::editor::impl::added";
     // update the file widget count and open the widget for it.
     // Shouldn't exist yet
     assert(std::find_if(m_file_widgets.cbegin(),
@@ -226,9 +231,9 @@ void sak::Project_Editor::Implementation::added(file::extended_handle const& a_f
 }
 
 // When a File has been removed, this is called.
-void sak::Project_Editor::Implementation::removed(file::extended_handle const& a_file)
+void sak::project::editor::impl::removed(file::extended_handle const& a_file)
 {
-    qDebug() << "Project_Editor::Implementation::removed";
+    qDebug() << "project::editor::impl::removed";
     auto l_found = std::find_if(m_file_widgets.begin(),
                                 m_file_widgets.end(),
                                 widget_equals_handle<file::object>(a_file));
@@ -259,9 +264,9 @@ void sak::Project_Editor::Implementation::removed(file::extended_handle const& a
     update_visible();
 }
 
-void sak::Project_Editor::Implementation::requests_editor(file::extended_handle const& a_file)
+void sak::project::editor::impl::requests_editor(file::extended_handle const& a_file)
 {
-    qDebug() << "Project_Editor::Implementation::requests_editor";
+    qDebug() << "project::editor::impl::requests_editor";
     // Find the editor for this handle
     auto l_found = std::find_if(m_file_widgets.begin(),
                                 m_file_widgets.end(),
@@ -294,13 +299,13 @@ void sak::Project_Editor::Implementation::requests_editor(file::extended_handle 
     update_visible();
 }
 
-void sak::Project_Editor::Implementation::requests_focus(file::extended_handle const&)
+void sak::project::editor::impl::requests_focus(file::extended_handle const&)
 {
-    qDebug() << "Project_Editor::Implementation::requests_focus";
+    qDebug() << "project::editor::impl::requests_focus";
     // nothing for now
 }
 
-void sak::Project_Editor::Implementation::close_tab(int a_index)
+void sak::project::editor::impl::close_tab(int a_index)
 {
     auto l_editor = static_cast<file::widget*>(m_tabwidget->widget(a_index));
     m_tabwidget->removeTab(a_index);
@@ -313,7 +318,7 @@ void sak::Project_Editor::Implementation::close_tab(int a_index)
     update_visible();
 }
 
-void sak::Project_Editor::Implementation::update_visible()
+void sak::project::editor::impl::update_visible()
 {
     if (m_tabwidget->count() == 0)
     {
@@ -327,10 +332,10 @@ void sak::Project_Editor::Implementation::update_visible()
 
 // Special 6
 //============================================================
-sak::Project_Editor::Project_Editor(Project& a_project, QWidget* a_parent):
-    QWidget(a_parent),
-    m_data{std::make_unique<Implementation>(a_project)}
+sak::project::editor::editor(object& a_project, QWidget* a_parent):
+  QWidget(a_parent),
+  m_data{std::make_unique<impl>(a_project)}
 {
-    this->setLayout(imp().m_layout.get());
+  this->setLayout(imp().m_layout.get());
 }
-sak::Project_Editor::~Project_Editor() = default;
+sak::project::editor::~editor() = default;

@@ -15,7 +15,7 @@ sak::shared::interface_traits<T>::interface_traits():
 {}
 
 template <typename T>
-sak::shared::interface_traits<T>::interface_traits(Project* a_project):
+sak::shared::interface_traits<T>::interface_traits(project::object* a_project):
     m_project{a_project}
 {}
 
@@ -25,7 +25,7 @@ template <typename T>
 typename sak::shared::interface_traits<T>::interface_type sak::shared::interface_traits<T>::get(extended_handle_type& a_handle, handle_type& a_data)
 {
     assert(m_project != nullptr);
-    return interface_type(a_handle, a_data, *m_project);
+    return interface_type(*m_project, a_handle);
 }
 /*
 template <typename T>

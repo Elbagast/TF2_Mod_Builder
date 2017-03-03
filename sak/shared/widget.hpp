@@ -66,8 +66,8 @@ namespace sak
 
       // Public Interface
       //============================================================
-      void data_changed();
-      void data_changed_at(std::size_t a_section);
+      void changed();
+      void changed_at(std::size_t a_section);
       extended_handle_type const& cget_handle() const;
 
     private:

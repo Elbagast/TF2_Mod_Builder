@@ -9,10 +9,10 @@
 #include <QAbstractItemView>
 
 #include <qtlib/outliner/model.hpp>
-#include <sak/project.hpp>
-#include <sak/project_signalbox.hpp>
-#include <sak/shared/dispatch_signals.hpp>
-#include <sak/shared/outliner_item.hpp>
+#include <sak/project/object.hpp>
+//#include <sak/project/signalbox.hpp>
+#include <sak/shared/project_access.hpp>
+#include <sak/shared/outliner/header_item.hpp>
 #include "root_item.hpp"
 
 namespace
@@ -32,7 +32,7 @@ namespace
 
 // Special 6
 //============================================================
-sak::outliner::project_item::project_item(parent_type* a_parent):
+sak::project::outliner::project_item::project_item(parent_type* a_parent):
     inherited_type(a_parent)
 {
     if (cget_project().has_files())
@@ -40,14 +40,14 @@ sak::outliner::project_item::project_item(parent_type* a_parent):
         initialise_files(true);
     }
 }
-sak::outliner::project_item::~project_item() = default;
+sak::project::outliner::project_item::~project_item() = default;
 
 // Virtual Interface
 //============================================================
 // Underlying data access
 //----------------------------------------
 // Get the item data for a given column and role
-QVariant sak::outliner::project_item::get_data(int a_role) const
+QVariant sak::project::outliner::project_item::get_data(int a_role) const
 {
     if (a_role == Qt::DisplayRole)
     {
@@ -65,7 +65,7 @@ QVariant sak::outliner::project_item::get_data(int a_role) const
 // actions can call functions in it for editing.  Position is the position in terms of
 // the widget rather than the window. Use a_view->viewport()->mapToGlobal(a_position)
 // to get the position relative to the window for a properly placed menu.
-void sak::outliner::project_item::do_context_menu(QAbstractItemView* a_view, model_type* a_model, QPoint const& a_position)
+void sak::project::outliner::project_item::do_context_menu(QAbstractItemView* a_view, model_type* a_model, QPoint const& a_position)
 {
     shadup(a_view, a_model,a_position);
 
@@ -80,40 +80,40 @@ void sak::outliner::project_item::do_context_menu(QAbstractItemView* a_view, mod
         // Either this call triggers the data change in model, or we have to make that call here.
         //auto l_file = this->get_project().make_file();
         //this->get_project().get_signalbox()->added(l_file); // outbound signal to project
-        file::dispatch_signals::command_make_new(&(this->get_project()));
+        file::project_access::add_new(this->get_project());
     });
 
     menu.exec(a_view->viewport()->mapToGlobal(a_position));
 }
 
 // Do whatever we want when an item has been double clicked on.
-void sak::outliner::project_item::do_double_clicked(QAbstractItemView* a_view, model_type* a_model)
+void sak::project::outliner::project_item::do_double_clicked(QAbstractItemView* a_view, model_type* a_model)
 {
     return this->item_type::do_double_clicked(a_view, a_model);
 }
 
 // Additional Interface
 //============================================================
-sak::Project& sak::outliner::project_item::get_project()
+sak::project::object& sak::project::outliner::project_item::get_project()
 {
     return get_true_parent()->get_project();
 }
-sak::Project const& sak::outliner::project_item::cget_project() const
+sak::project::object const& sak::project::outliner::project_item::cget_project() const
 {
     return get_true_parent()->cget_project();
 }
 
-sak::file::outliner::header_item* sak::outliner::project_item::file_header_item() const
+sak::file::outliner::header_item* sak::project::outliner::project_item::file_header_item() const
 {
     return this->get_true_child<0>();
 }
 
-void sak::outliner::project_item::initialise_files(bool a_read_files)
+void sak::project::outliner::project_item::initialise_files(bool a_read_files)
 {
     this->set_child<0>(std::make_unique<child_type<0>>(this, a_read_files));
 }
 
-void sak::outliner::project_item::close_files()
+void sak::project::outliner::project_item::close_files()
 {
     if (!cget_project().has_files())
     {

@@ -64,7 +64,7 @@ namespace sak
 
         void editing_finished() override final
         {
-          m_ehandle.get().at<Index>().set(widget_traits_type::get_widget_value(m_widget.get()));
+          m_ehandle.get().set<Index>(widget_traits_type::get_widget_value(m_widget.get()));
           // hmm. set can fail to do anything. But it only fails if the input is the same as the data?
         }
 
@@ -169,7 +169,7 @@ sak::shared::widget<T>::~widget() = default;
 // Public Interface
 //============================================================
 template <typename T>
-void sak::shared::widget<T>::data_changed()
+void sak::shared::widget<T>::changed()
 {
   for (auto& l_widget : m_widgets)
   {
@@ -178,7 +178,7 @@ void sak::shared::widget<T>::data_changed()
 }
 
 template <typename T>
-void sak::shared::widget<T>::data_changed_at(std::size_t a_section)
+void sak::shared::widget<T>::changed_at(std::size_t a_section)
 {
   m_widgets.at(a_section)->update();
 }

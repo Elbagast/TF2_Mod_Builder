@@ -1,4 +1,5 @@
-#include "project_widget.hpp"
+#include "widget.hpp"
+
 
 #include <cassert>
 #include <iterator>
@@ -16,25 +17,27 @@
 #include "project_signalbox.hpp"
 #include "exceptions/exception.hpp"
 */
-#include "exceptions/exception.hpp"
+#include <sak/exceptions/exception.hpp>
 
-#include "project_signalbox.hpp"
 
-#include "shared/object.hpp"
-#include "shared/manager.hpp"
-#include "shared/extended_manager.hpp"
-#include "shared/interface_traits.hpp"
-#include "shared/interface.hpp"
-#include "shared/widget.hpp"
-#include "project_editor.hpp"
-#include "outliner/widget.hpp"
+#include <sak/shared/object.hpp>
+#include <sak/shared/manager.hpp>
+#include <sak/shared/extended_manager.hpp>
+#include <sak/shared/interface_traits.hpp>
+#include <sak/shared/interface.hpp>
+#include <sak/shared/widget.hpp>
+#include <sak/project/editor.hpp>
 
-#include "project.hpp"
+#include <sak/project/editor.hpp>
+#include <sak/project/outliner/widget.hpp>
+
+#include "object.hpp"
+#include "signalbox.hpp"
 
 //---------------------------------------------------------------------------
-// Project_Widget
+// project::widget
 //---------------------------------------------------------------------------
-// Internal constants and implementation
+// Internal constants and impl
 //============================================================
 namespace
 {
@@ -45,13 +48,15 @@ namespace
 //============================================================
 namespace sak
 {
-    class Project_Widget::Implementation :
-            public Project_Signalbox
+  namespace project
+  {
+    class widget::impl :
+            public abstract::signalbox
     {
     public:
-        Project_Widget* m_owner;
+        widget* m_owner;
         bool m_unsaved_edits;
-        std::unique_ptr<Project> m_project;
+        std::unique_ptr<object> m_project;
 
         std::unique_ptr<QHBoxLayout> m_layout;
 
@@ -59,11 +64,11 @@ namespace sak
         // This means the unique_ptr destructor is called after it knows its children are dead.
         std::unique_ptr<QSplitter> m_splitter;
         std::unique_ptr<outliner::widget> m_outliner;
-        std::unique_ptr<Project_Editor> m_editor;
+        std::unique_ptr<editor> m_editor;
 
-        ~Implementation() override;
+        ~impl() override;
 
-        Implementation(Project_Widget* a_owner, std::unique_ptr<Project>&& a_data);
+        impl(widget* a_owner, std::unique_ptr<object>&& a_data);
 
         // When a File has its data changed(anything but the name), this is called.
         void changed(file::extended_handle const& a_file) override final;
@@ -81,18 +86,19 @@ namespace sak
         void signal_unsaved_edits_change(bool a_state);
         void signal_undo_change();
     };
+  }
 }
 
-sak::Project_Widget::Implementation::~Implementation() = default;
+sak::project::widget::impl::~impl() = default;
 
-sak::Project_Widget::Implementation::Implementation(Project_Widget* a_owner, std::unique_ptr<Project>&& a_data):
+sak::project::widget::impl::impl(project::widget* a_owner, std::unique_ptr<object>&& a_data):
     m_owner{a_owner},
     m_unsaved_edits{false},
     m_project{std::move(a_data)},
     m_layout{std::make_unique<QHBoxLayout>()},
     m_splitter{std::make_unique<QSplitter>(Qt::Horizontal, nullptr)},
     m_outliner{std::make_unique<outliner::widget>(*m_project, nullptr)},
-    m_editor{std::make_unique<Project_Editor>(*m_project, nullptr)}
+    m_editor{std::make_unique<editor>(*m_project, nullptr)}
 {
     m_project->add_signalbox(this);
 
@@ -107,46 +113,46 @@ sak::Project_Widget::Implementation::Implementation(Project_Widget* a_owner, std
 }
 
 // When a File has its data changed(anything but the name), this is called.
-void sak::Project_Widget::Implementation::changed(file::extended_handle const& )
+void sak::project::widget::impl::changed(file::extended_handle const& )
 {
-    qDebug() << "Project_Widget::Implementation::data_changed";
+    qDebug() << "project::widget::impl::data_changed";
     signal_unsaved_edits_change(true);
     signal_undo_change();
 }
 // When a File has its data changed in a specific place, this is called.
-void sak::Project_Widget::Implementation::changed_at(file::extended_handle const&, std::size_t )
+void sak::project::widget::impl::changed_at(file::extended_handle const&, std::size_t )
 {
-    qDebug() << "Project_Widget::Implementation::data_changed_at";
+    qDebug() << "project::widget::impl::data_changed_at";
     signal_unsaved_edits_change(true);
     signal_undo_change();
 }
 // When a File has been added, this is called.
-void sak::Project_Widget::Implementation::added(file::extended_handle const& )
+void sak::project::widget::impl::added(file::extended_handle const& )
 {
-    qDebug() << "Project_Widget::Implementation::added";
+    qDebug() << "project::widget::impl::added";
     signal_unsaved_edits_change(true);
     signal_undo_change();
 }
 // When a File has been removed, this is called.
-void sak::Project_Widget::Implementation::removed(file::extended_handle const& )
+void sak::project::widget::impl::removed(file::extended_handle const& )
 {
-    qDebug() << "Project_Widget::Implementation::removed";
+    qDebug() << "project::widget::impl::removed";
     signal_unsaved_edits_change(true);
     signal_undo_change();
 }
 // When a File editor is to be opened, this is called.
-void sak::Project_Widget::Implementation::requests_editor(file::extended_handle const& )
+void sak::project::widget::impl::requests_editor(file::extended_handle const& )
 {
-    qDebug() << "Project_Widget::Implementation::requests_editor";
+    qDebug() << "project::widget::impl::requests_editor";
 }
 // When focus is changed to be on a File, call this
-void sak::Project_Widget::Implementation::requests_focus(file::extended_handle const& )
+void sak::project::widget::impl::requests_focus(file::extended_handle const& )
 {
-    qDebug() << "Project_Widget::Implementation::requests_focus";
+    qDebug() << "project::widget::impl::requests_focus";
 }
-void sak::Project_Widget::Implementation::signal_unsaved_edits_change(bool a_state)
+void sak::project::widget::impl::signal_unsaved_edits_change(bool a_state)
 {
-    qDebug() << "Project_Widget::Implementation::signal_unsaved_edits_change";
+    qDebug() << "project::widget::impl::signal_unsaved_edits_change";
     if (m_unsaved_edits != a_state)
     {
         m_unsaved_edits = a_state;
@@ -154,9 +160,9 @@ void sak::Project_Widget::Implementation::signal_unsaved_edits_change(bool a_sta
     }
 }
 
-void sak::Project_Widget::Implementation::signal_undo_change()
+void sak::project::widget::impl::signal_undo_change()
 {
-    qDebug() << "Project_Widget::Implementation::signal_undo_change";
+    qDebug() << "project::widget::impl::signal_undo_change";
     qDebug() << "Undo = " << m_project->undo_count() << " Redo = " << m_project->redo_count();
     m_owner->emit signal_undo_change();
 }
@@ -164,13 +170,13 @@ void sak::Project_Widget::Implementation::signal_undo_change()
 // Special 6
 //============================================================
 // Create a Project with the given filepath.
-sak::Project_Widget::Project_Widget(std::unique_ptr<Project>&& a_project, QWidget* a_parent):
+sak::project::widget::widget(std::unique_ptr<object>&& a_project, QWidget* a_parent):
     QWidget(a_parent),
-    m_data{std::make_unique<Implementation>(this, std::move(a_project))}
+    m_data{std::make_unique<impl>(this, std::move(a_project))}
 {
     this->setLayout(imp().m_layout.get());
 }
-sak::Project_Widget::~Project_Widget() = default;
+sak::project::widget::~widget() = default;
 
 // Menu Actions
 //============================================================
@@ -180,7 +186,7 @@ sak::Project_Widget::~Project_Widget() = default;
 // Menu Bar -> File
 //============================================================
 // Save the Project data.
-void sak::Project_Widget::save_project()
+void sak::project::widget::save_project()
 {
     try
     {
@@ -196,27 +202,27 @@ void sak::Project_Widget::save_project()
 // Menu Bar -> Edit
 //============================================================
 // Undo the last command issued.
-void sak::Project_Widget::undo()
+void sak::project::widget::undo()
 {
     imp().m_project->undo();
     //imp().signal_undo_change(); // Gets called if data changes and those changes make it back here.
 }
 
 // Redo the last undone command in the command history
-void sak::Project_Widget::redo()
+void sak::project::widget::redo()
 {
     imp().m_project->redo();
     //imp().signal_undo_change(); // Gets called if data changes and those changes make it back here.
 }
 
 // View the entire command history of the project.
-void sak::Project_Widget::view_history()
+void sak::project::widget::view_history()
 {
 
 }
 
 // Cleat the undo/redo history of of the Project.
-void sak::Project_Widget::clear_history()
+void sak::project::widget::clear_history()
 {
     imp().m_project->clear_history();
     imp().signal_undo_change();
@@ -225,37 +231,37 @@ void sak::Project_Widget::clear_history()
 // Menu Bar -> Component
 //============================================================
 // Create a new File in the active Project;
-void sak::Project_Widget::create_file()
+void sak::project::widget::create_file()
 {
-    imp().m_project->get_signalbox()->added(imp().m_project->make_file());
+    imp().m_project->file_add_new();
 }
 
 // Create a new Texture in the active Project;
-void sak::Project_Widget::create_texture()
+void sak::project::widget::create_texture()
 {
 
 }
 
 // Create a new Material in the active Project;
-void sak::Project_Widget::create_material()
+void sak::project::widget::create_material()
 {
 
 }
 
 // Create a new Model in the active Project;
-void sak::Project_Widget::create_model()
+void sak::project::widget::create_model()
 {
 
 }
 
 // Create a new Package in the active Project;
-void sak::Project_Widget::create_package()
+void sak::project::widget::create_package()
 {
 
 }
 
 // Create a new Release in the active Project;
-void sak::Project_Widget::create_release()
+void sak::project::widget::create_release()
 {
 
 }
@@ -263,38 +269,38 @@ void sak::Project_Widget::create_release()
 // Menu Bar -> Build
 //============================================================
 // Build all the components of the Project.
-void sak::Project_Widget::build_project()
+void sak::project::widget::build_project()
 {
 
 }
 
 // Reuild all the components of the Project.
-void sak::Project_Widget::rebuild_project()
+void sak::project::widget::rebuild_project()
 {
 
 }
 
 // Delete all the temporary and resulting files from building the Project.
-void sak::Project_Widget::clean_project()
+void sak::project::widget::clean_project()
 {
 
 }
 
 // Build the currently selected Component of the Project.
-void sak::Project_Widget::build_component()
+void sak::project::widget::build_component()
 {
 
 }
 
 // Reuild the currently selected Component of the Project.
-void sak::Project_Widget::rebuild_component()
+void sak::project::widget::rebuild_component()
 {
 
 }
 
 // Delete all the temporary and resulting files from building the currently
 // selected Component of the Project.
-void sak::Project_Widget::clean_component()
+void sak::project::widget::clean_component()
 {
 
 }
@@ -302,26 +308,26 @@ void sak::Project_Widget::clean_component()
 // Menu Bar -> Install
 //============================================================
 // Review the current install status of all components.
-void sak::Project_Widget::install_status()
+void sak::project::widget::install_status()
 {
 
 }
 
 // Install the current component. Opens a dialog detailing required options
 // and the status of the install.
-void sak::Project_Widget::install_component()
+void sak::project::widget::install_component()
 {
 
 }
 
 // Delete all the temporary and resulting files from building the Project.
-void sak::Project_Widget::uninstall_component()
+void sak::project::widget::uninstall_component()
 {
 
 }
 
 // Uninstalls all the components that are currently installed.
-void sak::Project_Widget::uninstall_all()
+void sak::project::widget::uninstall_all()
 {
 
 }
@@ -333,55 +339,55 @@ void sak::Project_Widget::uninstall_all()
 
 
 // Get the name of the project.
-QString sak::Project_Widget::name() const
+QString sak::project::widget::name() const
 {
     return cimp().m_project->name();
 }
 
 // Get the root directory of the project.
-QString sak::Project_Widget::location() const
+QString sak::project::widget::location() const
 {
     return cimp().m_project->location();
 }
 
 // Does the Project have unsaved changes?
-bool sak::Project_Widget::has_unsaved_edits() const
+bool sak::project::widget::has_unsaved_edits() const
 {
     return cimp().m_unsaved_edits;
 }
 
 // Can we currently call undo?
-bool sak::Project_Widget::can_undo() const
+bool sak::project::widget::can_undo() const
 {
     return cimp().m_project->can_undo();
 }
 
 // Can we currently call redo?
-bool sak::Project_Widget::can_redo() const
+bool sak::project::widget::can_redo() const
 {
     return cimp().m_project->can_redo();
 }
 
 // Get the name of the currently selected component. Empty if none is selected.
-QString sak::Project_Widget::selected_component_name() const
+QString sak::project::widget::selected_component_name() const
 {
     return QString();
 }
 
 // Is a component selected? If no project is open, this is always false.
-bool sak::Project_Widget::is_component_selected() const
+bool sak::project::widget::is_component_selected() const
 {
     return false;
 }
 
 // Is the selected component buildable? If no component is open, this is always false.
-bool sak::Project_Widget::is_component_buildable() const
+bool sak::project::widget::is_component_buildable() const
 {
     return false;
 }
 
 // Is the selected component installable? If no component is open, this is always false.
-bool sak::Project_Widget::is_component_installable() const
+bool sak::project::widget::is_component_installable() const
 {
     return false;
 }
