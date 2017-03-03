@@ -4,3 +4,4 @@
 // Forced Instantiations
 //============================================================
 //template sak::file::object;
+//template sak::texture::object;

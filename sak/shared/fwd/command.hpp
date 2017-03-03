@@ -62,6 +62,17 @@ namespace sak
     using command_removed = shared::command_removed<object>;
 
   } // namespace file
+
+  namespace texture
+  {
+    template <std::size_t Index>
+    using command_assign = shared::command_assign<object,Index>;
+
+    using command_added = shared::command_added<object>;
+
+    using command_removed = shared::command_removed<object>;
+
+  } // namespace texture
 } // namespace sak
 
 #endif // SAK_SHARED_FWD_COMMAND_HPP

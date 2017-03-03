@@ -29,9 +29,11 @@ namespace sak
 
   namespace file
   {
-    //---------------------------------------------------------------------------
-    // shared::widget<T>
-    //---------------------------------------------------------------------------
+    using widget = shared::widget<object>;
+  }
+
+  namespace texture
+  {
     using widget = shared::widget<object>;
   }
 }

@@ -208,3 +208,4 @@ QString sak::shared::outliner::item<T>::cget_description() const
 // Forced Instantiations
 //============================================================
 template sak::file::outliner::item;
+template sak::texture::outliner::item;

@@ -12,6 +12,7 @@ namespace sak
     {
       class signalbox :
           public file::abstract::signalbox
+          ,public texture::abstract::signalbox
       {
       public:
         ~signalbox() override = default;

@@ -48,3 +48,4 @@ typename sak::shared::interface_traits<T>::const_interface_type sak::shared::int
 // Forced Instantiations
 //============================================================
 template sak::file::interface_traits;
+template sak::texture::interface_traits;

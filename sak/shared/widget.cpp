@@ -193,3 +193,4 @@ typename sak::shared::widget<T>::extended_handle_type const& sak::shared::widget
 // Forced Instantiations
 //============================================================
 template sak::file::widget;
+template sak::texture::widget;

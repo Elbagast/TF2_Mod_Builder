@@ -143,3 +143,4 @@ void sak::shared::xml_traits<T>::from_stream(QXmlStreamReader& a_stream, object_
 // Forced Instantiations
 //============================================================
 template sak::file::xml_traits;
+template sak::texture::xml_traits;

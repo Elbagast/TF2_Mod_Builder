@@ -24,9 +24,9 @@ namespace sak
       // It's children are the section headers which may or may not be present.
 
       class project_item :
-              public qtlib::outliner::Readonly_Multitrunk_Item<root_item, file::outliner::header_item>
+              public qtlib::outliner::Readonly_Multitrunk_Item<root_item, file::outliner::header_item, texture::outliner::header_item>
       {
-          using inherited_type = qtlib::outliner::Readonly_Multitrunk_Item<root_item, file::outliner::header_item>;
+          using inherited_type = qtlib::outliner::Readonly_Multitrunk_Item<root_item, file::outliner::header_item, texture::outliner::header_item>;
       public:
 
           // Special 6
@@ -57,9 +57,12 @@ namespace sak
           object const& cget_project() const;
 
           file::outliner::header_item* file_header_item() const;
-
-          void initialise_files(bool a_read_files);
+          void initialise_files(bool a_read);
           void close_files();
+
+          texture::outliner::header_item* texture_header_item() const;
+          void initialise_textures(bool a_read);
+          void close_textures();
       };
     }
   }

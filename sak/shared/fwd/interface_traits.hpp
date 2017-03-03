@@ -16,9 +16,11 @@ namespace sak
 
   namespace file
   {
-    //---------------------------------------------------------------------------
-    // file::interface_traits
-    //---------------------------------------------------------------------------
+    using interface_traits = shared::interface_traits<object>;
+  }
+
+  namespace texture
+  {
     using interface_traits = shared::interface_traits<object>;
   }
 }

@@ -20,6 +20,11 @@ namespace sak
   {
     using data_manager = shared::data_manager<file::object>;
   }
+
+  namespace texture
+  {
+    using data_manager = shared::data_manager<texture::object>;
+  }
 }
 
 #endif // SAK_SHARED_FWD_DATA_MANAGER_HPP

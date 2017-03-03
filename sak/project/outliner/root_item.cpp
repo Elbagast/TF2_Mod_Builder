@@ -83,3 +83,7 @@ sak::file::outliner::header_item* sak::project::outliner::root_item::file_header
 {
     return this->get_true_child()->file_header_item();
 }
+sak::texture::outliner::header_item* sak::project::outliner::root_item::texture_header_item() const
+{
+    return this->get_true_child()->texture_header_item();
+}

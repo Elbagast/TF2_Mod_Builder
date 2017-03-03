@@ -5,7 +5,7 @@
 #include "fwd/project_item.hpp"
 #include <sak/project/fwd/object.hpp>
 #include <qtlib/outliner/root_trunk_item.hpp>
-#include <sak/shared/fwd/outliner_item.hpp>
+#include <sak/shared/outliner/fwd/header_item.hpp>
 #include <memory>
 
 namespace sak
@@ -50,6 +50,7 @@ namespace sak
 
         project_item* get_project_item() const;
         file::outliner::header_item* file_header_item() const;
+        texture::outliner::header_item* texture_header_item() const;
 
       private:
         object& m_project;

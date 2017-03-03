@@ -16,21 +16,22 @@ namespace sak
     //---------------------------------------------------------------------------
     // shared::const_interface
     //---------------------------------------------------------------------------
-    template <typename T>
-    class const_interface;
+    //template <typename T>
+    //class const_interface;
   }
 
   namespace file
   {
-    //---------------------------------------------------------------------------
-    // file::interface
-    //---------------------------------------------------------------------------
     using interface = shared::interface<object>;
 
-    //---------------------------------------------------------------------------
-    // file::const_interface
-    //---------------------------------------------------------------------------
-    using const_interface = shared::interface<object>;
+    //using const_interface = shared::interface<object>;
+  }
+
+  namespace texture
+  {
+    using interface = shared::interface<object>;
+
+    //using const_interface = shared::interface<object>;
   }
 }
 

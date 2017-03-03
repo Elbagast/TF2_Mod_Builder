@@ -156,11 +156,6 @@ namespace sak
       // Get all the Files names
       std::vector<QString> get_all_file_names() const;
 
-      // You may create new Files using these two functions. Files created in this way
-      // are part of the Project's data management system but have not yet been added to the
-      // Project properly. That will only happen when the Project recieves a signal via its
-      // Project_Signalbox that it should be addeed.
-
       // Make a new file using the supplied data. Project's data management system owns it but
       // it is not part of the Project.
       file::extended_handle make_emplace_file(file::object&& a_file);
@@ -168,9 +163,6 @@ namespace sak
       // Make a new file using the default parameters. Project's data management system owns it
       // but it is not part of the Project.
       file::extended_handle make_file();
-
-
-      // Lets say project doesn't reveal comamnds at all. What functions are needed to provide that?
 
       // Create a new default file and add it.
       void file_add_new();
@@ -195,7 +187,55 @@ namespace sak
       // Request that the editor for this file be opened or switched to.
       void file_request_editor(file::extended_handle const& a_ehandle);
 
+      // Texture Interface
       //============================================================
+      // This is the interface that deals with textures.
+
+      // Are there any textures in this Project?
+      bool has_textures() const;
+
+      // How many any textures are in this Project?
+      std::size_t texture_count() const;
+
+      // Get the texture at this index
+      texture::extended_handle get_texture_at(std::size_t a_index) const;
+
+      // Get all the textures
+      std::vector<texture::extended_handle> get_all_textures() const;
+
+      // Get all the textures names
+      std::vector<QString> get_all_texture_names() const;
+
+      // Make a new texture using the supplied data. Project's data management system owns it but
+      // it is not part of the Project.
+      texture::extended_handle make_emplace_texture(texture::object&& a_texture);
+
+      // Make a new texture using the default parameters. Project's data management system owns it
+      // but it is not part of the Project.
+      texture::extended_handle make_texture();
+
+      // Create a new default texture and add it.
+      void texture_add_new();
+
+      // Add a new texture using the supplied data.
+      void texture_add_emplace(texture::object&& a_texture);
+
+      // Add a new texture using the supplied handle. If this handle is invalid or already in the data
+      // then nothing happens.
+      void texture_add(texture::extended_handle const& a_ehandle);
+
+      // Remove this texture. It is removed from the texture list and the data of anything that references it.
+      // Data is not deleted until the last reference is deleted.
+      void texture_remove(texture::extended_handle const& a_ehandle);
+
+      // Change a texture's member value.
+      void texture_change_at(texture::extended_handle const& a_ehandle, std::size_t a_section, typename texture::object::member_value_variant const& a_variant);
+
+      // Request that the focus change to this texture.
+      void texture_request_focus(texture::extended_handle const& a_ehandle);
+
+      // Request that the editor for this texture be opened or switched to.
+      void texture_request_editor(texture::extended_handle const& a_ehandle);
 
     private:
       // Pimpl Data

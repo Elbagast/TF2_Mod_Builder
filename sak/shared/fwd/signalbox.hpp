@@ -22,10 +22,14 @@ namespace sak
   {
     namespace abstract
     {
-      //---------------------------------------------------------------------------
-      // file::abstract::signalbox_out
-      //---------------------------------------------------------------------------
-      // All signals that are dispatched from Project for a given object type.
+      using signalbox = shared::abstract::signalbox<object>;
+    }
+  }
+
+  namespace texture
+  {
+    namespace abstract
+    {
       using signalbox = shared::abstract::signalbox<object>;
     }
   }

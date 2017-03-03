@@ -97,7 +97,7 @@ void sak::shared::data_manager<T>::removed(extended_handle_type const& a_ehandle
   // Copy the file::extended_handle locally. We don't know where it came from and have to propagate
   // the signal from here rather than who knows where to insure the signal reference stays
   // valid for all that need it.
-  file::extended_handle l_ehandle = a_ehandle;
+  extended_handle_type l_ehandle = a_ehandle;
 
   // Now kill it, because if it's still in the project the signal will call back to find it
   // is still present.
@@ -194,7 +194,7 @@ typename sak::shared::data_manager<T>::extended_handle_type sak::shared::data_ma
   // uniqueify the name.
   QString l_name{u8"New " + QString::fromStdString(object_type::type())};
   uniqueify_name(l_name, project_access<object_type>::get_all_names(m_project));
-  file::object l_object{};
+  object_type l_object{};
   l_object.at<0>().get() = l_name;
   return make_emplace(std::move(l_object));
 }
@@ -263,3 +263,4 @@ void sak::shared::data_manager<T>::from_xmlstream(QXmlStreamReader& a_stream)
 // Forced Instantiations
 //============================================================
 template sak::file::data_manager;
+template sak::texture::data_manager;

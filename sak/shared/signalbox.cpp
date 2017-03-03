@@ -51,3 +51,5 @@ void sak::shared::abstract::signalbox<T>::requests_focus(extended_handle_type co
 // Forced Instantiations
 //============================================================
 template sak::file::abstract::signalbox;
+
+template sak::texture::abstract::signalbox;

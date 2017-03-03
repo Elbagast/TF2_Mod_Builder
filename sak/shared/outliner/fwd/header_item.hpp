@@ -21,9 +21,14 @@ namespace sak
   {
     namespace outliner
     {
-      //---------------------------------------------------------------------------
-      // file::outliner::header_item
-      //---------------------------------------------------------------------------
+      using header_item = shared::outliner::header_item<object>;
+    }
+  }
+
+  namespace texture
+  {
+    namespace outliner
+    {
       using header_item = shared::outliner::header_item<object>;
     }
   }

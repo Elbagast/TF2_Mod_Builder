@@ -47,11 +47,12 @@ sak::shared::outliner::header_item<T>::header_item(parent_type* a_parent, bool a
 {
   if (a_read_files)
   {
-    auto l_files = cget_project().get_all_files();
+    auto l_ehandles = project_access<T>::get_all(get_project());
+
     // sort them into whatever order and make the items
-    for (auto const& l_file : l_files)
+    for (auto const& l_ehandle : l_ehandles)
     {
-      this->append_child(std::make_unique<item<T>>(this, l_file));
+      this->append_child(std::make_unique<item<T>>(this, l_ehandle));
     }
   }
 }
@@ -69,7 +70,7 @@ QVariant sak::shared::outliner::header_item<T>::get_data(int a_role) const
 {
   if (a_role == Qt::DisplayRole)
   {
-    return QVariant(QString::fromUtf8(u8"Files"));
+    return QVariant(QString::fromStdString(object_type::type()) + u8"s");
   }
   else
   {
@@ -88,10 +89,10 @@ void sak::shared::outliner::header_item<T>::do_context_menu(QAbstractItemView* a
   shadup(a_view, a_model,a_position);
 
   QMenu menu{};
-  menu.addAction("Files context menu");
+  menu.addAction(QString::fromStdString(object_type::type()) + "s context menu");
 
   // Create and add a new File
-  auto l_action_add_file = menu.addAction("Add new File");
+  auto l_action_add_file = menu.addAction("Add new " + QString::fromStdString(object_type::type()));
   QObject::connect(l_action_add_file, &QAction::triggered, [=]()
   {
     project_access<object_type>::add_new(this->get_project()); // outbound signal.
@@ -184,3 +185,4 @@ void sak::shared::outliner::header_item<T>::removed(extended_handle_type const& 
 // Forced Instantiations
 //============================================================
 template sak::file::outliner::header_item;
+template sak::texture::outliner::header_item;

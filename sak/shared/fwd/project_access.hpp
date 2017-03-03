@@ -21,6 +21,11 @@ namespace sak
   {
     using project_access = shared::project_access<object>;
   }
+
+  namespace texture
+  {
+    using project_access = shared::project_access<object>;
+  }
 }
 
 #endif // SAK_SHARED_FWD_PROJECT_ACCESS_HPP

@@ -50,17 +50,11 @@ namespace sak
   namespace file
   {
     class object;
-    /*
-    using object =
-    shared::object
-    <
-    DCLIB_LITYPE_STRING(u8"File")
-    ,shared::member<DCLIB_LITYPE_STRING(u8"Name"),QString>
-    ,shared::member<DCLIB_LITYPE_STRING(u8"Description"),QString>
-    ,shared::member<DCLIB_LITYPE_STRING(u8"Buildpath"),QString>
-    ,shared::member<DCLIB_LITYPE_STRING(u8"Sourcepath"),QString>
-    ,shared::member<DCLIB_LITYPE_STRING(u8"Booltest"),bool>
-    >;*/
+  }
+
+  namespace texture
+  {
+    class object;
   }
 }
 

@@ -25,14 +25,15 @@ namespace sak
 
   namespace file
   {
-    //---------------------------------------------------------------------------
-    // file::manager
-    //---------------------------------------------------------------------------
     using manager = shared::manager<object>;
 
-    //---------------------------------------------------------------------------
-    // file::handle
-    //---------------------------------------------------------------------------
+    using handle = shared::handle<object>;
+  }
+
+  namespace texture
+  {
+    using manager = shared::manager<object>;
+
     using handle = shared::handle<object>;
   }
 }

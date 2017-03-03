@@ -45,6 +45,26 @@ namespace sak
     >
     {};
   }
+
+  namespace texture
+  {
+    //---------------------------------------------------------------------------
+    // texture::object
+    //---------------------------------------------------------------------------
+    // So it turns out we need to inherit this type to hide the huuuuuge name that
+    // comes from having strings in the type.
+    class object :
+        public
+    shared::object
+    <
+    DCLIB_LITYPE_STRING(u8"Texture")
+    ,shared::member<DCLIB_LITYPE_STRING(u8"Name"),QString>
+    ,shared::member<DCLIB_LITYPE_STRING(u8"Description"),QString>
+    ,shared::member<DCLIB_LITYPE_STRING(u8"Buildpath"),QString>
+    ,shared::member<DCLIB_LITYPE_STRING(u8"Sourcepath"),QString>
+    >
+    {};
+  }
 }
 
 #endif // SAK_SHARED_OBJECT_HPP

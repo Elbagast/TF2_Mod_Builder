@@ -224,7 +224,6 @@ HEADERS  += \
     sak/shared/fwd/object.hpp \
     sak/shared/object.hpp \
     sak/shared/fwd/widget.hpp \
-    sak/shared/fwd/outliner_item.hpp \
     sak/shared/widget.hpp \
     qtlib/display_widget_traits.hpp \
     generic/string_conversion_formats.hpp \

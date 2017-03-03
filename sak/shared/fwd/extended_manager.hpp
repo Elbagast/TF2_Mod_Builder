@@ -26,14 +26,15 @@ namespace sak
 
   namespace file
   {
-    //---------------------------------------------------------------------------
-    // file::extended_manager
-    //---------------------------------------------------------------------------
     using extended_manager = shared::extended_manager<object>;
 
-    //---------------------------------------------------------------------------
-    // file::extended_handle
-    //---------------------------------------------------------------------------
+    using extended_handle = shared::extended_handle<object>;
+  }
+
+  namespace texture
+  {
+    using extended_manager = shared::extended_manager<object>;
+
     using extended_handle = shared::extended_handle<object>;
   }
 }

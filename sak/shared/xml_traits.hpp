@@ -22,6 +22,11 @@ namespace sak
   {
     using xml_traits = shared::xml_traits<object>;
   }
+
+  namespace texture
+  {
+    using xml_traits = shared::xml_traits<object>;
+  }
 }
 
 #endif // SAK_SHARED_XML_TRAITS_HPP

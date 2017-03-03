@@ -83,6 +83,19 @@ namespace sak
         // When focus is changed to be on a File, call this
         void requests_focus(file::extended_handle const& a_file) override final;
 
+        // When a texture has its data changed(anything but the name), this is called.
+        void changed(texture::extended_handle const& a_texture) override final;
+        // When a texture has its data changed in a specific place, this is called.
+        void changed_at(texture::extended_handle const& a_texture, std::size_t a_section) override final;
+        // When a texture has been added, this is called.
+        void added(texture::extended_handle const& a_texture) override final;
+        // When a texture has been removed, this is called.
+        void removed(texture::extended_handle const& a_texture) override final;
+        // When a texture editor is to be opened, this is called.
+        void requests_editor(texture::extended_handle const& a_texture) override final;
+        // When focus is changed to be on a texture, call this
+        void requests_focus(texture::extended_handle const& a_texture) override final;
+
         void signal_unsaved_edits_change(bool a_state);
         void signal_undo_change();
     };
@@ -115,41 +128,85 @@ sak::project::widget::impl::impl(project::widget* a_owner, std::unique_ptr<objec
 // When a File has its data changed(anything but the name), this is called.
 void sak::project::widget::impl::changed(file::extended_handle const& )
 {
-    qDebug() << "project::widget::impl::data_changed";
+    qDebug() << "project::widget::impl::data_changed " << QString::fromStdString(file::object::type());
     signal_unsaved_edits_change(true);
     signal_undo_change();
 }
 // When a File has its data changed in a specific place, this is called.
 void sak::project::widget::impl::changed_at(file::extended_handle const&, std::size_t )
 {
-    qDebug() << "project::widget::impl::data_changed_at";
+    qDebug() << "project::widget::impl::data_changed_at " << QString::fromStdString(file::object::type());
     signal_unsaved_edits_change(true);
     signal_undo_change();
 }
 // When a File has been added, this is called.
 void sak::project::widget::impl::added(file::extended_handle const& )
 {
-    qDebug() << "project::widget::impl::added";
+    qDebug() << "project::widget::impl::added " << QString::fromStdString(file::object::type());
     signal_unsaved_edits_change(true);
     signal_undo_change();
 }
 // When a File has been removed, this is called.
 void sak::project::widget::impl::removed(file::extended_handle const& )
 {
-    qDebug() << "project::widget::impl::removed";
+    qDebug() << "project::widget::impl::removed " << QString::fromStdString(file::object::type());
     signal_unsaved_edits_change(true);
     signal_undo_change();
 }
 // When a File editor is to be opened, this is called.
 void sak::project::widget::impl::requests_editor(file::extended_handle const& )
 {
-    qDebug() << "project::widget::impl::requests_editor";
+    qDebug() << "project::widget::impl::requests_editor " << QString::fromStdString(file::object::type());
 }
 // When focus is changed to be on a File, call this
 void sak::project::widget::impl::requests_focus(file::extended_handle const& )
 {
-    qDebug() << "project::widget::impl::requests_focus";
+    qDebug() << "project::widget::impl::requests_focus " << QString::fromStdString(file::object::type());
 }
+
+
+// When a texture has its data changed(anything but the name), this is called.
+void sak::project::widget::impl::changed(texture::extended_handle const& )
+{
+    qDebug() << "project::widget::impl::data_changed " << QString::fromStdString(texture::object::type());
+    signal_unsaved_edits_change(true);
+    signal_undo_change();
+}
+// When a texture has its data changed in a specific place, this is called.
+void sak::project::widget::impl::changed_at(texture::extended_handle const&, std::size_t )
+{
+    qDebug() << "project::widget::impl::data_changed_at " << QString::fromStdString(texture::object::type());
+    signal_unsaved_edits_change(true);
+    signal_undo_change();
+}
+// When a texture has been added, this is called.
+void sak::project::widget::impl::added(texture::extended_handle const& )
+{
+    qDebug() << "project::widget::impl::added " << QString::fromStdString(texture::object::type());
+    signal_unsaved_edits_change(true);
+    signal_undo_change();
+}
+// When a texture has been removed, this is called.
+void sak::project::widget::impl::removed(texture::extended_handle const& )
+{
+    qDebug() << "project::widget::impl::removed " << QString::fromStdString(texture::object::type());
+    signal_unsaved_edits_change(true);
+    signal_undo_change();
+}
+// When a texture editor is to be opened, this is called.
+void sak::project::widget::impl::requests_editor(texture::extended_handle const& )
+{
+    qDebug() << "project::widget::impl::requests_editor " << QString::fromStdString(texture::object::type());
+}
+// When focus is changed to be on a texture, call this
+void sak::project::widget::impl::requests_focus(texture::extended_handle const& )
+{
+    qDebug() << "project::widget::impl::requests_focus " << QString::fromStdString(texture::object::type());
+}
+
+
+
+
 void sak::project::widget::impl::signal_unsaved_edits_change(bool a_state)
 {
     qDebug() << "project::widget::impl::signal_unsaved_edits_change";
