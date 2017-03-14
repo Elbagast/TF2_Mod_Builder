@@ -29,30 +29,30 @@ namespace sak
       void remove_signalbox(abstract::signalbox* a_signalbox);
 
       // When a File has its data changed(anything but the name), this is called.
-      void changed(file::extended_handle const& a_ehandle) override final;
+      void changed(file::handle const& a_handle) override final;
       // When a File has its data changed in a specific place, this is called.
-      void changed_at(file::extended_handle const& a_ehandle, std::size_t a_section) override final;
+      void changed_at(file::handle const& a_handle, std::size_t a_section) override final;
       // When a File has been added, this is called.
-      void added(file::extended_handle const& a_ehandle) override final;
+      void added(file::handle const& a_handle) override final;
       // When a File has been removed, this is called.
-      void removed(file::extended_handle const& a_ehandle) override final;
+      void removed(file::handle const& a_handle) override final;
       // When a File requests an editor, this is called.
-      void requests_editor(file::extended_handle const& a_ehandle) override final;
+      void requests_editor(file::handle const& a_handle) override final;
       // When a File requests an editor, this is called.
-      void requests_focus(file::extended_handle const& a_ehandle) override final;
+      void requests_focus(file::handle const& a_handle) override final;
 
       // When a texture has its data changed(anything but the name), this is called.
-      void changed(texture::extended_handle const& a_ehandle) override final;
+      void changed(texture::handle const& a_handle) override final;
       // When a texture has its data changed in a specific place, this is called.
-      void changed_at(texture::extended_handle const& a_ehandle, std::size_t a_section) override final;
+      void changed_at(texture::handle const& a_handle, std::size_t a_section) override final;
       // When a texture has been added, this is called.
-      void added(texture::extended_handle const& a_ehandle) override final;
+      void added(texture::handle const& a_handle) override final;
       // When a texture has been removed, this is called.
-      void removed(texture::extended_handle const& a_ehandle) override final;
+      void removed(texture::handle const& a_handle) override final;
       // When a texture requests an editor, this is called.
-      void requests_editor(texture::extended_handle const& a_ehandle) override final;
+      void requests_editor(texture::handle const& a_handle) override final;
       // When a texture requests an editor, this is called.
-      void requests_focus(texture::extended_handle const& a_ehandle) override final;
+      void requests_focus(texture::handle const& a_handle) override final;
 
     private:
       abstract::signalbox* m_forbidden;

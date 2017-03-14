@@ -1,10 +1,11 @@
 #ifndef SAK_SHARED_WIDGET_HPP
 #define SAK_SHARED_WIDGET_HPP
 
+#include <sak/project/fwd/object.hpp>
 #include "fwd/widget.hpp"
 #include "fwd/member_widget.hpp"
 #include <sak/shared/object.hpp>
-#include <sak/shared/extended_manager.hpp>
+#include <sak/shared/manager.hpp>
 #include <QWidget>
 #include <QLineEdit>
 #include <QHBoxLayout>
@@ -54,26 +55,27 @@ namespace sak
       //============================================================
       using object_type = T;
 
-      using extended_handle_type = extended_handle<object_type>;
+      using handle_type = handle<object_type>;
 
       using widget_type = abstract::member_edit_widget;
       using widget_array = std::array<std::unique_ptr<widget_type>, object_type::size()>;
 
       // Special 6
       //============================================================
-      explicit widget(extended_handle_type const& a_ehandle, QWidget* a_parent = nullptr);
+      widget(project::object& a_project, handle_type const& a_handle, QWidget* a_parent = nullptr);
       ~widget() override;
 
       // Public Interface
       //============================================================
       void changed();
       void changed_at(std::size_t a_section);
-      extended_handle_type const& cget_handle() const;
+      handle_type const& cget_handle() const;
 
     private:
       // Data members
       //============================================================
-      extended_handle_type m_ehandle;
+      project::object& m_project;
+      handle_type m_handle;
       std::unique_ptr<QFormLayout> m_layout;
       widget_array m_widgets;
     };

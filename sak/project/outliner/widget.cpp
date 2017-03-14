@@ -8,9 +8,6 @@
 
 #include <sak/shared/object.hpp>
 #include <sak/shared/manager.hpp>
-#include <sak/shared/extended_manager.hpp>
-#include <sak/shared/interface_traits.hpp>
-#include <sak/shared/interface.hpp>
 
 #include <sak/project/object.hpp>
 #include <sak/project/signalbox.hpp>
@@ -53,30 +50,30 @@ namespace sak
           explicit impl(object& a_project);
 
           // When a File has its data changed(anything but the name), this is called.
-          void changed(file::extended_handle const& a_file) override final;
+          void changed(file::handle const& a_file) override final;
           // When a File has its data changed in a specific place, this is called.
-          void changed_at(file::extended_handle const& a_file, std::size_t a_section) override final;
+          void changed_at(file::handle const& a_file, std::size_t a_section) override final;
           // When a File has been added, this is called.
-          void added(file::extended_handle const& a_file) override final;
+          void added(file::handle const& a_file) override final;
           // When a File has been removed, this is called.
-          void removed(file::extended_handle const& a_file) override final;
+          void removed(file::handle const& a_file) override final;
           // When a File editor is to be opened, this is called.
-          void requests_editor(file::extended_handle const& a_file) override final;
+          void requests_editor(file::handle const& a_file) override final;
           // When focus is changed to be on a File, call this
-          void requests_focus(file::extended_handle const& a_file) override final;
+          void requests_focus(file::handle const& a_file) override final;
 
           // When a texture has its data changed(anything but the name), this is called.
-          void changed(texture::extended_handle const& a_texture) override final;
+          void changed(texture::handle const& a_texture) override final;
           // When a texture has its data changed in a specific place, this is called.
-          void changed_at(texture::extended_handle const& a_texture, std::size_t a_section) override final;
+          void changed_at(texture::handle const& a_texture, std::size_t a_section) override final;
           // When a texture has been added, this is called.
-          void added(texture::extended_handle const& a_texture) override final;
+          void added(texture::handle const& a_texture) override final;
           // When a texture has been removed, this is called.
-          void removed(texture::extended_handle const& a_texture) override final;
+          void removed(texture::handle const& a_texture) override final;
           // When a texture editor is to be opened, this is called.
-          void requests_editor(texture::extended_handle const& a_texture) override final;
+          void requests_editor(texture::handle const& a_texture) override final;
           // When focus is changed to be on a texture, call this
-          void requests_focus(texture::extended_handle const& a_texture) override final;
+          void requests_focus(texture::handle const& a_texture) override final;
       };
     }
   }
@@ -140,7 +137,7 @@ namespace sak
     struct do_stuff
     {
       using object_type = T;
-      using extended_handle_type = extended_handle<object_type>;
+      using handle_type = handle<object_type>;
       using item_type = outliner::item<object_type>;
       using header_item_type = outliner::header_item<object_type>;
 
@@ -148,24 +145,24 @@ namespace sak
 
 
       // When a object has its data changed in a specific place, this is called.
-      static void changed_at(header_item_type* a_header, qtlib::outliner::Model& a_model, extended_handle_type const& a_ehandle, std::size_t a_section)
+      static void changed_at(header_item_type* a_header, qtlib::outliner::Model& a_model, handle_type const& a_handle, std::size_t a_section)
       {
-        qDebug() << "sak::outliner::widget::impl::changed_at "<< QString::fromStdString(object_type::type()) <<" " << a_ehandle.id().get() << " " << a_section;
+        qDebug() << "sak::outliner::widget::impl::changed_at "<< QString::fromStdString(object_type::type()) <<" " << a_handle.id().get() << " " << a_section;
         if (a_section == 0)
         {
-          auto l_i = a_header->index_of(a_ehandle);
+          auto l_i = a_header->index_of(a_handle);
           auto l_header_index = a_model.create_index_from_item(a_header); //don't know the full type of shared::outliner::header_item?....
           auto l_object_index = a_model.index(static_cast<int>(l_i),0,l_header_index);
 
           // no movement right now....
-          a_header->name_changed(a_ehandle);
+          a_header->name_changed(a_handle);
           a_model.data_changed(l_object_index, l_object_index, QVector<int>(Qt::DisplayRole));
         }
       }
       // When a object has been added, this is called.
-      static void added(project::outliner::root_item* a_root, qtlib::outliner::Model& a_model, extended_handle_type const& a_ehandle)
+      static void added(project::outliner::root_item* a_root, qtlib::outliner::Model& a_model, handle_type const& a_handle)
       {
-        qDebug() << "sak::outliner::widget::impl::added "<< QString::fromStdString(object_type::type()) <<" " << a_ehandle.id().get();
+        qDebug() << "sak::outliner::widget::impl::added "<< QString::fromStdString(object_type::type()) <<" " << a_handle.id().get();
 
         auto l_header = header_traits<object_type>::get(a_root);
       /*
@@ -180,26 +177,26 @@ namespace sak
         }*/
         // add the file
         auto l_model_index = a_model.create_index_from_item(l_header);
-        auto l_object_position = static_cast<int>(l_header->index_of(a_ehandle));
+        auto l_object_position = static_cast<int>(l_header->index_of(a_handle));
         auto l_inserter = a_model.make_row_inserter(l_object_position,l_model_index);
         // add a new file
 
         auto l_old = l_header->get_child_count();
-        l_header->added(a_ehandle);
+        l_header->added(a_handle);
         assert(l_old + 1 == l_header->get_child_count());
       }
       // When a object has been removed, this is called.
-      static void removed(project::outliner::root_item* a_root, qtlib::outliner::Model& a_model, extended_handle_type const& a_ehandle)
+      static void removed(project::outliner::root_item* a_root, qtlib::outliner::Model& a_model, handle_type const& a_handle)
       {
-        qDebug() << "sak::outliner::widget::impl::removed "<< QString::fromStdString(object_type::type()) <<" " << a_ehandle.id().get();
+        qDebug() << "sak::outliner::widget::impl::removed "<< QString::fromStdString(object_type::type()) <<" " << a_handle.id().get();
         qDebug() << "outliner::widget::impl::removed";
         auto l_header_item = header_traits<object_type>::get(a_root);
         auto l_header_index = a_model.create_index_from_item(l_header_item);
-        auto l_item_position = static_cast<int>(l_header_item->index_of(a_ehandle));
+        auto l_item_position = static_cast<int>(l_header_item->index_of(a_handle));
         {
           auto l_remover = a_model.make_row_remover(l_item_position,l_header_index);
           auto l_old = l_header_item->get_child_count();
-          l_header_item->removed(a_ehandle);
+          l_header_item->removed(a_handle);
           assert(l_old - 1 == l_header_item->get_child_count());
         }
         /*
@@ -217,17 +214,17 @@ namespace sak
         */
       }
       // When a object editor is to be opened, this is called.
-      static void requests_editor(extended_handle_type const& a_ehandle)
+      static void requests_editor(handle_type const& a_handle)
       {
-        qDebug() << "sak::outliner::widget::impl::requests_editor "<< QString::fromStdString(object_type::type()) <<" " << a_ehandle.id().get() << "does nothing.";
+        qDebug() << "sak::outliner::widget::impl::requests_editor "<< QString::fromStdString(object_type::type()) <<" " << a_handle.id().get() << "does nothing.";
       }
       // When focus is changed to be on a object, call this
-      static void requests_focus(qtlib::outliner::Treeview* a_treeview, project::outliner::root_item* a_root, qtlib::outliner::Model& a_model, extended_handle_type const& a_ehandle)
+      static void requests_focus(qtlib::outliner::Treeview* a_treeview, project::outliner::root_item* a_root, qtlib::outliner::Model& a_model, handle_type const& a_handle)
       {
-        qDebug() << "sak::outliner::widget::impl::requests_focus "<< QString::fromStdString(object_type::type()) <<" " << a_ehandle.id().get();
+        qDebug() << "sak::outliner::widget::impl::requests_focus "<< QString::fromStdString(object_type::type()) <<" " << a_handle.id().get();
         qDebug() << "outliner::widget::impl::requests_focus";
         // Change the item selection in the outliner to this File.
-        auto l_item = header_traits<object_type>::get(a_root)->item_of(a_ehandle);
+        auto l_item = header_traits<object_type>::get(a_root)->item_of(a_handle);
         auto l_index = a_model.create_index_from_item(l_item);
         a_treeview->setCurrentIndex(l_index);
       }
@@ -268,38 +265,38 @@ sak::project::outliner::widget::impl::impl(object& a_project):
 }
 
 // When a File has its data changed(anything but the name), this is called.
-void sak::project::outliner::widget::impl::changed(file::extended_handle const& a_file)
+void sak::project::outliner::widget::impl::changed(file::handle const& a_file)
 {
   //qDebug() << "outliner::widget::impl::data_changed";
   // don't care about except for the name, so pass it on
   changed_at(a_file, 0);
 }
 // When a File has its data changed in a specific place, this is called.
-void sak::project::outliner::widget::impl::changed_at(file::extended_handle const& a_file, std::size_t a_section)
+void sak::project::outliner::widget::impl::changed_at(file::handle const& a_file, std::size_t a_section)
 {
   assert(m_root->file_header_item() != nullptr);
   shared::do_stuff<file::object>::changed_at(m_root->file_header_item(), m_model, a_file, a_section);
 }
 // When a File has been added, this is called.
-void sak::project::outliner::widget::impl::added(file::extended_handle const& a_file)
+void sak::project::outliner::widget::impl::added(file::handle const& a_file)
 {
   shared::do_stuff<file::object>::added(m_root.get(), m_model, a_file);
 }
 
 // When a File has been removed, this is called.
-void sak::project::outliner::widget::impl::removed(file::extended_handle const& a_file)
+void sak::project::outliner::widget::impl::removed(file::handle const& a_file)
 {
   shared::do_stuff<file::object>::removed(m_root.get(), m_model, a_file);
 }
 
 // When a File editor is to be opened, this is called.
-void sak::project::outliner::widget::impl::requests_editor(file::extended_handle const& a_file)
+void sak::project::outliner::widget::impl::requests_editor(file::handle const& a_file)
 {
   shared::do_stuff<file::object>::requests_editor(a_file);
 }
 
 // When focus is changed to be on a File, call this
-void sak::project::outliner::widget::impl::requests_focus(file::extended_handle const& a_file)
+void sak::project::outliner::widget::impl::requests_focus(file::handle const& a_file)
 {
   shared::do_stuff<file::object>::requests_focus(m_treeview.get(), m_root.get(), m_model, a_file);
 }
@@ -307,38 +304,38 @@ void sak::project::outliner::widget::impl::requests_focus(file::extended_handle 
 
 
 // When a texture has its data changed(anything but the name), this is called.
-void sak::project::outliner::widget::impl::changed(texture::extended_handle const& a_texture)
+void sak::project::outliner::widget::impl::changed(texture::handle const& a_texture)
 {
   //qDebug() << "outliner::widget::impl::data_changed";
   // don't care about except for the name, so pass it on
   changed_at(a_texture, 0);
 }
 // When a texture has its data changed in a specific place, this is called.
-void sak::project::outliner::widget::impl::changed_at(texture::extended_handle const& a_texture, std::size_t a_section)
+void sak::project::outliner::widget::impl::changed_at(texture::handle const& a_texture, std::size_t a_section)
 {
   assert(m_root->texture_header_item() != nullptr);
   shared::do_stuff<texture::object>::changed_at(m_root->texture_header_item(), m_model, a_texture, a_section);
 }
 // When a texture has been added, this is called.
-void sak::project::outliner::widget::impl::added(texture::extended_handle const& a_texture)
+void sak::project::outliner::widget::impl::added(texture::handle const& a_texture)
 {
   shared::do_stuff<texture::object>::added(m_root.get(), m_model, a_texture);
 }
 
 // When a texture has been removed, this is called.
-void sak::project::outliner::widget::impl::removed(texture::extended_handle const& a_texture)
+void sak::project::outliner::widget::impl::removed(texture::handle const& a_texture)
 {
   shared::do_stuff<texture::object>::removed(m_root.get(), m_model, a_texture);
 }
 
 // When a texture editor is to be opened, this is called.
-void sak::project::outliner::widget::impl::requests_editor(texture::extended_handle const& a_texture)
+void sak::project::outliner::widget::impl::requests_editor(texture::handle const& a_texture)
 {
   shared::do_stuff<texture::object>::requests_editor(a_texture);
 }
 
 // When focus is changed to be on a texture, call this
-void sak::project::outliner::widget::impl::requests_focus(texture::extended_handle const& a_texture)
+void sak::project::outliner::widget::impl::requests_focus(texture::handle const& a_texture)
 {
   shared::do_stuff<texture::object>::requests_focus(m_treeview.get(), m_root.get(), m_model, a_texture);
 }

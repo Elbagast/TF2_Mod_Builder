@@ -2,7 +2,7 @@
 #define SAK_SHARED_SIGNALBOX_HPP
 
 #include "fwd/signalbox.hpp"
-#include "fwd/extended_manager.hpp"
+#include "fwd/manager.hpp"
 #include <cstddef>
 
 namespace sak
@@ -20,23 +20,23 @@ namespace sak
       {
       public:
         using object_type = T;
-        using extended_handle_type = extended_handle<T>;
+        using handle_type = handle<T>;
 
         virtual ~signalbox() = 0;
 
         // When a handle has its data changed, this is called.
-        virtual void changed(extended_handle_type const& a_ehandle) = 0;
+        virtual void changed(handle_type const& a_handle) = 0;
         // When a handle has its data changed in a specific place, this is called.
         // a_section == 0 denotes the name and may have special logic requirements.
-        virtual void changed_at(extended_handle_type const& a_ehandle, std::size_t a_section) = 0;
+        virtual void changed_at(handle_type const& a_handle, std::size_t a_section) = 0;
         // When a handle has been added, this is called.
-        virtual void added(extended_handle_type const& a_ehandle) = 0;
+        virtual void added(handle_type const& a_handle) = 0;
         // When a handle has been removed, this is called.
-        virtual void removed(extended_handle_type const& a_ehandle) = 0;
+        virtual void removed(handle_type const& a_handle) = 0;
         // When a handle editor is to be opened, this is called.
-        virtual void requests_editor(extended_handle_type const& a_ehandle) = 0;
+        virtual void requests_editor(handle_type const& a_handle) = 0;
         // When focus is changed to be on a handle, call this
-        virtual void requests_focus(extended_handle_type const& a_ehandle) = 0;
+        virtual void requests_focus(handle_type const& a_handle) = 0;
       };
     }
   }

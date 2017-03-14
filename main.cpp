@@ -9,9 +9,6 @@
 #include <dclib/ct/testing/test_object.hpp>
 #include <dclib/rt/testing/test_object.hpp>
 
-#include <sak/shared/extended_manager.hpp>
-#include <sak/shared/interface.hpp>
-#include <sak/shared/interface_traits.hpp>
 #include <sak/shared/command.hpp>
 #include <sak/shared/widget.hpp>
 

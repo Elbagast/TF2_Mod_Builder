@@ -7,7 +7,7 @@
 #include <sak/project/fwd/object.hpp>
 
 #include <sak/shared/fwd/object.hpp>
-#include <sak/shared/fwd/extended_manager.hpp>
+#include <sak/shared/fwd/manager.hpp>
 
 #include <qtlib/outliner/branch_item.hpp>
 
@@ -29,7 +29,7 @@ namespace sak
         // Typedefs
         //============================================================
         using object_type = T;
-        using extended_handle_type = extended_handle<object_type>;
+        using handle_type = handle<object_type>;
 
         // Special 6
         //============================================================
@@ -58,16 +58,16 @@ namespace sak
         project::object const& cget_project() const;
         // What index is the File_Item that holds this File_Handle reside at?
         // Returns get_child_count() if it is not found.
-        std::size_t index_of(extended_handle_type const& a_ehandle) const;
+        std::size_t index_of(handle_type const& a_handle) const;
         // What File_Item holds this File_Handle? Returns nullptr if not found.
-        child_type* item_of(extended_handle_type const& a_ehandle) const;
+        child_type* item_of(handle_type const& a_handle) const;
 
         // When a File has had its name changed, this is called.
-        void name_changed(extended_handle_type const& a_ehandle);
+        void name_changed(handle_type const& a_handle);
         // When a File has been added, this is called.
-        void added(extended_handle_type const& a_ehandle);
+        void added(handle_type const& a_handle);
         // When a File has been removed, this is called.
-        void removed(extended_handle_type const& a_ehandle);
+        void removed(handle_type const& a_handle);
       };
     }
   }

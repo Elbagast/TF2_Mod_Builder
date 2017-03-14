@@ -101,8 +101,6 @@ SOURCES += \
     dclib/litype/testing/test_string.cpp \
     dclib/rt/testing/test_object.cpp \
     sak/shared/command.cpp \
-    sak/shared/interface.cpp \
-    sak/shared/interface_traits.cpp \
     generic/string_conversion.cpp \
     qtlib/string_conversion.cpp \
     qtlib/outliner/abstract_item.cpp \
@@ -121,7 +119,6 @@ SOURCES += \
     qtlib/outliner/treeview.cpp \
     sak/shared/object.cpp \
     sak/shared/manager.cpp \
-    sak/shared/extended_manager.cpp \
     sak/shared/widget.cpp \
     sak/edit/widget_traits.cpp \
     sak/shared/member_widget.cpp \
@@ -212,14 +209,8 @@ HEADERS  += \
     sak/system_settings.hpp \
     valve/asset_filepath.hpp \
     sak/shared/fwd/command.hpp \
-    sak/shared/fwd/extended_manager.hpp \
-    sak/shared/fwd/interface.hpp \
-    sak/shared/fwd/interface_traits.hpp \
     sak/shared/fwd/manager.hpp \
     sak/shared/command.hpp \
-    sak/shared/extended_manager.hpp \
-    sak/shared/interface.hpp \
-    sak/shared/interface_traits.hpp \
     sak/shared/manager.hpp \
     sak/shared/fwd/object.hpp \
     sak/shared/object.hpp \

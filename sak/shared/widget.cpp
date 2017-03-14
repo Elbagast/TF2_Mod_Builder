@@ -2,6 +2,7 @@
 #include "member_widget.hpp"
 //#include <qtlib/edit/widget_traits.hpp>
 #include <sak/edit/widget_traits.hpp>
+#include <sak/shared/project_access.hpp>
 
 namespace sak
 {
@@ -26,19 +27,21 @@ namespace sak
         // Typedefs
         //============================================================
         using object_type = T;
+        using member_value_variant = typename object_type::member_value_variant;
         using member_type = mf::object_member_t<object_type,Index>;
         using value_type = typename member_type::value_type;
 
-        using extended_handle_type = extended_handle<object_type>;
+        using handle_type = handle<object_type>;
 
         using widget_traits_type = sak::edit::widget_traits<value_type>;
         //using widget_type = typename widget_traits_type::widget_type;
 
         // Special 6
         //============================================================
-        explicit member_edit_widget(extended_handle_type& a_ehandle, QWidget* a_parent):
+        member_edit_widget(project::object& a_project, handle_type& a_handle, QWidget* a_parent = nullptr):
           abstract::member_edit_widget(a_parent),
-          m_ehandle{a_ehandle},
+          m_project{a_project},
+          m_handle{a_handle},
           m_layout{std::make_unique<QHBoxLayout>(nullptr)},
           m_widget{widget_traits_type::make_empty_widget()}
         {
@@ -53,33 +56,39 @@ namespace sak
           widget_traits_type::connect_to(m_widget.get(), this, &abstract::member_edit_widget::editing_finished);
           update();
         }
-        ~member_edit_widget() override final= default;
+        ~member_edit_widget() override final = default;
 
         // Virtuals
         //============================================================
         void update() override final
         {
-          widget_traits_type::set_widget_value(m_widget.get(), m_ehandle.cget().cat<Index>().cget());
+          widget_traits_type::set_widget_value(m_widget.get(), m_handle.cget().cat<Index>().cget());
         }
 
         void editing_finished() override final
         {
-          m_ehandle.get().set<Index>(widget_traits_type::get_widget_value(m_widget.get()));
           // hmm. set can fail to do anything. But it only fails if the input is the same as the data?
+          project_access<object_type>::change_at(&m_project, m_handle, Index, member_value_variant(widget_traits_type::get_widget_value(m_widget.get())));
         }
 
         // Data members
         //============================================================
-        extended_handle_type& m_ehandle;
+        project::object& m_project;
+        handle_type& m_handle;
         std::unique_ptr<QHBoxLayout> m_layout;
         std::unique_ptr<QWidget> m_widget;
       };
 
+
+      //---------------------------------------------------------------------------
+      // shared::make_widgets<T>
+      //---------------------------------------------------------------------------
+      // Make a widgt array by iterating through the object's members.
       template <typename T>
       struct make_widgets
       {
         using object_type = T;
-        using extended_handle_type = extended_handle<object_type>;
+        using handle_type = handle<object_type>;
 
         using widget_type = abstract::member_edit_widget;
         using widget_array = std::array<std::unique_ptr<widget_type>, object_type::size()>;
@@ -87,36 +96,36 @@ namespace sak
         template <std::size_t Index, std::size_t End = std::tuple_size<widget_array>::value>
         struct do_loop
         {
-          void operator()(widget_array& a_widgets, QFormLayout* a_layout, extended_handle_type& a_ehandle)
+          void operator()(widget_array& a_widgets, QFormLayout* a_layout, project::object& a_project, handle_type& a_handle)
           {
             using true_widget_type = member_edit_widget<object_type, Index>;
 
             // make the true widget as a base widget
-            auto l_widget = std::unique_ptr<widget_type>(std::make_unique<true_widget_type>(a_ehandle,nullptr).release());
+            auto l_widget = std::unique_ptr<widget_type>(std::make_unique<true_widget_type>(a_project,a_handle,nullptr).release());
 
             // add it to the layout
-            a_layout->addRow(QString::fromStdString(a_ehandle.cget().cat<Index>().name()), l_widget.get());
+            a_layout->addRow(QString::fromStdString(a_handle.cget().cat<Index>().name()), l_widget.get());
 
             // put it in the array
             std::swap(std::get<Index>(a_widgets), l_widget);
 
             // continue
-            do_loop<Index+1,End>()(a_widgets, a_layout, a_ehandle);
+            do_loop<Index+1,End>()(a_widgets, a_layout, a_project, a_handle);
           }
         };
 
         template <std::size_t End>
         struct do_loop<End,End>
         {
-          void operator()(widget_array&, QFormLayout*, extended_handle_type&)
+          void operator()(widget_array&, QFormLayout*, project::object&, handle_type&)
           {
           }
         };
 
-        widget_array operator()(QFormLayout* a_layout, extended_handle_type& m_ehandle)
+        widget_array operator()(QFormLayout* a_layout, project::object& a_project, handle_type& a_handle)
         {
           widget_array l_widgets{};
-          do_loop<0>()(l_widgets, a_layout, m_ehandle);
+          do_loop<0>()(l_widgets, a_layout, a_project, a_handle);
           return l_widgets;
         }
       };
@@ -154,11 +163,12 @@ Then the editors just need a baseclass...
 // Special 6
 //============================================================
 template <typename T>
-sak::shared::widget<T>::widget(extended_handle_type const& a_ehandle, QWidget* a_parent = nullptr):
+sak::shared::widget<T>::widget(project::object& a_project, handle_type const& a_handle, QWidget* a_parent = nullptr):
   QWidget(a_parent),
-  m_ehandle{a_ehandle},
+  m_project{a_project},
+  m_handle{a_handle},
   m_layout{std::make_unique<QFormLayout>(nullptr)},
-  m_widgets{make_widgets<T>()(m_layout.get(), m_ehandle)}
+  m_widgets{make_widgets<T>()(m_layout.get(), m_project, m_handle)}
 {
   this->setLayout(m_layout.get());
 }
@@ -184,9 +194,9 @@ void sak::shared::widget<T>::changed_at(std::size_t a_section)
 }
 
 template <typename T>
-typename sak::shared::widget<T>::extended_handle_type const& sak::shared::widget<T>::cget_handle() const
+typename sak::shared::widget<T>::handle_type const& sak::shared::widget<T>::cget_handle() const
 {
-  return m_ehandle;
+  return m_handle;
 }
 
 

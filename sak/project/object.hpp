@@ -6,7 +6,7 @@
 //#include "fwd/command.hpp"
 
 #include <sak/shared/object.hpp>
-#include <sak/shared/fwd/extended_manager.hpp>
+#include <sak/shared/fwd/manager.hpp>
 //#include <sak/shared/fwd/signalbox.hpp>
 
 #include <memory>
@@ -148,21 +148,21 @@ namespace sak
       std::size_t file_count() const;
 
       // Get the file at this index
-      file::extended_handle get_file_at(std::size_t a_index) const;
+      file::handle get_file_at(std::size_t a_index) const;
 
       // Get all the Files
-      std::vector<file::extended_handle> get_all_files() const;
+      std::vector<file::handle> get_all_files() const;
 
       // Get all the Files names
       std::vector<QString> get_all_file_names() const;
 
       // Make a new file using the supplied data. Project's data management system owns it but
       // it is not part of the Project.
-      file::extended_handle make_emplace_file(file::object&& a_file);
+      file::handle make_emplace_file(file::object&& a_file);
 
       // Make a new file using the default parameters. Project's data management system owns it
       // but it is not part of the Project.
-      file::extended_handle make_file();
+      file::handle make_file();
 
       // Create a new default file and add it.
       void file_add_new();
@@ -172,20 +172,20 @@ namespace sak
 
       // Add a new file using the supplied handle. If this handle is invalid or already in the data
       // then nothing happens.
-      void file_add(file::extended_handle const& a_ehandle);
+      void file_add(file::handle const& a_handle);
 
       // Remove this file. It is removed from the file list and the data of anything that references it.
       // Data is not deleted until the last reference is deleted.
-      void file_remove(file::extended_handle const& a_ehandle);
+      void file_remove(file::handle const& a_handle);
 
       // Change a file's member value.
-      void file_change_at(file::extended_handle const& a_ehandle, std::size_t a_section, typename file::object::member_value_variant const& a_variant);
+      void file_change_at(file::handle const& a_handle, std::size_t a_section, typename file::object::member_value_variant const& a_variant);
 
       // Request that the focus change to this file.
-      void file_request_focus(file::extended_handle const& a_ehandle);
+      void file_request_focus(file::handle const& a_handle);
 
       // Request that the editor for this file be opened or switched to.
-      void file_request_editor(file::extended_handle const& a_ehandle);
+      void file_request_editor(file::handle const& a_handle);
 
       // Texture Interface
       //============================================================
@@ -198,21 +198,21 @@ namespace sak
       std::size_t texture_count() const;
 
       // Get the texture at this index
-      texture::extended_handle get_texture_at(std::size_t a_index) const;
+      texture::handle get_texture_at(std::size_t a_index) const;
 
       // Get all the textures
-      std::vector<texture::extended_handle> get_all_textures() const;
+      std::vector<texture::handle> get_all_textures() const;
 
       // Get all the textures names
       std::vector<QString> get_all_texture_names() const;
 
       // Make a new texture using the supplied data. Project's data management system owns it but
       // it is not part of the Project.
-      texture::extended_handle make_emplace_texture(texture::object&& a_texture);
+      texture::handle make_emplace_texture(texture::object&& a_texture);
 
       // Make a new texture using the default parameters. Project's data management system owns it
       // but it is not part of the Project.
-      texture::extended_handle make_texture();
+      texture::handle make_texture();
 
       // Create a new default texture and add it.
       void texture_add_new();
@@ -222,20 +222,20 @@ namespace sak
 
       // Add a new texture using the supplied handle. If this handle is invalid or already in the data
       // then nothing happens.
-      void texture_add(texture::extended_handle const& a_ehandle);
+      void texture_add(texture::handle const& a_handle);
 
       // Remove this texture. It is removed from the texture list and the data of anything that references it.
       // Data is not deleted until the last reference is deleted.
-      void texture_remove(texture::extended_handle const& a_ehandle);
+      void texture_remove(texture::handle const& a_handle);
 
       // Change a texture's member value.
-      void texture_change_at(texture::extended_handle const& a_ehandle, std::size_t a_section, typename texture::object::member_value_variant const& a_variant);
+      void texture_change_at(texture::handle const& a_handle, std::size_t a_section, typename texture::object::member_value_variant const& a_variant);
 
       // Request that the focus change to this texture.
-      void texture_request_focus(texture::extended_handle const& a_ehandle);
+      void texture_request_focus(texture::handle const& a_handle);
 
       // Request that the editor for this texture be opened or switched to.
-      void texture_request_editor(texture::extended_handle const& a_ehandle);
+      void texture_request_editor(texture::handle const& a_handle);
 
     private:
       // Pimpl Data

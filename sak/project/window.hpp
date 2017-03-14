@@ -28,7 +28,7 @@ namespace sak
                 - install
             - component selected?
                 - yes
-                    - enaable actions, displaying component name
+                    - enable actions, displaying component name
                         - build::build component
                         - build::rebuild component
                         - build::clean component
@@ -257,5 +257,6 @@ namespace sak
     };
   }
 }
+
 
 #endif // SAK_PROJECT_WINDOW_HPP

@@ -6,7 +6,7 @@
 #include <sak/project/fwd/object.hpp>
 
 #include <sak/shared/object.hpp>
-#include <sak/shared/extended_manager.hpp>
+#include <sak/shared/manager.hpp>
 
 #include <qtlib/outliner/leaf_item.hpp>
 
@@ -27,11 +27,11 @@ namespace sak
         using inherited_type = qtlib::outliner::Leaf_Item<header_item<T>>;
       public:
         using object_type = T;
-        using extended_handle_type = extended_handle<object_type>;
+        using handle_type = handle<object_type>;
 
         // Special 6
         //============================================================
-        item(parent_type* a_parent, extended_handle_type const& a_ehandle);
+        item(parent_type* a_parent, handle_type const& a_handle);
         ~item() override final;
 
         // Virtual Interface
@@ -69,14 +69,14 @@ namespace sak
         //============================================================
         project::object& get_project();
         project::object const& cget_project() const;
-        extended_handle_type const& cget_ehandle() const;
+        handle_type const& cget_handle() const;
         QString cget_name() const;
         void set_name(QString const& a_name);
 
         QString cget_description() const;
 
       private:
-        extended_handle_type m_ehandle;
+        handle_type m_handle;
       };
     }
   }

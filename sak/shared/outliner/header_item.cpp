@@ -21,7 +21,7 @@
 #include <sak/project/outliner/root_item.hpp>
 
 #include <sak/shared/project_access.hpp> // does the signal stuff.
-#include <sak/shared/extended_manager.hpp>
+#include <sak/shared/manager.hpp>
 
 namespace
 {
@@ -47,12 +47,12 @@ sak::shared::outliner::header_item<T>::header_item(parent_type* a_parent, bool a
 {
   if (a_read_files)
   {
-    auto l_ehandles = project_access<T>::get_all(get_project());
+    auto l_handles = project_access<T>::get_all(get_project());
 
     // sort them into whatever order and make the items
-    for (auto const& l_ehandle : l_ehandles)
+    for (auto const& l_handle : l_handles)
     {
-      this->append_child(std::make_unique<item<T>>(this, l_ehandle));
+      this->append_child(std::make_unique<item<T>>(this, l_handle));
     }
   }
 }
@@ -125,15 +125,15 @@ sak::project::object const& sak::shared::outliner::header_item<T>::cget_project(
   return get_true_parent()->cget_project();
 }
 
-// What index is the item that holds this extended_handle_type reside at?
+// What index is the item that holds this handle_type reside at?
 // Returns get_child_count() if it is not found.
 template <typename T>
-std::size_t sak::shared::outliner::header_item<T>::index_of(extended_handle_type const& a_ehandle) const
+std::size_t sak::shared::outliner::header_item<T>::index_of(handle_type const& a_handle) const
 {
   std::size_t l_index{0};
   for(auto l_end = static_cast<std::size_t>(inherited_type::get_child_count()); l_index != l_end; ++l_index)
   {
-    if (get_true_child_at(static_cast<int>(l_index))->cget_ehandle() == a_ehandle)
+    if (get_true_child_at(static_cast<int>(l_index))->cget_handle() == a_handle)
     {
       break;
     }
@@ -141,11 +141,11 @@ std::size_t sak::shared::outliner::header_item<T>::index_of(extended_handle_type
   return l_index;
 }
 
-// What item holds this extended_handle_type? Returns nullptr if not found.
+// What item holds this handle_type? Returns nullptr if not found.
 template <typename T>
-typename sak::shared::outliner::header_item<T>::child_type* sak::shared::outliner::header_item<T>::item_of(extended_handle_type const& a_ehandle) const
+typename sak::shared::outliner::header_item<T>::child_type* sak::shared::outliner::header_item<T>::item_of(handle_type const& a_handle) const
 {
-  auto l_index = static_cast<int>(index_of(a_ehandle));
+  auto l_index = static_cast<int>(index_of(a_handle));
   if (l_index != get_child_count())
   {
     return get_true_child_at(l_index);
@@ -158,28 +158,28 @@ typename sak::shared::outliner::header_item<T>::child_type* sak::shared::outline
 
 // When a File has had its name changed, this is called.
 template <typename T>
-void sak::shared::outliner::header_item<T>::name_changed(extended_handle_type const& a_ehandle)
+void sak::shared::outliner::header_item<T>::name_changed(handle_type const& a_handle)
 {
-  assert(a_ehandle.is_valid());
+  assert(a_handle.is_valid());
   // reorder the Files based on the sorting...
 }
 
 // When a File has been added, this is called.
 template <typename T>
-void sak::shared::outliner::header_item<T>::added(extended_handle_type const& a_ehandle)
+void sak::shared::outliner::header_item<T>::added(handle_type const& a_handle)
 {
-  assert(a_ehandle.is_valid());
+  assert(a_handle.is_valid());
   // insert a child in a location that obeys the sorting...
-  append_child(std::make_unique<item<T>>(this, a_ehandle));
+  append_child(std::make_unique<item<T>>(this, a_handle));
 }
 
 // When a File has been removed, this is called.
 template <typename T>
-void sak::shared::outliner::header_item<T>::removed(extended_handle_type const& a_ehandle)
+void sak::shared::outliner::header_item<T>::removed(handle_type const& a_handle)
 {
-  assert(a_ehandle.is_valid());
+  assert(a_handle.is_valid());
   // insert the child with this data...
-  remove_child(index_of(a_ehandle));
+  remove_child(index_of(a_handle));
 }
 
 // Forced Instantiations

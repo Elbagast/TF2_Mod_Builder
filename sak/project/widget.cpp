@@ -8,23 +8,11 @@
 #include <QDebug>
 #include <QHBoxLayout>
 #include <QSplitter>
-/*
-#include "file_manager.hpp"
-#include "file_widget.hpp"
-#include "project.hpp"
-#include "project_outliner.hpp"
-#include "project_editor.hpp"
-#include "project_signalbox.hpp"
-#include "exceptions/exception.hpp"
-*/
-#include <sak/exceptions/exception.hpp>
 
+#include <sak/exceptions/exception.hpp>
 
 #include <sak/shared/object.hpp>
 #include <sak/shared/manager.hpp>
-#include <sak/shared/extended_manager.hpp>
-#include <sak/shared/interface_traits.hpp>
-#include <sak/shared/interface.hpp>
 #include <sak/shared/widget.hpp>
 #include <sak/project/editor.hpp>
 
@@ -71,30 +59,30 @@ namespace sak
         impl(widget* a_owner, std::unique_ptr<object>&& a_data);
 
         // When a File has its data changed(anything but the name), this is called.
-        void changed(file::extended_handle const& a_file) override final;
+        void changed(file::handle const& a_file) override final;
         // When a File has its data changed in a specific place, this is called.
-        void changed_at(file::extended_handle const& a_file, std::size_t a_section) override final;
+        void changed_at(file::handle const& a_file, std::size_t a_section) override final;
         // When a File has been added, this is called.
-        void added(file::extended_handle const& a_file) override final;
+        void added(file::handle const& a_file) override final;
         // When a File has been removed, this is called.
-        void removed(file::extended_handle const& a_file) override final;
+        void removed(file::handle const& a_file) override final;
         // When a File editor is to be opened, this is called.
-        void requests_editor(file::extended_handle const& a_file) override final;
+        void requests_editor(file::handle const& a_file) override final;
         // When focus is changed to be on a File, call this
-        void requests_focus(file::extended_handle const& a_file) override final;
+        void requests_focus(file::handle const& a_file) override final;
 
         // When a texture has its data changed(anything but the name), this is called.
-        void changed(texture::extended_handle const& a_texture) override final;
+        void changed(texture::handle const& a_texture) override final;
         // When a texture has its data changed in a specific place, this is called.
-        void changed_at(texture::extended_handle const& a_texture, std::size_t a_section) override final;
+        void changed_at(texture::handle const& a_texture, std::size_t a_section) override final;
         // When a texture has been added, this is called.
-        void added(texture::extended_handle const& a_texture) override final;
+        void added(texture::handle const& a_texture) override final;
         // When a texture has been removed, this is called.
-        void removed(texture::extended_handle const& a_texture) override final;
+        void removed(texture::handle const& a_texture) override final;
         // When a texture editor is to be opened, this is called.
-        void requests_editor(texture::extended_handle const& a_texture) override final;
+        void requests_editor(texture::handle const& a_texture) override final;
         // When focus is changed to be on a texture, call this
-        void requests_focus(texture::extended_handle const& a_texture) override final;
+        void requests_focus(texture::handle const& a_texture) override final;
 
         void signal_unsaved_edits_change(bool a_state);
         void signal_undo_change();
@@ -126,80 +114,80 @@ sak::project::widget::impl::impl(project::widget* a_owner, std::unique_ptr<objec
 }
 
 // When a File has its data changed(anything but the name), this is called.
-void sak::project::widget::impl::changed(file::extended_handle const& )
+void sak::project::widget::impl::changed(file::handle const& )
 {
     qDebug() << "project::widget::impl::data_changed " << QString::fromStdString(file::object::type());
     signal_unsaved_edits_change(true);
     signal_undo_change();
 }
 // When a File has its data changed in a specific place, this is called.
-void sak::project::widget::impl::changed_at(file::extended_handle const&, std::size_t )
+void sak::project::widget::impl::changed_at(file::handle const&, std::size_t )
 {
     qDebug() << "project::widget::impl::data_changed_at " << QString::fromStdString(file::object::type());
     signal_unsaved_edits_change(true);
     signal_undo_change();
 }
 // When a File has been added, this is called.
-void sak::project::widget::impl::added(file::extended_handle const& )
+void sak::project::widget::impl::added(file::handle const& )
 {
     qDebug() << "project::widget::impl::added " << QString::fromStdString(file::object::type());
     signal_unsaved_edits_change(true);
     signal_undo_change();
 }
 // When a File has been removed, this is called.
-void sak::project::widget::impl::removed(file::extended_handle const& )
+void sak::project::widget::impl::removed(file::handle const& )
 {
     qDebug() << "project::widget::impl::removed " << QString::fromStdString(file::object::type());
     signal_unsaved_edits_change(true);
     signal_undo_change();
 }
 // When a File editor is to be opened, this is called.
-void sak::project::widget::impl::requests_editor(file::extended_handle const& )
+void sak::project::widget::impl::requests_editor(file::handle const& )
 {
     qDebug() << "project::widget::impl::requests_editor " << QString::fromStdString(file::object::type());
 }
 // When focus is changed to be on a File, call this
-void sak::project::widget::impl::requests_focus(file::extended_handle const& )
+void sak::project::widget::impl::requests_focus(file::handle const& )
 {
     qDebug() << "project::widget::impl::requests_focus " << QString::fromStdString(file::object::type());
 }
 
 
 // When a texture has its data changed(anything but the name), this is called.
-void sak::project::widget::impl::changed(texture::extended_handle const& )
+void sak::project::widget::impl::changed(texture::handle const& )
 {
     qDebug() << "project::widget::impl::data_changed " << QString::fromStdString(texture::object::type());
     signal_unsaved_edits_change(true);
     signal_undo_change();
 }
 // When a texture has its data changed in a specific place, this is called.
-void sak::project::widget::impl::changed_at(texture::extended_handle const&, std::size_t )
+void sak::project::widget::impl::changed_at(texture::handle const&, std::size_t )
 {
     qDebug() << "project::widget::impl::data_changed_at " << QString::fromStdString(texture::object::type());
     signal_unsaved_edits_change(true);
     signal_undo_change();
 }
 // When a texture has been added, this is called.
-void sak::project::widget::impl::added(texture::extended_handle const& )
+void sak::project::widget::impl::added(texture::handle const& )
 {
     qDebug() << "project::widget::impl::added " << QString::fromStdString(texture::object::type());
     signal_unsaved_edits_change(true);
     signal_undo_change();
 }
 // When a texture has been removed, this is called.
-void sak::project::widget::impl::removed(texture::extended_handle const& )
+void sak::project::widget::impl::removed(texture::handle const& )
 {
     qDebug() << "project::widget::impl::removed " << QString::fromStdString(texture::object::type());
     signal_unsaved_edits_change(true);
     signal_undo_change();
 }
 // When a texture editor is to be opened, this is called.
-void sak::project::widget::impl::requests_editor(texture::extended_handle const& )
+void sak::project::widget::impl::requests_editor(texture::handle const& )
 {
     qDebug() << "project::widget::impl::requests_editor " << QString::fromStdString(texture::object::type());
 }
 // When focus is changed to be on a texture, call this
-void sak::project::widget::impl::requests_focus(texture::extended_handle const& )
+void sak::project::widget::impl::requests_focus(texture::handle const& )
 {
     qDebug() << "project::widget::impl::requests_focus " << QString::fromStdString(texture::object::type());
 }

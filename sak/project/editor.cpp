@@ -14,9 +14,6 @@
 
 #include <sak/shared/object.hpp>
 #include <sak/shared/manager.hpp>
-#include <sak/shared/extended_manager.hpp>
-#include <sak/shared/interface_traits.hpp>
-#include <sak/shared/interface.hpp>
 #include <sak/shared/widget.hpp>
 
 #include "object.hpp"
@@ -52,18 +49,18 @@ namespace
     struct widget_equals_handle
     {
 
-      using extended_handle_type = sak::shared::extended_handle<T>;
+      using handle_type = sak::shared::handle<T>;
       using widget_type = sak::shared::widget<T>;
 
-      extended_handle_type const& m_ehandle;
+      handle_type const& m_handle;
 
-      explicit widget_equals_handle(extended_handle_type const& a_ehandle):
-        m_ehandle{a_ehandle}
+      explicit widget_equals_handle(handle_type const& a_handle):
+        m_handle{a_handle}
       {}
 
       bool operator()(std::unique_ptr<widget_type> const& a_widget)
       {
-        return m_ehandle == a_widget->cget_handle();
+        return m_handle == a_widget->cget_handle();
       }
     };
 }
@@ -94,30 +91,30 @@ namespace sak
       explicit impl(object& a_project);
 
       // When a File has its data changed(anything but the name), this is called.
-      void changed(file::extended_handle const& a_file) override final;
+      void changed(file::handle const& a_file) override final;
       // When a File has its data changed in a specific place, this is called.
-      void changed_at(file::extended_handle const& a_file, std::size_t a_section) override final;
+      void changed_at(file::handle const& a_file, std::size_t a_section) override final;
       // When a File has been added, this is called.
-      void added(file::extended_handle const& a_file) override final;
+      void added(file::handle const& a_file) override final;
       // When a File has been removed, this is called.
-      void removed(file::extended_handle const& a_file) override final;
+      void removed(file::handle const& a_file) override final;
       // When a File editor is to be opened, this is called.
-      void requests_editor(file::extended_handle const& a_file) override final;
+      void requests_editor(file::handle const& a_file) override final;
       // When focus is changed to be on a File, call this
-      void requests_focus(file::extended_handle const& a_file) override final;
+      void requests_focus(file::handle const& a_file) override final;
 
       // When a texture has its data changed(anything but the name), this is called.
-      void changed(texture::extended_handle const& a_texture) override final;
+      void changed(texture::handle const& a_texture) override final;
       // When a texture has its data changed in a specific place, this is called.
-      void changed_at(texture::extended_handle const& a_texture, std::size_t a_section) override final;
+      void changed_at(texture::handle const& a_texture, std::size_t a_section) override final;
       // When a texture has been added, this is called.
-      void added(texture::extended_handle const& a_texture) override final;
+      void added(texture::handle const& a_texture) override final;
       // When a texture has been removed, this is called.
-      void removed(texture::extended_handle const& a_texture) override final;
+      void removed(texture::handle const& a_texture) override final;
       // When a texture editor is to be opened, this is called.
-      void requests_editor(texture::extended_handle const& a_texture) override final;
+      void requests_editor(texture::handle const& a_texture) override final;
       // When focus is changed to be on a texture, call this
-      void requests_focus(texture::extended_handle const& a_texture) override final;
+      void requests_focus(texture::handle const& a_texture) override final;
 
       //void close_tab(int a_index);
 
@@ -139,19 +136,19 @@ namespace sak
     struct do_stuff
     {
       using object_type = T;
-      using extended_handle_type = extended_handle<object_type>;
+      using handle_type = handle<object_type>;
       using widget_type = widget<object_type>;
 
       using vector_type = std::vector<std::unique_ptr<widget_type>>;
 
       // When a texture has its data changed(anything but the name), this is called.
-      static void changed(vector_type& a_widgets, extended_handle_type const& a_ehandle)
+      static void changed(vector_type& a_widgets, handle_type const& a_handle)
       {
-        qDebug() << "sak::project::editor::impl::data_changed "<< QString::fromStdString(object_type::type()) <<" " << a_ehandle.id().get();
+        qDebug() << "sak::project::editor::impl::data_changed "<< QString::fromStdString(object_type::type()) <<" " << a_handle.id().get();
         // Find the editor for this handle
         auto l_found = std::find_if(a_widgets.cbegin(),
                                     a_widgets.cend(),
-                                    widget_equals_handle<object_type>(a_ehandle));
+                                    widget_equals_handle<object_type>(a_handle));
         // if it exists, update it
         if (l_found != a_widgets.cend())
         {
@@ -160,13 +157,13 @@ namespace sak
       }
 
       // When a texture has its data changed in a specific place, this is called.
-      static void changed_at(vector_type& a_widgets, QTabWidget* a_tabwidget, extended_handle_type const& a_ehandle, std::size_t a_section)
+      static void changed_at(vector_type& a_widgets, QTabWidget* a_tabwidget, handle_type const& a_handle, std::size_t a_section)
       {
-        qDebug() << "sak::project::editor::impl::data_changed_at "<< QString::fromStdString(object_type::type()) <<" " << a_ehandle.id().get() << " " << a_section;
+        qDebug() << "sak::project::editor::impl::data_changed_at "<< QString::fromStdString(object_type::type()) <<" " << a_handle.id().get() << " " << a_section;
         // Find the editor for this handle
         auto l_found = std::find_if(a_widgets.cbegin(),
                                     a_widgets.cend(),
-                                    widget_equals_handle<object_type>(a_ehandle));
+                                    widget_equals_handle<object_type>(a_handle));
 
         // if it exists, update it
         if (l_found != a_widgets.cend())
@@ -185,7 +182,7 @@ namespace sak
             {
                 if (a_tabwidget->widget(l_index) == l_found->get())
                 {
-                    a_tabwidget->setTabText(l_index, a_ehandle.cget().cat<0>().cget());
+                    a_tabwidget->setTabText(l_index, a_handle.cget().cat<0>().cget());
                     break;
                 }
             }
@@ -196,33 +193,33 @@ namespace sak
       }
 
       // When a texture has been added, this is called.
-      static void added(vector_type& a_widgets, QTabWidget* a_tabwidget, extended_handle_type const& a_ehandle)
+      static void added(vector_type& a_widgets, QTabWidget* a_tabwidget, project::object& a_project, handle_type const& a_handle)
       {
-        qDebug() << "sak::project::editor::impl::added "<< QString::fromStdString(object_type::type()) <<" " << a_ehandle.id().get();
+        qDebug() << "sak::project::editor::impl::added "<< QString::fromStdString(object_type::type()) <<" " << a_handle.id().get();
         // update the file widget count and open the widget for it.
         // Shouldn't exist yet
         assert(std::find_if(a_widgets.cbegin(),
                             a_widgets.cend(),
-                            widget_equals_handle<object_type>(a_ehandle))
+                            widget_equals_handle<object_type>(a_handle))
                 == a_widgets.cend());
-        a_widgets.push_back(std::make_unique<widget_type>(a_ehandle, nullptr));
+        a_widgets.push_back(std::make_unique<widget_type>(a_project, a_handle, nullptr));
 
         // Add it to the tabwidget
         a_tabwidget->setUpdatesEnabled(false);
         // insert the tab at the front
         // If we want an icon it goes in here....
-        a_tabwidget->insertTab(0,a_widgets.back().get(), a_ehandle.cget().cat<0>().cget());
+        a_tabwidget->insertTab(0,a_widgets.back().get(), a_handle.cget().cat<0>().cget());
         a_tabwidget->setUpdatesEnabled(true);
         a_tabwidget->setCurrentIndex(0);
       }
 
       // When a texture has been removed, this is called.
-      static void removed(vector_type& a_widgets, QTabWidget* a_tabwidget, extended_handle_type const& a_ehandle)
+      static void removed(vector_type& a_widgets, QTabWidget* a_tabwidget, handle_type const& a_handle)
       {
-        qDebug() << "sak::project::editor::impl::removed "<< QString::fromStdString(object_type::type()) <<" " << a_ehandle.id().get();
+        qDebug() << "sak::project::editor::impl::removed "<< QString::fromStdString(object_type::type()) <<" " << a_handle.id().get();
         auto l_found = std::find_if(a_widgets.begin(),
                                     a_widgets.end(),
-                                    widget_equals_handle<object_type>(a_ehandle));
+                                    widget_equals_handle<object_type>(a_handle));
 
         // if it exists, remove it
         if (l_found != a_widgets.cend())
@@ -250,13 +247,13 @@ namespace sak
       }
 
       // When a texture editor is to be opened, this is called.
-      static void requests_editor(vector_type& a_widgets, QTabWidget* a_tabwidget, extended_handle_type const& a_ehandle)
+      static void requests_editor(vector_type& a_widgets, QTabWidget* a_tabwidget, project::object& a_project, handle_type const& a_handle)
       {
-        qDebug() << "sak::project::editor::impl::requests_editor "<< QString::fromStdString(object_type::type()) <<" " << a_ehandle.id().get();
+        qDebug() << "sak::project::editor::impl::requests_editor "<< QString::fromStdString(object_type::type()) <<" " << a_handle.id().get();
         // Find the editor for this handle
         auto l_found = std::find_if(a_widgets.begin(),
                                     a_widgets.end(),
-                                    widget_equals_handle<object_type>(a_ehandle));
+                                    widget_equals_handle<object_type>(a_handle));
         // if it exists, focus on it
         if (l_found != a_widgets.cend())
         {
@@ -272,22 +269,22 @@ namespace sak
         // otherwise make it and focus on it
         else
         {
-            a_widgets.push_back(std::make_unique<widget_type>(a_ehandle, nullptr));
+            a_widgets.push_back(std::make_unique<widget_type>(a_project, a_handle, nullptr));
 
             // Add it to the tabwidget
             a_tabwidget->setUpdatesEnabled(false);
             // insert the tab at the front
             // If we want an icon it goes in here....
-            a_tabwidget->insertTab(0,a_widgets.back().get(), a_ehandle.cget().cat<0>().cget());
+            a_tabwidget->insertTab(0,a_widgets.back().get(), a_handle.cget().cat<0>().cget());
             a_tabwidget->setUpdatesEnabled(true);
             a_tabwidget->setCurrentIndex(0);
         }
       }
 
       // When focus is changed to be on a texture, call this
-      static void requests_focus(extended_handle_type const& a_ehandle)
+      static void requests_focus(handle_type const& a_handle)
       {
-        qDebug() << "project::editor::impl::requests_focus "<< QString::fromStdString(object_type::type()) <<" " << a_ehandle.id().get() << " does nothing.";
+        qDebug() << "project::editor::impl::requests_focus "<< QString::fromStdString(object_type::type()) <<" " << a_handle.id().get() << " does nothing.";
       }
 
       // cast the tabwidget at this index and close it if it's the right type
@@ -316,8 +313,8 @@ namespace sak
         auto l_editor = dynamic_cast<widget_type*>(a_tabwidget->widget(a_index));
         if (l_editor != nullptr)
         {
-          extended_handle_type const& l_ehandle = l_editor->cget_handle();
-          project_access<object_type>::request_focus(&(a_project), l_ehandle);
+          handle_type const& l_handle = l_editor->cget_handle();
+          project_access<object_type>::request_focus(&(a_project), l_handle);
           return true;
         }
         else
@@ -384,73 +381,73 @@ sak::project::editor::impl::impl(object& a_project):
 }
 
 // When a File has its data changed(anything but the name), this is called.
-void sak::project::editor::impl::changed(file::extended_handle const& a_ehandle)
+void sak::project::editor::impl::changed(file::handle const& a_handle)
 {
-  shared::do_stuff<file::object>::changed(m_file_widgets, a_ehandle);
+  shared::do_stuff<file::object>::changed(m_file_widgets, a_handle);
 }
 // When a File has its data changed(anything but the name), this is called.
-void sak::project::editor::impl::changed_at(file::extended_handle const& a_ehandle, std::size_t a_section)
+void sak::project::editor::impl::changed_at(file::handle const& a_handle, std::size_t a_section)
 {
-  shared::do_stuff<file::object>::changed_at(m_file_widgets, m_tabwidget.get(), a_ehandle, a_section);
+  shared::do_stuff<file::object>::changed_at(m_file_widgets, m_tabwidget.get(), a_handle, a_section);
 }
 // When a File has been added, this is called.
-void sak::project::editor::impl::added(file::extended_handle const& a_ehandle)
+void sak::project::editor::impl::added(file::handle const& a_handle)
 {
-  shared::do_stuff<file::object>::added(m_file_widgets, m_tabwidget.get(), a_ehandle);
+  shared::do_stuff<file::object>::added(m_file_widgets, m_tabwidget.get(), m_project, a_handle);
   update_visible();
 }
 
 // When a File has been removed, this is called.
-void sak::project::editor::impl::removed(file::extended_handle const& a_ehandle)
+void sak::project::editor::impl::removed(file::handle const& a_handle)
 {
-  shared::do_stuff<file::object>::removed(m_file_widgets, m_tabwidget.get(), a_ehandle);
+  shared::do_stuff<file::object>::removed(m_file_widgets, m_tabwidget.get(), a_handle);
   update_visible();
 }
 
-void sak::project::editor::impl::requests_editor(file::extended_handle const& a_ehandle)
+void sak::project::editor::impl::requests_editor(file::handle const& a_handle)
 {  
-  shared::do_stuff<file::object>::requests_editor(m_file_widgets, m_tabwidget.get(), a_ehandle);
+  shared::do_stuff<file::object>::requests_editor(m_file_widgets, m_tabwidget.get(), m_project, a_handle);
   update_visible();
 }
 
-void sak::project::editor::impl::requests_focus(file::extended_handle const& a_ehandle)
+void sak::project::editor::impl::requests_focus(file::handle const& a_handle)
 {
-  shared::do_stuff<file::object>::requests_focus(a_ehandle);
+  shared::do_stuff<file::object>::requests_focus(a_handle);
 }
 
 // When a texture has its data changed(anything but the name), this is called.
-void sak::project::editor::impl::changed(texture::extended_handle const& a_ehandle)
+void sak::project::editor::impl::changed(texture::handle const& a_handle)
 {
-  shared::do_stuff<texture::object>::changed(m_texture_widgets, a_ehandle);
+  shared::do_stuff<texture::object>::changed(m_texture_widgets, a_handle);
 }
 // When a texture has its data changed(anything but the name), this is called.
-void sak::project::editor::impl::changed_at(texture::extended_handle const& a_ehandle, std::size_t a_section)
+void sak::project::editor::impl::changed_at(texture::handle const& a_handle, std::size_t a_section)
 {
-  shared::do_stuff<texture::object>::changed_at(m_texture_widgets, m_tabwidget.get(), a_ehandle, a_section);
+  shared::do_stuff<texture::object>::changed_at(m_texture_widgets, m_tabwidget.get(), a_handle, a_section);
 }
 // When a texture has been added, this is called.
-void sak::project::editor::impl::added(texture::extended_handle const& a_ehandle)
+void sak::project::editor::impl::added(texture::handle const& a_handle)
 {
-  shared::do_stuff<texture::object>::added(m_texture_widgets, m_tabwidget.get(), a_ehandle);
+  shared::do_stuff<texture::object>::added(m_texture_widgets, m_tabwidget.get(), m_project, a_handle);
   update_visible();
 }
 
 // When a texture has been removed, this is called.
-void sak::project::editor::impl::removed(texture::extended_handle const& a_ehandle)
+void sak::project::editor::impl::removed(texture::handle const& a_handle)
 {
-  shared::do_stuff<texture::object>::removed(m_texture_widgets, m_tabwidget.get(), a_ehandle);
+  shared::do_stuff<texture::object>::removed(m_texture_widgets, m_tabwidget.get(), a_handle);
   update_visible();
 }
 
-void sak::project::editor::impl::requests_editor(texture::extended_handle const& a_ehandle)
+void sak::project::editor::impl::requests_editor(texture::handle const& a_handle)
 {
-  shared::do_stuff<texture::object>::requests_editor(m_texture_widgets, m_tabwidget.get(), a_ehandle);
+  shared::do_stuff<texture::object>::requests_editor(m_texture_widgets, m_tabwidget.get(), m_project, a_handle);
   update_visible();
 }
 
-void sak::project::editor::impl::requests_focus(texture::extended_handle const& a_ehandle)
+void sak::project::editor::impl::requests_focus(texture::handle const& a_handle)
 {
-  shared::do_stuff<texture::object>::requests_focus(a_ehandle);
+  shared::do_stuff<texture::object>::requests_focus(a_handle);
 }
 
 /*

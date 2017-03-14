@@ -2,6 +2,7 @@
 
 #include <QXmlStreamWriter>
 #include <QXmlStreamReader>
+#include <QDebug>
 #include <qtlib/string_conversion.hpp>
 
 #include "object.hpp"
@@ -74,23 +75,26 @@ namespace sak
 
           void operator()(QXmlStreamReader& a_stream, object_type& a_object)
           {
-            if (a_stream.readNextStartElement() && a_stream.name().toString() == qtlib::To_QString<name_type>()(a_object.cat<Index>().name()))
+            if (a_stream.readNextStartElement()
+                && a_stream.name().toString() == qtlib::To_QString<name_type>()(a_object.cat<Index>().name()))
             {
+              qDebug() << "tokenstring = " << a_stream.tokenString() << a_stream.name().toString();
+
               // read the data as a string
               auto l_data_qstring = a_stream.readElementText();
-
               // convert the data
               auto l_data = qtlib::From_QString<value_type>()(l_data_qstring);
-
               // write it
               a_object.at<Index>().get() = l_data;
 
-              // close the element
-              a_stream.readNext();
+              qDebug() << "tokenstring = " << a_stream.tokenString() << a_stream.name().toString();
+              // apparently we jump to the end element when we use readElementText()
             }
             else
             {
               // bad member name...
+              qDebug() << "Bad member name...";
+              qDebug() << "Last element: " << a_stream.qualifiedName().toString();
             }
             do_loop<Index+1,End>()(a_stream, a_object);
           }
@@ -109,15 +113,33 @@ namespace sak
         void operator()(QXmlStreamReader& a_stream, object_type& a_object)
         {
           // open the element and verify it's correct
-          if (a_stream.readNextStartElement() && a_stream.name().toString() == qtlib::To_QString<type_string_type>()(a_object.type()))
+          if (a_stream.readNextStartElement()
+              && a_stream.name().toString() == qtlib::To_QString<type_string_type>()(a_object.type()))
           {
+            qDebug() << "tokenstring = " << a_stream.tokenString() << a_stream.name().toString();
             do_loop<0>()(a_stream, a_object);
             // close the element
-            a_stream.readNext();
+            //a_stream.readNext();
+
+            qDebug() << "tokenstring = " << a_stream.tokenString() << a_stream.name().toString();
+            if (a_stream.readNext() != QXmlStreamReader::Characters)
+            {
+              // Bad file structure
+              qDebug() << "Didn't find Characters";
+            }
+            qDebug() << "tokenstring = " << a_stream.tokenString() << a_stream.name().toString();
+            if (a_stream.readNext() != QXmlStreamReader::EndElement)
+            {
+              // Bad file structure
+              qDebug() << "Didn't find EndElement";
+            }
+            qDebug() << "tokenstring = " << a_stream.tokenString() << a_stream.name().toString();
           }
           else
           {
             // bad type...
+            qDebug() << "Didn't find " << qtlib::To_QString<type_string_type>()(a_object.type());
+            qDebug() << "Last element: " << a_stream.qualifiedName().toString();
           }
         }
       };

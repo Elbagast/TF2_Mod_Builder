@@ -22,7 +22,7 @@
 #include <sak/shared/outliner/header_item.hpp>
 
 #include <sak/shared/project_access.hpp> // does the signal stuff.
-#include <sak/shared/extended_manager.hpp>
+#include <sak/shared/manager.hpp>
 
 namespace
 {
@@ -42,9 +42,9 @@ namespace
 // Special 6
 //============================================================
 template <typename T>
-sak::shared::outliner::item<T>::item(parent_type* a_parent, extended_handle_type const& a_ehandle):
+sak::shared::outliner::item<T>::item(parent_type* a_parent, handle_type const& a_ehandle):
     inherited_type(a_parent),
-    m_ehandle{a_ehandle}
+    m_handle{a_ehandle}
 {
   assert(a_parent != nullptr);
   assert(a_ehandle.is_valid());
@@ -136,7 +136,7 @@ void sak::shared::outliner::item<T>::do_context_menu(QAbstractItemView* a_view, 
   auto l_action_open = menu.addAction("Open");
   QObject::connect(l_action_open, &QAction::triggered, [this]()
   {
-    project_access<object_type>::request_editor(&(this->get_project()), this->m_ehandle);
+    project_access<object_type>::request_editor(&(this->get_project()), this->m_handle);
   });
 
   // Commence an edit operation in the outliner
@@ -150,7 +150,7 @@ void sak::shared::outliner::item<T>::do_context_menu(QAbstractItemView* a_view, 
   auto l_action_delete = menu.addAction("Delete");
   QObject::connect(l_action_delete, &QAction::triggered, [=]()
   {
-    project_access<object_type>::remove(&(this->get_project()), this->m_ehandle); // outbound signal.
+    project_access<object_type>::remove(&(this->get_project()), this->m_handle); // outbound signal.
   });
 
   // Execute the menu at the global posiiton.
@@ -161,7 +161,7 @@ void sak::shared::outliner::item<T>::do_context_menu(QAbstractItemView* a_view, 
 template <typename T>
 void sak::shared::outliner::item<T>::do_double_clicked(QAbstractItemView*, model_type*)
 {
-  project_access<object_type>::request_editor(&(get_project()), m_ehandle); // outbound signal.
+  project_access<object_type>::request_editor(&(get_project()), m_handle); // outbound signal.
 }
 
 // Additional Interface
@@ -179,30 +179,32 @@ sak::project::object const& sak::shared::outliner::item<T>::cget_project() const
 }
 
 template <typename T>
-typename sak::shared::outliner::item<T>::extended_handle_type const& sak::shared::outliner::item<T>::cget_ehandle() const
+typename sak::shared::outliner::item<T>::handle_type const& sak::shared::outliner::item<T>::cget_handle() const
 {
-  return m_ehandle;
+  return m_handle;
 }
 
 template <typename T>
 QString sak::shared::outliner::item<T>::cget_name() const
 {
-  // Access the member for "Description" assumed to be at index 0
-  return m_ehandle.cget().cat<0>().cget();
+  // Access the member for "Name" assumed to be at index 0
+  return m_handle.cget().cat<0>().cget();
 }
 
 template <typename T>
 void sak::shared::outliner::item<T>::set_name(QString const& a_name)
 {
-  // issues a command via the handle's interface
-  m_ehandle.get().set<0>(a_name);
+  using member_value_variant = typename object_type::member_value_variant;
+
+  // Issue the command to change the name.
+  project_access<object_type>::change_at(&get_project(), m_handle, 0, member_value_variant(a_name));
 }
 
 template <typename T>
 QString sak::shared::outliner::item<T>::cget_description() const
 {
   // Access the member for "Description" assumed to be at index 1
-  return m_ehandle.cget().cat<1>().cget();
+  return m_handle.cget().cat<1>().cget();
 }
 
 // Forced Instantiations

@@ -2,7 +2,7 @@
 #define SAK_SHARED_DATA_MANAGER_HPP
 
 #include "fwd/data_manager.hpp"
-#include "extended_manager.hpp"
+#include "manager.hpp"
 #include <sak/project/fwd/object.hpp>
 
 #include "signalbox.hpp"
@@ -22,16 +22,15 @@ namespace sak
 
     template <typename T>
     class data_manager :
-        public shared::abstract::signalbox<T>
+        public abstract::signalbox<T>
     {
     public:
       // Typedefs
       //============================================================
-      using inherited_type = shared::abstract::signalbox<T>;
+      using inherited_type = abstract::signalbox<T>;
       using object_type = T;
-      using extended_manager_type = shared::extended_manager<object_type>;
-      using extended_handle_type = shared::extended_handle<object_type>;
-      using interface_traits_type = typename extended_manager_type::interface_traits_type;
+      using manager_type = manager<object_type>;
+      using handle_type = handle<object_type>;
 
       // Special 6
       //============================================================
@@ -40,18 +39,18 @@ namespace sak
 
       // Virtuals
       //============================================================
-      void changed(extended_handle_type const& a_ehandle) override final;
+      void changed(handle_type const& a_handle) override final;
       // When a File has its data changed in a specific place, this is called.
-      void changed_at(extended_handle_type const& a_ehandle, std::size_t a_section) override final;
+      void changed_at(handle_type const& a_handle, std::size_t a_section) override final;
       // When a File has been added, this is called.
-      void added(extended_handle_type const& a_ehandle) override final;
+      void added(handle_type const& a_handle) override final;
       // When a File has been removed, this is called.
-      void removed(extended_handle_type const& a_ehandle) override final;
+      void removed(handle_type const& a_handle) override final;
       // When a File requests an editor, this is called.
-      void requests_editor(extended_handle_type const& a_ehandle) override final;
+      void requests_editor(handle_type const& a_handle) override final;
 
       // When a File requests an editor, this is called.
-      void requests_focus(extended_handle_type const& a_ehandle) override final;
+      void requests_focus(handle_type const& a_handle) override final;
 
       // Public Interface
       //============================================================
@@ -61,13 +60,13 @@ namespace sak
       // How many any Files are in this Project?
       std::size_t count() const;
 
-      bool has_handle(extended_handle_type const& a_ehandle) const;
+      bool has_handle(handle_type const& a_handle) const;
 
       // Get the file at this index, asssuming the Files are alphabetically sorted by name
-      extended_handle_type get_at(std::size_t a_index) const;
+      handle_type get_at(std::size_t a_index) const;
 
       // Get all the Files alphabetically sorted by name
-      std::vector<extended_handle_type> get_all() const;
+      std::vector<handle_type> get_all() const;
 
       // Get all the Files alphabetically sorted names
       std::vector<QString> get_all_names() const;
@@ -79,11 +78,11 @@ namespace sak
 
       // Make a new file using the supplied data. Project's data management system owns it but
       // it is not part of the Proeject.
-      extended_handle_type make_emplace(object_type&& a_object);
+      handle_type make_emplace(object_type&& a_object);
 
       // Make a new file using the default parameters. Project's data management system owns it
       // but it is not part of the Project.
-      extended_handle_type make();
+      handle_type make();
 
       void to_xmlstream(QXmlStreamWriter& a_stream) const;
 
@@ -93,8 +92,8 @@ namespace sak
       // Data Members
       //============================================================
       project::object& m_project;
-      extended_manager_type m_emanager;
-      std::vector<extended_handle_type> m_ehandles;
+      manager_type m_manager;
+      std::vector<handle_type> m_handles;
     };
   }
 }
