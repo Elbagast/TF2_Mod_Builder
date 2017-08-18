@@ -10,7 +10,7 @@
 namespace generic
 {
     //---------------------------------------------------------------------------
-    // Command_HPPistory
+    // Command_History
     //---------------------------------------------------------------------------
     // Queue-like container that manages a history of commands and supports undo/redo functionality on the
     // Command objects.
@@ -52,7 +52,7 @@ namespace generic
         template <typename Command_Class>
         void add_execute(std::unique_ptr<Command_Class>&& a_command)
         {
-            static_cast(std::is_base_of<command_type, Command_Class>::value, "Cannot add_execute this pointer, the class is not derived from Command_HPPistory::command_type.");
+            static_assert(std::is_base_of<command_type, Command_Class>::value, "Cannot add_execute this pointer, the class is not derived from Command_HPPistory::command_type.");
             add_execute(std::unique_ptr<command_type>(a_command.release()));
         }
 
@@ -60,7 +60,7 @@ namespace generic
         template <typename Command_Class, typename... Args>
         void emplace_execute(Args&&... a_args)
         {
-            static_cast(std::is_base_of<command_type, Command_Class>::value, "Cannot emplace_execute this data, the class is not derived from Command_HPPistory::command_type.");
+            static_assert(std::is_base_of<command_type, Command_Class>::value, "Cannot emplace_execute this data, the class is not derived from Command_HPPistory::command_type.");
             add_execute(std::unique_ptr<command_type>(std::make_unique<Command_Class>(std::forward<Args>(a_args)...)).release());
         }
 

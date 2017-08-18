@@ -6,7 +6,9 @@
 #include <dclib/ct/v1/type_impl.hpp>
 #include <dclib/litype/string.hpp>
 #include <dclib/meta/typelist.hpp>
+#include <dclib/meta/variant.hpp>
 #include "polymorhpic_tuple.hpp"
+
 
 namespace dclib
 {
@@ -70,6 +72,8 @@ namespace dclib
         using member_typelist = meta::typelist<member<T1,T2>...>;
         using member_name_typelist = meta::typelist<typename member<T1,T2>::name_literal_type...>;
         using member_value_typelist = meta::typelist<typename member<T1,T2>::value_type...>;
+
+        using member_value_variant = meta::mf::to_variant_t<meta::mf::remove_duplicates_t<member_value_typelist>>;
 
         template <std::size_t Index>
         using member_type = meta::mf::type_at_t<member_typelist, Index>;

@@ -7,7 +7,7 @@
 #include <sak/shared/object.hpp>
 #include <sak/shared/manager.hpp>
 #include <sak/shared/xml_traits.hpp>
-#include <sak/shared/project_access.hpp>
+#include <sak/shared/signalbox.hpp>
 
 #include <sak/name_utilities.hpp>
 
@@ -41,11 +41,10 @@ namespace
 // Special 6
 //============================================================
 template <typename T>
-sak::shared::data_manager<T>::data_manager(project::object& a_project):
-  inherited_type(),
-  m_project{a_project},
+sak::shared::data_manager<T>::data_manager():
   m_manager{},
-  m_handles{}
+  m_handles{},
+  m_signalboxes{}
 {}
 
 template <typename T>
@@ -60,6 +59,8 @@ void sak::shared::data_manager<T>::changed(handle_type const& a_handle)
   // This thing must exist
   assert(a_handle.is_valid());
   assert(std::find(m_handles.cbegin(), m_handles.cend(), a_handle) != m_handles.cend());
+
+  for (signalbox_type* l_item : m_signalboxes) l_item->changed(a_handle);
 }
 
 // When a File has its data changed in a specific place, this is called.
@@ -70,6 +71,8 @@ void sak::shared::data_manager<T>::changed_at(handle_type const& a_handle, std::
   // This thing must exist
   assert(a_handle.is_valid());
   assert(std::find(m_handles.cbegin(), m_handles.cend(), a_handle) != m_handles.cend());
+
+  for (signalbox_type* l_item : m_signalboxes) l_item->changed_at(a_handle, a_section);
 }
 
 // When a File has been added, this is called.
@@ -82,6 +85,8 @@ void sak::shared::data_manager<T>::added(handle_type const& a_handle)
   // but not yet be part of the Project
   assert(std::find(m_handles.cbegin(), m_handles.cend(), a_handle) == m_handles.cend());
   m_handles.push_back(a_handle);
+
+  for (signalbox_type* l_item : m_signalboxes) l_item->added(a_handle);
 }
 // When a File has been removed, this is called.
 template <typename T>
@@ -101,6 +106,8 @@ void sak::shared::data_manager<T>::removed(handle_type const& a_handle)
   // Now kill it, because if it's still in the project the signal will call back to find it
   // is still present.
   m_handles.erase(l_found);
+
+  for (signalbox_type* l_item : m_signalboxes) l_item->removed(l_handle);
 }
 // When a File requests an editor, this is called.
 template <typename T>
@@ -110,6 +117,8 @@ void sak::shared::data_manager<T>::requests_editor(handle_type const& a_handle)
   // This thing must exist
   assert(a_handle.is_valid());
   assert(std::find(m_handles.cbegin(), m_handles.cend(), a_handle) != m_handles.cend());
+
+  for (signalbox_type* l_item : m_signalboxes) l_item->requests_editor(a_handle);
 }
 
 // When a File requests an editor, this is called.
@@ -120,6 +129,8 @@ void sak::shared::data_manager<T>::requests_focus(handle_type const& a_handle)
   // This thing must exist
   assert(a_handle.is_valid());
   assert(std::find(m_handles.cbegin(), m_handles.cend(), a_handle) != m_handles.cend());
+
+  for (signalbox_type* l_item : m_signalboxes) l_item->requests_focus(a_handle);
 }
 
 // Public Interface
@@ -178,7 +189,7 @@ std::vector<QString> sak::shared::data_manager<T>::get_all_names() const
 // Project_Signalbox that it should be addeed.
 
 // Make a new file using the supplied data. Project's data management system owns it but
-// it is not part of the Proeject.
+// it is not part of the Project.
 template <typename T>
 typename sak::shared::data_manager<T>::handle_type sak::shared::data_manager<T>::make_emplace(object_type&& a_object)
 {
@@ -192,7 +203,7 @@ typename sak::shared::data_manager<T>::handle_type sak::shared::data_manager<T>:
 {
   // uniqueify the name.
   QString l_name{u8"New " + QString::fromStdString(object_type::type())};
-  uniqueify_name(l_name, project_access<object_type>::get_all_names(m_project));
+  uniqueify_name(l_name, get_all_names());
   object_type l_object{};
   l_object.at<0>().get() = l_name;
   return make_emplace(std::move(l_object));
@@ -273,6 +284,37 @@ void sak::shared::data_manager<T>::from_xmlstream(QXmlStreamReader& a_stream)
     qDebug() << "Didn't find " << section_title<T>::value() << "...";
     qDebug() << "Last element: " << a_stream.qualifiedName().toString();
   }
+}
+
+
+// Add an object that will rely on the outbound data signals. If nulltpr, nothing happens.
+template <typename T>
+void sak::shared::data_manager<T>::add_signalbox(signalbox_type* a_signalbox)
+{
+  if (a_signalbox != nullptr
+      && std::find(m_signalboxes.cbegin(), m_signalboxes.cend(), a_signalbox) == m_signalboxes.cend())
+  {
+    m_signalboxes.push_back(a_signalbox);
+  }
+}
+
+// Remove an object that will rely on the outbound data signals. If nulltpr, nothing happens.
+template <typename T>
+void sak::shared::data_manager<T>::remove_signalbox(signalbox_type* a_signalbox)
+{
+  auto l_found = std::find(m_signalboxes.cbegin(), m_signalboxes.cend(), a_signalbox);
+  if (l_found != m_signalboxes.cend())
+  {
+    m_signalboxes.erase(l_found);
+  }
+}
+
+
+// Remove all signalboxes
+template <typename T>
+void sak::shared::data_manager<T>::clear_signalboxes()
+{
+  m_signalboxes.clear();
 }
 
 // Forced Instantiations

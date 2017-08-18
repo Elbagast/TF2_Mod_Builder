@@ -13,7 +13,6 @@
 #include <iterator>
 
 #include "signalbox.hpp"
-#include "signal_dispatcher.hpp"
 #include <sak/exceptions/exception.hpp>
 #include <sak/shared/manager.hpp>
 #include <sak/shared/data_manager.hpp>
@@ -25,6 +24,45 @@
 
 #include <sak/shared/xml_traits.hpp>
 
+/*
+Looking at the is again there's a lot of repeat code arodun the signalling for
+different types. This could be reduced by keeping the shared::abstract::signalbox
+separate and inside the shared::data_manager template instead of having a single
+one that merges them all together. This would mean a number of essentially
+duplicated references as each project::object dependent is referenced once for
+each type managed, unless some kind of switching class is built.
+
+Is it worth thinking of project::object as a template class instead? It is
+essentially being built as a shared front-end for a number of types that share
+implementations. Although it only shows up once so that's probably a hassle.
+
+Currently:
+project::object
+  signal_dispatcher
+    signalbox<T>
+      signal<T>
+  data_manager<T>
+    manager<T>
+      handle<T>
+        <T>
+  command_history
+    command
+      command<T>
+
+There is an issue:
+- currently inbound signals must consult a data_manager before propegating
+  - this allows things to actually change before everything updates
+- however data_manager should probably be doing the outbound signals itself rather
+  than the messy enforcement of this currently done
+  - this would allow some implementation details to be simpler
+- but this is what would casue the multiple referencing since there would now be a
+  seperate dispatcher for each type
+  - do we care?
+    - thinking about it more there are data types we haven't considered that may have
+      more complicated signalling, so sepatating the implementation into sections would
+      allow more signals to be added without the need for adding more linking code.
+
+*/
 
 
 //---------------------------------------------------------------------------
@@ -36,140 +74,26 @@ namespace sak
 {
   namespace project
   {
-    class object::impl :
-            public abstract::signalbox
+    class object::impl
     {
     public:
       QFileInfo m_filepath;
       QString m_message;
       QString m_data;
 
-      signal_dispatcher m_dispatcher;
       file::data_manager m_file_manager;
       texture::data_manager m_texture_manager;
 
       generic::Command_History m_command_history;
 
-      impl(QString const& a_filepath, object* a_owner):
-        abstract::signalbox(),
+      explicit impl(QString const& a_filepath):
         m_filepath{a_filepath},
-        m_dispatcher{this},
-        m_file_manager{*a_owner},
-        m_texture_manager{*a_owner},
+        m_file_manager{},
+        m_texture_manager{},
         m_command_history{}
       {
       }
-      ~impl() override = default;
-
-      // Signalbox Interface
-      //============================================================
-      // Call these to call the signalbox functions in all dependents.
-
-      // Files
-      //============================================================
-
-      // When a File has its data changed(anything but the name), this is called.
-      void changed(file::handle const& a_file) override final
-      {
-        // For each signal we:
-        // - give debug info
-        qDebug() << "\nsak::project::object::implchanged " << QString::fromStdString(file::object::type()) << " " << a_file.id().get();
-
-        // - inform the appropriate data manager.
-        m_file_manager.changed(a_file);
-
-        // - tell the dispatcher to inform everything else.
-        m_dispatcher.changed(a_file);
-      }
-      // When a File has its data changed in a specific place, this is called.
-      void changed_at(file::handle const& a_file, std::size_t a_section) override final
-      {
-        qDebug() << "\nsak::project::object::implchanged_at " << QString::fromStdString(file::object::type()) << " " << a_file.id().get() << ", " << a_section;
-        m_file_manager.changed_at(a_file,a_section);
-        m_dispatcher.changed_at(a_file,a_section);
-      }
-      // When a File has been added, this is called.
-      void added(file::handle const& a_file) override final
-      {
-        qDebug() << "\nsak::project::object::impladded " << QString::fromStdString(file::object::type()) << " "  << a_file.id().get();
-        m_file_manager.added(a_file);
-        m_dispatcher.added(a_file);
-      }
-      // When a File has been removed, this is called.
-      void removed(file::handle const& a_file) override final
-      {
-        qDebug() << "\nsak::project::object::implremoved " << QString::fromStdString(file::object::type()) << " " << a_file.id().get();
-        m_file_manager.removed(a_file);
-        m_dispatcher.removed(a_file);
-      }
-      // When a File requests an editor, this is called.
-      void requests_editor(file::handle const& a_file) override final
-      {
-        qDebug() << "\nsak::project::object::implrequests_editor " << QString::fromStdString(file::object::type()) << " "  << a_file.id().get();
-        m_file_manager.requests_editor(a_file);
-        m_dispatcher.requests_editor(a_file);
-      }
-
-      // When a File requests an editor, this is called.
-      void requests_focus(file::handle const& a_file) override final
-      {
-        qDebug() << "\nsak::project::object::implrequests_focus " << QString::fromStdString(file::object::type()) << " "  << a_file.id().get();
-        m_file_manager.requests_focus(a_file);
-        m_dispatcher.requests_focus(a_file);
-      }
-
-      // Textures
-      //============================================================
-
-      // When a texture has its data changed(anything but the name), this is called.
-      void changed(texture::handle const& a_texture) override final
-      {
-        // For each signal we:
-        // - give debug info
-        qDebug() << "\nsak::project::object::implchanged " << QString::fromStdString(texture::object::type()) << " " << a_texture.id().get();
-
-        // - inform the appropriate data manager.
-        m_texture_manager.changed(a_texture);
-
-        // - tell the dispatcher to inform everything else.
-        m_dispatcher.changed(a_texture);
-      }
-      // When a texture has its data changed in a specific place, this is called.
-      void changed_at(texture::handle const& a_texture, std::size_t a_section) override final
-      {
-        qDebug() << "\nsak::project::object::implchanged_at " << QString::fromStdString(texture::object::type()) << " " << a_texture.id().get() << ", " << a_section;
-        m_texture_manager.changed_at(a_texture,a_section);
-        m_dispatcher.changed_at(a_texture,a_section);
-      }
-      // When a texture has been added, this is called.
-      void added(texture::handle const& a_texture) override final
-      {
-        qDebug() << "\nsak::project::object::impladded " << QString::fromStdString(texture::object::type()) << " "  << a_texture.id().get();
-        m_texture_manager.added(a_texture);
-        m_dispatcher.added(a_texture);
-      }
-      // When a texture has been removed, this is called.
-      void removed(texture::handle const& a_texture) override final
-      {
-        qDebug() << "\nsak::project::object::implremoved " << QString::fromStdString(texture::object::type()) << " " << a_texture.id().get();
-        m_texture_manager.removed(a_texture);
-        m_dispatcher.removed(a_texture);
-      }
-      // When a texture requests an editor, this is called.
-      void requests_editor(texture::handle const& a_texture) override final
-      {
-        qDebug() << "\nsak::project::object::implrequests_editor " << QString::fromStdString(texture::object::type()) << " "  << a_texture.id().get();
-        m_texture_manager.requests_editor(a_texture);
-        m_dispatcher.requests_editor(a_texture);
-      }
-
-      // When a texture requests an editor, this is called.
-      void requests_focus(texture::handle const& a_texture) override final
-      {
-        qDebug() << "\nsak::project::object::implrequests_focus " << QString::fromStdString(texture::object::type()) << " "  << a_texture.id().get();
-        m_texture_manager.requests_focus(a_texture);
-        m_dispatcher.requests_focus(a_texture);
-      }
+      ~impl() = default;
 
       //---------------------------------------------------------------------------
       // sak::project::object::impl::do_set<T,Index>
@@ -185,14 +109,15 @@ namespace sak
         using handle_type = shared::handle<object_type>;
         using member_type = shared::mf::object_member_t<object_type, Index>;
         using value_type = typename member_type::value_type;
+        using data_manager_type = shared::data_manager<T>;
 
-        void operator()(object& a_project, handle_type const& a_handle, value_type const& a_value)
+        void operator()(object& a_project, data_manager_type& a_data_manager, handle_type const& a_handle, value_type const& a_value)
         {
           if (a_value == a_handle.cget().cat<Index>().cget())
           {
               return;
           }
-          a_project.imp().m_command_history.add_execute(shared::make_command_assign<object_type, Index>(a_project.imp(), a_handle, a_value));
+          a_project.imp().m_command_history.add_execute(shared::make_command_assign<object_type, Index>(a_data_manager, a_handle, a_value));
         }
       };
 
@@ -210,8 +135,9 @@ namespace sak
         using handle_type = shared::handle<object_type>;
         using member_type = shared::mf::object_member_t<object_type, 0>;
         using value_type = typename member_type::value_type;
+        using data_manager_type = shared::data_manager<T>;
 
-        void operator()(object& a_project, handle_type const& a_handle, value_type const& a_value)
+        void operator()(object& a_project, data_manager_type& a_data_manager, handle_type const& a_handle, value_type const& a_value)
         {
           static_assert(std::is_same<value_type, QString>::value, "Member 0 has a type that is not QString...");
 
@@ -220,14 +146,14 @@ namespace sak
               return;
           }
           // We must make sure the name does not already exist among the other names.
-          auto l_names = shared::project_access<object_type>::get_all_names(a_project);
+          auto l_names = a_data_manager.get_all_names();
           // Get rid of the name of this one, since it is going to change.
           auto l_old_name_found = std::find(l_names.cbegin(), l_names.cend(), a_handle.cget().cat<0>().cget());
           l_names.erase(l_old_name_found);
 
           QString l_final_name{a_value};
           uniqueify_name(l_final_name, l_names);
-          a_project.imp().m_command_history.add_execute(shared::make_command_assign<object_type, 0>(a_project.imp(), a_handle, l_final_name));
+          a_project.imp().m_command_history.add_execute(shared::make_command_assign<object_type, 0>(a_data_manager, a_handle, l_final_name));
         }
       };
 
@@ -246,6 +172,7 @@ namespace sak
         using signalbox_type = shared::abstract::signalbox<object_type>;
         using handle_type = shared::handle<object_type>;
         using member_value_variant = typename object_type::member_value_variant;
+        using data_manager_type = shared::data_manager<T>;
 
         template < std::size_t Index, std::size_t End = object_type::size()>
         struct do_loop
@@ -253,18 +180,18 @@ namespace sak
           using member_type = shared::mf::object_member_t<object_type, Index>;
           using value_type = typename member_type::value_type;
 
-          void operator()(object& a_project, handle_type const& a_handle, std::size_t a_section, member_value_variant a_variant)
+          void operator()(object& a_project, data_manager_type& a_data_manager, handle_type const& a_handle, std::size_t a_section, member_value_variant a_variant)
           {
             if (a_section == Index)
             {
               // variant type supplied should be this type...
               assert(a_variant.type().hash_code() == typeid(value_type).hash_code());
 
-              do_set<object_type, Index>()(a_project, a_handle, boost::get<value_type>(a_variant));
+              do_set<object_type, Index>()(a_project, a_data_manager, a_handle, boost::get<value_type>(a_variant));
             }
             else
             {
-              do_loop<Index+1,End>()(a_project, a_handle, a_section, a_variant);
+              do_loop<Index+1,End>()(a_project, a_data_manager, a_handle, a_section, a_variant);
             }
           }
         };
@@ -272,16 +199,16 @@ namespace sak
         template <std::size_t End>
         struct do_loop<End,End>
         {
-          void operator()(object&, handle_type const&, std::size_t, member_value_variant)
+          void operator()(object&, data_manager_type&, handle_type const&, std::size_t, member_value_variant)
           {
           }
         };
 
-        void operator()(object& a_project, handle_type const& a_handle, std::size_t a_section, member_value_variant a_variant)
+        void operator()(object& a_project, data_manager_type& a_data_manager, handle_type const& a_handle, std::size_t a_section, member_value_variant a_variant)
         {
           if (a_section < object_type::size())
           {
-            do_loop<0>()(a_project, a_handle, a_section, a_variant);
+            do_loop<0>()(a_project, a_data_manager, a_handle, a_section, a_variant);
           }
         }
       };
@@ -297,25 +224,25 @@ namespace sak
 // not exist it will attempt to create it and save the initial data
 // to it. If the file exists it will attempt to load the data from it.
 sak::project::object::object(QString const& a_filepath):
-    m_data{std::make_unique<impl>(a_filepath, this)}
+    m_data{std::make_unique<impl>(a_filepath)}
 {
-    // If the directory does not exist it will fail.
-    if(!imp().m_filepath.dir().exists())
-    {
-        // Failure exception for directory not existing.
-        throw Directory_Missing_Error(imp().m_filepath.absoluteDir().absolutePath());
-        //data().m_message = u8"Failure exception for directory not existing.";
-    }
-    // if the file exists, load it
-    if(cimp().m_filepath.exists())
-    {
-        load();
-    }
-    // else make a new file using the empty initialsed data.
-    else
-    {
-        save();
-    }
+  // If the directory does not exist it will fail.
+  if(!imp().m_filepath.dir().exists())
+  {
+    // Failure exception for directory not existing.
+    throw Directory_Missing_Error(imp().m_filepath.absoluteDir().absolutePath());
+    //data().m_message = u8"Failure exception for directory not existing.";
+  }
+  // if the file exists, load it
+  if(cimp().m_filepath.exists())
+  {
+    load();
+  }
+  // else make a new file using the empty initialsed data.
+  else
+  {
+    save();
+  }
 }
 sak::project::object::~object() = default;
 
@@ -354,7 +281,7 @@ void sak::project::object::save() const
  }
  else
  {
-    throw File_Write_Error(cimp().m_filepath.absoluteFilePath());
+   throw File_Write_Error(cimp().m_filepath.absoluteFilePath());
  }
 }
 
@@ -362,7 +289,7 @@ void sak::project::object::save() const
 void sak::project::object::load()
 {
   // Initialise new data
-  auto l_data{std::make_unique<impl>(cimp().m_filepath.absoluteFilePath(),this)};
+  auto l_data{std::make_unique<impl>(cimp().m_filepath.absoluteFilePath())};
 
   // Create a file object
   QFile l_file{cimp().m_filepath.absoluteFilePath()};
@@ -398,8 +325,8 @@ void sak::project::object::load()
     }
     else
     {
-        // Bad file structure
-        qDebug() << "Didn't find Project";
+      // Bad file structure
+      qDebug() << "Didn't find Project";
     }
 
     l_file.close();
@@ -434,13 +361,15 @@ QString sak::project::object::filepath() const
 // Add an object that will rely on the Project's signals. If nulltpr, nothing happens.
 void sak::project::object::add_signalbox(abstract::signalbox* a_signalbox)
 {
-  imp().m_dispatcher.add_signalbox(a_signalbox);
+  imp().m_file_manager.add_signalbox(a_signalbox);
+  imp().m_texture_manager.add_signalbox(a_signalbox);
 }
 
 // Remove an object that will rely on the Project's signals. If nulltpr, nothing happens.
 void sak::project::object::remove_signalbox(abstract::signalbox* a_signalbox)
 {
-  imp().m_dispatcher.remove_signalbox(a_signalbox);
+  imp().m_file_manager.remove_signalbox(a_signalbox);
+  imp().m_texture_manager.remove_signalbox(a_signalbox);
 }
 
 // Can we currently call undo?
@@ -541,13 +470,13 @@ sak::file::handle sak::project::object::make_file()
 // Create a new default file and add it.
 void sak::project::object::file_add_new()
 {
-  imp().m_command_history.add_execute(shared::make_command_added<file::object>(imp(), imp().m_file_manager.make()));
+  imp().m_command_history.add_execute(shared::make_command_added<file::object>(imp().m_file_manager, imp().m_file_manager.make()));
 }
 
 // Add a new file using the supplied data.
 void sak::project::object::file_add_emplace(file::object&& a_file)
 {
-  imp().m_command_history.add_execute(shared::make_command_added<file::object>(imp(), imp().m_file_manager.make_emplace(std::move(a_file))));
+  imp().m_command_history.add_execute(shared::make_command_added<file::object>(imp().m_file_manager, imp().m_file_manager.make_emplace(std::move(a_file))));
 }
 
 // Add a new file using the supplied handle. If this handle is invalid or already in the data
@@ -556,7 +485,7 @@ void sak::project::object::file_add(file::handle const& a_handle)
 {
   if (a_handle.is_valid() && !(cimp().m_file_manager.has_handle(a_handle)))
   {
-    imp().m_command_history.add_execute(shared::make_command_added<file::object>(imp(), a_handle));
+    imp().m_command_history.add_execute(shared::make_command_added<file::object>(imp().m_file_manager, a_handle));
   }
 }
 
@@ -566,7 +495,7 @@ void sak::project::object::file_remove(file::handle const& a_handle)
 {
   if (a_handle.is_valid() && cimp().m_file_manager.has_handle(a_handle))
   {
-    imp().m_command_history.add_execute(shared::make_command_removed<file::object>(imp(), a_handle));
+    imp().m_command_history.add_execute(shared::make_command_removed<file::object>(imp().m_file_manager, a_handle));
   }
 }
 
@@ -576,7 +505,7 @@ void sak::project::object::file_change_at(file::handle const& a_handle, std::siz
   // here we have to turn a runtime command into a compiletime one...or switch the object type to runtime so we can use that interface
   if (a_handle.is_valid() && cimp().m_file_manager.has_handle(a_handle))
   {
-    impl::runtime_change_at<file::object>()(*this, a_handle, a_section, a_variant);
+    impl::runtime_change_at<file::object>()(*this, imp().m_file_manager, a_handle, a_section, a_variant);
   }
 }
 
@@ -585,7 +514,7 @@ void sak::project::object::file_request_focus(file::handle const& a_handle)
 {
   if (a_handle.is_valid() && cimp().m_file_manager.has_handle(a_handle))
   {
-    imp().requests_focus(a_handle);
+    imp().m_file_manager.requests_focus(a_handle);
   }
 }
 
@@ -594,7 +523,7 @@ void sak::project::object::file_request_editor(file::handle const& a_handle)
 {
   if (a_handle.is_valid() && cimp().m_file_manager.has_handle(a_handle))
   {
-    imp().requests_editor(a_handle);
+    imp().m_file_manager.requests_editor(a_handle);
   }
 }
 
@@ -655,13 +584,13 @@ sak::texture::handle sak::project::object::make_texture()
 // Create a new default texture and add it.
 void sak::project::object::texture_add_new()
 {
-  imp().m_command_history.add_execute(shared::make_command_added<texture::object>(imp(), imp().m_texture_manager.make()));
+  imp().m_command_history.add_execute(shared::make_command_added<texture::object>(imp().m_texture_manager, imp().m_texture_manager.make()));
 }
 
 // Add a new texture using the supplied data.
 void sak::project::object::texture_add_emplace(texture::object&& a_texture)
 {
-  imp().m_command_history.add_execute(shared::make_command_added<texture::object>(imp(), imp().m_texture_manager.make_emplace(std::move(a_texture))));
+  imp().m_command_history.add_execute(shared::make_command_added<texture::object>(imp().m_texture_manager, imp().m_texture_manager.make_emplace(std::move(a_texture))));
 }
 
 // Add a new texture using the supplied handle. If this handle is invalid or already in the data
@@ -670,7 +599,7 @@ void sak::project::object::texture_add(texture::handle const& a_handle)
 {
   if (a_handle.is_valid() && !(cimp().m_texture_manager.has_handle(a_handle)))
   {
-    imp().m_command_history.add_execute(shared::make_command_added<texture::object>(imp(), a_handle));
+    imp().m_command_history.add_execute(shared::make_command_added<texture::object>(imp().m_texture_manager, a_handle));
   }
 }
 
@@ -680,7 +609,7 @@ void sak::project::object::texture_remove(texture::handle const& a_handle)
 {
   if (a_handle.is_valid() && cimp().m_texture_manager.has_handle(a_handle))
   {
-    imp().m_command_history.add_execute(shared::make_command_removed<texture::object>(imp(), a_handle));
+    imp().m_command_history.add_execute(shared::make_command_removed<texture::object>(imp().m_texture_manager, a_handle));
   }
 }
 
@@ -690,7 +619,7 @@ void sak::project::object::texture_change_at(texture::handle const& a_handle, st
   // here we have to turn a runtime command into a compiletime one...or switch the object type to runtime so we can use that interface
   if (a_handle.is_valid() && cimp().m_texture_manager.has_handle(a_handle))
   {
-    impl::runtime_change_at<texture::object>()(*this, a_handle, a_section, a_variant);
+    impl::runtime_change_at<texture::object>()(*this, imp().m_texture_manager, a_handle, a_section, a_variant);
   }
 }
 
@@ -699,7 +628,7 @@ void sak::project::object::texture_request_focus(texture::handle const& a_handle
 {
   if (a_handle.is_valid() && cimp().m_texture_manager.has_handle(a_handle))
   {
-    imp().requests_focus(a_handle);
+    imp().m_texture_manager.requests_focus(a_handle);
   }
 }
 
@@ -708,6 +637,6 @@ void sak::project::object::texture_request_editor(texture::handle const& a_handl
 {
   if (a_handle.is_valid() && cimp().m_texture_manager.has_handle(a_handle))
   {
-    imp().requests_editor(a_handle);
+    imp().m_texture_manager.requests_editor(a_handle);
   }
 }

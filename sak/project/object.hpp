@@ -70,6 +70,24 @@ namespace sak
 
     - This would be simpler if a class could contain a namespace...
 
+    =============
+    New thinking
+    Looking over the structure we have things have gotten rather compolicated and circular.
+    We have interface issues and the current setup means we're adapting the function calls
+    twice: once when the shared::project_access template renames the function calls, and
+    again internally when the named functions access the appropriate internal managers. This
+    means that the code duplication we hoped to eliminate is still happening.
+
+    This object must provide:
+    - Read interface for each type
+    - Write interface for each type
+      - Resulting in internal command wrappers for
+    - Expandable outbound signalling for each type
+      - Detailing the user source of the signals
+        - e.g. change made in outliner/editor/undo call/redo call/etc.
+
+    Currently this is handled by the shared::project_access template for templated access
+    to data, but it's messy as hell.
 
     */
     class object

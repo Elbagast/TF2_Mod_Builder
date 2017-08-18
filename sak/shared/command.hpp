@@ -5,8 +5,7 @@
 #include <generic/command.hpp>
 #include "object.hpp"
 #include "manager.hpp"
-#include "manager.hpp"
-#include "signalbox.hpp"
+#include "data_manager.hpp"
 #include <generic/command.hpp>
 
 namespace sak
@@ -30,20 +29,20 @@ namespace sak
         //============================================================
         using inherited_type = command;
         using object_type = T;
-        using signalbox_type = shared::abstract::signalbox<object_type>;
+        using data_manager_type = shared::data_manager<object_type>;
         using handle_type = handle<object_type>;
 
         // Special 6
         //============================================================
-        signalling_command(signalbox_type& a_signalbox, handle_type const& a_handle):
+        signalling_command(data_manager_type& a_data_manager, handle_type const& a_handle):
           inherited_type(),
-          m_signalbox{a_signalbox},
+          m_data_manager{a_data_manager},
           m_handle{a_handle}
         {}
 
-        signalling_command(signalbox_type& a_signalbox, handle_type && a_handle):
+        signalling_command(data_manager_type& a_data_manager, handle_type && a_handle):
           inherited_type(),
-          m_signalbox{a_signalbox},
+          m_data_manager{a_data_manager},
           m_handle{std::move(a_handle)}
         {}
 
@@ -57,7 +56,7 @@ namespace sak
 
         // Data Members
         //============================================================
-        signalbox_type& m_signalbox;
+        data_manager_type& m_data_manager;
         handle_type m_handle;
       };
     }
@@ -81,8 +80,8 @@ namespace sak
 
       // Special 6
       //============================================================
-      command_assign(signalbox_type& a_signalbox, handle_type const& a_handle, value_type const& a_value):
-        inherited_type(a_signalbox, a_handle),
+      command_assign(data_manager_type& a_data_manager, handle_type const& a_handle, value_type const& a_value):
+        inherited_type(a_data_manager, a_handle),
         m_new_value{a_value},
         // get the basic handle, then get the data held, then get the member, then get the value
         m_old_value{m_handle.cget().cat<Index>().cget()}
@@ -97,14 +96,14 @@ namespace sak
       {
         // open the handle, then the common data, then set that part of it.
         m_handle.get().at<Index>().get() = m_new_value;
-        m_signalbox.changed_at(m_handle, Index); // outbound signal.
+        m_data_manager.changed_at(m_handle, Index); // outbound signal.
         //dispatch_signals<object_type>::changed_at(m_project, m_handle, Index); // outbound signal.
       }
       void do_unexecute() override final
       {
         // open the handle, then the common data, then set that part of it.
         m_handle.get().at<Index>().get() = m_old_value;
-        m_signalbox.changed_at(m_handle, Index); // outbound signal.
+        m_data_manager.changed_at(m_handle, Index); // outbound signal.
         //dispatch_signals<object_type>::changed_at(m_project, m_handle, Index); // outbound signal.
       }
 
@@ -116,9 +115,9 @@ namespace sak
     };
 
     template <typename T, std::size_t Index>
-    decltype(auto) make_command_assign(abstract::signalbox<T>& a_signalbox, typename command_assign<T,Index>::handle_type const& a_handle, typename command_assign<T,Index>::value_type const& a_value)
+    decltype(auto) make_command_assign(data_manager<T>& a_data_manager, typename command_assign<T,Index>::handle_type const& a_handle, typename command_assign<T,Index>::value_type const& a_value)
     {
-      return std::unique_ptr<abstract::command>(std::make_unique<command_assign<T,Index>>(a_signalbox, a_handle, a_value).release());
+      return std::unique_ptr<abstract::command>(std::make_unique<command_assign<T,Index>>(a_data_manager, a_handle, a_value).release());
     }
 
 
@@ -139,12 +138,12 @@ namespace sak
 
       // Special 6
       //============================================================
-      command_added(signalbox_type& a_signalbox, handle_type const& a_handle):
-        inherited_type(a_signalbox, a_handle)
+      command_added(data_manager_type& a_data_manager, handle_type const& a_handle):
+        inherited_type(a_data_manager, a_handle)
       {}
 
-      command_added(signalbox_type& a_signalbox, handle_type && a_handle):
-        inherited_type(a_signalbox, std::move(a_handle))
+      command_added(data_manager_type& a_data_manager, handle_type && a_handle):
+        inherited_type(a_data_manager, std::move(a_handle))
       {}
 
       ~command_added() override final = default;
@@ -154,24 +153,24 @@ namespace sak
       //============================================================
       void do_execute() override final
       {
-        m_signalbox.added(m_handle); // outbound signal.
+        m_data_manager.added(m_handle); // outbound signal.
       }
       void do_unexecute() override final
       {
-        m_signalbox.removed(m_handle); // outbound signal.
+        m_data_manager.removed(m_handle); // outbound signal.
       }
     };
 
     template <typename T>
-    decltype(auto) make_command_added(abstract::signalbox<T>& a_signalbox, handle<T> const& a_handle)
+    decltype(auto) make_command_added(data_manager<T>& a_data_manager, handle<T> const& a_handle)
     {
-      return std::unique_ptr<abstract::command>(std::make_unique<command_added<T>>(a_signalbox,a_handle).release());
+      return std::unique_ptr<abstract::command>(std::make_unique<command_added<T>>(a_data_manager,a_handle).release());
     }
 
     template <typename T>
-    decltype(auto) make_command_added(abstract::signalbox<T>& a_signalbox, handle<T> && a_handle)
+    decltype(auto) make_command_added(data_manager<T>& a_data_manager, handle<T> && a_handle)
     {
-      return std::unique_ptr<abstract::command>(std::make_unique<command_added<T>>(a_signalbox,std::move(a_handle)).release());
+      return std::unique_ptr<abstract::command>(std::make_unique<command_added<T>>(a_data_manager,std::move(a_handle)).release());
     }
 
 
@@ -192,12 +191,12 @@ namespace sak
 
       // Special 6
       //============================================================
-      command_removed(signalbox_type& a_signalbox, handle_type const& a_handle):
-        inherited_type(a_signalbox, a_handle)
+      command_removed(data_manager_type& a_data_manager, handle_type const& a_handle):
+        inherited_type(a_data_manager, a_handle)
       {}
 
-      command_removed(signalbox_type& a_signalbox, handle_type && a_handle):
-        inherited_type(a_signalbox, std::move(a_handle))
+      command_removed(data_manager_type& a_data_manager, handle_type && a_handle):
+        inherited_type(a_data_manager, std::move(a_handle))
       {}
 
       ~command_removed() override final = default;
@@ -207,24 +206,24 @@ namespace sak
       //============================================================
       void do_execute() override final
       {
-        m_signalbox.removed(m_handle); // outbound signal.
+        m_data_manager.removed(m_handle); // outbound signal.
       }
       void do_unexecute() override final
       {
-        m_signalbox.added(m_handle); // outbound signal.
+        m_data_manager.added(m_handle); // outbound signal.
       }
     };
 
     template <typename T>
-    decltype(auto) make_command_removed(abstract::signalbox<T>& a_signalbox, handle<T> const& a_handle)
+    decltype(auto) make_command_removed(data_manager<T>& a_data_manager, handle<T> const& a_handle)
     {
-      return std::unique_ptr<abstract::command>(std::make_unique<command_removed<T>>(a_signalbox,a_handle).release());
+      return std::unique_ptr<abstract::command>(std::make_unique<command_removed<T>>(a_data_manager,a_handle).release());
     }
 
     template <typename T>
-    decltype(auto) make_command_removed(abstract::signalbox<T>& a_signalbox, handle<T> && a_handle)
+    decltype(auto) make_command_removed(data_manager<T>& a_data_manager, handle<T> && a_handle)
     {
-      return std::unique_ptr<abstract::command>(std::make_unique<command_removed<T>>(a_signalbox,std::move(a_handle)).release());
+      return std::unique_ptr<abstract::command>(std::make_unique<command_removed<T>>(a_data_manager,std::move(a_handle)).release());
     }
 
   } // namespace shared

@@ -1,5 +1,6 @@
 #include "test_string.hpp"
 #include <dclib/litype/string.hpp>
+#include <dclib/litype/v1/string_macro.hpp>
 #include <iostream>
 #include <iomanip>
 #include <string>

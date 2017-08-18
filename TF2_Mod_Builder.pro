@@ -125,7 +125,6 @@ SOURCES += \
     sak/shared/xml_traits.cpp \
     sak/shared/signalbox.cpp \
     sak/project/object.cpp \
-    sak/project/signal_dispatcher.cpp \
     sak/shared/data_manager.cpp \
     sak/project/widget.cpp \
     sak/project/editor.cpp \
@@ -253,7 +252,6 @@ HEADERS  += \
     sak/project/command.hpp \
     generic/fwd/variant.hpp \
     generic/variant.hpp \
-    sak/project/signal_dispatcher.hpp \
     sak/shared/data_manager.hpp \
     sak/shared/fwd/data_manager.hpp \
     sak/project/widget.hpp \
@@ -273,7 +271,15 @@ HEADERS  += \
     sak/project/fwd/window.hpp \
     sak/project/window.hpp \
     sak/shared/fwd/project_access.hpp \
-    sak/shared/project_access.hpp
+    sak/shared/project_access.hpp \
+    dclib/meta/variant.hpp \
+    #dclib/litype/v2/string_functions.hpp \
+    #dclib/litype/v2/fwd/string_class.hpp \
+    #dclib/litype/v2/fwd/string_macro.hpp \
+    #dclib/litype/v2/fwd/string_tools.hpp \
+    #dclib/litype/v2/string_class.hpp \
+    #dclib/litype/v2/string_macro.hpp \
+    #dclib/litype/v2/string_tools.hpp
     
 
 FORMS

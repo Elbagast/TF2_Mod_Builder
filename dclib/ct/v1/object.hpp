@@ -5,10 +5,9 @@
 #include <dclib/ct/v1/member.hpp>
 #include <dclib/litype/string.hpp>
 #include <dclib/meta/typelist.hpp>
+#include <dclib/meta/variant.hpp>
 #include "type_impl.hpp"
 #include <tuple>
-
-#include <boost/variant.hpp>
 
 namespace dclib
 {
@@ -16,18 +15,6 @@ namespace dclib
   {
     namespace v1
     {
-      template <typename List>
-      struct typelist_to_variant;
-
-      template <typename... Args>
-      struct typelist_to_variant<meta::typelist<Args...>>
-      {
-        using type = boost::variant<Args...>;
-      };
-
-      template <typename List>
-      using typelist_to_variant_t = typename typelist_to_variant<List>::type;
-
       //---------------------------------------------------------------------------
       // object<T1, Args...>
       //---------------------------------------------------------------------------
@@ -51,7 +38,7 @@ namespace dclib
         using member_name_typelist = meta::typelist<typename member<T1,T2>::name_literal_type...>;
         using member_value_typelist = meta::typelist<typename member<T1,T2>::value_type...>;
 
-        using member_value_variant = typelist_to_variant_t<meta::mf::remove_duplicates_t<member_value_typelist>>;
+        using member_value_variant = meta::mf::to_variant_t<meta::mf::remove_duplicates_t<member_value_typelist>>;
 
         template <std::size_t Index>
         using member_type = meta::mf::type_at_t<member_typelist, Index>;
@@ -82,26 +69,26 @@ namespace dclib
         template <std::size_t I>
         member_type<I>& at()
         {
-            static_assert(I < meta::mf::size<member_typelist>::value,
-                          "No member with that index.");
-            return std::get<I>(m_data);
+          static_assert(I < meta::mf::size<member_typelist>::value,
+                        "No member with that index.");
+          return std::get<I>(m_data);
         }
 
         template <std::size_t I>
         member_type<I> const& cat() const
         {
-            static_assert(I < meta::mf::size<member_typelist>::value,
-                          "No member with that index.");
-            return std::get<I>(m_data);
+          static_assert(I < meta::mf::size<member_typelist>::value,
+                        "No member with that index.");
+          return std::get<I>(m_data);
         }
 
         // Compile-time meber access by name string literal.
         template <typename S>
         decltype(auto) get()
         {
-            static_assert(meta::mf::find_first<member_name_typelist,S>::value < meta::mf::size<member_name_typelist>::value,
-                          "No member with that name found.");
-            return at<meta::mf::find_first<member_name_typelist,S>::value>();
+          static_assert(meta::mf::find_first<member_name_typelist,S>::value < meta::mf::size<member_name_typelist>::value,
+                        "No member with that name found.");
+          return at<meta::mf::find_first<member_name_typelist,S>::value>();
         }
 
         template <typename S>
@@ -121,26 +108,26 @@ namespace dclib
         template <std::size_t Index = 0, std::size_t End = size()>
         struct Repackage_Values
         {
-            void operator()(member_tuple& a_target, value_tuple const& a_values)
-            {
-                std::get<Index>(a_target).get() = (std::get<Index>(a_values));
-                Repackage_Values<Index+1,End>()(a_target, a_values);
-            }
+          void operator()(member_tuple& a_target, value_tuple const& a_values)
+          {
+            std::get<Index>(a_target).get() = (std::get<Index>(a_values));
+            Repackage_Values<Index+1,End>()(a_target, a_values);
+          }
         };
 
         template <std::size_t End>
         struct Repackage_Values<End,End>
         {
-            void operator()(member_tuple& , value_tuple const& )
-            {
-            }
+          void operator()(member_tuple& , value_tuple const& )
+          {
+          }
         };
 
         static member_tuple repackage_values(value_tuple const& a_values)
         {
-            member_tuple l_result{};
-            Repackage_Values<0u>()(l_result, a_values);
-            return l_result;
+          member_tuple l_result{};
+          Repackage_Values<0u>()(l_result, a_values);
+          return l_result;
         }
 
       };

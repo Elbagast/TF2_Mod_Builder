@@ -33,6 +33,7 @@ namespace dclib
 
           virtual name_string_type const& name() const = 0;
           virtual std::type_info const& type() const = 0;
+          virtual bool is_type(std::type_info const& a_type) const = 0;
         };
 
         template <typename C, typename T>
@@ -54,8 +55,9 @@ namespace dclib
 
           ~member_type() override = default;
 
-          virtual name_string_type const& name() const = 0;
-          virtual std::type_info const& type() const = 0;
+          name_string_type const& name() const override = 0;
+          std::type_info const& type() const override = 0;
+          bool is_type(std::type_info const& a_type) const override = 0;
 
           virtual value_type& get() = 0;
           virtual value_type const& cget() const = 0;
@@ -125,6 +127,11 @@ namespace dclib
         std::type_info const& type() const override final
         {
           return typeid(T);
+        }
+
+        bool is_type(std::type_info const& a_type) const override final
+        {
+          return a_type.hash_code() == typeid(T).hash_code();
         }
 
         value_type& get() override final
