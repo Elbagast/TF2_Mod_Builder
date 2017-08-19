@@ -84,7 +84,7 @@ namespace sak
         inherited_type(a_data_manager, a_handle),
         m_new_value{a_value},
         // get the basic handle, then get the data held, then get the member, then get the value
-        m_old_value{m_handle.cget().cat<Index>().cget()}
+        m_old_value{m_handle.cget().cmember_at<Index>().cget()}
       {}
 
       ~command_assign() override final = default;
@@ -95,14 +95,14 @@ namespace sak
       void do_execute() override final
       {
         // open the handle, then the common data, then set that part of it.
-        m_handle.get().at<Index>().get() = m_new_value;
+        m_handle.get().member_at<Index>().get() = m_new_value;
         m_data_manager.changed_at(m_handle, Index); // outbound signal.
         //dispatch_signals<object_type>::changed_at(m_project, m_handle, Index); // outbound signal.
       }
       void do_unexecute() override final
       {
         // open the handle, then the common data, then set that part of it.
-        m_handle.get().at<Index>().get() = m_old_value;
+        m_handle.get().member_at<Index>().get() = m_old_value;
         m_data_manager.changed_at(m_handle, Index); // outbound signal.
         //dispatch_signals<object_type>::changed_at(m_project, m_handle, Index); // outbound signal.
       }

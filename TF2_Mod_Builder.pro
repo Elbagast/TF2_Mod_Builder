@@ -74,6 +74,21 @@ INCLUDEPATH += $${BOOST_INCLUDE_DIR}
 DEPENDPATH += $${BOOST_LIBRARY_DIR}
 #DEPENDPATH += "D:/Programming/C++/Boost/boost_1_57_0/stage/lib"
 
+
+# Flamingo
+#==============================
+FLAMINGO_INCLUDE_DIR = "D:/Programming/Qt Projects/flamingo/"
+FLAMINGO_LIBRARY_DIR = "D:/Programming/Qt Projects/flamingo/lib/"
+
+CONFIG(release, debug|release): FLAMINGO_LIBRARY_DIR = $${FLAMINGO_LIBRARY_DIR}release/
+CONFIG(debug, debug|release): FLAMINGO_LIBRARY_DIR = $${FLAMINGO_LIBRARY_DIR}debug/
+
+LIBS += -L$${FLAMINGO_LIBRARY_DIR}
+LIBS += -lflamingo
+
+INCLUDEPATH += $${FLAMINGO_INCLUDE_DIR}
+DEPENDPATH += $${FLAMINGO_LIBRARY_DIR}
+
 # Included Files
 #==============================
 
@@ -88,18 +103,10 @@ SOURCES += \
     sak/fixed_settings.cpp \
     sak/exceptions/exception.cpp \
     sak/system_settings.cpp \
-    generic/uintid.cpp \
-    generic/uintid_manager.cpp \
-    generic/uintid_traits.cpp \
     sak/name_utilities.cpp \
     generic/command_history.cpp \
     generic/command.cpp \
     valve/asset_filepath.cpp \
-    dclib/ct/testing/test_object.cpp \
-    dclib/litype/testing/test_float.cpp \
-    dclib/litype/testing/test_integer.cpp \
-    dclib/litype/testing/test_string.cpp \
-    dclib/rt/testing/test_object.cpp \
     sak/shared/command.cpp \
     generic/string_conversion.cpp \
     qtlib/string_conversion.cpp \
@@ -138,62 +145,6 @@ SOURCES += \
     
 
 HEADERS  += \
-    generic/fwd/uintid.hpp \
-    generic/fwd/manager.hpp \
-    generic/fwd/uintid_manager.hpp \
-    generic/fwd/extended_manager.hpp \
-    dclib/ct/fwd/member.hpp \
-    dclib/ct/fwd/object.hpp \
-    dclib/ct/testing/test_object.hpp \
-    dclib/ct/v1/fwd/member.hpp \
-    dclib/ct/v1/fwd/object.hpp \
-    dclib/ct/v1/member.hpp \
-    dclib/ct/v1/name_impl.hpp \
-    dclib/ct/v1/object.hpp \
-    dclib/ct/v1/template_string_impl.hpp \
-    dclib/ct/v1/type_impl.hpp \
-    dclib/ct/v1/value_impl.hpp \
-    dclib/ct/member.hpp \
-    dclib/ct/object.hpp \
-    dclib/litype/fwd/floating_point.hpp \
-    dclib/litype/fwd/integer.hpp \
-    dclib/litype/fwd/string.hpp \
-    dclib/litype/testing/test_float.hpp \
-    dclib/litype/testing/test_integer.hpp \
-    dclib/litype/testing/test_string.hpp \
-    dclib/litype/v1/fwd/float_class.hpp \
-    dclib/litype/v1/fwd/integer_class.hpp \
-    dclib/litype/v1/fwd/string_class.hpp \
-    dclib/litype/v1/fwd/string_macro.hpp \
-    dclib/litype/v1/fwd/string_tools.hpp \
-    dclib/litype/v1/float_class.hpp \
-    dclib/litype/v1/float_macro.hpp \
-    dclib/litype/v1/float_tools.hpp \
-    dclib/litype/v1/integer_class.hpp \
-    dclib/litype/v1/integer_macro.hpp \
-    dclib/litype/v1/string_class.hpp \
-    dclib/litype/v1/string_macro.hpp \
-    dclib/litype/v1/string_tools.hpp \
-    dclib/litype/floating_point.hpp \
-    dclib/litype/integer.hpp \
-    dclib/litype/string.hpp \
-    dclib/meta/power.hpp \
-    dclib/meta/typelist.hpp \
-    dclib/rt/fwd/member.hpp \
-    dclib/rt/fwd/object.hpp \
-    dclib/rt/testing/test_object.hpp \
-    dclib/rt/v1/fwd/member.hpp \
-    dclib/rt/v1/fwd/object.hpp \
-    dclib/rt/v1/member.hpp \
-    dclib/rt/v1/object.hpp \
-    dclib/rt/v1/polymorhpic_tuple.hpp \
-    dclib/rt/member.hpp \
-    dclib/rt/object.hpp \
-    generic/uintid_traits.hpp \
-    generic/uintid_manager.hpp \
-    generic/uintid.hpp \
-    generic/manager.hpp \
-    generic/extended_manager.hpp \
     generic/command_history.hpp \
     generic/command.hpp \
     qtlib/directory_name_validator.hpp \
@@ -250,8 +201,6 @@ HEADERS  += \
     sak/project/fwd/command.hpp \
     generic/fwd/command.hpp \
     sak/project/command.hpp \
-    generic/fwd/variant.hpp \
-    generic/variant.hpp \
     sak/shared/data_manager.hpp \
     sak/shared/fwd/data_manager.hpp \
     sak/project/widget.hpp \
@@ -271,15 +220,7 @@ HEADERS  += \
     sak/project/fwd/window.hpp \
     sak/project/window.hpp \
     sak/shared/fwd/project_access.hpp \
-    sak/shared/project_access.hpp \
-    dclib/meta/variant.hpp \
-    #dclib/litype/v2/string_functions.hpp \
-    #dclib/litype/v2/fwd/string_class.hpp \
-    #dclib/litype/v2/fwd/string_macro.hpp \
-    #dclib/litype/v2/fwd/string_tools.hpp \
-    #dclib/litype/v2/string_class.hpp \
-    #dclib/litype/v2/string_macro.hpp \
-    #dclib/litype/v2/string_tools.hpp
+    sak/shared/project_access.hpp
     
 
 FORMS

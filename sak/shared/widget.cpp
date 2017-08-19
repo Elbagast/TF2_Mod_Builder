@@ -62,7 +62,7 @@ namespace sak
         //============================================================
         void update() override final
         {
-          widget_traits_type::set_widget_value(m_widget.get(), m_handle.cget().cat<Index>().cget());
+          widget_traits_type::set_widget_value(m_widget.get(), m_handle.cget().cmember_at<Index>().cget());
         }
 
         void editing_finished() override final
@@ -104,7 +104,7 @@ namespace sak
             auto l_widget = std::unique_ptr<widget_type>(std::make_unique<true_widget_type>(a_project,a_handle,nullptr).release());
 
             // add it to the layout
-            a_layout->addRow(QString::fromStdString(a_handle.cget().cat<Index>().name()), l_widget.get());
+            a_layout->addRow(QString::fromStdString(a_handle.cget().cmember_at<Index>().name()), l_widget.get());
 
             // put it in the array
             std::swap(std::get<Index>(a_widgets), l_widget);

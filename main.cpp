@@ -2,13 +2,6 @@
 #include <iostream>
 #include <sak/project/window.hpp>
 
-#include <dclib/litype/testing/test_string.hpp>
-#include <dclib/litype/testing/test_integer.hpp>
-//#include <dclib/litype/testing/test_float.hpp>
-
-#include <dclib/ct/testing/test_object.hpp>
-#include <dclib/rt/testing/test_object.hpp>
-
 #include <sak/shared/command.hpp>
 #include <sak/shared/widget.hpp>
 
@@ -44,16 +37,6 @@ int main(int argc, char *argv[])
     QApplication l_application(argc, argv);
     sak::project::window l_window{};
     l_window.show();
-
-    dclib::litype::test_string();
-    dclib::litype::test_integer();
-    //dclib::litype::test_float();
-
-    dclib::ct::test_object();
-    dclib::rt::test_object();
-
-    //sak::file::extended_manager fem{};
-    //sak::file::widget fw{fem.make_null_handle(), nullptr};
 
     return l_application.exec();
 

@@ -144,7 +144,7 @@ namespace sak
       // When a texture has its data changed(anything but the name), this is called.
       static void changed(vector_type& a_widgets, handle_type const& a_handle)
       {
-        qDebug() << "sak::project::editor::impl::data_changed "<< QString::fromStdString(object_type::type()) <<" " << a_handle.id().get();
+        qDebug() << "sak::project::editor::impl::data_changed "<< QString::fromStdString(object_type::type()) <<" " << a_handle.id().value();
         // Find the editor for this handle
         auto l_found = std::find_if(a_widgets.cbegin(),
                                     a_widgets.cend(),
@@ -159,7 +159,7 @@ namespace sak
       // When a texture has its data changed in a specific place, this is called.
       static void changed_at(vector_type& a_widgets, QTabWidget* a_tabwidget, handle_type const& a_handle, std::size_t a_section)
       {
-        qDebug() << "sak::project::editor::impl::data_changed_at "<< QString::fromStdString(object_type::type()) <<" " << a_handle.id().get() << " " << a_section;
+        qDebug() << "sak::project::editor::impl::data_changed_at "<< QString::fromStdString(object_type::type()) <<" " << a_handle.id().value() << " " << a_section;
         // Find the editor for this handle
         auto l_found = std::find_if(a_widgets.cbegin(),
                                     a_widgets.cend(),
@@ -182,7 +182,7 @@ namespace sak
             {
                 if (a_tabwidget->widget(l_index) == l_found->get())
                 {
-                    a_tabwidget->setTabText(l_index, a_handle.cget().cat<0>().cget());
+                    a_tabwidget->setTabText(l_index, a_handle.cget().cmember_at<0>().cget());
                     break;
                 }
             }
@@ -195,7 +195,7 @@ namespace sak
       // When a texture has been added, this is called.
       static void added(vector_type& a_widgets, QTabWidget* a_tabwidget, project::object& a_project, handle_type const& a_handle)
       {
-        qDebug() << "sak::project::editor::impl::added "<< QString::fromStdString(object_type::type()) <<" " << a_handle.id().get();
+        qDebug() << "sak::project::editor::impl::added "<< QString::fromStdString(object_type::type()) <<" " << a_handle.id().value();
         // update the file widget count and open the widget for it.
         // Shouldn't exist yet
         assert(std::find_if(a_widgets.cbegin(),
@@ -208,7 +208,7 @@ namespace sak
         a_tabwidget->setUpdatesEnabled(false);
         // insert the tab at the front
         // If we want an icon it goes in here....
-        a_tabwidget->insertTab(0,a_widgets.back().get(), a_handle.cget().cat<0>().cget());
+        a_tabwidget->insertTab(0,a_widgets.back().get(), a_handle.cget().cmember_at<0>().cget());
         a_tabwidget->setUpdatesEnabled(true);
         a_tabwidget->setCurrentIndex(0);
       }
@@ -216,7 +216,7 @@ namespace sak
       // When a texture has been removed, this is called.
       static void removed(vector_type& a_widgets, QTabWidget* a_tabwidget, handle_type const& a_handle)
       {
-        qDebug() << "sak::project::editor::impl::removed "<< QString::fromStdString(object_type::type()) <<" " << a_handle.id().get();
+        qDebug() << "sak::project::editor::impl::removed "<< QString::fromStdString(object_type::type()) <<" " << a_handle.id().value();
         auto l_found = std::find_if(a_widgets.begin(),
                                     a_widgets.end(),
                                     widget_equals_handle<object_type>(a_handle));
@@ -249,7 +249,7 @@ namespace sak
       // When a texture editor is to be opened, this is called.
       static void requests_editor(vector_type& a_widgets, QTabWidget* a_tabwidget, project::object& a_project, handle_type const& a_handle)
       {
-        qDebug() << "sak::project::editor::impl::requests_editor "<< QString::fromStdString(object_type::type()) <<" " << a_handle.id().get();
+        qDebug() << "sak::project::editor::impl::requests_editor "<< QString::fromStdString(object_type::type()) <<" " << a_handle.id().value();
         // Find the editor for this handle
         auto l_found = std::find_if(a_widgets.begin(),
                                     a_widgets.end(),
@@ -275,7 +275,7 @@ namespace sak
             a_tabwidget->setUpdatesEnabled(false);
             // insert the tab at the front
             // If we want an icon it goes in here....
-            a_tabwidget->insertTab(0,a_widgets.back().get(), a_handle.cget().cat<0>().cget());
+            a_tabwidget->insertTab(0,a_widgets.back().get(), a_handle.cget().cmember_at<0>().cget());
             a_tabwidget->setUpdatesEnabled(true);
             a_tabwidget->setCurrentIndex(0);
         }
@@ -284,7 +284,7 @@ namespace sak
       // When focus is changed to be on a texture, call this
       static void requests_focus(handle_type const& a_handle)
       {
-        qDebug() << "project::editor::impl::requests_focus "<< QString::fromStdString(object_type::type()) <<" " << a_handle.id().get() << " does nothing.";
+        qDebug() << "project::editor::impl::requests_focus "<< QString::fromStdString(object_type::type()) <<" " << a_handle.id().value() << " does nothing.";
       }
 
       // cast the tabwidget at this index and close it if it's the right type

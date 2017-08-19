@@ -55,7 +55,7 @@ sak::shared::data_manager<T>::~data_manager() = default;
 template <typename T>
 void sak::shared::data_manager<T>::changed(handle_type const& a_handle)
 {
-  qDebug() << "sak::shared::data_manager<T>::changed "<< a_handle.id().get();
+  qDebug() << "sak::shared::data_manager<T>::changed "<< a_handle.id().value();
   // This thing must exist
   assert(a_handle.is_valid());
   assert(std::find(m_handles.cbegin(), m_handles.cend(), a_handle) != m_handles.cend());
@@ -67,7 +67,7 @@ void sak::shared::data_manager<T>::changed(handle_type const& a_handle)
 template <typename T>
 void sak::shared::data_manager<T>::changed_at(handle_type const& a_handle, std::size_t a_section)
 {
-  qDebug() << "sak::shared::data_manager<T>::changed_at "<< a_handle.id().get() << ", " << a_section;
+  qDebug() << "sak::shared::data_manager<T>::changed_at "<< a_handle.id().value() << ", " << a_section;
   // This thing must exist
   assert(a_handle.is_valid());
   assert(std::find(m_handles.cbegin(), m_handles.cend(), a_handle) != m_handles.cend());
@@ -79,7 +79,7 @@ void sak::shared::data_manager<T>::changed_at(handle_type const& a_handle, std::
 template <typename T>
 void sak::shared::data_manager<T>::added(handle_type const& a_handle)
 {
-  qDebug() << "sak::shared::data_manager<T>::added "<< a_handle.id().get();
+  qDebug() << "sak::shared::data_manager<T>::added "<< a_handle.id().value();
   // This thing must exist
   assert(a_handle.is_valid());
   // but not yet be part of the Project
@@ -92,7 +92,7 @@ void sak::shared::data_manager<T>::added(handle_type const& a_handle)
 template <typename T>
 void sak::shared::data_manager<T>::removed(handle_type const& a_handle)
 {
-  qDebug() << "sak::shared::data_manager<T>::removed "<< a_handle.id().get();
+  qDebug() << "sak::shared::data_manager<T>::removed "<< a_handle.id().value();
   assert(a_handle.is_valid());
   auto l_found = std::find(m_handles.begin(), m_handles.end(), a_handle);
   assert(l_found != m_handles.cend());
@@ -113,7 +113,7 @@ void sak::shared::data_manager<T>::removed(handle_type const& a_handle)
 template <typename T>
 void sak::shared::data_manager<T>::requests_editor(handle_type const& a_handle)
 {
-  qDebug() << "sak::shared::data_manager<T>::requests_editor "<< a_handle.id().get();
+  qDebug() << "sak::shared::data_manager<T>::requests_editor "<< a_handle.id().value();
   // This thing must exist
   assert(a_handle.is_valid());
   assert(std::find(m_handles.cbegin(), m_handles.cend(), a_handle) != m_handles.cend());
@@ -125,7 +125,7 @@ void sak::shared::data_manager<T>::requests_editor(handle_type const& a_handle)
 template <typename T>
 void sak::shared::data_manager<T>::requests_focus(handle_type const& a_handle)
 {
-  qDebug() << "sak::shared::data_manager<T>::requests_focus "<< a_handle.id().get();
+  qDebug() << "sak::shared::data_manager<T>::requests_focus "<< a_handle.id().value();
   // This thing must exist
   assert(a_handle.is_valid());
   assert(std::find(m_handles.cbegin(), m_handles.cend(), a_handle) != m_handles.cend());
@@ -178,7 +178,7 @@ std::vector<QString> sak::shared::data_manager<T>::get_all_names() const
   l_result.reserve(m_handles.size());
   for (auto const& l_handle : m_handles)
   {
-    l_result.push_back(l_handle.cget().cat<0>().cget());
+    l_result.push_back(l_handle.cget().cmember_at<0>().cget());
   }
   return l_result;
 }
@@ -193,7 +193,7 @@ std::vector<QString> sak::shared::data_manager<T>::get_all_names() const
 template <typename T>
 typename sak::shared::data_manager<T>::handle_type sak::shared::data_manager<T>::make_emplace(object_type&& a_object)
 {
-  return m_manager.emplace_data(std::move(a_object));
+  return m_manager.make_handle(std::move(a_object));
 }
 
 // Make a new file using the default parameters. Project's data management system owns it
@@ -205,7 +205,7 @@ typename sak::shared::data_manager<T>::handle_type sak::shared::data_manager<T>:
   QString l_name{u8"New " + QString::fromStdString(object_type::type())};
   uniqueify_name(l_name, get_all_names());
   object_type l_object{};
-  l_object.at<0>().get() = l_name;
+  l_object.member_at<0>().get() = l_name;
   return make_emplace(std::move(l_object));
 }
 

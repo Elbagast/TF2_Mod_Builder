@@ -113,7 +113,7 @@ namespace sak
 
         void operator()(object& a_project, data_manager_type& a_data_manager, handle_type const& a_handle, value_type const& a_value)
         {
-          if (a_value == a_handle.cget().cat<Index>().cget())
+          if (a_value == a_handle.cget().cmember_at<Index>().cget())
           {
               return;
           }
@@ -141,14 +141,14 @@ namespace sak
         {
           static_assert(std::is_same<value_type, QString>::value, "Member 0 has a type that is not QString...");
 
-          if (a_value == a_handle.cget().cat<0>().cget())
+          if (a_value == a_handle.cget().cmember_at<0>().cget())
           {
               return;
           }
           // We must make sure the name does not already exist among the other names.
           auto l_names = a_data_manager.get_all_names();
           // Get rid of the name of this one, since it is going to change.
-          auto l_old_name_found = std::find(l_names.cbegin(), l_names.cend(), a_handle.cget().cat<0>().cget());
+          auto l_old_name_found = std::find(l_names.cbegin(), l_names.cend(), a_handle.cget().cmember_at<0>().cget());
           l_names.erase(l_old_name_found);
 
           QString l_final_name{a_value};

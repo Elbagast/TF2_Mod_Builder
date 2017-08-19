@@ -147,7 +147,7 @@ namespace sak
       // When a object has its data changed in a specific place, this is called.
       static void changed_at(header_item_type* a_header, qtlib::outliner::Model& a_model, handle_type const& a_handle, std::size_t a_section)
       {
-        qDebug() << "sak::outliner::widget::impl::changed_at "<< QString::fromStdString(object_type::type()) <<" " << a_handle.id().get() << " " << a_section;
+        qDebug() << "sak::outliner::widget::impl::changed_at "<< QString::fromStdString(object_type::type()) <<" " << a_handle.id().value() << " " << a_section;
         if (a_section == 0)
         {
           auto l_i = a_header->index_of(a_handle);
@@ -162,7 +162,7 @@ namespace sak
       // When a object has been added, this is called.
       static void added(project::outliner::root_item* a_root, qtlib::outliner::Model& a_model, handle_type const& a_handle)
       {
-        qDebug() << "sak::outliner::widget::impl::added "<< QString::fromStdString(object_type::type()) <<" " << a_handle.id().get();
+        qDebug() << "sak::outliner::widget::impl::added "<< QString::fromStdString(object_type::type()) <<" " << a_handle.id().value();
 
         auto l_header = header_traits<object_type>::get(a_root);
       /*
@@ -188,7 +188,7 @@ namespace sak
       // When a object has been removed, this is called.
       static void removed(project::outliner::root_item* a_root, qtlib::outliner::Model& a_model, handle_type const& a_handle)
       {
-        qDebug() << "sak::outliner::widget::impl::removed "<< QString::fromStdString(object_type::type()) <<" " << a_handle.id().get();
+        qDebug() << "sak::outliner::widget::impl::removed "<< QString::fromStdString(object_type::type()) <<" " << a_handle.id().value();
         qDebug() << "outliner::widget::impl::removed";
         auto l_header_item = header_traits<object_type>::get(a_root);
         auto l_header_index = a_model.create_index_from_item(l_header_item);
@@ -216,12 +216,12 @@ namespace sak
       // When a object editor is to be opened, this is called.
       static void requests_editor(handle_type const& a_handle)
       {
-        qDebug() << "sak::outliner::widget::impl::requests_editor "<< QString::fromStdString(object_type::type()) <<" " << a_handle.id().get() << "does nothing.";
+        qDebug() << "sak::outliner::widget::impl::requests_editor "<< QString::fromStdString(object_type::type()) <<" " << a_handle.id().value() << "does nothing.";
       }
       // When focus is changed to be on a object, call this
       static void requests_focus(qtlib::outliner::Treeview* a_treeview, project::outliner::root_item* a_root, qtlib::outliner::Model& a_model, handle_type const& a_handle)
       {
-        qDebug() << "sak::outliner::widget::impl::requests_focus "<< QString::fromStdString(object_type::type()) <<" " << a_handle.id().get();
+        qDebug() << "sak::outliner::widget::impl::requests_focus "<< QString::fromStdString(object_type::type()) <<" " << a_handle.id().value();
         qDebug() << "outliner::widget::impl::requests_focus";
         // Change the item selection in the outliner to this File.
         auto l_item = header_traits<object_type>::get(a_root)->item_of(a_handle);

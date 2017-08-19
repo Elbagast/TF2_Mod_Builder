@@ -2,9 +2,9 @@
 #define SAK_SHARED_FWD_MANAGER_HPP
 
 #include "object.hpp"
-#include <generic/fwd/uintid.hpp>
-#include <generic/fwd/uintid_manager.hpp>
-#include <generic/fwd/manager.hpp>
+#include <flamingo/fwd/handle.hpp>
+//#include <generic/fwd/uintid_manager.hpp>
+//#include <generic/fwd/manager.hpp>
 
 namespace sak
 {
@@ -14,13 +14,13 @@ namespace sak
     // shared::manager<T>
     //---------------------------------------------------------------------------
     template <typename T>
-    using manager = generic::Manager<generic::Uint32ID_Manager, T>;
+    using manager = flamingo::manager32<T>;
 
     //---------------------------------------------------------------------------
     // shared::handle<T>
     //---------------------------------------------------------------------------
     template <typename T>
-    using handle = generic::Handle<generic::Uint32ID_Manager, T>;
+    using handle = flamingo::handle32<T>;
   }
 
   namespace file

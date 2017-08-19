@@ -29,8 +29,8 @@ namespace sak
           void operator()(QXmlStreamWriter& a_stream, object_type const& a_object)
           {
             // This can potentially get farmed out to elsewhere, allowing multiline versions
-            auto l_name = qtlib::To_QString<name_type>()(a_object.cat<Index>().name());
-            auto l_data = qtlib::To_QString<value_type>()(a_object.cat<Index>().cget());
+            auto l_name = qtlib::To_QString<name_type>()(a_object.cmember_at<Index>().name());
+            auto l_data = qtlib::To_QString<value_type>()(a_object.cmember_at<Index>().cget());
             a_stream.writeTextElement(l_name, l_data);
             do_loop<Index+1, End>()(a_stream, a_object);
           }
@@ -76,7 +76,7 @@ namespace sak
           void operator()(QXmlStreamReader& a_stream, object_type& a_object)
           {
             if (a_stream.readNextStartElement()
-                && a_stream.name().toString() == qtlib::To_QString<name_type>()(a_object.cat<Index>().name()))
+                && a_stream.name().toString() == qtlib::To_QString<name_type>()(a_object.cmember_at<Index>().name()))
             {
               qDebug() << "tokenstring = " << a_stream.tokenString() << a_stream.name().toString();
 
@@ -85,7 +85,7 @@ namespace sak
               // convert the data
               auto l_data = qtlib::From_QString<value_type>()(l_data_qstring);
               // write it
-              a_object.at<Index>().get() = l_data;
+              a_object.member_at<Index>().get() = l_data;
 
               qDebug() << "tokenstring = " << a_stream.tokenString() << a_stream.name().toString();
               // apparently we jump to the end element when we use readElementText()

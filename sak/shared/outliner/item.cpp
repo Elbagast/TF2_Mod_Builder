@@ -188,7 +188,7 @@ template <typename T>
 QString sak::shared::outliner::item<T>::cget_name() const
 {
   // Access the member for "Name" assumed to be at index 0
-  return m_handle.cget().cat<0>().cget();
+  return m_handle.cget().cmember_at<0>().cget();
 }
 
 template <typename T>
@@ -204,7 +204,7 @@ template <typename T>
 QString sak::shared::outliner::item<T>::cget_description() const
 {
   // Access the member for "Description" assumed to be at index 1
-  return m_handle.cget().cat<1>().cget();
+  return m_handle.cget().cmember_at<1>().cget();
 }
 
 // Forced Instantiations
