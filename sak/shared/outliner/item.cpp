@@ -21,7 +21,7 @@
 #include <sak/project/outliner/root_item.hpp>
 #include <sak/shared/outliner/header_item.hpp>
 
-#include <sak/shared/project_access.hpp> // does the signal stuff.
+#include <sak/shared/interface.hpp>
 #include <sak/shared/manager.hpp>
 
 namespace
@@ -136,7 +136,7 @@ void sak::shared::outliner::item<T>::do_context_menu(QAbstractItemView* a_view, 
   auto l_action_open = menu.addAction("Open");
   QObject::connect(l_action_open, &QAction::triggered, [this]()
   {
-    project_access<object_type>::request_editor(&(this->get_project()), this->m_handle);
+    this->get_project().get_interface<T>().request_editor(this->m_handle);
   });
 
   // Commence an edit operation in the outliner
@@ -150,7 +150,7 @@ void sak::shared::outliner::item<T>::do_context_menu(QAbstractItemView* a_view, 
   auto l_action_delete = menu.addAction("Delete");
   QObject::connect(l_action_delete, &QAction::triggered, [=]()
   {
-    project_access<object_type>::remove(&(this->get_project()), this->m_handle); // outbound signal.
+    this->get_project().get_interface<T>().remove(this->m_handle);
   });
 
   // Execute the menu at the global posiiton.
@@ -161,7 +161,7 @@ void sak::shared::outliner::item<T>::do_context_menu(QAbstractItemView* a_view, 
 template <typename T>
 void sak::shared::outliner::item<T>::do_double_clicked(QAbstractItemView*, model_type*)
 {
-  project_access<object_type>::request_editor(&(get_project()), m_handle); // outbound signal.
+  this->get_project().get_interface<T>().request_editor(this->m_handle);
 }
 
 // Additional Interface
@@ -194,10 +194,8 @@ QString sak::shared::outliner::item<T>::cget_name() const
 template <typename T>
 void sak::shared::outliner::item<T>::set_name(QString const& a_name)
 {
-  using member_value_variant = typename object_type::member_value_variant;
-
   // Issue the command to change the name.
-  project_access<object_type>::change_at(&get_project(), m_handle, 0, member_value_variant(a_name));
+  this->get_project().get_interface<T>().change_at<0>(m_handle, a_name);
 }
 
 template <typename T>

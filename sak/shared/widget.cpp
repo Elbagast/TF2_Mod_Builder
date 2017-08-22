@@ -2,7 +2,9 @@
 #include "member_widget.hpp"
 //#include <qtlib/edit/widget_traits.hpp>
 #include <sak/edit/widget_traits.hpp>
-#include <sak/shared/project_access.hpp>
+
+#include <sak/project/object.hpp>
+#include <sak/shared/interface.hpp>
 
 namespace sak
 {
@@ -68,7 +70,9 @@ namespace sak
         void editing_finished() override final
         {
           // hmm. set can fail to do anything. But it only fails if the input is the same as the data?
-          project_access<object_type>::change_at(&m_project, m_handle, Index, member_value_variant(widget_traits_type::get_widget_value(m_widget.get())));
+          //project_access<object_type>::change_at(&m_project, m_handle, Index, member_value_variant(widget_traits_type::get_widget_value(m_widget.get())));
+
+          m_project.get_interface<object_type>().change_at<Index>(m_handle, widget_traits_type::get_widget_value(m_widget.get()));
         }
 
         // Data members

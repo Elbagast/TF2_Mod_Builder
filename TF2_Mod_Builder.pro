@@ -141,7 +141,7 @@ SOURCES += \
     sak/shared/outliner/item.cpp \
     sak/shared/outliner/header_item.cpp \
     sak/project/window.cpp \
-    sak/shared/project_access.cpp
+    sak/shared/interface.cpp
     
 
 HEADERS  += \
@@ -219,8 +219,9 @@ HEADERS  += \
     sak/shared/outliner/header_item.hpp \
     sak/project/fwd/window.hpp \
     sak/project/window.hpp \
-    sak/shared/fwd/project_access.hpp \
-    sak/shared/project_access.hpp
+    sak/shared/fwd/interface.hpp \
+    sak/shared/interface.hpp \
+    generic/fwd/command_history.hpp
     
 
 FORMS

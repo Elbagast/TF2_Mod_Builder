@@ -16,8 +16,8 @@
 #include <sak/exceptions/exception.hpp>
 #include <sak/shared/manager.hpp>
 #include <sak/shared/data_manager.hpp>
-#include <sak/shared/project_access.hpp>
 #include <sak/shared/signalbox.hpp>
+#include <sak/shared/interface.hpp>
 #include <generic/command_history.hpp>
 #include <sak/shared/command.hpp>
 #include <sak/name_utilities.hpp>
@@ -413,6 +413,32 @@ void sak::project::object::clear_history()
 {
   imp().m_command_history.clear();
 }
+
+template <>
+sak::shared::interface<sak::file::object> sak::project::object::get_interface<sak::file::object>()
+{
+  return get_file_interface();
+}
+
+template <>
+sak::shared::interface<sak::texture::object> sak::project::object::get_interface<sak::texture::object>()
+{
+  return get_texture_interface();
+}
+
+sak::file::interface sak::project::object::get_file_interface()
+{
+  return shared::interface<file::object>(imp().m_file_manager, imp().m_command_history);
+}
+
+sak::texture::interface sak::project::object::get_texture_interface()
+{
+  return shared::interface<texture::object>(imp().m_texture_manager, imp().m_command_history);
+}
+
+
+
+
 
 // File Interface
 //============================================================

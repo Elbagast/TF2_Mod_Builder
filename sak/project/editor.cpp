@@ -10,11 +10,10 @@
 #include <QDebug>
 #include <QLabel>
 
-#include <sak/shared/project_access.hpp>
-
 #include <sak/shared/object.hpp>
 #include <sak/shared/manager.hpp>
 #include <sak/shared/widget.hpp>
+#include <sak/shared/interface.hpp>
 
 #include "object.hpp"
 #include "signalbox.hpp"
@@ -314,7 +313,8 @@ namespace sak
         if (l_editor != nullptr)
         {
           handle_type const& l_handle = l_editor->cget_handle();
-          project_access<object_type>::request_focus(&(a_project), l_handle);
+          a_project.get_interface<T>().request_focus(l_handle);
+
           return true;
         }
         else

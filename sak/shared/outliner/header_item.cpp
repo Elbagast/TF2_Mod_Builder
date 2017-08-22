@@ -20,7 +20,7 @@
 #include <sak/project/outliner/project_item.hpp>
 #include <sak/project/outliner/root_item.hpp>
 
-#include <sak/shared/project_access.hpp> // does the signal stuff.
+#include <sak/shared/interface.hpp>
 #include <sak/shared/manager.hpp>
 
 namespace
@@ -47,7 +47,7 @@ sak::shared::outliner::header_item<T>::header_item(parent_type* a_parent, bool a
 {
   if (a_read_files)
   {
-    auto l_handles = project_access<T>::get_all(get_project());
+    auto l_handles = this->get_project().get_interface<T>().get_all();
 
     // sort them into whatever order and make the items
     for (auto const& l_handle : l_handles)
@@ -95,7 +95,7 @@ void sak::shared::outliner::header_item<T>::do_context_menu(QAbstractItemView* a
   auto l_action_add_file = menu.addAction("Add new " + QString::fromStdString(object_type::type()));
   QObject::connect(l_action_add_file, &QAction::triggered, [=]()
   {
-    project_access<object_type>::add_new(this->get_project()); // outbound signal.
+    this->get_project().get_interface<T>().add_default();
   });
 
   menu.addAction(QString::number(this->get_child_count()));

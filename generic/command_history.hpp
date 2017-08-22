@@ -1,6 +1,7 @@
-#ifndef GENERIC_COMMAND_HPPISTORY_HPP
-#define GENERIC_COMMAND_HPPISTORY_HPP
+#ifndef GENERIC_COMMAND_HISTORY_HPP
+#define GENERIC_COMMAND_HISTORY_HPP
 
+#include "fwd/command_history.hpp"
 #include <memory>
 #include <list>
 #include <vector>
@@ -101,4 +102,4 @@ namespace generic
 }
 
 
-#endif // GENERIC_COMMAND_HPPISTORY_HPP
+#endif // GENERIC_COMMAND_HISTORY_HPP

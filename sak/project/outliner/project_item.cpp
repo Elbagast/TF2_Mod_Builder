@@ -10,8 +10,7 @@
 
 #include <qtlib/outliner/model.hpp>
 #include <sak/project/object.hpp>
-//#include <sak/project/signalbox.hpp>
-#include <sak/shared/project_access.hpp>
+#include <sak/shared/interface.hpp>
 #include <sak/shared/outliner/header_item.hpp>
 #include "root_item.hpp"
 
@@ -75,12 +74,12 @@ void sak::project::outliner::project_item::do_context_menu(QAbstractItemView* a_
   auto l_action_add_file = menu.addAction("Add new File");
   QObject::connect(l_action_add_file, &QAction::triggered, [this]()
   {
-    file::project_access::add_new(this->get_project());
+    this->get_project().get_file_interface().add_default();
   });
   auto l_action_add_texture = menu.addAction("Add new Texture");
   QObject::connect(l_action_add_texture, &QAction::triggered, [this]()
   {
-    texture::project_access::add_new(this->get_project());
+    this->get_project().get_texture_interface().add_default();
   });
 
   menu.exec(a_view->viewport()->mapToGlobal(a_position));

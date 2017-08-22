@@ -8,6 +8,7 @@
 #include <sak/shared/object.hpp>
 #include <sak/shared/fwd/manager.hpp>
 //#include <sak/shared/fwd/signalbox.hpp>
+#include <sak/shared/fwd/interface.hpp>
 
 #include <memory>
 #include <vector>
@@ -90,6 +91,7 @@ namespace sak
     to data, but it's messy as hell.
 
     */
+
     class object
     {
     public:
@@ -153,6 +155,14 @@ namespace sak
 
       // Clear the undo/redo history.
       void clear_history();
+
+      template <typename T>
+      shared::interface<T> get_interface();
+
+      file::interface get_file_interface();
+      texture::interface get_texture_interface();
+
+
 
 
       // File Interface
@@ -264,6 +274,9 @@ namespace sak
       impl& imp()                { return *m_data; }
       impl const& cimp() const   { return *m_data; }
     };
+
+    //template file::interface object::interface<file::object>();
+    //template texture::interface object::interface<texture::object>();
   }
 }
 
