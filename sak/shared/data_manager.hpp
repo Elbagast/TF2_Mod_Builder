@@ -1,4 +1,4 @@
-#ifndef SAK_SHARED_DATA_MANAGER_HPP
+﻿#ifndef SAK_SHARED_DATA_MANAGER_HPP
 #define SAK_SHARED_DATA_MANAGER_HPP
 
 #include "fwd/data_manager.hpp"
@@ -94,7 +94,7 @@ namespace sak
       // of their presense.
 
       // Make a new file using the supplied data. Project's data management system owns it but
-      // it is not part of the Proeject.
+      // it is not part of the Project.
       handle_type make_emplace(object_type&& a_object);
 
       // Make a new file using the default parameters. Project's data management system owns it

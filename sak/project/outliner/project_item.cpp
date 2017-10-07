@@ -114,7 +114,7 @@ void sak::project::outliner::project_item::initialise_files(bool a_read_files)
 
 void sak::project::outliner::project_item::close_files()
 {
-  if (!cget_project().has_files())
+  if (get_project().get_file_interface().not_empty())
   {
     this->remove_child<0>();
   }
@@ -133,7 +133,7 @@ void sak::project::outliner::project_item::initialise_textures(bool a_read)
 
 void sak::project::outliner::project_item::close_textures()
 {
-  if (!cget_project().has_textures())
+  if (get_project().get_texture_interface().not_empty())
   {
     this->remove_child<1>();
   }

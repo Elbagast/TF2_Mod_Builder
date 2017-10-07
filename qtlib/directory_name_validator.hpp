@@ -28,7 +28,7 @@ namespace qtlib
         //============================================================
         // Produce a string that describes the first error found in string that
         // stops it from being valid. String is empty if no errors.
-        static QString first_error(QString& a_string);
+        static QString first_error(QString const& a_string);
     };
 }
 

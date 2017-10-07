@@ -1,4 +1,4 @@
-#ifndef SAK_SHARED_OBJECT_HPP
+﻿#ifndef SAK_SHARED_OBJECT_HPP
 #define SAK_SHARED_OBJECT_HPP
 
 #include "fwd/object.hpp"
@@ -96,22 +96,62 @@ namespace sak
         public flamingo::data_class<T_Members...>
     {
     public:
-      using member_value_variant = typelist_to_variant_t<flamingo::typelist_remove_duplicates_t<typename flamingo::data_class<T_Members...>::member_value_typelist>>;
+      using data_class_type = flamingo::data_class<T_Members...>;
+      using member_value_variant = typelist_to_variant_t<flamingo::typelist_unique_t<typename flamingo::data_class<T_Members...>::member_value_typelist>>;
     };
 
-    namespace mf
+    template <typename T>
+    class data_class_size :
+        public flamingo::data_class_size<typename T::data_class_type>
+    {};
+
+    template <typename T>
+    constexpr std::size_t const data_class_size_v = data_class_size<T>::value;
+
+
+    // Access to member types for types that inherit shared::data_class
+    template <typename T, std::size_t I>
+    class data_class_member :
+        public flamingo::data_class_member<I,typename T::data_class_type>
+    {};
+
+    template <typename T, std::size_t I>
+    using data_class_member_t = typename data_class_member<T,I>::type;
+
+    // Access to member types for types that inherit shared::data_class
+    template <typename T, std::size_t I>
+    class data_class_member_name :
+        public flamingo::data_class_member_name<I,typename T::data_class_type>
+    {};
+
+    template <typename T, std::size_t I>
+    using data_class_member_name_t = typename data_class_member_name<T,I>::type;
+
+    template <typename T>
+    class data_class_member_typelist :
+        public flamingo::data_class_member_typelist<typename T::data_class_type>
+    {};
+
+    template <typename T>
+    using data_class_member_typelist_t = typename data_class_member_typelist<T>::type;
+
+    template <typename T>
+    class data_class_member_name_typelist :
+        public flamingo::data_class_member_name_typelist<typename T::data_class_type>
+    {};
+
+    template <typename T>
+    using data_class_member_name_typelist_t = typename data_class_member_name_typelist<T>::type;
+
+    template <typename T>
+    class data_class_member_variant
     {
-      template <typename T, std::size_t I>
-      struct object_member_type
-      {
-        //using type = typename T::member_type<N>;
-        using type = flamingo::typelist_type_at_t<typename T::member_typelist, I>;
-      };
+    public:
+      using type = typelist_to_variant_t<flamingo::typelist_unique_t<data_class_member_typelist_t<T>>>;
+    };
 
-      template <typename T, std::size_t I>
-      using object_member_t = typename object_member_type<T,I>::type;
-
-    }
+    template <typename T>
+    using data_class_member_variant_t = typename data_class_member_variant<T>::type;
 
   }
 

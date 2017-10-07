@@ -1,4 +1,4 @@
-#include "header_item.hpp"
+﻿#include "header_item.hpp"
 
 #include <cassert>
 #include <algorithm>
@@ -160,7 +160,7 @@ typename sak::shared::outliner::header_item<T>::child_type* sak::shared::outline
 template <typename T>
 void sak::shared::outliner::header_item<T>::name_changed(handle_type const& a_handle)
 {
-  assert(a_handle.is_valid());
+  assert(flamingo::not_null(a_handle));
   // reorder the Files based on the sorting...
 }
 
@@ -168,7 +168,7 @@ void sak::shared::outliner::header_item<T>::name_changed(handle_type const& a_ha
 template <typename T>
 void sak::shared::outliner::header_item<T>::added(handle_type const& a_handle)
 {
-  assert(a_handle.is_valid());
+  assert(flamingo::not_null(a_handle));
   // insert a child in a location that obeys the sorting...
   append_child(std::make_unique<item<T>>(this, a_handle));
 }
@@ -177,7 +177,7 @@ void sak::shared::outliner::header_item<T>::added(handle_type const& a_handle)
 template <typename T>
 void sak::shared::outliner::header_item<T>::removed(handle_type const& a_handle)
 {
-  assert(a_handle.is_valid());
+  assert(flamingo::not_null(a_handle));
   // insert the child with this data...
   remove_child(index_of(a_handle));
 }

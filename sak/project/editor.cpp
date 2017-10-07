@@ -1,4 +1,4 @@
-#include "editor.hpp"
+﻿#include "editor.hpp"
 
 #include <cassert>
 #include <iterator>
@@ -151,7 +151,7 @@ namespace sak
         // if it exists, update it
         if (l_found != a_widgets.cend())
         {
-            l_found->get()->changed();
+          l_found->get()->changed();
         }
       }
 
@@ -179,11 +179,11 @@ namespace sak
 
             for (int l_index = 0, l_end = a_tabwidget->count(); l_index != l_end; ++l_index)
             {
-                if (a_tabwidget->widget(l_index) == l_found->get())
-                {
-                    a_tabwidget->setTabText(l_index, a_handle.cget().cmember_at<0>().cget());
-                    break;
-                }
+              if (a_tabwidget->widget(l_index) == l_found->get())
+              {
+                a_tabwidget->setTabText(l_index, a_handle->cmember_at<0>());
+                break;
+              }
             }
 
             a_tabwidget->setUpdatesEnabled(true);
@@ -207,7 +207,7 @@ namespace sak
         a_tabwidget->setUpdatesEnabled(false);
         // insert the tab at the front
         // If we want an icon it goes in here....
-        a_tabwidget->insertTab(0,a_widgets.back().get(), a_handle.cget().cmember_at<0>().cget());
+        a_tabwidget->insertTab(0,a_widgets.back().get(), a_handle->cmember_at<0>());
         a_tabwidget->setUpdatesEnabled(true);
         a_tabwidget->setCurrentIndex(0);
       }
@@ -274,7 +274,7 @@ namespace sak
             a_tabwidget->setUpdatesEnabled(false);
             // insert the tab at the front
             // If we want an icon it goes in here....
-            a_tabwidget->insertTab(0,a_widgets.back().get(), a_handle.cget().cmember_at<0>().cget());
+            a_tabwidget->insertTab(0,a_widgets.back().get(), a_handle->cmember_at<0>());
             a_tabwidget->setUpdatesEnabled(true);
             a_tabwidget->setCurrentIndex(0);
         }

@@ -1,4 +1,4 @@
-#include "xml_traits.hpp"
+﻿#include "xml_traits.hpp"
 
 #include <QXmlStreamWriter>
 #include <QXmlStreamReader>
@@ -19,18 +19,21 @@ namespace sak
         using object_type = T;
         using type_string_type = typename object_type::type_string_type;
 
-        template <std::size_t Index, std::size_t End = object_type::size()>
+        template <std::size_t Index, std::size_t End = data_class_size_v<object_type>>
         struct do_loop
         {
-          using member_type = mf::object_member_t<object_type, Index>;
-          using name_type = typename member_type::name_string_type;
-          using value_type = typename member_type::value_type;
+          using member_type = data_class_member_t<object_type, Index>;
+          using member_name_type = data_class_member_name_t<object_type, Index>;
+
+          using name_string_type = std::basic_string<typename member_name_type::char_type>;
+
+          static_assert(flamingo::litype::is_string<member_name_type>::value, "not a flamingo::litype::string<>");
 
           void operator()(QXmlStreamWriter& a_stream, object_type const& a_object)
           {
             // This can potentially get farmed out to elsewhere, allowing multiline versions
-            auto l_name = qtlib::To_QString<name_type>()(a_object.cmember_at<Index>().name());
-            auto l_data = qtlib::To_QString<value_type>()(a_object.cmember_at<Index>().cget());
+            auto l_name = qtlib::To_QString<name_string_type>()(member_name_type::data());
+            auto l_data = qtlib::To_QString<member_type>()(a_object.cmember_at<Index>());
             a_stream.writeTextElement(l_name, l_data);
             do_loop<Index+1, End>()(a_stream, a_object);
           }
@@ -66,26 +69,27 @@ namespace sak
         using object_type = T;
         using type_string_type = typename object_type::type_string_type;
 
-        template <std::size_t Index, std::size_t End = object_type::size()>
+        template <std::size_t Index, std::size_t End = data_class_size_v<object_type>>
         struct do_loop
         {
-          using member_type = mf::object_member_t<object_type, Index>;
-          using name_type = typename member_type::name_string_type;
-          using value_type = typename member_type::value_type;
+          using member_type = data_class_member_t<object_type, Index>;
+          using member_name_type = data_class_member_name_t<object_type, Index>;
+
+          using name_string_type = std::basic_string<typename member_name_type::char_type>;
 
           void operator()(QXmlStreamReader& a_stream, object_type& a_object)
           {
             if (a_stream.readNextStartElement()
-                && a_stream.name().toString() == qtlib::To_QString<name_type>()(a_object.cmember_at<Index>().name()))
+                && a_stream.name().toString() == qtlib::To_QString<name_string_type>()(member_name_type::data()))
             {
               qDebug() << "tokenstring = " << a_stream.tokenString() << a_stream.name().toString();
 
               // read the data as a string
               auto l_data_qstring = a_stream.readElementText();
               // convert the data
-              auto l_data = qtlib::From_QString<value_type>()(l_data_qstring);
+              auto l_data = qtlib::From_QString<member_type>()(l_data_qstring);
               // write it
-              a_object.member_at<Index>().get() = l_data;
+              a_object.member_at<Index>() = l_data;
 
               qDebug() << "tokenstring = " << a_stream.tokenString() << a_stream.name().toString();
               // apparently we jump to the end element when we use readElementText()

@@ -1,4 +1,4 @@
-#include "data_manager.hpp"
+﻿#include "data_manager.hpp"
 
 #include <QXmlStreamWriter>
 #include <QXmlStreamReader>
@@ -10,6 +10,8 @@
 #include <sak/shared/signalbox.hpp>
 
 #include <sak/name_utilities.hpp>
+
+#include <cassert>
 
 
 //---------------------------------------------------------------------------
@@ -57,7 +59,7 @@ void sak::shared::data_manager<T>::changed(handle_type const& a_handle)
 {
   qDebug() << "sak::shared::data_manager<T>::changed "<< a_handle.id().value();
   // This thing must exist
-  assert(a_handle.is_valid());
+  assert(flamingo::not_null(a_handle));
   assert(std::find(m_handles.cbegin(), m_handles.cend(), a_handle) != m_handles.cend());
 
   for (signalbox_type* l_item : m_signalboxes) l_item->changed(a_handle);
@@ -69,7 +71,7 @@ void sak::shared::data_manager<T>::changed_at(handle_type const& a_handle, std::
 {
   qDebug() << "sak::shared::data_manager<T>::changed_at "<< a_handle.id().value() << ", " << a_section;
   // This thing must exist
-  assert(a_handle.is_valid());
+  assert(flamingo::not_null(a_handle));
   assert(std::find(m_handles.cbegin(), m_handles.cend(), a_handle) != m_handles.cend());
 
   for (signalbox_type* l_item : m_signalboxes) l_item->changed_at(a_handle, a_section);
@@ -81,7 +83,9 @@ void sak::shared::data_manager<T>::added(handle_type const& a_handle)
 {
   qDebug() << "sak::shared::data_manager<T>::added "<< a_handle.id().value();
   // This thing must exist
-  assert(a_handle.is_valid());
+  assert(flamingo::not_null(a_handle));
+  assert(std::addressof(m_manager) == a_handle.manager());
+  assert(m_manager.is_valid(a_handle.id()));
   // but not yet be part of the Project
   assert(std::find(m_handles.cbegin(), m_handles.cend(), a_handle) == m_handles.cend());
   m_handles.push_back(a_handle);
@@ -93,7 +97,7 @@ template <typename T>
 void sak::shared::data_manager<T>::removed(handle_type const& a_handle)
 {
   qDebug() << "sak::shared::data_manager<T>::removed "<< a_handle.id().value();
-  assert(a_handle.is_valid());
+  assert(flamingo::not_null(a_handle));
   auto l_found = std::find(m_handles.begin(), m_handles.end(), a_handle);
   assert(l_found != m_handles.cend());
   assert(std::addressof(a_handle) != std::addressof(*l_found));
@@ -115,7 +119,7 @@ void sak::shared::data_manager<T>::requests_editor(handle_type const& a_handle)
 {
   qDebug() << "sak::shared::data_manager<T>::requests_editor "<< a_handle.id().value();
   // This thing must exist
-  assert(a_handle.is_valid());
+  assert(flamingo::not_null(a_handle));
   assert(std::find(m_handles.cbegin(), m_handles.cend(), a_handle) != m_handles.cend());
 
   for (signalbox_type* l_item : m_signalboxes) l_item->requests_editor(a_handle);
@@ -127,7 +131,7 @@ void sak::shared::data_manager<T>::requests_focus(handle_type const& a_handle)
 {
   qDebug() << "sak::shared::data_manager<T>::requests_focus "<< a_handle.id().value();
   // This thing must exist
-  assert(a_handle.is_valid());
+  assert(flamingo::not_null(a_handle));
   assert(std::find(m_handles.cbegin(), m_handles.cend(), a_handle) != m_handles.cend());
 
   for (signalbox_type* l_item : m_signalboxes) l_item->requests_focus(a_handle);
@@ -178,7 +182,7 @@ std::vector<QString> sak::shared::data_manager<T>::get_all_names() const
   l_result.reserve(m_handles.size());
   for (auto const& l_handle : m_handles)
   {
-    l_result.push_back(l_handle.cget().cmember_at<0>().cget());
+    l_result.push_back(l_handle->cmember_at<0>());
   }
   return l_result;
 }
@@ -205,7 +209,7 @@ typename sak::shared::data_manager<T>::handle_type sak::shared::data_manager<T>:
   QString l_name{u8"New " + QString::fromStdString(object_type::type())};
   uniqueify_name(l_name, get_all_names());
   object_type l_object{};
-  l_object.member_at<0>().get() = l_name;
+  l_object.member_at<0>() = l_name;
   return make_emplace(std::move(l_object));
 }
 
@@ -218,7 +222,7 @@ void sak::shared::data_manager<T>::to_xmlstream(QXmlStreamWriter& a_stream) cons
 
   for (auto const& l_handle : m_handles)
   {
-    sak::shared::xml_traits<object_type>::to_stream(a_stream, l_handle.cget());
+    sak::shared::xml_traits<object_type>::to_stream(a_stream, *l_handle);
   }
 
   // End the Files block

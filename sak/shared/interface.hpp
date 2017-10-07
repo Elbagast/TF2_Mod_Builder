@@ -1,4 +1,4 @@
-#ifndef SAK_SHARED_INTERFACE_HPP
+﻿#ifndef SAK_SHARED_INTERFACE_HPP
 #define SAK_SHARED_INTERFACE_HPP
 
 #include "fwd/interface.hpp"
@@ -19,8 +19,8 @@ namespace sak
       void operator()(
           data_manager<T>& a_data_manager,
           generic::Command_History& a_command_history,
-          shared::handle<T> const& a_handle,
-          typename flamingo::data_class_member_t<T,Index>::value_type const& a_value);
+          handle<T> const& a_handle,
+          data_class_member_t<T,Index> const& a_value);
     };
 
 
@@ -30,8 +30,8 @@ namespace sak
       void operator()(
           data_manager<T>& a_data_manager,
           generic::Command_History& a_command_history,
-          shared::handle<T> const& a_handle,
-          typename flamingo::data_class_member_t<T,0>::value_type const& a_value);
+          handle<T> const& a_handle,
+          data_class_member_t<T,0> const& a_value);
     };
 
 
@@ -48,8 +48,8 @@ namespace sak
       using object_type = T;
       using handle_type = handle<T>;
 
-      template <std::size_t Index>
-      using member_type = flamingo::data_class_member_t<object_type,Index>;
+      //template <std::size_t Index>
+      //using member_type = flamingo::data_class_member_t<Index,object_type,Index;
 
       // Special 6
       //============================================================
@@ -99,9 +99,9 @@ namespace sak
       // Data is not deleted until the last reference is deleted.
       void remove(handle_type const& a_handle);
 
-      // Undoable change an object's maember value. If this handle is invalid or not in the data nothing happens.
+      // Undoable change an object's member value. If this handle is invalid or not in the data nothing happens.
       template <std::size_t Index>
-      void change_at(handle_type const& a_handle, typename member_type<Index>::value_type const& a_value)
+      void change_at(handle_type const& a_handle, data_class_member_t<T, Index> const& a_value)
       {
         do_change_at<T,Index>()(m_data_manager, m_command_history, a_handle, a_value);
       }

@@ -1,4 +1,4 @@
-#ifndef SAK_SHARED_FWD_MANAGER_HPP
+﻿#ifndef SAK_SHARED_FWD_MANAGER_HPP
 #define SAK_SHARED_FWD_MANAGER_HPP
 
 #include "object.hpp"
@@ -14,13 +14,13 @@ namespace sak
     // shared::manager<T>
     //---------------------------------------------------------------------------
     template <typename T>
-    using manager = flamingo::manager32<T>;
+    using manager = flamingo::manager<T>;
 
     //---------------------------------------------------------------------------
     // shared::handle<T>
     //---------------------------------------------------------------------------
     template <typename T>
-    using handle = flamingo::handle32<T>;
+    using handle = flamingo::handle<T>;
   }
 
   namespace file

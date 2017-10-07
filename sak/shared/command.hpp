@@ -1,4 +1,4 @@
-#ifndef SAK_SHARED_COMMAND_HPP
+﻿#ifndef SAK_SHARED_COMMAND_HPP
 #define SAK_SHARED_COMMAND_HPP
 
 #include "fwd/command.hpp"
@@ -75,8 +75,8 @@ namespace sak
       // Typedefs
       //============================================================
       using inherited_type = abstract::signalling_command<T>;
-      using member_type = mf::object_member_t<object_type,Index>;
-      using value_type = typename member_type::value_type;
+      using member_type = data_class_member_t<object_type,Index>;
+      using value_type = member_type;
 
       // Special 6
       //============================================================
@@ -84,7 +84,7 @@ namespace sak
         inherited_type(a_data_manager, a_handle),
         m_new_value{a_value},
         // get the basic handle, then get the data held, then get the member, then get the value
-        m_old_value{m_handle.cget().cmember_at<Index>().cget()}
+        m_old_value{m_handle->cmember_at<Index>()}
       {}
 
       ~command_assign() override final = default;
@@ -95,14 +95,14 @@ namespace sak
       void do_execute() override final
       {
         // open the handle, then the common data, then set that part of it.
-        m_handle.get().member_at<Index>().get() = m_new_value;
+        m_handle->member_at<Index>() = m_new_value;
         m_data_manager.changed_at(m_handle, Index); // outbound signal.
         //dispatch_signals<object_type>::changed_at(m_project, m_handle, Index); // outbound signal.
       }
       void do_unexecute() override final
       {
         // open the handle, then the common data, then set that part of it.
-        m_handle.get().member_at<Index>().get() = m_old_value;
+        m_handle->member_at<Index>() = m_old_value;
         m_data_manager.changed_at(m_handle, Index); // outbound signal.
         //dispatch_signals<object_type>::changed_at(m_project, m_handle, Index); // outbound signal.
       }
@@ -153,11 +153,15 @@ namespace sak
       //============================================================
       void do_execute() override final
       {
+        assert(!m_data_manager.has_handle(m_handle));
         m_data_manager.added(m_handle); // outbound signal.
+        assert(m_data_manager.has_handle(m_handle));
       }
       void do_unexecute() override final
       {
+        assert(m_data_manager.has_handle(m_handle));
         m_data_manager.removed(m_handle); // outbound signal.
+        assert(!m_data_manager.has_handle(m_handle));
       }
     };
 
@@ -206,11 +210,15 @@ namespace sak
       //============================================================
       void do_execute() override final
       {
+        assert(m_data_manager.has_handle(m_handle));
         m_data_manager.removed(m_handle); // outbound signal.
+        assert(!m_data_manager.has_handle(m_handle));
       }
       void do_unexecute() override final
       {
+        assert(!m_data_manager.has_handle(m_handle));
         m_data_manager.added(m_handle); // outbound signal.
+        assert(m_data_manager.has_handle(m_handle));
       }
     };
 

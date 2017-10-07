@@ -1,4 +1,4 @@
-#include "item.hpp"
+﻿#include "item.hpp"
 
 #include <cassert>
 #include <algorithm>
@@ -42,12 +42,12 @@ namespace
 // Special 6
 //============================================================
 template <typename T>
-sak::shared::outliner::item<T>::item(parent_type* a_parent, handle_type const& a_ehandle):
+sak::shared::outliner::item<T>::item(parent_type* a_parent, handle_type const& a_handle):
     inherited_type(a_parent),
-    m_handle{a_ehandle}
+    m_handle{a_handle}
 {
   assert(a_parent != nullptr);
-  assert(a_ehandle.is_valid());
+  assert(flamingo::not_null(a_handle));
 }
 
 template <typename T>
@@ -188,7 +188,7 @@ template <typename T>
 QString sak::shared::outliner::item<T>::cget_name() const
 {
   // Access the member for "Name" assumed to be at index 0
-  return m_handle.cget().cmember_at<0>().cget();
+  return m_handle->cmember_at<0>();
 }
 
 template <typename T>
@@ -202,7 +202,7 @@ template <typename T>
 QString sak::shared::outliner::item<T>::cget_description() const
 {
   // Access the member for "Description" assumed to be at index 1
-  return m_handle.cget().cmember_at<1>().cget();
+  return m_handle->cmember_at<1>();
 }
 
 // Forced Instantiations

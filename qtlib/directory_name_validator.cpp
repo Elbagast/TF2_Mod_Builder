@@ -92,7 +92,7 @@ QValidator::State qtlib::Directory_Name_Validator::validate(QString& a_input, in
 //============================================================
 // Produce a string that describes the first error found in string that
 // stops it from being valid. String is empty if no errors.
-QString qtlib::Directory_Name_Validator::first_error(QString& a_string)
+QString qtlib::Directory_Name_Validator::first_error(QString const& a_string)
 {
     if (a_string.isEmpty())
     {

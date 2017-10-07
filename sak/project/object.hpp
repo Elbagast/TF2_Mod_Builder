@@ -156,114 +156,12 @@ namespace sak
       // Clear the undo/redo history.
       void clear_history();
 
+      // Section interfaces
       template <typename T>
       shared::interface<T> get_interface();
 
       file::interface get_file_interface();
       texture::interface get_texture_interface();
-
-
-
-
-      // File Interface
-      //============================================================
-      // This is the interface that deals with Files.
-
-      // Are there any Files in this Project?
-      bool has_files() const;
-
-      // How many any Files are in this Project?
-      std::size_t file_count() const;
-
-      // Get the file at this index
-      file::handle get_file_at(std::size_t a_index) const;
-
-      // Get all the Files
-      std::vector<file::handle> get_all_files() const;
-
-      // Get all the Files names
-      std::vector<QString> get_all_file_names() const;
-
-      // Make a new file using the supplied data. Project's data management system owns it but
-      // it is not part of the Project.
-      file::handle make_emplace_file(file::object&& a_file);
-
-      // Make a new file using the default parameters. Project's data management system owns it
-      // but it is not part of the Project.
-      file::handle make_file();
-
-      // Create a new default file and add it.
-      void file_add_new();
-
-      // Add a new file using the supplied data.
-      void file_add_emplace(file::object&& a_file);
-
-      // Add a new file using the supplied handle. If this handle is invalid or already in the data
-      // then nothing happens.
-      void file_add(file::handle const& a_handle);
-
-      // Remove this file. It is removed from the file list and the data of anything that references it.
-      // Data is not deleted until the last reference is deleted.
-      void file_remove(file::handle const& a_handle);
-
-      // Change a file's member value.
-      void file_change_at(file::handle const& a_handle, std::size_t a_section, typename file::object::member_value_variant const& a_variant);
-
-      // Request that the focus change to this file.
-      void file_request_focus(file::handle const& a_handle);
-
-      // Request that the editor for this file be opened or switched to.
-      void file_request_editor(file::handle const& a_handle);
-
-      // Texture Interface
-      //============================================================
-      // This is the interface that deals with textures.
-
-      // Are there any textures in this Project?
-      bool has_textures() const;
-
-      // How many any textures are in this Project?
-      std::size_t texture_count() const;
-
-      // Get the texture at this index
-      texture::handle get_texture_at(std::size_t a_index) const;
-
-      // Get all the textures
-      std::vector<texture::handle> get_all_textures() const;
-
-      // Get all the textures names
-      std::vector<QString> get_all_texture_names() const;
-
-      // Make a new texture using the supplied data. Project's data management system owns it but
-      // it is not part of the Project.
-      texture::handle make_emplace_texture(texture::object&& a_texture);
-
-      // Make a new texture using the default parameters. Project's data management system owns it
-      // but it is not part of the Project.
-      texture::handle make_texture();
-
-      // Create a new default texture and add it.
-      void texture_add_new();
-
-      // Add a new texture using the supplied data.
-      void texture_add_emplace(texture::object&& a_texture);
-
-      // Add a new texture using the supplied handle. If this handle is invalid or already in the data
-      // then nothing happens.
-      void texture_add(texture::handle const& a_handle);
-
-      // Remove this texture. It is removed from the texture list and the data of anything that references it.
-      // Data is not deleted until the last reference is deleted.
-      void texture_remove(texture::handle const& a_handle);
-
-      // Change a texture's member value.
-      void texture_change_at(texture::handle const& a_handle, std::size_t a_section, typename texture::object::member_value_variant const& a_variant);
-
-      // Request that the focus change to this texture.
-      void texture_request_focus(texture::handle const& a_handle);
-
-      // Request that the editor for this texture be opened or switched to.
-      void texture_request_editor(texture::handle const& a_handle);
 
     private:
       // Pimpl Data
@@ -274,9 +172,6 @@ namespace sak
       impl& imp()                { return *m_data; }
       impl const& cimp() const   { return *m_data; }
     };
-
-    //template file::interface object::interface<file::object>();
-    //template texture::interface object::interface<texture::object>();
   }
 }
 

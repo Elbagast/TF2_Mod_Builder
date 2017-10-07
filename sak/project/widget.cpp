@@ -14,6 +14,7 @@
 #include <sak/shared/object.hpp>
 #include <sak/shared/manager.hpp>
 #include <sak/shared/widget.hpp>
+#include <sak/shared/interface.hpp>
 #include <sak/project/editor.hpp>
 
 #include <sak/project/editor.hpp>
@@ -233,15 +234,15 @@ sak::project::widget::~widget() = default;
 // Save the Project data.
 void sak::project::widget::save_project()
 {
-    try
-    {
-        cimp().m_project->save();
-        imp().signal_unsaved_edits_change(false);
-    }
-    catch(File_Write_Error& e)
-    {
-        e.dialog(this);
-    }
+  try
+  {
+    cimp().m_project->save();
+    imp().signal_unsaved_edits_change(false);
+  }
+  catch(File_Write_Error& l_exception)
+  {
+     l_exception.dialog(this);
+  }
 }
 
 // Menu Bar -> Edit
@@ -249,15 +250,15 @@ void sak::project::widget::save_project()
 // Undo the last command issued.
 void sak::project::widget::undo()
 {
-    imp().m_project->undo();
-    //imp().signal_undo_change(); // Gets called if data changes and those changes make it back here.
+  imp().m_project->undo();
+  //imp().signal_undo_change(); // Gets called if data changes and those changes make it back here.
 }
 
 // Redo the last undone command in the command history
 void sak::project::widget::redo()
 {
-    imp().m_project->redo();
-    //imp().signal_undo_change(); // Gets called if data changes and those changes make it back here.
+  imp().m_project->redo();
+  //imp().signal_undo_change(); // Gets called if data changes and those changes make it back here.
 }
 
 // View the entire command history of the project.
@@ -269,8 +270,8 @@ void sak::project::widget::view_history()
 // Cleat the undo/redo history of of the Project.
 void sak::project::widget::clear_history()
 {
-    imp().m_project->clear_history();
-    imp().signal_undo_change();
+  imp().m_project->clear_history();
+  imp().signal_undo_change();
 }
 
 // Menu Bar -> Component
@@ -278,13 +279,13 @@ void sak::project::widget::clear_history()
 // Create a new File in the active Project;
 void sak::project::widget::create_file()
 {
-    imp().m_project->file_add_new();
+  imp().m_project->get_file_interface().add_default();
 }
 
 // Create a new Texture in the active Project;
 void sak::project::widget::create_texture()
 {
-
+  imp().m_project->get_texture_interface().add_default();
 }
 
 // Create a new Material in the active Project;

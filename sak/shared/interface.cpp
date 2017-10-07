@@ -1,4 +1,4 @@
-#include "interface.hpp"
+﻿#include "interface.hpp"
 
 #include "data_manager.hpp"
 #include "command.hpp"
@@ -95,7 +95,7 @@ void sak::shared::interface<T>::add_emplace(object_type&& a_object)
 template <typename T>
 void sak::shared::interface<T>::add(handle_type const& a_handle)
 {
-  if (a_handle.is_valid() && !(m_data_manager.has_handle(a_handle)))
+  if (flamingo::not_null(a_handle) && !(m_data_manager.has_handle(a_handle)))
   {
     m_command_history.add_execute(make_command_added<object_type>(m_data_manager, a_handle));
   }
@@ -106,7 +106,7 @@ void sak::shared::interface<T>::add(handle_type const& a_handle)
 template <typename T>
 void sak::shared::interface<T>::remove(handle_type const& a_handle)
 {
-  if (a_handle.is_valid() && m_data_manager.has_handle(a_handle))
+  if (flamingo::not_null(a_handle) && m_data_manager.has_handle(a_handle))
   {
     m_command_history.add_execute(make_command_removed<object_type>(m_data_manager, a_handle));
   }
@@ -121,10 +121,10 @@ template <typename T, std::size_t Index>
 void sak::shared::do_change_at<T,Index>::operator()(
     data_manager<T>& a_data_manager,
     generic::Command_History& a_command_history,
-    shared::handle<T> const& a_handle,
-    typename flamingo::data_class_member_t<T,Index>::value_type const& a_value)
+    handle<T> const& a_handle,
+    data_class_member_t<T,Index> const& a_value)
 {
-  if (a_value == a_handle.cget().cmember_at<Index>().cget())
+  if (a_value == a_handle->cmember_at<Index>())
   {
     return;
   }
@@ -136,19 +136,19 @@ template <typename T>
 void sak::shared::do_change_at<T,0>::operator()(
     data_manager<T>& a_data_manager,
     generic::Command_History& a_command_history,
-    shared::handle<T> const& a_handle,
-    typename flamingo::data_class_member_t<T,0>::value_type const& a_value)
+    handle<T> const& a_handle,
+    data_class_member_t<T,0> const& a_value)
 {
-  static_assert(std::is_same<flamingo::data_class_member_t<T,0>::value_type, QString>::value, "Member 0 has a type that is not QString...");
+  static_assert(std::is_same<data_class_member_t<T,0>, QString>::value, "Member 0 has a type that is not QString...");
 
-  if (a_value == a_handle.cget().cmember_at<0>().cget())
+  if (a_value == a_handle->cmember_at<0>())
   {
     return;
   }
   // We must make sure the name does not already exist among the other names.
   auto l_names = a_data_manager.get_all_names();
   // Get rid of the name of this one, since it is going to change.
-  auto l_old_name_found = std::find(l_names.cbegin(), l_names.cend(), a_handle.cget().cmember_at<0>().cget());
+  auto l_old_name_found = std::find(l_names.cbegin(), l_names.cend(), a_handle->cmember_at<0>());
   l_names.erase(l_old_name_found);
 
   QString l_final_name{a_value};
@@ -225,7 +225,7 @@ void sak::shared::interface<T>::change_at(handle_type const& a_handle, typename 
 template <typename T>
 void sak::shared::interface<T>::request_editor(handle_type const& a_handle)
 {
-  if (a_handle.is_valid() && m_data_manager.has_handle(a_handle))
+  if (flamingo::not_null(a_handle) && m_data_manager.has_handle(a_handle))
   {
     m_data_manager.requests_editor(a_handle);
   }
@@ -235,7 +235,7 @@ void sak::shared::interface<T>::request_editor(handle_type const& a_handle)
 template <typename T>
 void sak::shared::interface<T>::request_focus(handle_type const& a_handle)
 {
-  if (a_handle.is_valid() && m_data_manager.has_handle(a_handle))
+  if (flamingo::not_null(a_handle) && m_data_manager.has_handle(a_handle))
   {
     m_data_manager.requests_focus(a_handle);
   }

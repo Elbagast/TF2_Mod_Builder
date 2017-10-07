@@ -1,4 +1,4 @@
-#include "widget.hpp"
+﻿#include "widget.hpp"
 #include "member_widget.hpp"
 //#include <qtlib/edit/widget_traits.hpp>
 #include <sak/edit/widget_traits.hpp>
@@ -29,13 +29,13 @@ namespace sak
         // Typedefs
         //============================================================
         using object_type = T;
-        using member_value_variant = typename object_type::member_value_variant;
-        using member_type = mf::object_member_t<object_type,Index>;
-        using value_type = typename member_type::value_type;
+        using member_value_variant = data_class_member_variant_t<object_type>;
+        using member_type = data_class_member_t<object_type,Index>;
+        using member_name_type = data_class_member_name_t<object_type,Index>;
 
         using handle_type = handle<object_type>;
 
-        using widget_traits_type = sak::edit::widget_traits<value_type>;
+        using widget_traits_type = sak::edit::widget_traits<member_type>;
         //using widget_type = typename widget_traits_type::widget_type;
 
         // Special 6
@@ -64,7 +64,7 @@ namespace sak
         //============================================================
         void update() override final
         {
-          widget_traits_type::set_widget_value(m_widget.get(), m_handle.cget().cmember_at<Index>().cget());
+          widget_traits_type::set_widget_value(m_widget.get(), m_handle->cmember_at<Index>());
         }
 
         void editing_finished() override final
@@ -95,7 +95,7 @@ namespace sak
         using handle_type = handle<object_type>;
 
         using widget_type = abstract::member_edit_widget;
-        using widget_array = std::array<std::unique_ptr<widget_type>, object_type::size()>;
+        using widget_array = std::array<std::unique_ptr<widget_type>, data_class_size_v<object_type>>;
 
         template <std::size_t Index, std::size_t End = std::tuple_size<widget_array>::value>
         struct do_loop
@@ -103,12 +103,13 @@ namespace sak
           void operator()(widget_array& a_widgets, QFormLayout* a_layout, project::object& a_project, handle_type& a_handle)
           {
             using true_widget_type = member_edit_widget<object_type, Index>;
+            using member_name_type = data_class_member_name_t<object_type,Index>;
 
             // make the true widget as a base widget
             auto l_widget = std::unique_ptr<widget_type>(std::make_unique<true_widget_type>(a_project,a_handle,nullptr).release());
 
             // add it to the layout
-            a_layout->addRow(QString::fromStdString(a_handle.cget().cmember_at<Index>().name()), l_widget.get());
+            a_layout->addRow(QString::fromStdString(member_name_type::data()), l_widget.get());
 
             // put it in the array
             std::swap(std::get<Index>(a_widgets), l_widget);

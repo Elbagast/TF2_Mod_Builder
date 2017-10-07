@@ -1,4 +1,4 @@
-#ifndef SAK_SHARED_WIDGET_HPP
+﻿#ifndef SAK_SHARED_WIDGET_HPP
 #define SAK_SHARED_WIDGET_HPP
 
 #include <sak/project/fwd/object.hpp>
@@ -58,7 +58,7 @@ namespace sak
       using handle_type = handle<object_type>;
 
       using widget_type = abstract::member_edit_widget;
-      using widget_array = std::array<std::unique_ptr<widget_type>, object_type::size()>;
+      using widget_array = std::array<std::unique_ptr<widget_type>, data_class_size_v<object_type>>;
 
       // Special 6
       //============================================================
