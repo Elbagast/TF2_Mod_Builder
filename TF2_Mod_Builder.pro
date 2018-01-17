@@ -104,10 +104,7 @@ SOURCES += \
     sak/exceptions/exception.cpp \
     sak/system_settings.cpp \
     sak/name_utilities.cpp \
-    generic/command_history.cpp \
-    generic/command.cpp \
     valve/asset_filepath.cpp \
-    sak/shared/command.cpp \
     generic/string_conversion.cpp \
     qtlib/string_conversion.cpp \
     qtlib/outliner/abstract_item.cpp \
@@ -124,29 +121,29 @@ SOURCES += \
     qtlib/outliner/root_branch_item.cpp \
     qtlib/outliner/trunk_item.cpp \
     qtlib/outliner/treeview.cpp \
-    sak/shared/object.cpp \
-    sak/shared/manager.cpp \
-    sak/shared/widget.cpp \
     sak/edit/widget_traits.cpp \
-    sak/shared/member_widget.cpp \
-    sak/shared/xml_traits.cpp \
-    sak/shared/signalbox.cpp \
-    sak/project/object.cpp \
-    sak/shared/data_manager.cpp \
-    sak/project/widget.cpp \
-    sak/project/editor.cpp \
-    sak/project/outliner/widget.cpp \
-    sak/project/outliner/root_item.cpp \
-    sak/project/outliner/project_item.cpp \
-    sak/shared/outliner/item.cpp \
-    sak/shared/outliner/header_item.cpp \
-    sak/project/window.cpp \
-    sak/shared/interface.cpp
+    sak/abstract_command.cpp \
+    sak/command_history.cpp \
+    sak/project_main_window.cpp \
+    sak/project_main_widget.cpp \
+    sak/project_editor_widget.cpp \
+    sak/abstract_project_signalbox.cpp \
+    sak/project_data.cpp \
+    sak/project_outliner_widget.cpp \
+    sak/project_outliner_items.cpp \
+    sak/section_data.cpp \
+    sak/section_handle.cpp \
+    sak/abstract_section_signalbox.cpp \
+    sak/section_data_manager.cpp \
+    sak/section_xml_traits.cpp \
+    sak/abstract_member_edit_widget.cpp \
+    sak/section_command.cpp \
+    sak/section_interface.cpp \
+    sak/section_outliner_items.cpp \
+    sak/section_widget.cpp
     
 
 HEADERS  += \
-    generic/command_history.hpp \
-    generic/command.hpp \
     qtlib/directory_name_validator.hpp \
     qtlib/existing_directory_validator.hpp \
     qtlib/state_changer.hpp \
@@ -158,14 +155,6 @@ HEADERS  += \
     sak/name_utilities.hpp \
     sak/system_settings.hpp \
     valve/asset_filepath.hpp \
-    sak/shared/fwd/command.hpp \
-    sak/shared/fwd/manager.hpp \
-    sak/shared/command.hpp \
-    sak/shared/manager.hpp \
-    sak/shared/fwd/object.hpp \
-    sak/shared/object.hpp \
-    sak/shared/fwd/widget.hpp \
-    sak/shared/widget.hpp \
     qtlib/display_widget_traits.hpp \
     generic/string_conversion_formats.hpp \
     generic/string_conversion.hpp \
@@ -189,39 +178,44 @@ HEADERS  += \
     qtlib/outliner/treeview.hpp \
     qtlib/outliner/trunk_item.hpp \
     sak/edit/widget_traits.hpp \
-    sak/shared/member_widget.hpp \
-    sak/shared/fwd/member_widget.hpp \
-    sak/shared/xml_traits.hpp \
-    sak/shared/fwd/signalbox.hpp \
-    sak/shared/signalbox.hpp \
-    sak/project/signalbox.hpp \
-    sak/project/object.hpp \
-    sak/project/fwd/signalbox.hpp \
-    sak/project/fwd/object.hpp \
-    sak/project/fwd/command.hpp \
-    generic/fwd/command.hpp \
-    sak/project/command.hpp \
-    sak/shared/data_manager.hpp \
-    sak/shared/fwd/data_manager.hpp \
-    sak/project/widget.hpp \
-    sak/project/fwd/widget.hpp \
-    sak/project/fwd/editor.hpp \
-    sak/project/editor.hpp \
-    sak/project/outliner/fwd/widget.hpp \
-    sak/project/outliner/widget.hpp \
-    sak/project/outliner/fwd/root_item.hpp \
-    sak/project/outliner/fwd/project_item.hpp \
-    sak/project/outliner/root_item.hpp \
-    sak/project/outliner/project_item.hpp \
-    sak/shared/outliner/fwd/item.hpp \
-    sak/shared/outliner/fwd/header_item.hpp \
-    sak/shared/outliner/item.hpp \
-    sak/shared/outliner/header_item.hpp \
-    sak/project/fwd/window.hpp \
-    sak/project/window.hpp \
-    sak/shared/fwd/interface.hpp \
-    sak/shared/interface.hpp \
-    generic/fwd/command_history.hpp
+    sak/abstract_command.hpp \
+    sak/abstract_command_fwd.hpp \
+    sak/command_history.hpp \
+    sak/command_history_fwd.hpp \
+    sak/project_main_window.hpp \
+    sak/project_main_window_fwd.hpp \
+    sak/project_main_widget.hpp \
+    sak/project_main_widget_fwd.hpp \
+    sak/project_editor_widget.hpp \
+    sak/project_editor_widget_fwd.hpp \
+    sak/abstract_project_signalbox.hpp \
+    sak/abstract_project_signalbox_fwd.hpp \
+    sak/project_data.hpp \
+    sak/project_data_fwd.hpp \
+    sak/project_outliner_widget.hpp \
+    sak/project_outliner_widget_fwd.hpp \
+    sak/project_outliner_items_fwd.hpp \
+    sak/project_outliner_items.hpp \
+    sak/section_data.hpp \
+    sak/section_data_fwd.hpp \
+    sak/section_handle.hpp \
+    sak/section_handle_fwd.hpp \
+    sak/abstract_section_signalbox_fwd.hpp \
+    sak/section_data_manager.hpp \
+    sak/section_data_manager_fwd.hpp \
+    sak/abstract_section_signalbox.hpp \
+    sak/section_xml_traits.hpp \
+    sak/section_xml_traits_fwd.hpp \
+    sak/abstract_member_edit_widget.hpp \
+    sak/abstract_member_edit_widget_fwd.hpp \
+    sak/section_command_fwd.hpp \
+    sak/section_command.hpp \
+    sak/section_interface.hpp \
+    sak/section_interface_fwd.hpp \
+    sak/section_outliner_items.hpp \
+    sak/section_outliner_items_fwd.hpp \
+    sak/section_widget.hpp \
+    sak/section_widget_fwd.hpp
     
 
 FORMS

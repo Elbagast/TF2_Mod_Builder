@@ -1,0 +1,9 @@
+﻿#ifndef SAK_ABSTRACT_MEMBER_EDIT_WIDGET_FWD_HPP
+#define SAK_ABSTRACT_MEMBER_EDIT_WIDGET_FWD_HPP
+
+namespace sak
+{
+  class Abstract_Member_Edit_Widget;
+}
+
+#endif // SAK_ABSTRACT_MEMBER_EDIT_WIDGET_FWD_HPP

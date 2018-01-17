@@ -1,10 +1,13 @@
-#ifndef SAK_EDIT_WIDGET_TRAITS_HPP
+﻿#ifndef SAK_EDIT_WIDGET_TRAITS_HPP
 #define SAK_EDIT_WIDGET_TRAITS_HPP
 
 #include <memory>
 #include <cassert>
 #include <string>
-#include <sak/shared/member_widget.hpp>
+
+#include <sak/abstract_member_edit_widget.hpp>
+
+
 class QWidget;
 class QString;
 
@@ -18,8 +21,8 @@ namespace sak
       struct widget_traits_typedefs
       {
         using value_type = T;
-        using editor_type = sak::shared::abstract::member_edit_widget;
-        using editor_function_type = decltype(&sak::shared::abstract::member_edit_widget::editing_finished);//void (sak::shared::abstract::member_edit_widget::*)();
+        using editor_type = sak::Abstract_Member_Edit_Widget;
+        using editor_function_type = decltype(&sak::Abstract_Member_Edit_Widget::editing_finished);//void (sak::shared::abstract::member_edit_widget::*)();
       };
     }
 
@@ -36,13 +39,13 @@ namespace sak
       static std::unique_ptr<QWidget> make_empty_widget()
       {
         assert(false);
-        return std::make_unique<widget_type>(nullptr);
+        return std::make_unique<QWidget>(nullptr);
       }
 
       static std::unique_ptr<QWidget> make_widget(value_type const& a_value)
       {
         assert(false);
-        return std::make_unique<widget_type>(nullptr);
+        return std::make_unique<QWidget>(nullptr);
       }
 
       static void set_widget_value(QWidget* a_widget, value_type const& a_value)
