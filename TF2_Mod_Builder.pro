@@ -121,7 +121,6 @@ SOURCES += \
     qtlib/outliner/root_branch_item.cpp \
     qtlib/outliner/trunk_item.cpp \
     qtlib/outliner/treeview.cpp \
-    sak/edit/widget_traits.cpp \
     sak/abstract_command.cpp \
     sak/command_history.cpp \
     sak/project_main_window.cpp \
@@ -140,7 +139,10 @@ SOURCES += \
     sak/section_command.cpp \
     sak/section_interface.cpp \
     sak/section_outliner_items.cpp \
-    sak/section_widget.cpp
+    sak/section_widget.cpp \
+    sak/edit_widget_traits.cpp \
+    sak/valve_attributes.cpp \
+    sak/shared_attributes.cpp
     
 
 HEADERS  += \
@@ -159,10 +161,6 @@ HEADERS  += \
     generic/string_conversion_formats.hpp \
     generic/string_conversion.hpp \
     qtlib/string_conversion.hpp \
-    qtlib/display/widget_traits.hpp \
-    qtlib/display/anon_widget_traits.hpp \
-    qtlib/edit/widget_traits.hpp \
-    qtlib/edit/anon_widget_traits.hpp \
     qtlib/outliner/abstract_item.hpp \
     qtlib/outliner/abstract_readonly_item.hpp \
     qtlib/outliner/abstract_root_item.hpp \
@@ -177,7 +175,6 @@ HEADERS  += \
     qtlib/outliner/root_branch_item.hpp \
     qtlib/outliner/treeview.hpp \
     qtlib/outliner/trunk_item.hpp \
-    sak/edit/widget_traits.hpp \
     sak/abstract_command.hpp \
     sak/abstract_command_fwd.hpp \
     sak/command_history.hpp \
@@ -215,7 +212,13 @@ HEADERS  += \
     sak/section_outliner_items.hpp \
     sak/section_outliner_items_fwd.hpp \
     sak/section_widget.hpp \
-    sak/section_widget_fwd.hpp
+    sak/section_widget_fwd.hpp \
+    sak/edit_widget_traits.hpp \
+    sak/edit_widget_traits_fwd.hpp \
+    sak/member_types_fwd.hpp \
+    sak/valve_attributes_fwd.hpp \
+    sak/valve_attributes.hpp \
+    sak/shared_attributes.hpp
     
 
 FORMS

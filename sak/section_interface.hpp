@@ -45,7 +45,7 @@ namespace sak
       using Data_Type = T;
       using Data_Manager_Type = Section_Data_Manager<T>;
       using Handle_Type = Section_Handle<T>;
-      using Member_Value_Type = Section_Data_Member_Type<Index,Data_Type>;
+      using Member_Value_Type = Section_Data_Member_Value_Type<Index,Data_Type>;
 
       // Interface
       //============================================================
@@ -66,7 +66,7 @@ namespace sak
       using Data_Type = T;
       using Data_Manager_Type = Section_Data_Manager<T>;
       using Handle_Type = Section_Handle<T>;
-      using Member_Value_Type = Section_Data_Member_Type<0,Data_Type>;
+      using Member_Value_Type = Section_Data_Member_Value_Type<0,Data_Type>;
 
       // Interface
       //============================================================
@@ -150,7 +150,7 @@ namespace sak
 
     // Undoable change an object's member value. If this handle is invalid or not in the data nothing happens.
     template <std::size_t Index>
-    void change_at(Handle_Type const& a_handle, Section_Data_Member_Type<Index,Data_Type> const& a_value)
+    void change_at(Handle_Type const& a_handle, Section_Data_Member_Value_Type<Index,Data_Type> const& a_value)
     {
       internal::Do_Change_At<Index,Data_Type>()(m_data_manager, m_command_history, a_handle, a_value);
     }

@@ -26,32 +26,31 @@
 #ifndef INCLUDE_BOOST_VARIANT
 #define INCLUDE_BOOST_VARIANT
 #include <boost/variant.hpp>
-
 #endif
+
+#include "shared_attributes.hpp"
 
 namespace sak
 {
-  //---------------------------------------------------------------------------
-  // Shared_Data_Class
-  //---------------------------------------------------------------------------
-  // Data that is present for all data types, always at the front.
-
-  using Shared_Data_Class =
-  flamingo::data_class
-  <
-  flamingo::data_member<QString, FLAMINGO_LITYPE_STRING(u8"Name")>
-  ,flamingo::data_member<QString, FLAMINGO_LITYPE_STRING(u8"Description")>
-  >;
-
-
-  //---------------------------------------------------------------------------
-  // typelist_to_variant
-  //---------------------------------------------------------------------------
-  // This is only used here.
 
   namespace internal
   {
+    //---------------------------------------------------------------------------
+    // Shared_Data_Class
+    //---------------------------------------------------------------------------
+    // Data that is present for all data types, always at the front.
 
+    using Shared_Data_Class =
+    flamingo::data_class
+    <
+    flamingo::data_member<Text_Line, FLAMINGO_LITYPE_STRING(u8"Name")>
+    ,flamingo::data_member<Text_Long, FLAMINGO_LITYPE_STRING(u8"Description")>
+    >;
+
+    //---------------------------------------------------------------------------
+    // typelist_to_variant
+    //---------------------------------------------------------------------------
+    // This is only used here.
     template <typename T_List>
     struct typelist_to_variant;
 
@@ -63,6 +62,25 @@ namespace sak
 
     template <typename T_List>
     using typelist_to_variant_t = typename typelist_to_variant<T_List>::type;
+
+
+    //---------------------------------------------------------------------------
+    // Value_Data_Class
+    //---------------------------------------------------------------------------
+    // Data class that will hold the actual data values
+    template <typename T>
+    class Value_Data_Class;
+
+
+    template <typename...T, typename...N>
+    class Value_Data_Class<flamingo::data_class<flamingo::data_member<T,N>...>>
+    {
+    public:
+      using Type = flamingo::data_class<flamingo::data_member<typename T::Value_Type,N>...>;
+    };
+
+    template <typename T>
+    using Value_Data_Class_Type = typename Value_Data_Class<T>::Type;
   }
 
   //---------------------------------------------------------------------------
@@ -71,6 +89,15 @@ namespace sak
   // We wrap our flamingo::data_class with a simple typename and forward
   // everything to it. The data_class has to be available as a public typedef
   // so we can build forwarding utilities.
+
+  /*
+  - We are supplied with a class that contains data traits.
+  - There is a list of members that are traits classes with names.
+  - Supply access to the traits classes to find out what to do with the values.
+  - Supply access to the value type so it can be stored.
+  */
+
+
   template <typename T_Data_Traits>
   class Section_Data
   {
@@ -78,15 +105,19 @@ namespace sak
     using Typestring = typename T_Data_Traits::Typestring;
     using Typestring_Plural = typename T_Data_Traits::Typestring_Plural;
     // Always have the shared members first.
-    using Data_Class = flamingo::data_class_concatenate_t<Shared_Data_Class, typename T_Data_Traits::Data_Class>;
+    using Data_Class = flamingo::data_class_concatenate_t<internal::Shared_Data_Class, typename T_Data_Traits::Data_Class>;
+
+    using Value_Data_Class = internal::Value_Data_Class_Type<Data_Class>;
+
+
     // Must do this after the shared members are added.
     using Member_Value_Variant = internal::typelist_to_variant_t<flamingo::data_class_member_typelist_t<Data_Class>>;
 
-    static std::basic_string<typename Typestring::char_type> type()
+    static decltype(auto) type()
     {
       return std::basic_string<typename Typestring::char_type>(Typestring::data());
     }
-    static std::basic_string<typename Typestring::char_type> type_plural()
+    static decltype(auto) type_plural()
     {
       return std::basic_string<typename Typestring::char_type>(Typestring_Plural::data());
     }
@@ -138,7 +169,7 @@ namespace sak
     }
 
   private:
-    Data_Class m_data;
+    Value_Data_Class m_data;
   };
 
 
@@ -169,10 +200,29 @@ namespace sak
   {
   public:
     using Type = flamingo::data_class_member_t<Index,typename T::Data_Class>;
+
   };
 
   template <std::size_t I, typename T>
   using Section_Data_Member_Type = typename Section_Data_Member<I,T>::Type;
+
+  //---------------------------------------------------------------------------
+  // Section_Data_Member_Value<Index, T>
+  //---------------------------------------------------------------------------
+  // Member name type of a Section_Data<> class
+
+  // Access to member types for types that inherit shared::data_class
+  template <std::size_t Index, typename T>
+  class Section_Data_Member_Value
+  {
+  public:
+    using Type = flamingo::data_class_member_t<Index,typename T::Value_Data_Class>;
+
+  };
+
+  template <std::size_t I, typename T>
+  using Section_Data_Member_Value_Type = typename Section_Data_Member_Value<I,T>::Type;
+
 
   //---------------------------------------------------------------------------
   // Section_Data_Member_Name<Index, T>
@@ -190,6 +240,8 @@ namespace sak
   template <std::size_t I, typename T>
   using Section_Data_Member_Name_Type = typename Section_Data_Member_Name<I,T>::Type;
 
+
+
   //---------------------------------------------------------------------------
   // Section_Data_Member_Typelist<T>
   //---------------------------------------------------------------------------
@@ -203,6 +255,22 @@ namespace sak
 
   template <typename T>
   using Section_Data_Member_Typelist_Type = typename Section_Data_Member_Typelist<T>::Type;
+
+  //---------------------------------------------------------------------------
+  // Section_Data_Member_Value_Typelist<T>
+  //---------------------------------------------------------------------------
+
+  template <typename T>
+  class Section_Data_Member_Value_Typelist
+  {
+  public:
+    using Type = flamingo::data_class_member_typelist_t<typename T::Value_Data_Class>;
+  };
+
+  template <typename T>
+  using Section_Data_Member_Value_Typelist_Type = typename Section_Data_Member_Value_Typelist<T>::Type;
+
+
 
   //---------------------------------------------------------------------------
   // Section_Data_Member_Name_Typelist<T>
@@ -219,23 +287,31 @@ namespace sak
   using Section_Data_Member_Name_Typelist_t = typename Section_Data_Member_Name_Typelist<T>::Type;
 
   //---------------------------------------------------------------------------
-  // Section_Data_Member_Variant<T>
+  // Section_Data_Member_Value_Variant<T>
   //---------------------------------------------------------------------------
 
   template <typename T>
-  class Section_Data_Member_Variant
+  class Section_Data_Member_Value_Variant
   {
   public:
-    using Type = internal::typelist_to_variant_t<flamingo::typelist_unique_t<Section_Data_Member_Typelist_Type<T>>>;
+    using Type = internal::typelist_to_variant_t<flamingo::typelist_unique_t<Section_Data_Member_Value_Typelist_Type<T>>>;
   };
 
   template <typename T>
-  using Section_Data_Member_Variant_Type = typename Section_Data_Member_Variant<T>::Type;
+  using Section_Data_Member_Value_Variant_Type = typename Section_Data_Member_Value_Variant<T>::Type;
 
 
   //------------------------------------------------------------------------------------------------------------------------------------------------------
   // Now we define the individual data sections. These could go in their own
   // files depending on how complicated they get.
+
+
+  namespace internal
+  {
+    using Literal_String_S =   FLAMINGO_LITYPE_STRING(u8"s");
+  }
+
+
 
   //---------------------------------------------------------------------------
   // File
@@ -246,22 +322,18 @@ namespace sak
   {
   public:
     using Typestring = FLAMINGO_LITYPE_STRING(u8"File");
-    using Typestring_Plural = FLAMINGO_LITYPE_STRING(u8"Files");
+    using Typestring_Plural = flamingo::litype::string_concatenate_t<Typestring, internal::Literal_String_S>;
 
     using Data_Class =
     flamingo::data_class
     <
-    flamingo::data_member<QString, FLAMINGO_LITYPE_STRING(u8"Buildpath")>
-    ,flamingo::data_member<QString, FLAMINGO_LITYPE_STRING(u8"Sourcepath")>
-    ,flamingo::data_member<bool, FLAMINGO_LITYPE_STRING(u8"Booltest")>
-    ,flamingo::data_member<QString, FLAMINGO_LITYPE_STRING(u8"std_stringtest")>
+    //flamingo::data_member<QString, FLAMINGO_LITYPE_STRING(u8"Buildpath")>
+    //,flamingo::data_member<QString, FLAMINGO_LITYPE_STRING(u8"Sourcepath")>
+    //,flamingo::data_member<bool, FLAMINGO_LITYPE_STRING(u8"Booltest")>
+    //,flamingo::data_member<QString, FLAMINGO_LITYPE_STRING(u8"std_stringtest")>
     >;
 
   };
-
-  class File_Data :
-      public Section_Data<File_Data_Traits>
-  {};
 
   //------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -270,24 +342,22 @@ namespace sak
   //---------------------------------------------------------------------------
   // Typestring classes and unique data members
 
+
   class Texture_Data_Traits
   {
   public:
     using Typestring = FLAMINGO_LITYPE_STRING(u8"Texture");
-    using Typestring_Plural = FLAMINGO_LITYPE_STRING(u8"Textures");
+    using Typestring_Plural = flamingo::litype::string_concatenate_t<Typestring, internal::Literal_String_S>;
 
     using Data_Class =
     flamingo::data_class
     <
-    flamingo::data_member<QString, FLAMINGO_LITYPE_STRING(u8"Buildpath")>
-    ,flamingo::data_member<QString, FLAMINGO_LITYPE_STRING(u8"Sourcepath")>
+    //flamingo::data_member<QString, FLAMINGO_LITYPE_STRING(u8"Buildpath")>
+    //,flamingo::data_member<QString, FLAMINGO_LITYPE_STRING(u8"Sourcepath")>
     >;
 
   };
 
-  class Texture_Data :
-      public Section_Data<Texture_Data_Traits>
-  {};
 }
 
 

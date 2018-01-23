@@ -85,11 +85,11 @@ namespace sak
   public:
     // Typedefs
     //============================================================
-    using Member_Value_Type = Section_Data_Member_Type<Index,Data_Type>;
+    using Value_Type = Section_Data_Member_Value_Type<Index,Data_Type>;
 
     // Special 6
     //============================================================
-    Command_Assign(Data_Manager_Type* a_data_manager, Handle_Type const& a_handle, Member_Value_Type const& a_value):
+    Command_Assign(Data_Manager_Type* a_data_manager, Handle_Type const& a_handle, Value_Type const& a_value):
       Abstract_Signalling_Command<T>(a_data_manager, a_handle),
       m_new_value{a_value},
       m_old_value{m_handle->cmember_at<Index>()}
@@ -118,14 +118,14 @@ namespace sak
   private:
     // Data Members
     //============================================================
-    Member_Value_Type m_new_value;
-    Member_Value_Type m_old_value;
+    Value_Type m_new_value;
+    Value_Type m_old_value;
   };
 
   template <std::size_t Index, typename T>
   decltype(auto) make_command_assign(typename Command_Assign<Index,T>::Data_Manager_Type* a_data_manager,
                                      typename Command_Assign<Index,T>::Handle_Type const& a_handle,
-                                     typename Command_Assign<Index,T>::Member_Value_Type const& a_value)
+                                     typename Command_Assign<Index,T>::Value_Type const& a_value)
   {
     return std::unique_ptr<Abstract_Command>(std::make_unique<Command_Assign<Index,T>>(a_data_manager, a_handle, a_value).release());
   }

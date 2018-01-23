@@ -1,5 +1,6 @@
 ﻿#include "section_interface.hpp"
 
+//#include "section_data.hpp"
 #include "section_data_manager.hpp"
 #include "section_command.hpp"
 #include "command_history.hpp"
@@ -127,7 +128,7 @@ void sak::Section_Interface<T>::remove(Handle_Type const& a_handle)
   }
 }
 
-// Undoable change an object's maember value. If this handle is invalid or not in the data nothing happens.
+// Undoable change an object's member value. If this handle is invalid or not in the data nothing happens.
 // If the variant data is the wrong type for the member at the index nothing happens.
 
 // Got to separate out the actual work so the specialisation for the first member is hidden.
@@ -154,7 +155,7 @@ void sak::internal::Do_Change_At<0,T>::operator()(
     Handle_Type const& a_handle,
     Member_Value_Type const& a_value)
 {
-  static_assert(std::is_same<Section_Data_Member_Type<0,T>, QString>::value, "Member 0 has a type that is not QString...");
+  static_assert(std::is_same<Section_Data_Member_Value_Type<0,T>, QString>::value, "Member 0 has a type that is not QString...");
 
   if (a_value == a_handle->cmember_at<0>())
   {
@@ -201,15 +202,15 @@ template sak::File_Interface;
 
 template sak::internal::Do_Change_At<0,sak::File_Data>;
 template sak::internal::Do_Change_At<1,sak::File_Data>;
-template sak::internal::Do_Change_At<2,sak::File_Data>;
-template sak::internal::Do_Change_At<3,sak::File_Data>;
-template sak::internal::Do_Change_At<4,sak::File_Data>;
-template sak::internal::Do_Change_At<5,sak::File_Data>;
+//template sak::internal::Do_Change_At<2,sak::File_Data>;
+//template sak::internal::Do_Change_At<3,sak::File_Data>;
+//template sak::internal::Do_Change_At<4,sak::File_Data>;
+//template sak::internal::Do_Change_At<5,sak::File_Data>;
 
 template sak::Texture_Interface;
 
 template sak::internal::Do_Change_At<0,sak::Texture_Data>;
 template sak::internal::Do_Change_At<1,sak::Texture_Data>;
-template sak::internal::Do_Change_At<2,sak::Texture_Data>;
-template sak::internal::Do_Change_At<3,sak::Texture_Data>;
+//template sak::internal::Do_Change_At<2,sak::Texture_Data>;
+//template sak::internal::Do_Change_At<3,sak::Texture_Data>;
 

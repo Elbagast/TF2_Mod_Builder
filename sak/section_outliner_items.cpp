@@ -21,6 +21,7 @@
 #include "project_outliner_items.hpp"
 #include "section_interface.hpp"
 #include "section_handle.hpp"
+#include "section_data.hpp"
 
 namespace
 {
@@ -92,21 +93,27 @@ void sak::Section_Outliner_Item<T>::set_data(QVariant const& a_value)
 template <typename T>
 QWidget* sak::Section_Outliner_Item<T>::get_editor(QWidget* a_parent)
 {
-  return new QLineEdit(a_parent);
+  using Member_Type = Section_Data_Member_Type<0,T>;
+  auto l_widget = Member_Type::make_empty_widget();
+  l_widget->setParent(a_parent);
+
+  return l_widget.release();
 }
 
 // Set the data in the editor to the value in the item
 template <typename T>
 void sak::Section_Outliner_Item<T>::set_editor_data(QWidget* a_editor)
 {
-  static_cast<QLineEdit*>(a_editor)->setText(cget_name());
+  using Member_Type = Section_Data_Member_Type<0,T>;
+  Member_Type::set_widget_value(a_editor, cget_name());
 }
 
 // Get the data in the editor and return it
 template <typename T>
 QVariant sak::Section_Outliner_Item<T>::get_editor_data(QWidget* a_editor)
 {
-  return QVariant(static_cast<QLineEdit*>(a_editor)->text());
+  using Member_Type = Section_Data_Member_Type<0,T>;
+  return QVariant(Member_Type::get_widget_value(a_editor));
 }
 
 // Other

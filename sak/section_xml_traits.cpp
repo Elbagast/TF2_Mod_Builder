@@ -21,7 +21,7 @@ namespace sak
       template <std::size_t Index, std::size_t End = Section_Data_Size_v<Data_Type>>
       struct do_loop
       {
-        using member_type = Section_Data_Member_Type<Index, Data_Type>;
+        using member_type = Section_Data_Member_Value_Type<Index, Data_Type>;
         using member_name_type = Section_Data_Member_Name_Type<Index, Data_Type>;
 
         using name_string_type = std::basic_string<typename member_name_type::char_type>;
@@ -72,7 +72,7 @@ namespace sak
       template <std::size_t Index, std::size_t End = Section_Data_Size_v<Data_Type>>
       struct do_loop
       {
-        using member_type = Section_Data_Member_Type<Index, Data_Type>;
+        using member_type = Section_Data_Member_Value_Type<Index, Data_Type>;
         using member_name_type = Section_Data_Member_Name_Type<Index, Data_Type>;
 
         using name_string_type = std::basic_string<typename member_name_type::char_type>;
