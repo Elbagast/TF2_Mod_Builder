@@ -24,7 +24,7 @@
 #include "abstract_section_signalbox.hpp"
 #include "section_interface.hpp"
 #include "section_command.hpp"
-#include "section_xml_traits.hpp"
+#include "xml_traits.hpp"
 
 #include <sak/name_utilities.hpp>
 
@@ -158,8 +158,11 @@ void sak::Project_Data::save() const
    // start the element that contains all the data
    l_stream.writeStartElement("Project");
 
-   cimp().m_file_manager.to_xmlstream(l_stream);
-   cimp().m_texture_manager.to_xmlstream(l_stream);
+   Xml_Traits<File_Data_Manager>::to_stream(l_stream, cimp().m_file_manager);
+   Xml_Traits<Texture_Data_Manager>::to_stream(l_stream, cimp().m_texture_manager);
+
+   //cimp().m_file_manager.to_xmlstream(l_stream);
+   //cimp().m_texture_manager.to_xmlstream(l_stream);
 
    // end the element that contains all the data
    l_stream.writeEndElement();
@@ -193,8 +196,12 @@ void sak::Project_Data::load()
     if (l_stream.readNextStartElement()
         && l_stream.name().toString() == "Project")
     {
-      l_data->m_file_manager.from_xmlstream(l_stream);
-      l_data->m_texture_manager.from_xmlstream(l_stream);
+
+      Xml_Traits<File_Data_Manager>::from_stream(l_stream, l_data->m_file_manager);
+      Xml_Traits<Texture_Data_Manager>::from_stream(l_stream, l_data->m_texture_manager);
+
+      //l_data->m_file_manager.from_xmlstream(l_stream);
+      //l_data->m_texture_manager.from_xmlstream(l_stream);
 
       // </Project>
       qDebug() << "tokenstring = " << l_stream.tokenString() << l_stream.name().toString();

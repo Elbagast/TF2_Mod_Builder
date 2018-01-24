@@ -1,13 +1,10 @@
 ﻿#include "section_data_manager.hpp"
 
-#include <QXmlStreamWriter>
-#include <QXmlStreamReader>
 #include <QDebug>
 
 #include "section_data.hpp"
 #include "section_handle.hpp"
 #include "abstract_section_signalbox.hpp"
-#include "section_xml_traits.hpp"
 
 #include <sak/name_utilities.hpp>
 
@@ -44,7 +41,7 @@ namespace
 //============================================================
 template <typename T>
 sak::Section_Data_Manager<T>::Section_Data_Manager():
-  m_manager{},
+  m_manager{std::make_unique<Manager_Type>()},
   m_handles{},
   m_signalboxes{}
 {}
@@ -62,6 +59,7 @@ void sak::Section_Data_Manager<T>::changed(Handle_Type const& a_handle)
   qDebug() << "sak::Section_Data_Manager<T>::changed "<< a_handle.id().value();
   // This thing must exist
   assert(flamingo::not_null(a_handle));
+  assert(m_manager.get() == a_handle.manager());
   assert(std::find(m_handles.cbegin(), m_handles.cend(), a_handle) != m_handles.cend());
 
   for (Signalbox_Type* l_item : m_signalboxes) l_item->changed(a_handle);
@@ -75,6 +73,7 @@ void sak::Section_Data_Manager<T>::changed_at(Handle_Type const& a_handle, std::
   qDebug() << "sak::Section_Data_Manager<T>::changed_at "<< a_handle.id().value() << ", " << a_section;
   // This thing must exist
   assert(flamingo::not_null(a_handle));
+  assert(m_manager.get() == a_handle.manager());
   assert(std::find(m_handles.cbegin(), m_handles.cend(), a_handle) != m_handles.cend());
 
   for (Signalbox_Type* l_item : m_signalboxes) l_item->changed_at(a_handle, a_section);
@@ -87,8 +86,8 @@ void sak::Section_Data_Manager<T>::added(Handle_Type const& a_handle)
   qDebug() << "sak::Section_Data_Manager<T>::added "<< a_handle.id().value();
   // This thing must exist
   assert(flamingo::not_null(a_handle));
-  assert(std::addressof(m_manager) == a_handle.manager());
-  assert(m_manager.is_valid(a_handle.id()));
+  assert(m_manager.get() == a_handle.manager());
+  assert(m_manager->is_valid(a_handle.id()));
   // but not yet be part of the Project
   assert(std::find(m_handles.cbegin(), m_handles.cend(), a_handle) == m_handles.cend());
   m_handles.push_back(a_handle);
@@ -102,6 +101,7 @@ void sak::Section_Data_Manager<T>::removed(Handle_Type const& a_handle)
 {
   qDebug() << "sak::Section_Data_Manager<T>::removed "<< a_handle.id().value();
   assert(flamingo::not_null(a_handle));
+  assert(m_manager.get() == a_handle.manager());
   auto l_found = std::find(m_handles.begin(), m_handles.end(), a_handle);
   assert(l_found != m_handles.cend());
   assert(std::addressof(a_handle) != std::addressof(*l_found));
@@ -125,6 +125,7 @@ void sak::Section_Data_Manager<T>::requests_editor(Handle_Type const& a_handle)
   qDebug() << "sak::Section_Data_Manager<T>::requests_editor "<< a_handle.id().value();
   // This thing must exist
   assert(flamingo::not_null(a_handle));
+  assert(m_manager.get() == a_handle.manager());
   assert(std::find(m_handles.cbegin(), m_handles.cend(), a_handle) != m_handles.cend());
 
   for (Signalbox_Type* l_item : m_signalboxes) l_item->requests_editor(a_handle);
@@ -137,6 +138,7 @@ void sak::Section_Data_Manager<T>::requests_focus(Handle_Type const& a_handle)
   qDebug() << "sak::Section_Data_Manager<T>::requests_focus "<< a_handle.id().value();
   // This thing must exist
   assert(flamingo::not_null(a_handle));
+  assert(m_manager.get() == a_handle.manager());
   assert(std::find(m_handles.cbegin(), m_handles.cend(), a_handle) != m_handles.cend());
 
   for (Signalbox_Type* l_item : m_signalboxes) l_item->requests_focus(a_handle);
@@ -211,7 +213,7 @@ std::vector<QString> sak::Section_Data_Manager<T>::get_all_names() const
 template <typename T>
 typename sak::Section_Data_Manager<T>::Handle_Type sak::Section_Data_Manager<T>::make_emplace(Data_Type&& a_object)
 {
-  return m_manager.make_handle(std::move(a_object));
+  return m_manager->make_handle(std::move(a_object));
 }
 
 // Make a new file using the default parameters. Project's data management system owns it
@@ -226,86 +228,6 @@ typename sak::Section_Data_Manager<T>::Handle_Type sak::Section_Data_Manager<T>:
   l_object.member_at<0>() = l_name;
   return make_emplace(std::move(l_object));
 }
-
-// Write the contents of this to the xml stream.
-template <typename T>
-void sak::Section_Data_Manager<T>::to_xmlstream(QXmlStreamWriter& a_stream) const
-{
-  // Start the Files block
-  a_stream.writeStartElement(section_title<T>::value());
-  a_stream.writeTextElement(c_count_title, QString::number(count()));
-
-  for (auto const& l_handle : m_handles)
-  {
-    sak::Section_Xml_Traits<Data_Type>::to_stream(a_stream, *l_handle);
-  }
-
-  // End the Files block
-  a_stream.writeEndElement();
-}
-
-// Replace all data in this with that which is read from the xml stream.
-template <typename T>
-void sak::Section_Data_Manager<T>::from_xmlstream(QXmlStreamReader& a_stream)
-{
-  // Read the Files
-  if (a_stream.readNextStartElement() && a_stream.name().toString() == section_title<T>::value())
-  {
-    qDebug() << "tokenstring = " << a_stream.tokenString() << a_stream.name().toString();
-    //qDebug() << "Files:";
-    int l_count {0};
-
-    // <Count>
-    if (a_stream.readNextStartElement() && a_stream.name().toString() == c_count_title)
-    {
-      qDebug() << "tokenstring = " << a_stream.tokenString() << a_stream.name().toString();
-
-      l_count = a_stream.readElementText().toInt();
-      //qDebug() << "Count = " << l_count;
-
-      qDebug() << "tokenstring = " << a_stream.tokenString() << a_stream.name().toString();
-    }
-    else
-    {
-      qDebug() << "Didn't find " << section_title<T>::value() << " " << c_count_title;
-      qDebug() << "Last element: " << a_stream.qualifiedName().toString();
-      // file format error
-    }
-
-    m_handles.reserve(l_count);
-    // read the files
-    for (int l_index = 0; l_index != l_count; ++l_index)
-    {
-      Data_Type l_object{};
-      sak::Section_Xml_Traits<Data_Type>::from_stream(a_stream, l_object);
-
-      auto l_handle = make_emplace(std::move(l_object));
-      m_handles.push_back(std::move(l_handle));
-    }
-    // </Files>
-
-    qDebug() << "tokenstring = " << a_stream.tokenString() << a_stream.name().toString();
-    if (a_stream.readNext() != QXmlStreamReader::Characters)
-    {
-      // Bad file structure
-      qDebug() << "Didn't find Characters";
-    }
-    qDebug() << "tokenstring = " << a_stream.tokenString() << a_stream.name().toString();
-    if (a_stream.readNext() != QXmlStreamReader::EndElement)
-    {
-      // Bad file structure
-      qDebug() << "Didn't find EndElement";
-    }
-    qDebug() << "tokenstring = " << a_stream.tokenString() << a_stream.name().toString();
-  }
-  else
-  {
-    // Bad file structure
-    qDebug() << "Didn't find " << section_title<T>::value() << "...";
-    qDebug() << "Last element: " << a_stream.qualifiedName().toString();
-  }
-}
-
 
 // Add an object that will rely on the outbound data signals. If nulltpr, nothing happens.
 template <typename T>
@@ -337,6 +259,25 @@ void sak::Section_Data_Manager<T>::clear_signalboxes()
   m_signalboxes.clear();
 }
 
+// Swap the data with that of another
+template <typename T>
+void sak::Section_Data_Manager<T>::swap(Section_Data_Manager& a_other)
+{
+  using std::swap;
+  using flamingo::swap;
+
+  swap(m_manager, a_other.m_manager);
+  swap(m_handles, a_other.m_handles);
+  swap(m_signalboxes, a_other.m_signalboxes);
+}
+
+/*
+template <typename T>
+void sak::swap(Section_Data_Manager<T>& a_lhs, Section_Data_Manager<T>& a_rhs)
+{
+  a_lhs.swap(a_rhs);
+}
+*/
 // Forced Instantiations
 //============================================================
 template sak::File_Data_Manager;

@@ -217,25 +217,25 @@ namespace sak
       // if it exists, remove it
       if (l_found != a_widgets.cend())
       {
-          // Add it to the tabwidget
-          a_tabwidget->setUpdatesEnabled(false);
-          // If we want an icon it goes in here....
+        // Add it to the tabwidget
+        a_tabwidget->setUpdatesEnabled(false);
+        // If we want an icon it goes in here....
 
-          for (int l_index = 0, l_end = a_tabwidget->count(); l_index != l_end; ++l_index)
+        for (int l_index = 0, l_end = a_tabwidget->count(); l_index != l_end; ++l_index)
+        {
+          if (a_tabwidget->widget(l_index) == l_found->get())
           {
-              if (a_tabwidget->widget(l_index) == l_found->get())
-              {
-                  a_tabwidget->removeTab(l_index);
-                  break;
-              }
+            a_tabwidget->removeTab(l_index);
+            break;
           }
+        }
 
-          a_tabwidget->setUpdatesEnabled(true);
+        a_tabwidget->setUpdatesEnabled(true);
 
-          // make sure the widget dies
-          l_found->reset();
-          // erase it
-          a_widgets.erase(l_found);
+        // make sure the widget dies
+        l_found->reset();
+        // erase it
+        a_widgets.erase(l_found);
       }
     }
 
@@ -250,27 +250,27 @@ namespace sak
       // if it exists, focus on it
       if (l_found != a_widgets.cend())
       {
-          for (int l_index = 0, l_end = a_tabwidget->count(); l_index != l_end; ++l_index)
+        for (int l_index = 0, l_end = a_tabwidget->count(); l_index != l_end; ++l_index)
+        {
+          if (a_tabwidget->widget(l_index) == l_found->get())
           {
-              if (a_tabwidget->widget(l_index) == l_found->get())
-              {
-                  a_tabwidget->setCurrentIndex(l_index);
-                  break;
-              }
+            a_tabwidget->setCurrentIndex(l_index);
+            break;
           }
+        }
       }
       // otherwise make it and focus on it
       else
       {
-          a_widgets.push_back(std::make_unique<Widget_Type>(a_project, a_handle, nullptr));
+        a_widgets.push_back(std::make_unique<Widget_Type>(a_project, a_handle, nullptr));
 
-          // Add it to the tabwidget
-          a_tabwidget->setUpdatesEnabled(false);
-          // insert the tab at the front
-          // If we want an icon it goes in here....
-          a_tabwidget->insertTab(0,a_widgets.back().get(), a_handle->cmember_at<0>());
-          a_tabwidget->setUpdatesEnabled(true);
-          a_tabwidget->setCurrentIndex(0);
+        // Add it to the tabwidget
+        a_tabwidget->setUpdatesEnabled(false);
+        // insert the tab at the front
+        // If we want an icon it goes in here....
+        a_tabwidget->insertTab(0,a_widgets.back().get(), a_handle->cmember_at<0>());
+        a_tabwidget->setUpdatesEnabled(true);
+        a_tabwidget->setCurrentIndex(0);
       }
     }
 

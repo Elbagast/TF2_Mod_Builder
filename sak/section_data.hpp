@@ -44,7 +44,7 @@ namespace sak
     flamingo::data_class
     <
     flamingo::data_member<Text_Line, FLAMINGO_LITYPE_STRING(u8"Name")>
-    ,flamingo::data_member<Text_Long, FLAMINGO_LITYPE_STRING(u8"Description")>
+    ,flamingo::data_member<Text_Line, FLAMINGO_LITYPE_STRING(u8"Description")>
     >;
 
     //---------------------------------------------------------------------------
@@ -104,6 +104,9 @@ namespace sak
   public:
     using Typestring = typename T_Data_Traits::Typestring;
     using Typestring_Plural = typename T_Data_Traits::Typestring_Plural;
+
+    using Iconpath_String = typename T_Data_Traits::Iconpath;
+
     // Always have the shared members first.
     using Data_Class = flamingo::data_class_concatenate_t<internal::Shared_Data_Class, typename T_Data_Traits::Data_Class>;
 
@@ -121,6 +124,11 @@ namespace sak
     {
       return std::basic_string<typename Typestring::char_type>(Typestring_Plural::data());
     }
+    static decltype(auto) iconpath()
+    {
+      return std::basic_string<typename Iconpath_String::char_type>(Iconpath_String::data());
+    }
+
 
 
     Section_Data() :
@@ -324,6 +332,8 @@ namespace sak
     using Typestring = FLAMINGO_LITYPE_STRING(u8"File");
     using Typestring_Plural = flamingo::litype::string_concatenate_t<Typestring, internal::Literal_String_S>;
 
+    using Iconpath = FLAMINGO_LITYPE_STRING(u8"D:\\Source Army Knife\\Icons\\file_icon.png");
+
     using Data_Class =
     flamingo::data_class
     <
@@ -348,6 +358,8 @@ namespace sak
   public:
     using Typestring = FLAMINGO_LITYPE_STRING(u8"Texture");
     using Typestring_Plural = flamingo::litype::string_concatenate_t<Typestring, internal::Literal_String_S>;
+
+    using Iconpath = FLAMINGO_LITYPE_STRING(u8"D:\\Source Army Knife\\Icons\\texture_icon.png");
 
     using Data_Class =
     flamingo::data_class

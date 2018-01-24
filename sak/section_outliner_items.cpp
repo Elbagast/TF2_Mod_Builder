@@ -68,11 +68,15 @@ QVariant sak::Section_Outliner_Item<T>::get_data(int a_role) const
   }
   else if (a_role == Qt::DecorationRole)
   {
-    return QVariant(QIcon(QPixmap("D:\\Temp\\sak\\file_icon.png")));
+    static QString const s_iconpath{ QString::fromStdString(T::iconpath()) };
+    // Going to need an icon for each type
+    return QVariant(QIcon(QPixmap(s_iconpath)));
   }
   else if (a_role == Qt::ToolTipRole)
   {
-    return QVariant(cget_description());
+    // No tooltips for now.
+    return QVariant();
+    //return QVariant(cget_description());
   }
   else
   {

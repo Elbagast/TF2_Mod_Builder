@@ -140,8 +140,12 @@ void sak::internal::Do_Change_At<Index,T>::operator()(
     Handle_Type const& a_handle,
     Member_Value_Type const& a_value)
 {
+  // If the input equals the old value
   if (a_value == a_handle->cmember_at<Index>())
   {
+    // Nothing happens to the value, but we need to tell things to update
+    // to keep the gui correct.
+    a_data_manager->changed_at(a_handle,Index );
     return;
   }
   a_command_history->add_execute(make_command_assign<Index,T>(a_data_manager, a_handle, a_value));
@@ -157,8 +161,12 @@ void sak::internal::Do_Change_At<0,T>::operator()(
 {
   static_assert(std::is_same<Section_Data_Member_Value_Type<0,T>, QString>::value, "Member 0 has a type that is not QString...");
 
+  // If the input name equals the old name
   if (a_value == a_handle->cmember_at<0>())
   {
+    // Nothing happens to the value, but we need to tell things to update
+    // to keep the gui correct.
+    a_data_manager->changed_at(a_handle,0);
     return;
   }
   // We must make sure the name does not already exist among the other names.
@@ -169,6 +177,15 @@ void sak::internal::Do_Change_At<0,T>::operator()(
 
   QString l_final_name{a_value};
   uniqueify_name(l_final_name, l_names);
+
+  // If the modified name equals the old name
+  if (l_final_name == a_handle->cmember_at<0>())
+  {
+    // Nothing happens to the value, but we need to tell things to update
+    // to keep the gui correct.
+    a_data_manager->changed_at(a_handle,0);
+    return;
+  }
   a_command_history->add_execute(make_command_assign<0,T>(a_data_manager, a_handle, l_final_name));
 }
 

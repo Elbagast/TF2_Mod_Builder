@@ -134,7 +134,6 @@ SOURCES += \
     sak/section_handle.cpp \
     sak/abstract_section_signalbox.cpp \
     sak/section_data_manager.cpp \
-    sak/section_xml_traits.cpp \
     sak/abstract_member_edit_widget.cpp \
     sak/section_command.cpp \
     sak/section_interface.cpp \
@@ -142,7 +141,9 @@ SOURCES += \
     sak/section_widget.cpp \
     sak/edit_widget_traits.cpp \
     sak/valve_attributes.cpp \
-    sak/shared_attributes.cpp
+    sak/shared_attributes.cpp \
+    sak/xml_traits.cpp \
+    sak/typestring_qstring.cpp
     
 
 HEADERS  += \
@@ -201,8 +202,6 @@ HEADERS  += \
     sak/section_data_manager.hpp \
     sak/section_data_manager_fwd.hpp \
     sak/abstract_section_signalbox.hpp \
-    sak/section_xml_traits.hpp \
-    sak/section_xml_traits_fwd.hpp \
     sak/abstract_member_edit_widget.hpp \
     sak/abstract_member_edit_widget_fwd.hpp \
     sak/section_command_fwd.hpp \
@@ -218,7 +217,11 @@ HEADERS  += \
     sak/member_types_fwd.hpp \
     sak/valve_attributes_fwd.hpp \
     sak/valve_attributes.hpp \
-    sak/shared_attributes.hpp
+    sak/shared_attributes.hpp \
+    sak/xml_traits.hpp \
+    sak/xml_traits_fwd.hpp \
+    sak/typestring_qstring.hpp \
+    sak/typestring_qstring_fwd.hpp
     
 
 FORMS

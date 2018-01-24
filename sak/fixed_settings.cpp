@@ -39,6 +39,6 @@ namespace
 QString sak::Fixed_Settings::default_project_location()
 {
   //static QString const s_value{build_default_project_location()};
-  static QString const s_value{u8"D:\\Temp\\sak"};
+  static QString const s_value{u8"D:\\Source Army Knife\\Test Projects"};
   return s_value;
 }

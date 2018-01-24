@@ -23,8 +23,8 @@
 #include <QString>
 #endif
 
-class QXmlStreamWriter;
-class QXmlStreamReader;
+//class QXmlStreamWriter;
+//class QXmlStreamReader;
 
 namespace sak
 {
@@ -121,10 +121,10 @@ namespace sak
     Handle_Type make();
 
     // Write the contents of this to the xml stream.
-    void to_xmlstream(QXmlStreamWriter& a_stream) const;
+    //void to_xmlstream(QXmlStreamWriter& a_stream) const;
 
     // Replace all data in this with that which is read from the xml stream.
-    void from_xmlstream(QXmlStreamReader& a_stream);
+    //void from_xmlstream(QXmlStreamReader& a_stream);
 
     // Add an object that will rely on the outbound data signals. If nulltpr, nothing happens.
     void add_signalbox(Signalbox_Type* a_signalbox);
@@ -135,13 +135,23 @@ namespace sak
     // Remove all signalboxes
     void clear_signalboxes();
 
+    // Swap the data with that of another
+    void swap(Section_Data_Manager& a_other);
+
   private:
     // Data Members
     //============================================================
-    Manager_Type m_manager;
+    std::unique_ptr<Manager_Type> m_manager; //has to be a pointer because it can't move
     std::vector<Handle_Type> m_handles;
     std::vector<Signalbox_Type*> m_signalboxes;
   };
+
+
+  template <typename T>
+  void swap(Section_Data_Manager<T>& a_lhs, Section_Data_Manager<T>& a_rhs)
+  {
+    a_lhs.swap(a_rhs);
+  }
 }
 
 #endif // SAK_SECTION_DATA_MANAGER_HPP
