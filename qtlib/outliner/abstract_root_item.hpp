@@ -1,4 +1,4 @@
-#ifndef QTLIB_OUTLINER_ABSTRACT_ROOT_HPP
+﻿#ifndef QTLIB_OUTLINER_ABSTRACT_ROOT_HPP
 #define QTLIB_OUTLINER_ABSTRACT_ROOT_HPP
 
 #include "abstract_item.hpp"
@@ -15,7 +15,7 @@ namespace qtlib
             // Abstract subclass of abstract::Item. Subclass from this for your root
             // (invisible) object in an outliner item tree. Functions that are part of
             // the abstract::Item interface that will not be called on the root item
-            // are finalised with do-nothing implemenations. Your implemenation of
+            // are finalised with do-nothing implementations. Your implementation of
             // do_custom_context_menu is what will be carried out in the view if one is
             // requested where no item is present.
 

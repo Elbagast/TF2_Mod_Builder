@@ -18,6 +18,9 @@
 #include <qtlib/outliner/delegate.hpp>
 #include <qtlib/outliner/treeview.hpp>
 
+#include "outliner_model.hpp"
+#include "outliner_delegate.hpp"
+#include "outliner_view_widget.hpp"
 #include "project_outliner_items.hpp"
 
 //---------------------------------------------------------------------------
@@ -33,13 +36,13 @@ namespace sak
   {
   public:
     Project_Data& m_project;
-    qtlib::outliner::Model m_model;
-    qtlib::outliner::Delegate m_delegate;
+    Outliner_Model m_model;
+    Outliner_Delegate m_delegate;
 
     std::unique_ptr<Project_Outliner_Root_Item> m_root;
 
     std::unique_ptr<QHBoxLayout> m_layout;
-    std::unique_ptr<qtlib::outliner::Treeview> m_treeview;
+    std::unique_ptr<Outliner_View_Widget> m_view;
 
 
     explicit Implementation(Project_Data& a_project);
@@ -139,7 +142,7 @@ namespace sak
 
 
       // When a object has its data changed in a specific place, this is called.
-      static void changed_at(Header_Item_Type* a_header, qtlib::outliner::Model& a_model, Handle_Type const& a_handle, std::size_t a_section)
+      static void changed_at(Header_Item_Type* a_header, Outliner_Model& a_model, Handle_Type const& a_handle, std::size_t a_section)
       {
         qDebug() << "sak::Project_Outliner_Widget::Implementation::changed_at "<< QString::fromStdString(Data_Type::type()) <<" " << a_handle.id().value() << " " << a_section;
         if (a_section == 0)
@@ -154,7 +157,7 @@ namespace sak
         }
       }
       // When a object has been added, this is called.
-      static void added(Project_Outliner_Root_Item* a_root, qtlib::outliner::Model& a_model, Handle_Type const& a_handle)
+      static void added(Project_Outliner_Root_Item* a_root, Outliner_Model& a_model, Handle_Type const& a_handle)
       {
         qDebug() << "sak::Project_Outliner_Widget::Implementation::added "<< QString::fromStdString(Data_Type::type()) <<" " << a_handle.id().value();
 
@@ -180,7 +183,7 @@ namespace sak
         assert(l_old + 1 == l_header->get_child_count());
       }
       // When a object has been removed, this is called.
-      static void removed(Project_Outliner_Root_Item* a_root, qtlib::outliner::Model& a_model, Handle_Type const& a_handle)
+      static void removed(Project_Outliner_Root_Item* a_root, Outliner_Model& a_model, Handle_Type const& a_handle)
       {
         qDebug() << "sak::Project_Outliner_Widget::Implementation::removed "<< QString::fromStdString(Data_Type::type()) <<" " << a_handle.id().value();
         auto l_header_item = header_traits<Data_Type>::get(a_root);
@@ -212,7 +215,7 @@ namespace sak
         qDebug() << "sak::Project_Outliner_Widget::Implementation::requests_editor "<< QString::fromStdString(Data_Type::type()) <<" " << a_handle.id().value() << "does nothing.";
       }
       // When focus is changed to be on a object, call this
-      static void requests_focus(qtlib::outliner::Treeview* a_treeview, Project_Outliner_Root_Item* a_root, qtlib::outliner::Model& a_model, Handle_Type const& a_handle)
+      static void requests_focus(Outliner_View_Widget* a_treeview, Project_Outliner_Root_Item* a_root, Outliner_Model& a_model, Handle_Type const& a_handle)
       {
         qDebug() << "sak::Project_Outliner_Widget::Implementation::requests_focus "<< QString::fromStdString(Data_Type::type()) <<" " << a_handle.id().value();
         // Change the item selection in the outliner to this File.
@@ -233,7 +236,7 @@ sak::Project_Outliner_Widget::Implementation::Implementation(Project_Data& a_pro
     m_delegate{},
     m_root{std::make_unique<Project_Outliner_Root_Item>(a_project)},
     m_layout{std::make_unique<QHBoxLayout>()},
-    m_treeview{std::make_unique<qtlib::outliner::Treeview>()}
+    m_view{std::make_unique<Outliner_View_Widget>()}
 {
     m_model.set_root(m_root.get());
     assert(m_model.is_active());
@@ -244,15 +247,15 @@ sak::Project_Outliner_Widget::Implementation::Implementation(Project_Data& a_pro
     assert(m_model.index(0,0,QModelIndex()).internalPointer() == m_root.get()->get_true_child());
     //assert(m_model.index(0,0,m_model.index(0,0,QModelIndex())).internalPointer() == m_root.get()->get_child(0));
 
-    m_treeview->setItemDelegate(&m_delegate);
-    m_treeview->set_model(&m_model);
+    m_view->setItemDelegate(&m_delegate);
+    m_view->set_model(&m_model);
 
     m_project.add_signalbox(this);
 
     m_layout->setSpacing(0);
     m_layout->setContentsMargins(0,0,0,0);
 
-    m_layout->addWidget(m_treeview.get());
+    m_layout->addWidget(m_view.get());
 }
 
 sak::Project_Outliner_Widget::Implementation::~Implementation() = default;
@@ -291,7 +294,7 @@ void sak::Project_Outliner_Widget::Implementation::requests_editor(File_Handle c
 // When focus is changed to be on a File, call this
 void sak::Project_Outliner_Widget::Implementation::requests_focus(File_Handle const& a_file)
 {
-  do_stuff<File_Data>::requests_focus(m_treeview.get(), m_root.get(), m_model, a_file);
+  do_stuff<File_Data>::requests_focus(m_view.get(), m_root.get(), m_model, a_file);
 }
 
 
@@ -330,7 +333,7 @@ void sak::Project_Outliner_Widget::Implementation::requests_editor(Texture_Handl
 // When focus is changed to be on a texture, call this
 void sak::Project_Outliner_Widget::Implementation::requests_focus(Texture_Handle const& a_texture)
 {
-  do_stuff<Texture_Data>::requests_focus(m_treeview.get(), m_root.get(), m_model, a_texture);
+  do_stuff<Texture_Data>::requests_focus(m_view.get(), m_root.get(), m_model, a_texture);
 }
 
 // Special 6

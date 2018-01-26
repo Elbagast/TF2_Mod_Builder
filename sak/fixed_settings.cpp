@@ -9,7 +9,7 @@
 
 QString sak::Fixed_Settings::application_name()
 {
-  static QString const s_value{"TF2 Mod Builder"};
+  static QString const s_value{u8"TF2 Mod Builder"};
   return s_value;
 }
 

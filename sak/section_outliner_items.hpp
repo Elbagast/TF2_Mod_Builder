@@ -21,8 +21,11 @@
 #include "section_data.hpp"
 #endif
 
-#include <qtlib/outliner/branch_item.hpp>
-#include <qtlib/outliner/leaf_item.hpp>
+//#include <qtlib/outliner/branch_item.hpp>
+//#include <qtlib/outliner/leaf_item.hpp>
+
+#include "abstract_outliner_branch_item.hpp"
+#include "abstract_outliner_parented_item.hpp"
 
 namespace sak
 {
@@ -35,7 +38,7 @@ namespace sak
   {
     template <typename T>
     using Section_Outliner_Item_Base =
-    qtlib::outliner::Leaf_Item<Section_Outliner_Header_Item<T>>;
+    Abstract_Outliner_Leaf_Item<Section_Outliner_Header_Item<T>>;
   }
 
 
@@ -50,7 +53,7 @@ namespace sak
 
     // Special 6
     //============================================================
-    Section_Outliner_Item(parent_type* a_parent, Handle_Type const& a_handle);
+    Section_Outliner_Item(Parent_Item_Type* a_parent, Handle_Type const& a_handle);
     ~Section_Outliner_Item() override final;
 
     // Virtual Interface
@@ -79,9 +82,9 @@ namespace sak
     // actions can call functions in it for editing.  Position is the position in terms of
     // the widget rather than the window. Use a_view->viewport()->mapToGlobal(a_position)
     // to get the position relative to the window for a properly placed menu.
-    void do_context_menu(QAbstractItemView* a_view, model_type* a_model, QPoint const& a_position) override final;
+    void do_context_menu(QAbstractItemView* a_view, Outliner_Model* a_model, QPoint const& a_position) override final;
     // Do whatever we want when an item has been double clicked on.
-    void do_double_clicked(QAbstractItemView* a_view, model_type* a_model) override final;
+    void do_double_clicked(QAbstractItemView* a_view, Outliner_Model* a_model) override final;
 
 
     // Additional Interface
@@ -109,7 +112,7 @@ namespace sak
   {
     template <typename T>
     using Section_Outliner_Header_Item_Base =
-    qtlib::outliner::Readonly_Branch_Item<Project_Outliner_Project_Item, Section_Outliner_Item<T>>;
+    Abstract_Outliner_Readonly_Branch_Item<Project_Outliner_Project_Item, Section_Outliner_Item<T>>;
   }
 
   template <typename T>
@@ -125,7 +128,7 @@ namespace sak
 
     // Special 6
     //============================================================
-    explicit Section_Outliner_Header_Item(parent_type* a_parent, bool a_read_files = true);
+    explicit Section_Outliner_Header_Item(Parent_Item_Type* a_parent, bool a_read_files = true);
     ~Section_Outliner_Header_Item() override final;
 
     // Virtual Interface
@@ -140,9 +143,9 @@ namespace sak
     // actions can call functions in it for editing.  Position is the position in terms of
     // the widget rather than the window. Use a_view->viewport()->mapToGlobal(a_position)
     // to get the position relative to the window for a properly placed menu.
-    void do_context_menu(QAbstractItemView* a_view, model_type* a_model, QPoint const& a_position) override final;
+    void do_context_menu(QAbstractItemView* a_view, Outliner_Model* a_model, QPoint const& a_position) override final;
     // Do whatever we want when an item has been double clicked on.
-    void do_double_clicked(QAbstractItemView* a_view, model_type* a_model) override final;
+    void do_double_clicked(QAbstractItemView* a_view, Outliner_Model* a_model) override final;
 
     // Additional Interface
     //============================================================
@@ -152,7 +155,7 @@ namespace sak
     // Returns get_child_count() if it is not found.
     std::size_t index_of(Handle_Type const& a_handle) const;
     // What File_Item holds this File_Handle? Returns nullptr if not found.
-    child_type* item_of(Handle_Type const& a_handle) const;
+    Child_Item_Type* item_of(Handle_Type const& a_handle) const;
 
     // When a File has had its name changed, this is called.
     void name_changed(Handle_Type const& a_handle);

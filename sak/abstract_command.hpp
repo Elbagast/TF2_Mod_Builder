@@ -38,14 +38,14 @@ namespace sak
 
     // Has the Command not been exectuted or unexecuted?
     bool is_initial_state() const;
-    // Has the Command not been exectuted?
+    // Has the Command been exectuted?
     bool is_executed() const;
-    // Has the Command not been unexecuted?
+    // Has the Command been unexecuted?
     bool is_unexecuted() const;
 
-    // Can the Command not been executed?
+    // Can the Command be executed?
     bool can_execute() const;
-    // Can the Command not been unexecuted?
+    // Can the Command be unexecuted?
     bool can_unexecute() const;
 
   protected:

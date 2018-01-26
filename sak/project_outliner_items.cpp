@@ -8,7 +8,8 @@
 #include <QLineEdit>
 #include <QAbstractItemView>
 
-#include <qtlib/outliner/model.hpp>
+//#include <qtlib/outliner/model.hpp>
+#include "outliner_model.hpp"
 
 #include "project_data.hpp"
 
@@ -36,7 +37,7 @@ sak::Project_Outliner_Root_Item::Project_Outliner_Root_Item(Project_Data& a_proj
   internal::Project_Outliner_Root_Item_Base(),
   m_project{a_project}
 {
-  this->set_child(std::make_unique<child_type>(this));
+  this->set_true_child(std::make_unique<Child_Item_Type>(this));
 }
 sak::Project_Outliner_Root_Item::~Project_Outliner_Root_Item() = default;
 
@@ -48,7 +49,7 @@ sak::Project_Outliner_Root_Item::~Project_Outliner_Root_Item() = default;
 // actions can call functions in it for editing.  Position is the position in terms of
 // the widget rather than the window. Use a_view->viewport()->mapToGlobal(a_position)
 // to get the position relative to the window for a properly placed menu.
-void sak::Project_Outliner_Root_Item::do_context_menu(QAbstractItemView* a_view, model_type* a_model, QPoint const& a_position)
+void sak::Project_Outliner_Root_Item::do_context_menu(QAbstractItemView* a_view, Outliner_Model* a_model, QPoint const& a_position)
 {
   // silence warnings for arguments we don't use in this implementation
   unused(a_view, a_model, a_position);
@@ -61,9 +62,9 @@ void sak::Project_Outliner_Root_Item::do_context_menu(QAbstractItemView* a_view,
 }
 
 // Do whatever we want when an item has been double clicked on.
-void sak::Project_Outliner_Root_Item::do_double_clicked(QAbstractItemView* a_view, model_type* a_model)
+void sak::Project_Outliner_Root_Item::do_double_clicked(QAbstractItemView* a_view, Outliner_Model* a_model)
 {
-  return item_type::do_double_clicked(a_view, a_model);
+  return Abstract_Outliner_Item::do_double_clicked(a_view, a_model);
 }
 
 // Additional Interface
@@ -101,7 +102,7 @@ sak::Texture_Outliner_Header_Item* sak::Project_Outliner_Root_Item::texture_head
 
 // Special 6
 //============================================================
-sak::Project_Outliner_Project_Item::Project_Outliner_Project_Item(parent_type* a_parent):
+sak::Project_Outliner_Project_Item::Project_Outliner_Project_Item(Parent_Item_Type* a_parent):
     internal::Project_Outliner_Project_Item_Base(a_parent)
 {
   initialise_files(true);
@@ -132,7 +133,7 @@ QVariant sak::Project_Outliner_Project_Item::get_data(int a_role) const
 // actions can call functions in it for editing.  Position is the position in terms of
 // the widget rather than the window. Use a_view->viewport()->mapToGlobal(a_position)
 // to get the position relative to the window for a properly placed menu.
-void sak::Project_Outliner_Project_Item::do_context_menu(QAbstractItemView* a_view, model_type* a_model, QPoint const& a_position)
+void sak::Project_Outliner_Project_Item::do_context_menu(QAbstractItemView* a_view, Outliner_Model* a_model, QPoint const& a_position)
 {
   // silence warnings for arguments we don't use in this implementation
   unused(a_view, a_model, a_position);
@@ -157,9 +158,9 @@ void sak::Project_Outliner_Project_Item::do_context_menu(QAbstractItemView* a_vi
 }
 
 // Do whatever we want when an item has been double clicked on.
-void sak::Project_Outliner_Project_Item::do_double_clicked(QAbstractItemView* a_view, model_type* a_model)
+void sak::Project_Outliner_Project_Item::do_double_clicked(QAbstractItemView* a_view, Outliner_Model* a_model)
 {
-  return this->item_type::do_double_clicked(a_view, a_model);
+  return this->Abstract_Outliner_Item::do_double_clicked(a_view, a_model);
 }
 
 // Additional Interface
@@ -180,7 +181,7 @@ sak::File_Outliner_Header_Item* sak::Project_Outliner_Project_Item::file_header_
 
 void sak::Project_Outliner_Project_Item::initialise_files(bool a_read_files)
 {
-  this->set_child<0>(std::make_unique<child_type<0>>(this, a_read_files));
+  this->set_child<0>(std::make_unique<Child_Item_Type<0>>(this, a_read_files));
 }
 
 void sak::Project_Outliner_Project_Item::close_files()
@@ -198,7 +199,7 @@ sak::Texture_Outliner_Header_Item* sak::Project_Outliner_Project_Item::texture_h
 
 void sak::Project_Outliner_Project_Item::initialise_textures(bool a_read)
 {
-  this->set_child<1>(std::make_unique<child_type<1>>(this, a_read));
+  this->set_child<1>(std::make_unique<Child_Item_Type<1>>(this, a_read));
 }
 
 void sak::Project_Outliner_Project_Item::close_textures()

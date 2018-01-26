@@ -11,8 +11,13 @@
 
 #include "section_outliner_items.hpp"
 
-#include <qtlib/outliner/root_trunk_item.hpp>
-#include <qtlib/outliner/multitrunk_item.hpp>
+//#include <qtlib/outliner/root_trunk_item.hpp>
+//#include <qtlib/outliner/multitrunk_item.hpp>
+
+#include "abstract_outliner_item.hpp"
+#include "abstract_outliner_trunk_item.hpp"
+#include "abstract_outliner_multitrunk_item.hpp"
+
 
 #ifndef INCLUDE_STD_MEMORY
 #define INCLUDE_STD_MEMORY
@@ -32,7 +37,7 @@ namespace sak
   namespace internal
   {
     using Project_Outliner_Root_Item_Base =
-    qtlib::outliner::Root_Trunk_Item<Project_Outliner_Project_Item>;
+    Abstract_Outliner_Root_Trunk_Item<Project_Outliner_Project_Item>;
   }
 
   class Project_Outliner_Root_Item :
@@ -52,9 +57,9 @@ namespace sak
     // actions can call functions in it for editing.  Position is the position in terms of
     // the widget rather than the window. Use a_view->viewport()->mapToGlobal(a_position)
     // to get the position relative to the window for a properly placed menu.
-    void do_context_menu(QAbstractItemView* a_view, model_type* a_model, QPoint const& a_position) override final;
+    void do_context_menu(QAbstractItemView* a_view, Outliner_Model* a_model, QPoint const& a_position) override final;
     // Do whatever we want when an item has been double clicked on.
-    void do_double_clicked(QAbstractItemView* a_view, model_type* a_model) override final;
+    void do_double_clicked(QAbstractItemView* a_view, Outliner_Model* a_model) override final;
 
     // Additional Interface
     //============================================================
@@ -81,7 +86,7 @@ namespace sak
   namespace internal
   {
     using Project_Outliner_Project_Item_Base =
-    qtlib::outliner::Readonly_Multitrunk_Item<Project_Outliner_Root_Item, File_Outliner_Header_Item, Texture_Outliner_Header_Item>;
+    Abstract_Outliner_Readonly_Multitrunk_Item<Project_Outliner_Root_Item, File_Outliner_Header_Item, Texture_Outliner_Header_Item>;
   }
 
   class Project_Outliner_Project_Item :
@@ -91,7 +96,7 @@ namespace sak
 
     // Special 6
     //============================================================
-    explicit Project_Outliner_Project_Item(parent_type* a_parent);
+    explicit Project_Outliner_Project_Item(Parent_Item_Type* a_parent);
     ~Project_Outliner_Project_Item() override;
 
     // Virtual Interface
@@ -107,9 +112,9 @@ namespace sak
     // actions can call functions in it for editing.  Position is the position in terms of
     // the widget rather than the window. Use a_view->viewport()->mapToGlobal(a_position)
     // to get the position relative to the window for a properly placed menu.
-    void do_context_menu(QAbstractItemView* a_view, model_type* a_model, QPoint const& a_position) override final;
+    void do_context_menu(QAbstractItemView* a_view, Outliner_Model* a_model, QPoint const& a_position) override final;
     // Do whatever we want when an item has been double clicked on.
-    void do_double_clicked(QAbstractItemView* a_view, model_type* a_model) override final;
+    void do_double_clicked(QAbstractItemView* a_view, Outliner_Model* a_model) override final;
 
     // Additional Interface
     //============================================================

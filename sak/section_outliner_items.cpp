@@ -15,7 +15,9 @@
 #include <QPixmap>
 #include <QIcon>
 
-#include <qtlib/outliner/model.hpp>
+//#include <qtlib/outliner/model.hpp>
+
+#include "outliner_model.hpp"
 
 #include "project_data.hpp"
 #include "project_outliner_items.hpp"
@@ -43,7 +45,7 @@ namespace
 // Special 6
 //============================================================
 template <typename T>
-sak::Section_Outliner_Item<T>::Section_Outliner_Item(parent_type* a_parent, Handle_Type const& a_handle):
+sak::Section_Outliner_Item<T>::Section_Outliner_Item(Parent_Item_Type* a_parent, Handle_Type const& a_handle):
     Inherited_Type(a_parent),
     m_handle{a_handle}
 {
@@ -134,7 +136,7 @@ Qt::ItemFlags sak::Section_Outliner_Item<T>::get_flags() const
 // the widget rather than the window. Use a_view->viewport()->mapToGlobal(a_position)
 // to get the position relative to the window for a properly placed menu.
 template <typename T>
-void sak::Section_Outliner_Item<T>::do_context_menu(QAbstractItemView* a_view, model_type* a_model, QPoint const& a_position)
+void sak::Section_Outliner_Item<T>::do_context_menu(QAbstractItemView* a_view, Outliner_Model* a_model, QPoint const& a_position)
 {
   unused(a_view, a_model,a_position);
 
@@ -170,7 +172,7 @@ void sak::Section_Outliner_Item<T>::do_context_menu(QAbstractItemView* a_view, m
 
 // Do whatever we want when an item has been double clicked on.
 template <typename T>
-void sak::Section_Outliner_Item<T>::do_double_clicked(QAbstractItemView*, model_type*)
+void sak::Section_Outliner_Item<T>::do_double_clicked(QAbstractItemView*, Outliner_Model*)
 {
   this->get_project().get_interface<T>().request_editor(this->m_handle);
 }
@@ -227,7 +229,7 @@ QString sak::Section_Outliner_Item<T>::cget_description() const
 // Special 6
 //============================================================
 template <typename T>
-sak::Section_Outliner_Header_Item<T>::Section_Outliner_Header_Item(parent_type* a_parent, bool a_read_files):
+sak::Section_Outliner_Header_Item<T>::Section_Outliner_Header_Item(Parent_Item_Type* a_parent, bool a_read_files):
     Inherited_Type(a_parent)
 {
   if (a_read_files)
@@ -269,7 +271,7 @@ QVariant sak::Section_Outliner_Header_Item<T>::get_data(int a_role) const
 // the widget rather than the window. Use a_view->viewport()->mapToGlobal(a_position)
 // to get the position relative to the window for a properly placed menu.
 template <typename T>
-void sak::Section_Outliner_Header_Item<T>::do_context_menu(QAbstractItemView* a_view, model_type* a_model, QPoint const& a_position)
+void sak::Section_Outliner_Header_Item<T>::do_context_menu(QAbstractItemView* a_view, Outliner_Model* a_model, QPoint const& a_position)
 {
   unused(a_view, a_model,a_position);
 
@@ -291,9 +293,9 @@ void sak::Section_Outliner_Header_Item<T>::do_context_menu(QAbstractItemView* a_
 
 // Do whatever we want when an item has been double clicked on.
 template <typename T>
-void sak::Section_Outliner_Header_Item<T>::do_double_clicked(QAbstractItemView* a_view, model_type* a_model)
+void sak::Section_Outliner_Header_Item<T>::do_double_clicked(QAbstractItemView* a_view, Outliner_Model* a_model)
 {
-  return this->item_type::do_double_clicked(a_view, a_model);
+  return this->Abstract_Outliner_Item::do_double_clicked(a_view, a_model);
 }
 
 // Additional Interface
@@ -328,7 +330,7 @@ std::size_t sak::Section_Outliner_Header_Item<T>::index_of(Handle_Type const& a_
 
 // What item holds this Handle_Type? Returns nullptr if not found.
 template <typename T>
-typename sak::Section_Outliner_Header_Item<T>::child_type* sak::Section_Outliner_Header_Item<T>::item_of(Handle_Type const& a_handle) const
+typename sak::Section_Outliner_Header_Item<T>::Child_Item_Type* sak::Section_Outliner_Header_Item<T>::item_of(Handle_Type const& a_handle) const
 {
   auto l_index = static_cast<int>(index_of(a_handle));
   if (l_index != get_child_count())

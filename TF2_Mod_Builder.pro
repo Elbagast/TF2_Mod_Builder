@@ -143,7 +143,15 @@ SOURCES += \
     sak/valve_attributes.cpp \
     sak/shared_attributes.cpp \
     sak/xml_traits.cpp \
-    sak/typestring_qstring.cpp
+    sak/typestring_qstring.cpp \
+    sak/outliner_model.cpp \
+    sak/abstract_outliner_item.cpp \
+    sak/outliner_delegate.cpp \
+    sak/outliner_view_widget.cpp \
+    sak/abstract_outliner_parented_item.cpp \
+    sak/abstract_outliner_trunk_item.cpp \
+    sak/abstract_outliner_branch_item.cpp \
+    sak/abstract_outliner_multitrunk_item.cpp
     
 
 HEADERS  += \
@@ -221,7 +229,23 @@ HEADERS  += \
     sak/xml_traits.hpp \
     sak/xml_traits_fwd.hpp \
     sak/typestring_qstring.hpp \
-    sak/typestring_qstring_fwd.hpp
+    sak/typestring_qstring_fwd.hpp \
+    sak/outliner_model.hpp \
+    sak/outliner_model_fwd.hpp \
+    sak/abstract_outliner_item.hpp \
+    sak/abstract_outliner_item_fwd.hpp \
+    sak/outliner_delegate.hpp \
+    sak/outliner_delegate_fwd.hpp \
+    sak/outliner_view_widget.hpp \
+    sak/outliner_view_widget_fwd.hpp \
+    sak/abstract_outliner_parented_item.hpp \
+    sak/abstract_outliner_parented_item_fwd.hpp \
+    sak/abstract_outliner_trunk_item.hpp \
+    sak/abstract_outliner_trunk_item_fwd.hpp \
+    sak/abstract_outliner_branch_item.hpp \
+    sak/abstract_outliner_branch_item_fwd.hpp \
+    sak/abstract_outliner_multitrunk_item.hpp \
+    sak/abstract_outliner_multitrunk_item_fwd.hpp
     
 
 FORMS
