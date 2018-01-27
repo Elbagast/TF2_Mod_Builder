@@ -9,21 +9,18 @@
 #include "project_data_fwd.hpp"
 #endif
 
-#include "section_outliner_items.hpp"
-
-//#include <qtlib/outliner/root_trunk_item.hpp>
-//#include <qtlib/outliner/multitrunk_item.hpp>
-
-#include "abstract_outliner_item.hpp"
+#ifndef SAK_ABSTRACT_OUTLINER_TRUNK_ITEM_HPP
 #include "abstract_outliner_trunk_item.hpp"
-#include "abstract_outliner_multitrunk_item.hpp"
-
-
-#ifndef INCLUDE_STD_MEMORY
-#define INCLUDE_STD_MEMORY
-#include <memory>
 #endif
 
+#ifndef SAK_ABSTRACT_OUTLINER_MULTITRUNK_ITEM_HPP
+#include "abstract_outliner_multitrunk_item.hpp"
+#endif
+
+// Need these names for the template definitions.
+#ifndef SAK_SECTION_OUTLINER_ITEMS_FWD_HPP
+#include "section_outliner_items_fwd.hpp"
+#endif
 
 namespace sak
 {
@@ -108,6 +105,8 @@ namespace sak
 
     // Other
     //----------------------------------------
+    // Get the flags for this item
+    Qt::ItemFlags get_flags() const override final;
     // Make and act on the context menu for this item. Need the model pointer here so that
     // actions can call functions in it for editing.  Position is the position in terms of
     // the widget rather than the window. Use a_view->viewport()->mapToGlobal(a_position)

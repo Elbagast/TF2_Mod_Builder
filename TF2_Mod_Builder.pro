@@ -107,20 +107,6 @@ SOURCES += \
     valve/asset_filepath.cpp \
     generic/string_conversion.cpp \
     qtlib/string_conversion.cpp \
-    qtlib/outliner/abstract_item.cpp \
-    qtlib/outliner/abstract_readonly_item.cpp \
-    qtlib/outliner/abstract_root_item.cpp \
-    qtlib/outliner/branch_item.cpp \
-    qtlib/outliner/delegate.cpp \
-    qtlib/outliner/leaf_item.cpp \
-    qtlib/outliner/model.cpp \
-    qtlib/outliner/multitrunk_item.cpp \
-    qtlib/outliner/orphan_item.cpp \
-    qtlib/outliner/parented_item.cpp \
-    qtlib/outliner/root_trunk_item.cpp \
-    qtlib/outliner/root_branch_item.cpp \
-    qtlib/outliner/trunk_item.cpp \
-    qtlib/outliner/treeview.cpp \
     sak/abstract_command.cpp \
     sak/command_history.cpp \
     sak/project_main_window.cpp \
@@ -139,7 +125,6 @@ SOURCES += \
     sak/section_interface.cpp \
     sak/section_outliner_items.cpp \
     sak/section_widget.cpp \
-    sak/edit_widget_traits.cpp \
     sak/valve_attributes.cpp \
     sak/shared_attributes.cpp \
     sak/xml_traits.cpp \
@@ -151,7 +136,8 @@ SOURCES += \
     sak/abstract_outliner_parented_item.cpp \
     sak/abstract_outliner_trunk_item.cpp \
     sak/abstract_outliner_branch_item.cpp \
-    sak/abstract_outliner_multitrunk_item.cpp
+    sak/abstract_outliner_multitrunk_item.cpp \
+    sak/abstract_outliner_leaf_item.cpp
     
 
 HEADERS  += \
@@ -170,20 +156,6 @@ HEADERS  += \
     generic/string_conversion_formats.hpp \
     generic/string_conversion.hpp \
     qtlib/string_conversion.hpp \
-    qtlib/outliner/abstract_item.hpp \
-    qtlib/outliner/abstract_readonly_item.hpp \
-    qtlib/outliner/abstract_root_item.hpp \
-    qtlib/outliner/branch_item.hpp \
-    qtlib/outliner/delegate.hpp \
-    qtlib/outliner/leaf_item.hpp \
-    qtlib/outliner/model.hpp \
-    qtlib/outliner/multitrunk_item.hpp \
-    qtlib/outliner/orphan_item.hpp \
-    qtlib/outliner/parented_item.hpp \
-    qtlib/outliner/root_trunk_item.hpp \
-    qtlib/outliner/root_branch_item.hpp \
-    qtlib/outliner/treeview.hpp \
-    qtlib/outliner/trunk_item.hpp \
     sak/abstract_command.hpp \
     sak/abstract_command_fwd.hpp \
     sak/command_history.hpp \
@@ -220,8 +192,6 @@ HEADERS  += \
     sak/section_outliner_items_fwd.hpp \
     sak/section_widget.hpp \
     sak/section_widget_fwd.hpp \
-    sak/edit_widget_traits.hpp \
-    sak/edit_widget_traits_fwd.hpp \
     sak/member_types_fwd.hpp \
     sak/valve_attributes_fwd.hpp \
     sak/valve_attributes.hpp \
@@ -245,7 +215,9 @@ HEADERS  += \
     sak/abstract_outliner_branch_item.hpp \
     sak/abstract_outliner_branch_item_fwd.hpp \
     sak/abstract_outliner_multitrunk_item.hpp \
-    sak/abstract_outliner_multitrunk_item_fwd.hpp
+    sak/abstract_outliner_multitrunk_item_fwd.hpp \
+    sak/abstract_outliner_leaf_item.hpp \
+    sak/abstract_outliner_leaf_item_fwd.hpp
     
 
 FORMS

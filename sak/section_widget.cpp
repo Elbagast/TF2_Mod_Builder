@@ -2,7 +2,7 @@
 
 #include "abstract_member_edit_widget.hpp"
 //#include <qtlib/edit/widget_traits.hpp>
-#include "edit_widget_traits.hpp"
+//#include "edit_widget_traits.hpp"
 
 #include "project_data.hpp"
 #include "section_interface.hpp"

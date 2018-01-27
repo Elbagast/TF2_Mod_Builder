@@ -13,16 +13,11 @@
 #define INCLUDE_STD_MEMORY
 #include <memory>
 #endif
-
+/*
 #ifndef INCLUDE_QT_QVARIANT
 #define INCLUDE_QT_QVARIANT
 #include <QVariant>
 #endif
-
-/*
-This lot isn't actually used anywhere so it probably has mistakes
-and bugs in it...notably the child editing interface needs a go
-over.
 
 */
 
@@ -149,7 +144,7 @@ namespace sak
   //------------------------------------------------------------------------------------------------------------------------------------------------------
 
   //---------------------------------------------------------------------------
-  // outliner::Readonly_Trunk_Item<Parent, Child>
+  // Abstract_Outliner_Readonly_Trunk_Item<Parent, Child>
   //---------------------------------------------------------------------------
   // Subclass of Trunk_Item<Parent, Child> with the write interface
   // implemented as dummy functions. This exists to solve multiple inheritance
@@ -157,11 +152,11 @@ namespace sak
 
   template <typename T_Parent_Item, typename T_Child_Item>
   class Abstract_Outliner_Readonly_Trunk_Item :
-      public Abstract_Outliner_Trunk_Item<T_Parent_Item,T_Child_Item>
+      public Abstract_Outliner_Readonly_Parented_Item<T_Parent_Item>
   {
   public:
     //using Parent_Item_Type = typename Trunk_Item<P,C>::Parent_Item_Type;
-    //using Child_Item_Type = typename Trunk_Item<P,C>::Child_Item_Type;
+    using Child_Item_Type = T_Child_Item;
 
     // Special 6
     //============================================================
@@ -170,26 +165,26 @@ namespace sak
 
     // Virtual Interface
     //============================================================
+    // Children
+    //----------------------------------------
+    // Does this item have any child items?
+    bool has_children() const override final;
+    // The number of children this item has
+    int get_child_count() const override final;
+    // Does this item have a child item at this index?
+    bool has_child_at(int a_index) const override final;
+    // Get the child at a given row, return nullptr if there is no child at row
+    Abstract_Outliner_Item* get_child_at(int a_index) const override final;
+
     // Underlying data access
     //----------------------------------------
     // Get the item data for a given column and role
     QVariant get_data(int a_role = Qt::DisplayRole) const override = 0;
-    // Set the data in item with the given value
-    void set_data(QVariant const& a_value) override final;
-
-    // Editors
-    //----------------------------------------
-    // Make the appropriate editor for this item, parenting it to parent
-    QWidget* get_editor(QWidget* a_parent) override final;
-    // Set the data in the editor to the value in the item
-    void set_editor_data(QWidget* a_editor) override final;
-    // Get the data in the editor and return it
-    QVariant get_editor_data(QWidget* a_editor) override final;
 
     // Other
     //----------------------------------------
     // Get the flags for this item
-    Qt::ItemFlags get_flags() const override final;
+    Qt::ItemFlags get_flags() const override = 0;
     // Make and act on the context menu for this item. Need the model pointer here so that
     // actions can call functions in it for editing.  Position is the position in terms of
     // the widget rather than the window. Use a_view->viewport()->mapToGlobal(a_position)
@@ -201,11 +196,15 @@ namespace sak
   //protected:
     // Additional Interface
     //============================================================
-    using Abstract_Outliner_Readonly_Trunk_Item<T_Parent_Item,T_Child_Item>::get_true_parent;
-    using Abstract_Outliner_Readonly_Trunk_Item<T_Parent_Item,T_Child_Item>::set_parent;
+    using Abstract_Outliner_Readonly_Parented_Item<T_Parent_Item>::get_true_parent;
+    using Abstract_Outliner_Readonly_Parented_Item<T_Parent_Item>::set_parent;
 
-    using Abstract_Outliner_Readonly_Trunk_Item<T_Parent_Item,T_Child_Item>::get_true_child;
-    using Abstract_Outliner_Readonly_Trunk_Item<T_Parent_Item,T_Child_Item>::set_true_child;
+    Child_Item_Type* get_true_child() const;
+    void set_true_child(std::unique_ptr<Child_Item_Type>&& a_item);
+
+  private:
+    //std::unique_ptr<Child_Item_Type> m_child;
+    internal::Outliner_Trunk_Item_Implementation<Child_Item_Type> m_data;
   };
 
   //------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -232,11 +231,12 @@ namespace sak
 
     // Virtual Interface
     //============================================================
+    // Children
+    //----------------------------------------
     // Does this item have any child items?
     bool has_children() const override final;
     // The number of children this item has
     int get_child_count() const override final;
-
     // Does this item have a child item at this index?
     bool has_child_at(int a_index) const override final;
     // Get the child at a given row, return nullptr if there is no child at row
@@ -258,7 +258,6 @@ namespace sak
     Child_Item_Type* get_true_child() const;
     void set_true_child(std::unique_ptr<Child_Item_Type>&& a_item);
   private:
-    //std::unique_ptr<Child_Item_Type> m_child;
     internal::Outliner_Trunk_Item_Implementation<Child_Item_Type> m_data;
   };
 } // namespace sak
@@ -332,7 +331,7 @@ void sak::internal::Outliner_Trunk_Item_Implementation<C>::set_true_child(std::u
 //------------------------------------------------------------------------------------------------------------------------------------------------------
 
 //---------------------------------------------------------------------------
-// outliner::Trunk_Item<Parent, Child>
+// Abstract_Outliner_Trunk_Item<Parent, Child>
 //---------------------------------------------------------------------------
 // Subclass of Abstract_Outliner_Item which is in the middle of the tree. It has a
 // single parent and a single child that may or may not be present. Trunk_Item
@@ -415,45 +414,46 @@ sak::Abstract_Outliner_Readonly_Trunk_Item<P,C>::~Abstract_Outliner_Readonly_Tru
 
 // Virtual Interface
 //============================================================
-// Underlying data access
+// Children
 //----------------------------------------
-// Set the data in item with the given value
+// Does this item have any child items?
 template <typename P, typename C>
-void sak::Abstract_Outliner_Readonly_Trunk_Item<P,C>::set_data(QVariant const& a_value)
+bool sak::Abstract_Outliner_Readonly_Trunk_Item<P,C>::has_children() const
 {
-  this->Abstract_Outliner_Item::set_data(a_value);
+  return m_data.has_children();
+}
+// The number of children this item has
+template <typename P, typename C>
+int sak::Abstract_Outliner_Readonly_Trunk_Item<P,C>::get_child_count() const
+{
+  return m_data.get_child_count();
 }
 
-// Editors
-//----------------------------------------
-// Make the appropriate editor for this item, parenting it to parent
+// Does this item have a child item at this index?
 template <typename P, typename C>
-QWidget* sak::Abstract_Outliner_Readonly_Trunk_Item<P,C>::get_editor(QWidget* a_parent)
+bool sak::Abstract_Outliner_Readonly_Trunk_Item<P,C>::has_child_at(int a_index) const
 {
-  return this->Abstract_Outliner_Item::set_editor_data(a_editor);
+  return m_data.has_child_at(a_index);
 }
-// Set the data in the editor to the value in the item
+// Get the child at a given row, return nullptr if there is no child at row
 template <typename P, typename C>
-void sak::Abstract_Outliner_Readonly_Trunk_Item<P,C>::set_editor_data(QWidget* a_editor)
+sak::Abstract_Outliner_Item* sak::Abstract_Outliner_Readonly_Trunk_Item<P,C>::get_child_at(int a_index) const
 {
-  return this->Abstract_Outliner_Item::get_editor_data(a_editor);
-}
-// Get the data in the editor and return it
-template <typename P, typename C>
-QVariant sak::Abstract_Outliner_Readonly_Trunk_Item<P,C>::get_editor_data(QWidget* a_editor)
-{
-  return this->Abstract_Outliner_Item::get_editor_data(a_editor);
+  return m_data.get_child_at(a_index);
 }
 
-// Other
-//----------------------------------------
-// Get the flags for this item
+// Additional Interface
+//============================================================
 template <typename P, typename C>
-Qt::ItemFlags sak::Abstract_Outliner_Readonly_Trunk_Item<P,C>::get_flags() const
+typename sak::Abstract_Outliner_Readonly_Trunk_Item<P,C>::Child_Item_Type* sak::Abstract_Outliner_Readonly_Trunk_Item<P,C>::get_true_child() const
 {
-  return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
+  return m_data.get_true_child();
 }
-
+template <typename P, typename C>
+void sak::Abstract_Outliner_Readonly_Trunk_Item<P,C>::set_true_child(std::unique_ptr<Child_Item_Type>&& a_item)
+{
+  m_data.set_true_child(std::move(a_item));
+}
 
 //------------------------------------------------------------------------------------------------------------------------------------------------------
 

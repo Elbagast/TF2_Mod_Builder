@@ -21,11 +21,13 @@
 #include "section_data.hpp"
 #endif
 
-//#include <qtlib/outliner/branch_item.hpp>
-//#include <qtlib/outliner/leaf_item.hpp>
-
+#ifndef SAK_ABSTRACT_OUTLINER_BRANCH_ITEM_HPP
 #include "abstract_outliner_branch_item.hpp"
-#include "abstract_outliner_parented_item.hpp"
+#endif
+
+#ifndef SAK_ABSTRACT_OUTLINER_LEAF_ITEM_HPP
+#include "abstract_outliner_leaf_item.hpp"
+#endif
 
 namespace sak
 {
@@ -139,6 +141,8 @@ namespace sak
     QVariant get_data(int a_role = Qt::DisplayRole) const override final;
     // Other
     //----------------------------------------
+    // Get the flags for this item
+    Qt::ItemFlags get_flags() const override final;
     // Make and act on the context menu for this item. Need the model pointer here so that
     // actions can call functions in it for editing.  Position is the position in terms of
     // the widget rather than the window. Use a_view->viewport()->mapToGlobal(a_position)

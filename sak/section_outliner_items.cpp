@@ -300,6 +300,13 @@ void sak::Section_Outliner_Header_Item<T>::do_double_clicked(QAbstractItemView* 
 
 // Additional Interface
 //============================================================
+// Get the flags for this item
+template <typename T>
+Qt::ItemFlags sak::Section_Outliner_Header_Item<T>::get_flags() const
+{
+  return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
+}
+
 template <typename T>
 sak::Project_Data& sak::Section_Outliner_Header_Item<T>::get_project()
 {

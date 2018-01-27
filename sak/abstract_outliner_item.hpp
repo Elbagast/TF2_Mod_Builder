@@ -155,8 +155,9 @@ namespace sak
 
     // Other
     //----------------------------------------
-    // Get the flags for this item
-    Qt::ItemFlags get_flags() const override final;
+    // Get the flags for this item. Do not use the flag Qt::ItemIsEditable when
+    // inheriting from this class because you will not be able to edit the data.
+    Qt::ItemFlags get_flags() const override = 0;
     // Make and act on the context menu for this item. Need the model pointer here so that
     // actions can call functions in it for editing.  Position is the position in terms of
     // the widget rather than the window. Use a_view->viewport()->mapToGlobal(a_position)

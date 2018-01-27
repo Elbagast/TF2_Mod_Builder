@@ -27,7 +27,12 @@ namespace sak
   public:
     static QString value()
     {
-      static QString const s_value = QString::fromUtf8(flamingo::litype::string<char,T_Chars...>::data(), flamingo::litype::string<char,T_Chars...>::size());
+      static QString const s_value =
+          QString::fromUtf8
+          (
+           flamingo::litype::string<char,T_Chars...>::data(),
+           static_cast<int>(flamingo::litype::string<char,T_Chars...>::size())
+          );
       return s_value;
     }
   };
@@ -38,7 +43,12 @@ namespace sak
   public:
     static QString value()
     {
-      static QString const s_value = QString::fromUtf16(flamingo::litype::string<char16_t,T_Chars...>::data(), flamingo::litype::string<char16_t,T_Chars...>::size());
+      static QString const s_value =
+          QString::fromUtf16
+          (
+           flamingo::litype::string<char16_t,T_Chars...>::data(),
+           static_cast<int>(flamingo::litype::string<char16_t,T_Chars...>::size())
+          );
       return s_value;
     }
   };
@@ -49,7 +59,12 @@ namespace sak
   public:
     static QString value()
     {
-      static QString const s_value = QString::fromUtf32(flamingo::litype::string<char32_t,T_Chars...>::data(), flamingo::litype::string<char32_t,T_Chars...>::size());
+      static QString const s_value =
+          QString::fromUcs4
+          (
+           flamingo::litype::string<char32_t,T_Chars...>::data(),
+           static_cast<int>(flamingo::litype::string<char32_t,T_Chars...>::size())
+          );
       return s_value;
     }
   };

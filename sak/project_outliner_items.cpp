@@ -14,7 +14,7 @@
 #include "project_data.hpp"
 
 #include "section_interface.hpp"
-#include "project_outliner_items.hpp"
+#include "section_outliner_items.hpp"
 
 namespace
 {
@@ -129,6 +129,12 @@ QVariant sak::Project_Outliner_Project_Item::get_data(int a_role) const
 
 // Other
 //----------------------------------------
+// Get the flags for this item
+Qt::ItemFlags sak::Project_Outliner_Project_Item::get_flags() const
+{
+  return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
+}
+
 // Make and act on the context menu for this item. Need the model pointer here so that
 // actions can call functions in it for editing.  Position is the position in terms of
 // the widget rather than the window. Use a_view->viewport()->mapToGlobal(a_position)

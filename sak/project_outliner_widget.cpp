@@ -14,10 +14,6 @@
 #include "project_data.hpp"
 #include "abstract_project_signalbox.hpp"
 
-#include <qtlib/outliner/model.hpp>
-#include <qtlib/outliner/delegate.hpp>
-#include <qtlib/outliner/treeview.hpp>
-
 #include "outliner_model.hpp"
 #include "outliner_delegate.hpp"
 #include "outliner_view_widget.hpp"

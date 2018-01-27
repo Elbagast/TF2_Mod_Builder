@@ -69,7 +69,7 @@ namespace sak
       //============================================================
       //void fixup(QString& a_input) const override final;
 
-      QValidator::State validate(QString& a_input, int& a_cursor_position) const override final
+      QValidator::State validate(QString& a_input, int& /*a_cursor_position*/) const override final
       {
         // Format [word]{Nx[directory seperator][word]} where N can be 0
         // word = combination of a...z,A...Z,_ chars
@@ -258,7 +258,7 @@ namespace sak
       //============================================================
       //void fixup(QString& a_input) const override final;
 
-      QValidator::State validate(QString& a_input, int& a_cursor_position) const override final
+      QValidator::State validate(QString& a_input, int& /*a_cursor_position*/) const override final
       {
         // Format [word]{Nx[directory seperator][word]} where N can be 0
         // word = combination of a...z,A...Z,_ chars

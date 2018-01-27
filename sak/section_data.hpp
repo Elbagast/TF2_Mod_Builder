@@ -5,6 +5,10 @@
 #include "section_data_fwd.hpp"
 #endif
 
+#ifndef SAK_SHARED_ATTRIBUTES_HPP
+#include "shared_attributes.hpp"
+#endif
+
 #ifndef FLAMINGO_DATA_CLASS_HPP
 #include <flamingo/data_class.hpp>
 #endif
@@ -27,8 +31,6 @@
 #define INCLUDE_BOOST_VARIANT
 #include <boost/variant.hpp>
 #endif
-
-#include "shared_attributes.hpp"
 
 namespace sak
 {

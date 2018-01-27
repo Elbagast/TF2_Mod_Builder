@@ -182,7 +182,7 @@ QVariant sak::Abstract_Outliner_Readonly_Item::get_editor_data(QWidget* a_editor
 // Get the flags for this item
 Qt::ItemFlags sak::Abstract_Outliner_Readonly_Item::get_flags() const
 {
-  return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
+  return this->Abstract_Outliner_Item::get_flags();
 }
 
 
