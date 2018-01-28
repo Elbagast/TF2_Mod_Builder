@@ -15,7 +15,8 @@
 #include "section_interface.hpp"
 #include "section_widget.hpp"
 
-#include "project_data.hpp"
+//#include "project_data.hpp"
+#include "project_interface.hpp"
 #include "abstract_project_signalbox.hpp"
 
 //---------------------------------------------------------------------------
@@ -23,9 +24,9 @@
 //---------------------------------------------------------------------------
 namespace
 {
-  QString make_background_text(sak::Project_Data& a_project)
+  QString make_background_text(sak::Project_Interface* a_project)
   {
-    QString l_result{a_project.name()};
+    QString l_result{a_project->name()};
     l_result.append(u8"\n\nNothing open. Open an item from the outliner.");
     return l_result;
   }
@@ -35,7 +36,7 @@ namespace
         public QLabel
   {
   public:
-    explicit Background_Widget(sak::Project_Data& a_project):
+    explicit Background_Widget(sak::Project_Interface* a_project):
         QLabel(make_background_text(a_project), nullptr)
     {
         this->setAlignment(Qt::AlignCenter);
@@ -75,7 +76,7 @@ namespace sak
       public Abstract_Project_Signalbox
   {
   public:
-    Project_Data& m_project;
+    Project_Interface* m_project;
     std::unique_ptr<QHBoxLayout> m_layout;
     std::unique_ptr<QStackedWidget> m_stackwidget;
     std::unique_ptr<Background_Widget> m_background;
@@ -83,7 +84,7 @@ namespace sak
     std::vector<std::unique_ptr<File_Widget>> m_file_widgets;
     std::vector<std::unique_ptr<Texture_Widget>> m_texture_widgets;
 
-    explicit Implementation(Project_Data& a_project);
+    explicit Implementation(Project_Interface* a_project);
     ~Implementation() override;
 
     // When a File has its data changed(anything but the name), this is called.
@@ -186,7 +187,7 @@ namespace sak
     }
 
     // When a texture has been added, this is called.
-    static void added(vector_type& a_widgets, QTabWidget* a_tabwidget, Project_Data& a_project, Handle_Type const& a_handle)
+    static void added(vector_type& a_widgets, QTabWidget* a_tabwidget, Project_Interface* a_project, Handle_Type const& a_handle)
     {
       qDebug() << "sak::Project_Editor_Widget::Implementation::added "<< QString::fromStdString(Data_Type::type()) <<" " << a_handle.id().value();
       // update the file widget count and open the widget for it.
@@ -240,7 +241,7 @@ namespace sak
     }
 
     // When a texture editor is to be opened, this is called.
-    static void requests_editor(vector_type& a_widgets, QTabWidget* a_tabwidget, Project_Data& a_project, Handle_Type const& a_handle)
+    static void requests_editor(vector_type& a_widgets, QTabWidget* a_tabwidget, Project_Interface* a_project, Handle_Type const& a_handle)
     {
       qDebug() << "sak::Project_Editor_Widget::Implementation::requests_editor "<< QString::fromStdString(Data_Type::type()) <<" " << a_handle.id().value();
       // Find the editor for this handle
@@ -301,13 +302,13 @@ namespace sak
       }
     }
 
-    static bool set_focus(Project_Data& a_project, QTabWidget* a_tabwidget, int a_index)
+    static bool set_focus(Project_Interface* a_project, QTabWidget* a_tabwidget, int a_index)
     {
       auto l_editor = dynamic_cast<Widget_Type*>(a_tabwidget->widget(a_index));
       if (l_editor != nullptr)
       {
         Handle_Type const& l_handle = l_editor->cget_handle();
-        a_project.get_interface<T>().request_focus(l_handle);
+        a_project->get_interface<T>().request_focus(l_handle);
 
         return true;
       }
@@ -322,7 +323,7 @@ namespace sak
 
 sak::Project_Editor_Widget::Implementation::~Implementation() = default;
 
-sak::Project_Editor_Widget::Implementation::Implementation(Project_Data& a_project):
+sak::Project_Editor_Widget::Implementation::Implementation(Project_Interface* a_project):
   Abstract_Project_Signalbox(),
   m_project{a_project},
   m_layout{std::make_unique<QHBoxLayout>()},
@@ -335,7 +336,7 @@ sak::Project_Editor_Widget::Implementation::Implementation(Project_Data& a_proje
   m_tabwidget->setMovable(true);
   m_tabwidget->setTabsClosable(true);
 
-  m_project.add_signalbox(this);
+  m_project->add_signalbox(this);
 
   m_stackwidget->addWidget(m_background.get());
   m_stackwidget->addWidget(m_tabwidget.get());
@@ -464,10 +465,11 @@ void sak::Project_Editor_Widget::Implementation::update_visible()
 
 // Special 6
 //============================================================
-sak::Project_Editor_Widget::Project_Editor_Widget(Project_Data& a_project, QWidget* a_parent):
+sak::Project_Editor_Widget::Project_Editor_Widget(Project_Interface* a_project, QWidget* a_parent):
   QWidget(a_parent),
   m_data{std::make_unique<Implementation>(a_project)}
 {
+  assert(a_project != nullptr);
   this->setLayout(imp().m_layout.get());
 }
 sak::Project_Editor_Widget::~Project_Editor_Widget() = default;

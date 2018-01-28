@@ -14,7 +14,7 @@
 
 #include "abstract_project_signalbox.hpp"
 
-#include "command_history.hpp"
+//#include "command_history.hpp"
 
 #include <sak/exceptions/exception.hpp>
 
@@ -22,8 +22,8 @@
 #include "section_handle.hpp"
 #include "section_data_manager.hpp"
 #include "abstract_section_signalbox.hpp"
-#include "section_interface.hpp"
-#include "section_command.hpp"
+//#include "section_interface.hpp"
+//#include "section_command.hpp"
 #include "xml_traits.hpp"
 
 #include <sak/name_utilities.hpp>
@@ -86,13 +86,13 @@ namespace sak
     File_Data_Manager m_file_manager;
     Texture_Data_Manager m_texture_manager;
 
-    Command_History m_command_history;
+    //Command_History m_command_history;
 
     explicit Implementation(QString const& a_filepath):
       m_filepath{a_filepath},
       m_file_manager{},
-      m_texture_manager{},
-      m_command_history{}
+      m_texture_manager{}//,
+      //m_command_history{}
     {
     }
     ~Implementation() = default;
@@ -115,6 +115,9 @@ namespace sak
 sak::Project_Data::Project_Data(QString const& a_filepath):
     m_data{std::make_unique<Implementation>(a_filepath)}
 {
+  // Should this emit exceptions?
+  // Does that make sense to do to loading and saving?
+
   // If the directory does not exist it will fail.
   if(!imp().m_filepath.dir().exists())
   {
@@ -143,43 +146,50 @@ sak::Project_Data& sak::Project_Data::operator=(Project_Data &&) = default;
 // Save the current data to the file.
 void sak::Project_Data::save() const
 {
- QFile l_file{(cimp().m_filepath.absoluteFilePath())};
- if (l_file.open(QFile::WriteOnly | QFile::Truncate | QFile::Text))
- {
-   //qDebug() << "File opened";
+  // Needs to spit out a detailed error if it fails.
+  // What is it and where does it go?
 
-   //QTextStream out_stream(&file);
 
-   //qDebug() << static_cast<QFile*>(out_stream.device())->fileName();
-   QXmlStreamWriter l_stream{&l_file};
-   l_stream.setAutoFormatting(true);
-   l_stream.writeStartDocument();
+  QFile l_file{(cimp().m_filepath.absoluteFilePath())};
+  if (l_file.open(QFile::WriteOnly | QFile::Truncate | QFile::Text))
+  {
+    //qDebug() << "File opened";
 
-   // start the element that contains all the data
-   l_stream.writeStartElement("Project");
+    //QTextStream out_stream(&file);
 
-   Xml_Traits<File_Data_Manager>::to_stream(l_stream, cimp().m_file_manager);
-   Xml_Traits<Texture_Data_Manager>::to_stream(l_stream, cimp().m_texture_manager);
+    //qDebug() << static_cast<QFile*>(out_stream.device())->fileName();
+    QXmlStreamWriter l_stream{&l_file};
+    l_stream.setAutoFormatting(true);
+    l_stream.writeStartDocument();
 
-   //cimp().m_file_manager.to_xmlstream(l_stream);
-   //cimp().m_texture_manager.to_xmlstream(l_stream);
+    // start the element that contains all the data
+    l_stream.writeStartElement("Project");
 
-   // end the element that contains all the data
-   l_stream.writeEndElement();
+    Xml_Traits<File_Data_Manager>::to_stream(l_stream, cimp().m_file_manager);
+    Xml_Traits<Texture_Data_Manager>::to_stream(l_stream, cimp().m_texture_manager);
 
-   l_stream.writeEndDocument();
+    //cimp().m_file_manager.to_xmlstream(l_stream);
+    //cimp().m_texture_manager.to_xmlstream(l_stream);
 
-   l_file.close();
- }
- else
- {
-   throw File_Write_Error(cimp().m_filepath.absoluteFilePath());
- }
+    // end the element that contains all the data
+    l_stream.writeEndElement();
+
+    l_stream.writeEndDocument();
+
+  l_file.close();
+  }
+  else
+  {
+    throw File_Write_Error(cimp().m_filepath.absoluteFilePath());
+  }
 }
 
 // Get the data from the file and discard the current data.
 void sak::Project_Data::load()
 {
+  // Needs to spit out a detailed error if it fails.
+  // What is it and where does it go?
+
   // Initialise new data
   auto l_data{std::make_unique<Implementation>(cimp().m_filepath.absoluteFilePath())};
 
@@ -257,8 +267,11 @@ QString sak::Project_Data::filepath() const
 // Add an object that will rely on the Project's signals. If nulltpr, nothing happens.
 void sak::Project_Data::add_signalbox(Abstract_Project_Signalbox* a_signalbox)
 {
+  //qDebug() << "adding file signalbox";
   imp().m_file_manager.add_signalbox(a_signalbox);
+  //qDebug() << "adding texture signalbox";
   imp().m_texture_manager.add_signalbox(a_signalbox);
+  //qDebug() << "done";
 }
 
 // Remove an object that will rely on the Project's signals. If nulltpr, nothing happens.
@@ -268,6 +281,16 @@ void sak::Project_Data::remove_signalbox(Abstract_Project_Signalbox* a_signalbox
   imp().m_texture_manager.remove_signalbox(a_signalbox);
 }
 
+
+// Clear all the signalboxes so that nothing relies on changes to this.
+void sak::Project_Data::clear_signalboxes()
+{
+  imp().m_file_manager.clear_signalboxes();
+  imp().m_texture_manager.clear_signalboxes();
+}
+
+
+/*
 // Can we currently call undo?
 bool sak::Project_Data::can_undo() const
 {
@@ -331,4 +354,26 @@ sak::Texture_Interface sak::Project_Data::get_texture_interface()
 {
   return Section_Interface<Texture_Data>(std::addressof(imp().m_texture_manager), std::addressof(imp().m_command_history));
 }
+*/
 
+template <>
+sak::Section_Data_Manager<sak::File_Data>* sak::Project_Data::get_manager<sak::File_Data>()
+{
+  return get_file_manager();
+}
+
+template <>
+sak::Section_Data_Manager<sak::Texture_Data>* sak::Project_Data::get_manager<sak::Texture_Data>()
+{
+  return get_texture_manager();
+}
+
+sak::File_Data_Manager* sak::Project_Data::get_file_manager()
+{
+  return std::addressof(imp().m_file_manager);
+}
+
+sak::Texture_Data_Manager* sak::Project_Data::get_texture_manager()
+{
+  return std::addressof(imp().m_texture_manager);
+}

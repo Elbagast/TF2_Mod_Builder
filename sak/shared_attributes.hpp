@@ -20,6 +20,26 @@ class QWidget;
 namespace sak
 {
   //---------------------------------------------------------------------------
+  // Text_Name
+  //---------------------------------------------------------------------------
+  // A short string of unicode text containing any characters except control
+  // characters. Max length is 256 chars. Must contain something.
+
+  class Text_Name
+  {
+  public:
+    using Typestring = FLAMINGO_LITYPE_STRING(u8"Text_Name");
+    using Value_Type = QString;
+
+    static std::unique_ptr<QWidget> make_empty_widget();
+    static std::unique_ptr<QWidget> make_widget(Value_Type const& a_value);
+    static void set_widget_value(QWidget* a_widget, Value_Type const& a_value);
+    static Value_Type get_widget_value(QWidget* a_widget);
+    static void connect_to(QWidget* a_widget, Abstract_Member_Edit_Widget* a_editor);
+  };
+
+
+  //---------------------------------------------------------------------------
   // Text_Line
   //---------------------------------------------------------------------------
   // A short string of unicode text containing any characters except control

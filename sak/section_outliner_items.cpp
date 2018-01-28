@@ -19,7 +19,7 @@
 
 #include "outliner_model.hpp"
 
-#include "project_data.hpp"
+#include "project_interface.hpp"
 #include "project_outliner_items.hpp"
 #include "section_interface.hpp"
 #include "section_handle.hpp"
@@ -149,7 +149,7 @@ void sak::Section_Outliner_Item<T>::do_context_menu(QAbstractItemView* a_view, O
   auto l_action_open = menu.addAction("Open");
   QObject::connect(l_action_open, &QAction::triggered, [this]()
   {
-    this->get_project().get_interface<T>().request_editor(this->m_handle);
+    this->get_project()->get_interface<T>().request_editor(this->m_handle);
   });
 
   // Commence an edit operation in the outliner
@@ -163,7 +163,7 @@ void sak::Section_Outliner_Item<T>::do_context_menu(QAbstractItemView* a_view, O
   auto l_action_delete = menu.addAction("Delete");
   QObject::connect(l_action_delete, &QAction::triggered, [=]()
   {
-    this->get_project().get_interface<T>().remove(this->m_handle);
+    this->get_project()->get_interface<T>().remove(this->m_handle);
   });
 
   // Execute the menu at the global posiiton.
@@ -174,19 +174,19 @@ void sak::Section_Outliner_Item<T>::do_context_menu(QAbstractItemView* a_view, O
 template <typename T>
 void sak::Section_Outliner_Item<T>::do_double_clicked(QAbstractItemView*, Outliner_Model*)
 {
-  this->get_project().get_interface<T>().request_editor(this->m_handle);
+  this->get_project()->get_interface<T>().request_editor(this->m_handle);
 }
 
 // Additional Interface
 //============================================================
 template <typename T>
-sak::Project_Data& sak::Section_Outliner_Item<T>::get_project()
+sak::Project_Interface* sak::Section_Outliner_Item<T>::get_project()
 {
   return get_true_parent()->get_project();
 }
 
 template <typename T>
-sak::Project_Data const& sak::Section_Outliner_Item<T>::cget_project() const
+sak::Project_Interface const* sak::Section_Outliner_Item<T>::cget_project() const
 {
   return get_true_parent()->cget_project();
 }
@@ -208,7 +208,7 @@ template <typename T>
 void sak::Section_Outliner_Item<T>::set_name(QString const& a_name)
 {
   // Issue the command to change the name.
-  this->get_project().get_interface<T>().change_at<0>(m_handle, a_name);
+  this->get_project()->get_interface<T>().change_at<0>(m_handle, a_name);
 }
 
 template <typename T>
@@ -234,7 +234,7 @@ sak::Section_Outliner_Header_Item<T>::Section_Outliner_Header_Item(Parent_Item_T
 {
   if (a_read_files)
   {
-    auto l_handles = this->get_project().get_interface<T>().get_all();
+    auto l_handles = this->get_project()->get_interface<T>().get_all();
 
     // sort them into whatever order and make the items
     for (auto const& l_handle : l_handles)
@@ -282,7 +282,7 @@ void sak::Section_Outliner_Header_Item<T>::do_context_menu(QAbstractItemView* a_
   auto l_action_add_new = menu.addAction("Add new " + QString::fromStdString(Data_Type::type()));
   QObject::connect(l_action_add_new, &QAction::triggered, [=]()
   {
-    this->get_project().get_interface<T>().add_default();
+    this->get_project()->get_interface<T>().add_default();
   });
 
   menu.addAction(QString::number(this->get_child_count()));
@@ -308,13 +308,13 @@ Qt::ItemFlags sak::Section_Outliner_Header_Item<T>::get_flags() const
 }
 
 template <typename T>
-sak::Project_Data& sak::Section_Outliner_Header_Item<T>::get_project()
+sak::Project_Interface* sak::Section_Outliner_Header_Item<T>::get_project()
 {
   return get_true_parent()->get_project();
 }
 
 template <typename T>
-sak::Project_Data const& sak::Section_Outliner_Header_Item<T>::cget_project() const
+sak::Project_Interface const* sak::Section_Outliner_Header_Item<T>::cget_project() const
 {
   return get_true_parent()->cget_project();
 }

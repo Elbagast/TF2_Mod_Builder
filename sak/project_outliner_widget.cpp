@@ -12,6 +12,7 @@
 
 
 #include "project_data.hpp"
+#include "project_interface.hpp"
 #include "abstract_project_signalbox.hpp"
 
 #include "outliner_model.hpp"
@@ -31,7 +32,7 @@ namespace sak
           public Abstract_Project_Signalbox
   {
   public:
-    Project_Data& m_project;
+    Project_Interface* m_project;
     Outliner_Model m_model;
     Outliner_Delegate m_delegate;
 
@@ -41,7 +42,7 @@ namespace sak
     std::unique_ptr<Outliner_View_Widget> m_view;
 
 
-    explicit Implementation(Project_Data& a_project);
+    explicit Implementation(Project_Interface* a_project);
     ~Implementation() override;
 
     // When a File has its data changed(anything but the name), this is called.
@@ -225,7 +226,7 @@ namespace sak
 
 
 
-sak::Project_Outliner_Widget::Implementation::Implementation(Project_Data& a_project):
+sak::Project_Outliner_Widget::Implementation::Implementation(Project_Interface* a_project):
     Abstract_Project_Signalbox(),
     m_project{a_project},
     m_model{},
@@ -246,7 +247,7 @@ sak::Project_Outliner_Widget::Implementation::Implementation(Project_Data& a_pro
     m_view->setItemDelegate(&m_delegate);
     m_view->set_model(&m_model);
 
-    m_project.add_signalbox(this);
+    m_project->add_signalbox(this);
 
     m_layout->setSpacing(0);
     m_layout->setContentsMargins(0,0,0,0);
@@ -259,6 +260,7 @@ sak::Project_Outliner_Widget::Implementation::~Implementation() = default;
 // When a File has its data changed(anything but the name), this is called.
 void sak::Project_Outliner_Widget::Implementation::changed(File_Handle const& a_file)
 {
+  //qDebug() << "sak::Project_Outliner_Widget::Implementation::changed " << QString::fromStdString(File_Data::type());
   //qDebug() << "outliner::widget::Implementation::data_changed";
   // don't care about except for the name, so pass it on
   changed_at(a_file, 0);
@@ -266,30 +268,35 @@ void sak::Project_Outliner_Widget::Implementation::changed(File_Handle const& a_
 // When a File has its data changed in a specific place, this is called.
 void sak::Project_Outliner_Widget::Implementation::changed_at(File_Handle const& a_file, std::size_t a_section)
 {
+  //qDebug() << "sak::Project_Outliner_Widget::Implementation::changed_at " << QString::fromStdString(File_Data::type());
   assert(m_root->file_header_item() != nullptr);
   do_stuff<File_Data>::changed_at(m_root->file_header_item(), m_model, a_file, a_section);
 }
 // When a File has been added, this is called.
 void sak::Project_Outliner_Widget::Implementation::added(File_Handle const& a_file)
 {
+  //qDebug() << "sak::Project_Outliner_Widget::Implementation::added " << QString::fromStdString(File_Data::type());
   do_stuff<File_Data>::added(m_root.get(), m_model, a_file);
 }
 
 // When a File has been removed, this is called.
 void sak::Project_Outliner_Widget::Implementation::removed(File_Handle const& a_file)
 {
+  //qDebug() << "sak::Project_Outliner_Widget::Implementation::removed " << QString::fromStdString(File_Data::type());
   do_stuff<File_Data>::removed(m_root.get(), m_model, a_file);
 }
 
 // When a File editor is to be opened, this is called.
 void sak::Project_Outliner_Widget::Implementation::requests_editor(File_Handle const& a_file)
 {
+  //qDebug() << "sak::Project_Outliner_Widget::Implementation::requests_editor " << QString::fromStdString(File_Data::type());
   do_stuff<File_Data>::requests_editor(a_file);
 }
 
 // When focus is changed to be on a File, call this
 void sak::Project_Outliner_Widget::Implementation::requests_focus(File_Handle const& a_file)
 {
+  //qDebug() << "sak::Project_Outliner_Widget::Implementation::requests_focus " << QString::fromStdString(File_Data::type());
   do_stuff<File_Data>::requests_focus(m_view.get(), m_root.get(), m_model, a_file);
 }
 
@@ -298,6 +305,7 @@ void sak::Project_Outliner_Widget::Implementation::requests_focus(File_Handle co
 // When a texture has its data changed(anything but the name), this is called.
 void sak::Project_Outliner_Widget::Implementation::changed(Texture_Handle const& a_texture)
 {
+  //qDebug() << "sak::Project_Outliner_Widget::Implementation::changed " << QString::fromStdString(Texture_Data::type());
   //qDebug() << "outliner::widget::Implementation::data_changed";
   // don't care about except for the name, so pass it on
   changed_at(a_texture, 0);
@@ -305,36 +313,41 @@ void sak::Project_Outliner_Widget::Implementation::changed(Texture_Handle const&
 // When a texture has its data changed in a specific place, this is called.
 void sak::Project_Outliner_Widget::Implementation::changed_at(Texture_Handle const& a_texture, std::size_t a_section)
 {
+  //qDebug() << "sak::Project_Outliner_Widget::Implementation::changed_at " << QString::fromStdString(Texture_Data::type());
   assert(m_root->texture_header_item() != nullptr);
   do_stuff<Texture_Data>::changed_at(m_root->texture_header_item(), m_model, a_texture, a_section);
 }
 // When a texture has been added, this is called.
 void sak::Project_Outliner_Widget::Implementation::added(Texture_Handle const& a_texture)
 {
+  //qDebug() << "sak::Project_Outliner_Widget::Implementation::texture_header_item " << QString::fromStdString(Texture_Data::type());
   do_stuff<Texture_Data>::added(m_root.get(), m_model, a_texture);
 }
 
 // When a texture has been removed, this is called.
 void sak::Project_Outliner_Widget::Implementation::removed(Texture_Handle const& a_texture)
 {
+  //qDebug() << "sak::Project_Outliner_Widget::Implementation::removed " << QString::fromStdString(Texture_Data::type());
   do_stuff<Texture_Data>::removed(m_root.get(), m_model, a_texture);
 }
 
 // When a texture editor is to be opened, this is called.
 void sak::Project_Outliner_Widget::Implementation::requests_editor(Texture_Handle const& a_texture)
 {
+  //qDebug() << "sak::Project_Outliner_Widget::Implementation::requests_editor " << QString::fromStdString(Texture_Data::type());
   do_stuff<Texture_Data>::requests_editor(a_texture);
 }
 
 // When focus is changed to be on a texture, call this
 void sak::Project_Outliner_Widget::Implementation::requests_focus(Texture_Handle const& a_texture)
 {
+  //qDebug() << "sak::Project_Outliner_Widget::Implementation::requests_focus " << QString::fromStdString(Texture_Data::type());
   do_stuff<Texture_Data>::requests_focus(m_view.get(), m_root.get(), m_model, a_texture);
 }
 
 // Special 6
 //============================================================
-sak::Project_Outliner_Widget::Project_Outliner_Widget(Project_Data& a_project, QWidget* a_parent):
+sak::Project_Outliner_Widget::Project_Outliner_Widget(Project_Interface* a_project, QWidget* a_parent):
   QWidget(a_parent),
   m_data{std::make_unique<Implementation>(a_project)}
 {

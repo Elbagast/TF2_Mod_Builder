@@ -137,7 +137,10 @@ SOURCES += \
     sak/abstract_outliner_trunk_item.cpp \
     sak/abstract_outliner_branch_item.cpp \
     sak/abstract_outliner_multitrunk_item.cpp \
-    sak/abstract_outliner_leaf_item.cpp
+    sak/abstract_outliner_leaf_item.cpp \
+    sak/exception.cpp \
+    sak/exception_dialogs.cpp \
+    sak/project_interface.cpp
     
 
 HEADERS  += \
@@ -217,7 +220,12 @@ HEADERS  += \
     sak/abstract_outliner_multitrunk_item.hpp \
     sak/abstract_outliner_multitrunk_item_fwd.hpp \
     sak/abstract_outliner_leaf_item.hpp \
-    sak/abstract_outliner_leaf_item_fwd.hpp
+    sak/abstract_outliner_leaf_item_fwd.hpp \
+    sak/exception_fwd.hpp \
+    sak/exception.hpp \
+    sak/exception_dialogs.hpp \
+    sak/project_interface.hpp \
+    sak/project_interface_fwd.hpp
     
 
 FORMS

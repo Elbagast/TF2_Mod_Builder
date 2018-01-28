@@ -4,7 +4,7 @@
 //#include <qtlib/edit/widget_traits.hpp>
 //#include "edit_widget_traits.hpp"
 
-#include "project_data.hpp"
+#include "project_interface.hpp"
 #include "section_interface.hpp"
 #include "section_data.hpp"
 
@@ -47,7 +47,7 @@ namespace sak
 
       // Special 6
       //============================================================
-      Member_Edit_Widget(Project_Data& a_project, Handle_Type& a_handle, QWidget* a_parent = nullptr):
+      Member_Edit_Widget(Project_Interface* a_project, Handle_Type& a_handle, QWidget* a_parent = nullptr):
         Abstract_Member_Edit_Widget(a_parent),
         m_project{a_project},
         m_handle{a_handle},
@@ -76,12 +76,12 @@ namespace sak
 
       void editing_finished() override final
       {
-        m_project.get_interface<Data_Type>().change_at<Index>(m_handle, Member_Type::get_widget_value(m_widget.get()));
+        m_project->get_interface<Data_Type>().change_at<Index>(m_handle, Member_Type::get_widget_value(m_widget.get()));
       }
 
       // Data members
       //============================================================
-      Project_Data& m_project;
+      Project_Interface* m_project;
       Handle_Type& m_handle;
       std::unique_ptr<QHBoxLayout> m_layout;
       std::unique_ptr<QWidget> m_widget;
@@ -106,7 +106,7 @@ namespace sak
       class do_loop
       {
       public:
-        void operator()(Widget_Array_Type& a_widgets, QFormLayout* a_layout, Project_Data& a_project, Handle_Type& a_handle)
+        void operator()(Widget_Array_Type& a_widgets, QFormLayout* a_layout, Project_Interface* a_project, Handle_Type& a_handle)
         {
           using True_Widget_Type = Member_Edit_Widget<Index, Data_Type>;
           using Member_Name_Type = Section_Data_Member_Name_Type<Index,Data_Type>;
@@ -129,13 +129,13 @@ namespace sak
       class do_loop<End,End>
       {
       public:
-        void operator()(Widget_Array_Type&, QFormLayout*, Project_Data&, Handle_Type&)
+        void operator()(Widget_Array_Type&, QFormLayout*, Project_Interface*, Handle_Type&)
         {
         }
       };
 
     public:
-      Widget_Array_Type operator()(QFormLayout* a_layout, Project_Data& a_project, Handle_Type& a_handle)
+      Widget_Array_Type operator()(QFormLayout* a_layout, Project_Interface* a_project, Handle_Type& a_handle)
       {
         Widget_Array_Type l_widgets{};
         do_loop<0>()(l_widgets, a_layout, a_project, a_handle);
@@ -175,7 +175,7 @@ Then the editors just need a baseclass...
 // Special 6
 //============================================================
 template <typename T>
-sak::Section_Widget<T>::Section_Widget(Project_Data& a_project, Handle_Type const& a_handle, QWidget* a_parent):
+sak::Section_Widget<T>::Section_Widget(Project_Interface* a_project, Handle_Type const& a_handle, QWidget* a_parent):
   QWidget(a_parent),
   m_project{a_project},
   m_handle{a_handle},

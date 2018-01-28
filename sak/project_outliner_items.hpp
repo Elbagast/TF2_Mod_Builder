@@ -5,8 +5,8 @@
 #include "project_outliner_items_fwd.hpp"
 #endif
 
-#ifndef SAK_PROJECT_DATA_FWD_HPP
-#include "project_data_fwd.hpp"
+#ifndef SAK_PROJECT_INTERFACE_FWD_HPP
+#include "project_interface_fwd.hpp"
 #endif
 
 #ifndef SAK_ABSTRACT_OUTLINER_TRUNK_ITEM_HPP
@@ -43,7 +43,7 @@ namespace sak
   public:
     // Special 6
     //============================================================
-    explicit Project_Outliner_Root_Item(Project_Data& a_project);
+    explicit Project_Outliner_Root_Item(Project_Interface* a_project);
     ~Project_Outliner_Root_Item() override;
 
     // Virtual Interface
@@ -60,15 +60,15 @@ namespace sak
 
     // Additional Interface
     //============================================================
-    Project_Data& get_project();
-    Project_Data const& cget_project() const;
+    Project_Interface* get_project();
+    Project_Interface const* cget_project() const;
 
     Project_Outliner_Project_Item* get_project_item() const;
     File_Outliner_Header_Item* file_header_item() const;
     Texture_Outliner_Header_Item* texture_header_item() const;
 
   private:
-    Project_Data& m_project;
+    Project_Interface* m_project;
   };
 
   //------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -117,8 +117,8 @@ namespace sak
 
     // Additional Interface
     //============================================================
-    Project_Data& get_project();
-    Project_Data const& cget_project() const;
+    Project_Interface* get_project();
+    Project_Interface const* cget_project() const;
 
     File_Outliner_Header_Item* file_header_item() const;
     void initialise_files(bool a_read);

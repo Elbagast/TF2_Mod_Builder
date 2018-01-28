@@ -11,7 +11,7 @@
 //#include <qtlib/outliner/model.hpp>
 #include "outliner_model.hpp"
 
-#include "project_data.hpp"
+#include "project_interface.hpp"
 
 #include "section_interface.hpp"
 #include "section_outliner_items.hpp"
@@ -33,7 +33,7 @@ namespace
 
 // Special 6
 //============================================================
-sak::Project_Outliner_Root_Item::Project_Outliner_Root_Item(Project_Data& a_project):
+sak::Project_Outliner_Root_Item::Project_Outliner_Root_Item(Project_Interface* a_project):
   internal::Project_Outliner_Root_Item_Base(),
   m_project{a_project}
 {
@@ -69,12 +69,12 @@ void sak::Project_Outliner_Root_Item::do_double_clicked(QAbstractItemView* a_vie
 
 // Additional Interface
 //============================================================
-sak::Project_Data& sak::Project_Outliner_Root_Item::get_project()
+sak::Project_Interface* sak::Project_Outliner_Root_Item::get_project()
 {
   return m_project;
 }
 
-sak::Project_Data const& sak::Project_Outliner_Root_Item::cget_project() const
+sak::Project_Interface const* sak::Project_Outliner_Root_Item::cget_project() const
 {
   return m_project;
 }
@@ -119,7 +119,7 @@ QVariant sak::Project_Outliner_Project_Item::get_data(int a_role) const
 {
   if (a_role == Qt::DisplayRole)
   {
-    return QVariant(cget_project().name());
+    return QVariant(cget_project()->name());
   }
   else
   {
@@ -146,18 +146,18 @@ void sak::Project_Outliner_Project_Item::do_context_menu(QAbstractItemView* a_vi
 
   QMenu menu{};
   menu.addAction("Project context menu");
-  menu.addAction(cget_project().name())->setEnabled(false);
+  menu.addAction(cget_project()->name())->setEnabled(false);
   menu.addSeparator();
   // Create and add a new File
   auto l_action_add_file = menu.addAction("Add new File");
   QObject::connect(l_action_add_file, &QAction::triggered, [this]()
   {
-    this->get_project().get_file_interface().add_default();
+    this->get_project()->get_file_interface().add_default();
   });
   auto l_action_add_texture = menu.addAction("Add new Texture");
   QObject::connect(l_action_add_texture, &QAction::triggered, [this]()
   {
-    this->get_project().get_texture_interface().add_default();
+    this->get_project()->get_texture_interface().add_default();
   });
 
   menu.exec(a_view->viewport()->mapToGlobal(a_position));
@@ -171,11 +171,11 @@ void sak::Project_Outliner_Project_Item::do_double_clicked(QAbstractItemView* a_
 
 // Additional Interface
 //============================================================
-sak::Project_Data& sak::Project_Outliner_Project_Item::get_project()
+sak::Project_Interface* sak::Project_Outliner_Project_Item::get_project()
 {
   return get_true_parent()->get_project();
 }
-sak::Project_Data const& sak::Project_Outliner_Project_Item::cget_project() const
+sak::Project_Interface const* sak::Project_Outliner_Project_Item::cget_project() const
 {
   return get_true_parent()->cget_project();
 }
@@ -192,7 +192,7 @@ void sak::Project_Outliner_Project_Item::initialise_files(bool a_read_files)
 
 void sak::Project_Outliner_Project_Item::close_files()
 {
-  if (get_project().get_file_interface().not_empty())
+  if (get_project()->get_file_interface().not_empty())
   {
     this->remove_child<0>();
   }
@@ -210,7 +210,7 @@ void sak::Project_Outliner_Project_Item::initialise_textures(bool a_read)
 
 void sak::Project_Outliner_Project_Item::close_textures()
 {
-  if (get_project().get_texture_interface().not_empty())
+  if (get_project()->get_texture_interface().not_empty())
   {
     this->remove_child<1>();
   }

@@ -9,8 +9,8 @@
 #include "project_outliner_items_fwd.hpp"
 #endif
 
-#ifndef SAK_PROJECT_DATA_FWD_HPP
-#include "project_data_fwd.hpp"
+#ifndef SAK_PROJECT_INTERFACE_FWD_HPP
+#include "project_interface_fwd.hpp"
 #endif
 
 #ifndef SAK_SECTION_HANDLE_HPP
@@ -91,8 +91,8 @@ namespace sak
 
     // Additional Interface
     //============================================================
-    Project_Data& get_project();
-    Project_Data const& cget_project() const;
+    Project_Interface* get_project();
+    Project_Interface const* cget_project() const;
     Handle_Type const& cget_handle() const;
     QString cget_name() const;
     void set_name(QString const& a_name);
@@ -153,8 +153,8 @@ namespace sak
 
     // Additional Interface
     //============================================================
-    Project_Data& get_project();
-    Project_Data const& cget_project() const;
+    Project_Interface* get_project();
+    Project_Interface const* cget_project() const;
     // What index is the File_Item that holds this File_Handle reside at?
     // Returns get_child_count() if it is not found.
     std::size_t index_of(Handle_Type const& a_handle) const;

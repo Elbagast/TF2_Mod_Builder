@@ -5,8 +5,8 @@
 #include "project_editor_widget_fwd.hpp"
 #endif
 
-#ifndef SAK_PROJECT_DATA_FWD_HPP
-#include "project_data_fwd.hpp"
+#ifndef SAK_PROJECT_INTERFACE_FWD_HPP
+#include "project_interface_fwd.hpp"
 #endif
 
 #ifndef INCLUDE_STD_MEMORY
@@ -30,7 +30,7 @@ namespace sak
   public:
     // Special 6
     //============================================================
-    explicit Project_Editor_Widget(Project_Data& a_project, QWidget* a_parent = nullptr);
+    explicit Project_Editor_Widget(Project_Interface* a_project, QWidget* a_parent = nullptr);
     ~Project_Editor_Widget() override;
 
     Project_Editor_Widget(Project_Editor_Widget const& a_other) = delete;

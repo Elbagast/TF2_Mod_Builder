@@ -9,6 +9,7 @@
 #include "abstract_project_signalbox_fwd.hpp"
 #endif
 
+#include "section_data_manager_fwd.hpp"
 
 #include "section_handle_fwd.hpp"
 #include "section_interface_fwd.hpp"
@@ -146,6 +147,9 @@ namespace sak
     // Remove an object that will rely on the Project's signals. If nulltpr, nothing happens.
     void remove_signalbox(Abstract_Project_Signalbox* a_signalbox);
 
+    // Clear all the signalboxes so that nothing relies on changes to this.
+    void clear_signalboxes();
+/*
     // Can we currently call undo?
     bool can_undo() const;
 
@@ -173,6 +177,14 @@ namespace sak
 
     File_Interface get_file_interface();
     Texture_Interface get_texture_interface();
+    */
+    
+    // Section data managers
+    template <typename T>
+    Section_Data_Manager<T>* get_manager();
+
+    File_Data_Manager* get_file_manager();
+    Texture_Data_Manager* get_texture_manager();
 
   private:
     // Pimpl Data

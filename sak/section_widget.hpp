@@ -13,8 +13,8 @@
 #include "section_handle.hpp"
 #endif
 
-#ifndef SAK_PROJECT_DATA_FWD_HPP
-#include "project_data_fwd.hpp"
+#ifndef SAK_PROJECT_INTERFACE_FWD_HPP
+#include "project_interface_fwd.hpp"
 #endif
 
 #ifndef INCLUDE_STD_MEMORY
@@ -73,7 +73,7 @@ namespace sak
 
     // Special 6
     //============================================================
-    Section_Widget(Project_Data& a_project, Handle_Type const& a_handle, QWidget* a_parent = nullptr);
+    Section_Widget(Project_Interface* a_project, Handle_Type const& a_handle, QWidget* a_parent = nullptr);
     ~Section_Widget() override;
 
     // Public Interface
@@ -85,7 +85,7 @@ namespace sak
   private:
     // Data members
     //============================================================
-    Project_Data& m_project;
+    Project_Interface* m_project;
     Handle_Type m_handle;
     std::unique_ptr<QFormLayout> m_layout;
     Widget_Array_Type m_widgets;

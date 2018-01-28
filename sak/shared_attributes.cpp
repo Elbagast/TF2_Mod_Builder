@@ -81,6 +81,13 @@ namespace sak
         {
           return QValidator::Invalid;
         }
+
+        // A name cannot be longer than 256 chars
+        if (a_input.isEmpty())
+        {
+          return QValidator::Invalid;
+        }
+
         // Initialise a last category marker.
         Category l_last_category{Category::Valid};
 

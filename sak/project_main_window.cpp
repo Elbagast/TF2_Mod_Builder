@@ -13,11 +13,15 @@
 #include <QDebug>
 
 #include "project_data.hpp"
+#include "project_interface.hpp"
+#include "section_interface.hpp"
+#include "command_history.hpp"
 #include "project_main_widget.hpp"
 
 #include <sak/dialog/new_project_dialog.hpp>
 #include <sak/fixed_settings.hpp>
 #include <sak/exceptions/exception.hpp>
+#include "abstract_project_signalbox.hpp"
 
 //---------------------------------------------------------------------------
 // window
@@ -114,16 +118,24 @@ namespace
 
 namespace sak
 {
-  class Project_Main_Window::Implementation
+  class Project_Main_Window::Implementation :
+      public Abstract_Project_Signalbox
   {
   public:
-    std::unique_ptr<QStackedWidget> m_central_stack;
+    Project_Main_Window* m_owner;
 
+    std::unique_ptr<Project_Data> m_project_data;
+    std::unique_ptr<Command_History> m_command_history;
+    std::unique_ptr<Project_Interface> m_project_interface;
+
+    bool m_unsaved_edits;
+
+    std::unique_ptr<QStackedWidget> m_central_stack;
     std::unique_ptr<Background_Widget> m_background_widget;
 
     // Going to need some kind of settings object or reference to one. Or singleton?
 
-    std::unique_ptr<Project_Main_Widget> m_widget;
+    std::unique_ptr<Project_Main_Widget> m_project_widget;
 
     std::unique_ptr<QMenu> m_file;
     std::unique_ptr<QAction> m_file_new_project;
@@ -172,65 +184,213 @@ namespace sak
 
     // Special 6
     //============================================================
-    Implementation():
-      m_central_stack{std::make_unique<QStackedWidget>()},
-      m_background_widget{std::make_unique<Background_Widget>()},
-      m_widget{},
+    explicit Implementation(Project_Main_Window* a_owner);
 
-      m_file{std::make_unique<QMenu>(c_title_file)},
-      m_file_new_project{std::make_unique<QAction>(c_title_file_new_project)},
-      m_file_open_project{std::make_unique<QAction>(c_title_file_open_project)},
-      m_file_save_project{std::make_unique<QAction>(c_title_file_save_project)},
-      m_file_close_project{std::make_unique<QAction>(c_title_file_close_project)},
-      m_file_exit{std::make_unique<QAction>(c_title_file_exit)},
-
-      m_edit{std::make_unique<QMenu>(c_title_edit)},
-      m_edit_undo{std::make_unique<QAction>(c_title_edit_undo)},
-      m_edit_redo{std::make_unique<QAction>(c_title_edit_redo)},
-      m_edit_view_history{std::make_unique<QAction>(c_title_edit_view_history)},
-      m_edit_clear_history{std::make_unique<QAction>(c_title_edit_clear_history)},
-
-      m_component{std::make_unique<QMenu>(c_title_component)},
-      m_component_create{std::make_unique<QMenu>(c_title_component_create)},
-      m_component_create_file{std::make_unique<QAction>(c_title_component_create_file)},
-      m_component_create_texture{std::make_unique<QAction>(c_title_component_create_texture)},
-      m_component_create_material{std::make_unique<QAction>(c_title_component_create_material)},
-      m_component_create_model{std::make_unique<QAction>(c_title_component_create_model)},
-      m_component_create_package{std::make_unique<QAction>(c_title_component_create_package)},
-      m_component_create_release{std::make_unique<QAction>(c_title_component_create_release)},
-
-      m_build{std::make_unique<QMenu>(c_title_build)},
-      m_build_build_project{std::make_unique<QAction>(c_title_build_build_project)},
-      m_build_rebuild_project{std::make_unique<QAction>(c_title_build_rebuild_project)},
-      m_build_clean_project{std::make_unique<QAction>(c_title_build_clean_project)},
-      m_build_build_component{std::make_unique<QAction>(c_title_build_build_component)},
-      m_build_rebuild_component{std::make_unique<QAction>(c_title_build_rebuild_component)},
-      m_build_clean_component{std::make_unique<QAction>(c_title_build_clean_component)},
-
-      m_install{std::make_unique<QMenu>(c_title_install)},
-      m_install_install_status{std::make_unique<QAction>(c_title_install_install_status)},
-      m_install_install_component{std::make_unique<QAction>(c_title_install_install_component)},
-      m_install_uninstall_component{std::make_unique<QAction>(c_title_install_uninstall_component)},
-      m_install_uninstall_all{std::make_unique<QAction>(c_title_install_uninstall_all)},
-
-      m_settings{std::make_unique<QMenu>(c_title_settings)},
-      m_settings_settings{std::make_unique<QAction>(c_title_settings_settings)},
-      m_settings_tf2_settings{std::make_unique<QAction>(c_title_settings_tf2_settings)},
-      m_settings_sfm_settings{std::make_unique<QAction>(c_title_settings_sfm_settings)},
-
-      m_help{std::make_unique<QMenu>(c_title_help)},
-      m_help_help{std::make_unique<QAction>(c_title_help_help)},
-      m_help_about{std::make_unique<QAction>(c_title_help_about)}
-    {}
-
-    ~Implementation() = default;
+    ~Implementation();
 
     Implementation(Implementation const& a_other) = delete;
     Implementation& operator=(Implementation const& a_other) = delete;
 
     Implementation(Implementation && a_other) = default;
     Implementation& operator=(Implementation && a_other) = default;
+
+    // When a File has its data changed(anything but the name), this is called.
+    void changed(File_Handle const& a_file) override final;
+    // When a File has its data changed in a specific place, this is called.
+    void changed_at(File_Handle const& a_file, std::size_t a_section) override final;
+    // When a File has been added, this is called.
+    void added(File_Handle const& a_file) override final;
+    // When a File has been removed, this is called.
+    void removed(File_Handle const& a_file) override final;
+    // When a File editor is to be opened, this is called.
+    void requests_editor(File_Handle const& a_file) override final;
+    // When focus is changed to be on a File, call this
+    void requests_focus(File_Handle const& a_file) override final;
+
+    // When a texture has its data changed(anything but the name), this is called.
+    void changed(Texture_Handle const& a_texture) override final;
+    // When a texture has its data changed in a specific place, this is called.
+    void changed_at(Texture_Handle const& a_texture, std::size_t a_section) override final;
+    // When a texture has been added, this is called.
+    void added(Texture_Handle const& a_texture) override final;
+    // When a texture has been removed, this is called.
+    void removed(Texture_Handle const& a_texture) override final;
+    // When a texture editor is to be opened, this is called.
+    void requests_editor(Texture_Handle const& a_texture) override final;
+    // When focus is changed to be on a texture, call this
+    void requests_focus(Texture_Handle const& a_texture) override final;
+
+    void signal_unsaved_edits_change(bool a_state);
+    void signal_undo_change();
   };
+}
+
+sak::Project_Main_Window::Implementation::Implementation(Project_Main_Window* a_owner):
+  m_owner{a_owner},
+
+  m_project_data{},
+  m_command_history{},
+  m_project_interface{},
+  m_unsaved_edits{false},
+
+  m_central_stack{std::make_unique<QStackedWidget>()},
+  m_background_widget{std::make_unique<Background_Widget>()},
+  m_project_widget{},
+
+  m_file{std::make_unique<QMenu>(c_title_file)},
+  m_file_new_project{std::make_unique<QAction>(c_title_file_new_project)},
+  m_file_open_project{std::make_unique<QAction>(c_title_file_open_project)},
+  m_file_save_project{std::make_unique<QAction>(c_title_file_save_project)},
+  m_file_close_project{std::make_unique<QAction>(c_title_file_close_project)},
+  m_file_exit{std::make_unique<QAction>(c_title_file_exit)},
+
+  m_edit{std::make_unique<QMenu>(c_title_edit)},
+  m_edit_undo{std::make_unique<QAction>(c_title_edit_undo)},
+  m_edit_redo{std::make_unique<QAction>(c_title_edit_redo)},
+  m_edit_view_history{std::make_unique<QAction>(c_title_edit_view_history)},
+  m_edit_clear_history{std::make_unique<QAction>(c_title_edit_clear_history)},
+
+  m_component{std::make_unique<QMenu>(c_title_component)},
+  m_component_create{std::make_unique<QMenu>(c_title_component_create)},
+  m_component_create_file{std::make_unique<QAction>(c_title_component_create_file)},
+  m_component_create_texture{std::make_unique<QAction>(c_title_component_create_texture)},
+  m_component_create_material{std::make_unique<QAction>(c_title_component_create_material)},
+  m_component_create_model{std::make_unique<QAction>(c_title_component_create_model)},
+  m_component_create_package{std::make_unique<QAction>(c_title_component_create_package)},
+  m_component_create_release{std::make_unique<QAction>(c_title_component_create_release)},
+
+  m_build{std::make_unique<QMenu>(c_title_build)},
+  m_build_build_project{std::make_unique<QAction>(c_title_build_build_project)},
+  m_build_rebuild_project{std::make_unique<QAction>(c_title_build_rebuild_project)},
+  m_build_clean_project{std::make_unique<QAction>(c_title_build_clean_project)},
+  m_build_build_component{std::make_unique<QAction>(c_title_build_build_component)},
+  m_build_rebuild_component{std::make_unique<QAction>(c_title_build_rebuild_component)},
+  m_build_clean_component{std::make_unique<QAction>(c_title_build_clean_component)},
+
+  m_install{std::make_unique<QMenu>(c_title_install)},
+  m_install_install_status{std::make_unique<QAction>(c_title_install_install_status)},
+  m_install_install_component{std::make_unique<QAction>(c_title_install_install_component)},
+  m_install_uninstall_component{std::make_unique<QAction>(c_title_install_uninstall_component)},
+  m_install_uninstall_all{std::make_unique<QAction>(c_title_install_uninstall_all)},
+
+  m_settings{std::make_unique<QMenu>(c_title_settings)},
+  m_settings_settings{std::make_unique<QAction>(c_title_settings_settings)},
+  m_settings_tf2_settings{std::make_unique<QAction>(c_title_settings_tf2_settings)},
+  m_settings_sfm_settings{std::make_unique<QAction>(c_title_settings_sfm_settings)},
+
+  m_help{std::make_unique<QMenu>(c_title_help)},
+  m_help_help{std::make_unique<QAction>(c_title_help_help)},
+  m_help_about{std::make_unique<QAction>(c_title_help_about)}
+{}
+
+sak::Project_Main_Window::Implementation::~Implementation() = default;
+
+
+// When a File has its data changed(anything but the name), this is called.
+void sak::Project_Main_Window::Implementation::changed(File_Handle const& )
+{
+  qDebug() << "sak::Project_Main_Window::Implementation::data_changed " << QString::fromStdString(File_Data::type());
+  m_unsaved_edits = true;
+  //signal_unsaved_edits_change(true);
+  signal_undo_change();
+}
+// When a File has its data changed in a specific place, this is called.
+void sak::Project_Main_Window::Implementation::changed_at(File_Handle const&, std::size_t )
+{
+  qDebug() << "sak::Project_Main_Window::Implementation::data_changed_at " << QString::fromStdString(File_Data::type());
+  m_unsaved_edits = true;
+  //signal_unsaved_edits_change(true);
+  signal_undo_change();
+}
+// When a File has been added, this is called.
+void sak::Project_Main_Window::Implementation::added(File_Handle const& )
+{
+  qDebug() << "sak::Project_Main_Window::Implementation::added " << QString::fromStdString(File_Data::type());
+  m_unsaved_edits = true;
+  //signal_unsaved_edits_change(true);
+  signal_undo_change();
+}
+// When a File has been removed, this is called.
+void sak::Project_Main_Window::Implementation::removed(File_Handle const& )
+{
+  qDebug() << "sak::Project_Main_Window::Implementation::removed " << QString::fromStdString(File_Data::type());
+  m_unsaved_edits = true;
+  //signal_unsaved_edits_change(true);
+  signal_undo_change();
+}
+// When a File editor is to be opened, this is called.
+void sak::Project_Main_Window::Implementation::requests_editor(File_Handle const& )
+{
+  qDebug() << "sak::Project_Main_Window::Implementation::requests_editor " << QString::fromStdString(File_Data::type());
+}
+// When focus is changed to be on a File, call this
+void sak::Project_Main_Window::Implementation::requests_focus(File_Handle const& )
+{
+  qDebug() << "sak::Project_Main_Window::Implementation::requests_focus " << QString::fromStdString(File_Data::type());
+}
+
+
+// When a texture has its data changed(anything but the name), this is called.
+void sak::Project_Main_Window::Implementation::changed(Texture_Handle const& )
+{
+  qDebug() << "sak::Project_Main_Window::Implementation::data_changed " << QString::fromStdString(Texture_Data::type());
+  m_unsaved_edits = true;
+  //signal_unsaved_edits_change(true);
+  signal_undo_change();
+}
+// When a texture has its data changed in a specific place, this is called.
+void sak::Project_Main_Window::Implementation::changed_at(Texture_Handle const&, std::size_t )
+{
+  qDebug() << "sak::Project_Main_Window::Implementation::data_changed_at " << QString::fromStdString(Texture_Data::type());
+  m_unsaved_edits = true;
+  //signal_unsaved_edits_change(true);
+  signal_undo_change();
+}
+// When a texture has been added, this is called.
+void sak::Project_Main_Window::Implementation::added(Texture_Handle const& )
+{
+  qDebug() << "sak::Project_Main_Window::Implementation::added " << QString::fromStdString(Texture_Data::type());
+  m_unsaved_edits = true;
+  //signal_unsaved_edits_change(true);
+  signal_undo_change();
+}
+// When a texture has been removed, this is called.
+void sak::Project_Main_Window::Implementation::removed(Texture_Handle const& )
+{
+  qDebug() << "sak::Project_Main_Window::Implementation::removed " << QString::fromStdString(Texture_Data::type());
+  m_unsaved_edits = true;
+  //signal_unsaved_edits_change(true);
+  signal_undo_change();
+}
+// When a texture editor is to be opened, this is called.
+void sak::Project_Main_Window::Implementation::requests_editor(Texture_Handle const& )
+{
+  qDebug() << "sak::Project_Main_Window::Implementation::requests_editor " << QString::fromStdString(Texture_Data::type());
+}
+// When focus is changed to be on a texture, call this
+void sak::Project_Main_Window::Implementation::requests_focus(Texture_Handle const& )
+{
+  qDebug() << "sak::Project_Main_Window::Implementation::requests_focus " << QString::fromStdString(Texture_Data::type());
+}
+
+
+
+
+void sak::Project_Main_Window::Implementation::signal_unsaved_edits_change(bool a_state)
+{
+  qDebug() << "sak::Project_Main_Window::Implementation::signal_unsaved_edits_change";
+  if (m_unsaved_edits != a_state)
+  {
+    m_unsaved_edits = a_state;
+    //m_owner->update_window_title();
+  }
+}
+
+void sak::Project_Main_Window::Implementation::signal_undo_change()
+{
+  qDebug() << "sak::Project_Main_Window::Implementation::signal_undo_change";
+  qDebug() << "Undo = " << m_command_history->undo_count() << " Redo = " << m_command_history->redo_count();
+  m_owner->notify_undo_changes();
 }
 
 
@@ -243,7 +403,7 @@ namespace sak
 //============================================================
 sak::Project_Main_Window::Project_Main_Window(QWidget* a_parent):
   QMainWindow(a_parent),
-  m_data{std::make_unique<Implementation>()}
+  m_data{std::make_unique<Implementation>(this)}
 {
   // Add the background widget to the stack.
   imp().m_central_stack->addWidget(imp().m_background_widget.get());
@@ -400,7 +560,7 @@ sak::Project_Main_Window::~Project_Main_Window()
 {
   // If this is owned by the stack it will be double-deleted.
   imp().m_background_widget->setParent(nullptr);
-  if(imp().m_widget) imp().m_widget->setParent(nullptr);
+  if(imp().m_project_widget) imp().m_project_widget->setParent(nullptr);
 }
 
 
@@ -424,7 +584,7 @@ bool sak::Project_Main_Window::new_project()
   New_Project_Dialog l_dialog{};
   auto l_result = l_dialog.exec();
 
-  // if ser cancels, stop
+  // if user cancels, stop
   if (l_result == QDialog::Rejected)
   {
     return false;
@@ -458,12 +618,23 @@ bool sak::Project_Main_Window::new_project()
   try
   {
     // Right now this constructor does the file stuff and emits exceptions if it can't
-    auto l_project = std::make_unique<Project_Data>(l_filepath);
+    auto l_project_data = std::make_unique<Project_Data>(l_filepath);
 
-    // Make the widget
-    imp().m_widget = std::make_unique<Project_Main_Widget>(std::move(l_project));
-    QObject::connect(imp().m_widget.get(), &Project_Main_Widget::signal_undo_change,
-                     this, &Project_Main_Window::notify_undo_changes);
+    // Make everything else so we can do the swap in
+    auto l_command_history = std::make_unique<Command_History>();
+    auto l_project_interface = std::make_unique<Project_Interface>(l_project_data.get(), l_command_history.get());
+    auto l_project_widget = std::make_unique<Project_Main_Widget>(l_project_interface.get());
+
+    // Install the new data.
+    // None of this should throw.
+    std::swap(l_project_data, imp().m_project_data);
+    std::swap(l_command_history, imp().m_command_history);
+    std::swap(l_project_interface, imp().m_project_interface);
+    std::swap(l_project_widget, imp().m_project_widget);
+
+    // add this to the signalboxes
+    imp().m_project_data->add_signalbox(m_data.get());
+    imp().m_unsaved_edits = false;
   }
   catch(Filesystem_Error& e)
   {
@@ -471,7 +642,7 @@ bool sak::Project_Main_Window::new_project()
     return false;
   }
 
-  imp().m_central_stack->addWidget(imp().m_widget.get());
+  imp().m_central_stack->addWidget(imp().m_project_widget.get());
   imp().m_central_stack->setCurrentIndex(1);
 
   notify_project_changes();
@@ -508,15 +679,27 @@ bool sak::Project_Main_Window::open_project()
   try
   {
     // Right now this constructor does the file stuff and emits exceptions if it can't
-    auto l_project = std::make_unique<Project_Data>(l_filepath);
+    auto l_project_data = std::make_unique<Project_Data>(l_filepath);
 
-    // Make the widget
-    auto l_widget = std::make_unique<Project_Main_Widget>(std::move(l_project));
+    // Make everything else so we can do the swap in
+    auto l_command_history = std::make_unique<Command_History>();
+    auto l_project_interface = std::make_unique<Project_Interface>(l_project_data.get(), l_command_history.get());
+    auto l_project_widget = std::make_unique<Project_Main_Widget>(l_project_interface.get());
 
-    // Install the widget
-    std::swap(imp().m_widget,l_widget);
-    QObject::connect(imp().m_widget.get(), &Project_Main_Widget::signal_undo_change,
-                     this, &Project_Main_Window::notify_undo_changes);
+
+    // Install the new data.
+    // None of this should throw.
+    std::swap(l_project_data, imp().m_project_data);
+    std::swap(l_command_history, imp().m_command_history);
+    std::swap(l_project_interface, imp().m_project_interface);
+    std::swap(l_project_widget, imp().m_project_widget);
+
+    qDebug() << "here";
+    // add this to the signalboxes
+    imp().m_project_data->add_signalbox(m_data.get());
+
+    qDebug() << "there";
+    imp().m_unsaved_edits = false;
   }
   catch(Filesystem_Error& e)
   {
@@ -524,7 +707,7 @@ bool sak::Project_Main_Window::open_project()
     return false;
   }
 
-  imp().m_central_stack->addWidget(imp().m_widget.get());
+  imp().m_central_stack->addWidget(imp().m_project_widget.get());
   imp().m_central_stack->setCurrentIndex(1);
 
   notify_project_changes();
@@ -536,7 +719,8 @@ void sak::Project_Main_Window::save_project()
 {
   if(is_project_open())
   {
-    imp().m_widget->save_project();
+    imp().m_project_interface->save();
+    imp().m_unsaved_edits = false;
   }
 }
 
@@ -550,12 +734,23 @@ bool sak::Project_Main_Window::close_project()
     {
       // user has not cancelled, do the close
 
+      // disconnect everything
+      imp().m_project_data->clear_signalboxes();
       // Unhook the project widget.
-      imp().m_central_stack->removeWidget(imp().m_widget.get());
+      imp().m_central_stack->removeWidget(imp().m_project_widget.get());
       // Now destory it.
-      imp().m_widget.reset();
+      imp().m_project_widget.reset();
       // Set the stack to point to the first widget again.
       imp().m_central_stack->setCurrentIndex(0);
+
+      // Clear the command list
+      imp().m_command_history.reset();
+      // Destroy the project data
+      imp().m_project_interface.reset();
+      imp().m_project_data.reset();
+
+      imp().m_unsaved_edits = false;
+
       notify_project_changes();
 
       // closing success
@@ -587,7 +782,7 @@ void sak::Project_Main_Window::undo()
 {
   if(is_project_open())
   {
-    imp().m_widget->undo();
+    imp().m_project_interface->undo();
   }
 }
 
@@ -596,7 +791,7 @@ void sak::Project_Main_Window::redo()
 {
   if(is_project_open())
   {
-    imp().m_widget->redo();
+    imp().m_project_interface->redo();
   }
 }
 
@@ -605,7 +800,7 @@ void sak::Project_Main_Window::view_history()
 {
   if(is_project_open())
   {
-    imp().m_widget->view_history();
+    //imp().m_project_widget->view_history();
   }
 }
 
@@ -614,7 +809,7 @@ void sak::Project_Main_Window::clear_history()
 {
   if(is_project_open())
   {
-    imp().m_widget->clear_history();
+    imp().m_command_history->clear();
   }
 }
 
@@ -625,7 +820,7 @@ void sak::Project_Main_Window::create_file()
 {
   if(is_project_open())
   {
-    imp().m_widget->create_file();
+    imp().m_project_interface->get_file_interface().add_default();
   }
 }
 
@@ -634,44 +829,28 @@ void sak::Project_Main_Window::create_texture()
 {
   if(is_project_open())
   {
-    imp().m_widget->create_texture();
+    imp().m_project_interface->get_texture_interface().add_default();
   }
 }
 
 // Create a new Material in the active Project;
 void sak::Project_Main_Window::create_material()
 {
-  if(is_project_open())
-  {
-    imp().m_widget->create_material();
-  }
 }
 
 // Create a new Model in the active Project;
 void sak::Project_Main_Window::create_model()
 {
-  if(is_project_open())
-  {
-    imp().m_widget->create_model();
-  }
 }
 
 // Create a new Package in the active Project;
 void sak::Project_Main_Window::create_package()
 {
-  if(is_project_open())
-  {
-    imp().m_widget->create_package();
-  }
 }
 
 // Create a new Release in the active Project;
 void sak::Project_Main_Window::create_release()
 {
-  if(is_project_open())
-  {
-    imp().m_widget->create_release();
-  }
 }
 
 // Menu Bar -> Build
@@ -679,56 +858,32 @@ void sak::Project_Main_Window::create_release()
 // Build all the components of the Project.
 void sak::Project_Main_Window::build_project()
 {
-  if(is_project_open())
-  {
-    imp().m_widget->build_project();
-  }
 }
 
 // Reuild all the components of the Project.
 void sak::Project_Main_Window::rebuild_project()
 {
-  if(is_project_open())
-  {
-    imp().m_widget->rebuild_project();
-  }
 }
 
 // Delete all the temporary and resulting files from building the Project.
 void sak::Project_Main_Window::clean_project()
 {
-  if(is_project_open())
-  {
-    imp().m_widget->clean_project();
-  }
 }
 
 // Build the currently selected Component of the Project.
 void sak::Project_Main_Window::build_component()
 {
-  if(is_project_open())
-  {
-    imp().m_widget->build_component();
-  }
 }
 
 // Reuild the currently selected Component of the Project.
 void sak::Project_Main_Window::rebuild_component()
 {
-  if(is_project_open())
-  {
-    imp().m_widget->rebuild_component();
-  }
 }
 
 // Delete all the temporary and resulting files from building the currently
 // selected Component of the Project.
 void sak::Project_Main_Window::clean_component()
 {
-  if(is_project_open())
-  {
-    imp().m_widget->clean_component();
-  }
 }
 
 // Menu Bar -> Install
@@ -736,38 +891,22 @@ void sak::Project_Main_Window::clean_component()
 // Review the current install status of all components.
 void sak::Project_Main_Window::install_status()
 {
-  if(is_project_open())
-  {
-    imp().m_widget->install_status();
-  }
 }
 
 // Install the current component. Opens a dialog detailing required options
 // and the status of the install.
 void sak::Project_Main_Window::install_component()
 {
-  if(is_project_open())
-  {
-    imp().m_widget->install_component();
-  }
 }
 
 // Delete all the temporary and resulting files from building the Project.
 void sak::Project_Main_Window::uninstall_component()
 {
-  if(is_project_open())
-  {
-    imp().m_widget->uninstall_component();
-  }
 }
 
 // Uninstalls all the components that are currently installed.
 void sak::Project_Main_Window::uninstall_all()
 {
-  if(is_project_open())
-  {
-    imp().m_widget->uninstall_all();
-  }
 }
 
 // Menu Bar -> System
@@ -775,19 +914,16 @@ void sak::Project_Main_Window::uninstall_all()
 // Open the settings editor.
 void sak::Project_Main_Window::settings()
 {
-
 }
 
 // Open the settings editor on the tf2 page.
 void sak::Project_Main_Window::tf2_settings()
 {
-
 }
 
 // Open the settings editor on the sfm page.
 void sak::Project_Main_Window::sfm_settings()
 {
-
 }
 
 // Menu Bar -> Help
@@ -795,13 +931,11 @@ void sak::Project_Main_Window::sfm_settings()
 // Open help browser.
 void sak::Project_Main_Window::help()
 {
-
 }
 
 // Open the about dialog.
 void sak::Project_Main_Window::about()
 {
-
 }
 
 
@@ -814,8 +948,8 @@ void sak::Project_Main_Window::about()
 // Is a project currently open?
 bool sak::Project_Main_Window::is_project_open() const
 {
-  // Whether or not the stack contains a second widget (the widget).
-  return cimp().m_widget != nullptr;
+  qDebug() << "sak::Project_Main_Window::is_project_open() = " << (cimp().m_project_data != nullptr);
+  return cimp().m_project_data != nullptr;
 }
 
 // Can we currently call undo?
@@ -823,7 +957,7 @@ bool sak::Project_Main_Window::can_undo() const
 {
   if(is_project_open())
   {
-    return cimp().m_widget->can_undo();
+    return cimp().m_command_history->can_undo();
   }
   else
   {
@@ -836,7 +970,7 @@ bool sak::Project_Main_Window::can_redo() const
 {
   if(is_project_open())
   {
-    return cimp().m_widget->can_redo();
+    return cimp().m_command_history->can_redo();
   }
   else
   {
@@ -847,53 +981,25 @@ bool sak::Project_Main_Window::can_redo() const
 // Get the name of the currently selected component. Empty if none is selected.
 QString sak::Project_Main_Window::selected_component_name() const
 {
-  if(is_project_open())
-  {
-    return cimp().m_widget->selected_component_name();
-  }
-  else
-  {
-    return QString();
-  }
+  return QString();
 }
 
 // Is a component selected? If no project is open, this is always false.
 bool sak::Project_Main_Window::is_component_selected() const
 {
-  if(is_project_open())
-  {
-    return cimp().m_widget->is_component_selected();
-  }
-  else
-  {
-    return false;
-  }
+  return false;
 }
 
 // Is the selected component buildable? If no component is open, this is always false.
 bool sak::Project_Main_Window::is_component_buildable() const
 {
-  if(is_project_open())
-  {
-    return cimp().m_widget->is_component_buildable();
-  }
-  else
-  {
-    return false;
-  }
+  return false;
 }
 
 // Is the selected component installable? If no component is open, this is always false.
 bool sak::Project_Main_Window::is_component_installable() const
 {
-  if(is_project_open())
-  {
-    return cimp().m_widget->is_component_installable();
-  }
-  else
-  {
-    return false;
-  }
+  return false;
 }
 
 
@@ -901,8 +1007,11 @@ bool sak::Project_Main_Window::is_component_installable() const
 // act on it and return true if the action was never cancelled.
 bool sak::Project_Main_Window::ask_to_save()
 {
-  if (is_project_open() && cimp().m_widget->has_unsaved_edits())
+  qDebug() << "sak::Project_Main_Window::ask_to_save()";
+  qDebug() << "cimp().m_unsaved_edits = " << cimp().m_unsaved_edits;
+  if (is_project_open() && cimp().m_unsaved_edits)
   {
+    qDebug() << "open and unsaved";
     int msgBoxRet = QMessageBox::question(this,
                                               c_title_application,
                                               tr("The project has been modified.\n"
@@ -931,6 +1040,7 @@ bool sak::Project_Main_Window::ask_to_save()
   }
   else
   {
+    qDebug() << "closed or all saved";
     return true;
   }
 }
@@ -1042,7 +1152,7 @@ void sak::Project_Main_Window::update_window_title()
   QString l_title{};
   if (is_project_open())
   {
-      l_title += imp().m_widget->name() + " - ";
+    l_title += imp().m_project_data->name() + " - ";
   }
   l_title += c_title_application;
   this->setWindowTitle(l_title);
