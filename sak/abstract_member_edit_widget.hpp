@@ -29,8 +29,8 @@ namespace sak
     explicit Abstract_Member_Edit_Widget(QWidget* a_parent = nullptr);
     ~Abstract_Member_Edit_Widget() override;
 
-    virtual void update() = 0;
-  public slots:
+    virtual void update_data() = 0;
+  //public slots:
     virtual void editing_finished() = 0;
   };
 }

@@ -4,8 +4,8 @@
 #include "command_history.hpp"
 #include "project_interface.hpp"
 #include "project_main_widget.hpp"
-
 #include "xml_traits.hpp"
+#include "exception.hpp"
 
 #include <QString>
 #include <QFileInfo>
@@ -14,14 +14,12 @@
 #include <QTextStream>
 #include <QXmlStreamWriter>
 #include <QXmlStreamReader>
-
 #include <QDebug>
+
 #include <cassert>
 #include <algorithm>
 #include <iterator>
-#include <QDebug>
 
-#include "exception.hpp"
 
 //---------------------------------------------------------------------------
 // Project_Holder

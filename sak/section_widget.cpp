@@ -1,9 +1,6 @@
 ﻿#include "section_widget.hpp"
 
 #include "abstract_member_edit_widget.hpp"
-//#include <qtlib/edit/widget_traits.hpp>
-//#include "edit_widget_traits.hpp"
-
 #include "project_interface.hpp"
 #include "section_interface.hpp"
 #include "section_data.hpp"
@@ -57,19 +54,18 @@ namespace sak
         m_layout->setContentsMargins(0,0,0,0);
         m_layout->addWidget(m_widget.get());
         this->setLayout(m_layout.get());
-
         this->setToolTip("This is a tooltip. Where should we get tooltips from for each type?");
 
         // Capture the signal and dispatch it
         //QObject::connect(m_widget.get(), Widget_Traits_Type::editing_finished_signal(), this, &Member_Edit_Widget::editing_finished);
         Member_Type::connect_to(m_widget.get(), this);
-        update();
+        update_data();
       }
       ~Member_Edit_Widget() override final = default;
 
       // Virtuals
       //============================================================
-      void update() override final
+      void update_data() override final
       {
         Member_Type::set_widget_value(m_widget.get(), m_handle->cmember_at<Index>());
       }

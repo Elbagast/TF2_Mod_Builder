@@ -11,12 +11,7 @@
 #include <QCheckBox>
 #include <QTextEdit>
 
-
-//---------------------------------------------------------------------------
-// Text_Line
-//---------------------------------------------------------------------------
-// A short string of unicode text containing any characters except control
-// characters. Max length is 256 chars.
+#include <qtlib/line_edit.hpp>
 
 namespace sak
 {
@@ -53,6 +48,190 @@ namespace sak
 
 
     //---------------------------------------------------------------------------
+    // Text_Name_Validator
+    //---------------------------------------------------------------------------
+    class Text_Name_Validator :
+        public QValidator
+    {
+    private:
+      // Special 6
+      //============================================================
+      Text_Name_Validator() = default;
+    public:
+      ~Text_Name_Validator() override = default;
+
+      // QValidator overrides
+      //============================================================
+      //void fixup(QString& a_input) const override final;
+
+      QValidator::State validate(QString& a_input, int& /*a_cursor_position*/) const override final
+      {
+        // Format [word]{Nx[directory seperator][word]} where N can be 0
+        // word = combination of a...z,A...Z,_ chars
+        // directory seperator = / or \\
+        // If the last char is a seperator then the result is intermediate.
+
+        // A name cannot be empty
+        if (a_input.isEmpty())
+        {
+          return QValidator::Intermediate;
+        }
+
+        // Initialise a last category marker.
+        Category l_last_category{Category::Valid};
+
+        for (auto l_iter = a_input.cbegin(), l_end = a_input.cend(); l_iter != l_end; ++l_iter)
+        {
+          // Determine the current category
+          auto l_this_category = text_line_char_category(*l_iter);
+
+          // If the char is invalid the whole thing is invalid.
+          if (l_this_category == Category::Invalid)
+          {
+            return QValidator::Invalid;
+          }
+
+          // High surrogate must follow a lower surrogate
+          if (l_last_category == Category::Low_Surrogate && l_this_category != Category::High_Surrogate)
+          {
+            return QValidator::Invalid;
+          }
+
+          // Since an invalid char will have already been detected, and Valid can be followed by
+          // Valid or High_Surrogate, no more processing is needed.
+
+          // Updated the last category and continue.
+          l_last_category = l_this_category;
+        }
+
+        // if the last character was a Low_Surrogate then we are intermediate
+        if (l_last_category == Category::Low_Surrogate)
+        {
+          return QValidator::Intermediate;
+        }
+        // otherwise everything validated
+        else
+        {
+          return QValidator::Acceptable;
+        }
+
+      }
+
+      static Text_Name_Validator* singleton()
+      {
+        // Since the validator has no individual state we use a static one.
+        static Text_Name_Validator s_validator{};
+
+        return std::addressof(s_validator);
+      }
+    };
+
+    std::unique_ptr<qtlib::Line_Edit> text_name_make_true_empty_widget()
+    {
+      // Build a true-type widget so we can manipulate it.
+      auto l_widget = std::make_unique<qtlib::Line_Edit>(nullptr);
+
+      // Setup
+      l_widget->setMaxLength(256);
+
+      // Install it.
+      l_widget->setValidator(Text_Name_Validator::singleton());
+
+      // Return the setup widget.
+      return std::move(l_widget);
+    }
+
+    void text_name_set_true_widget_value(qtlib::Line_Edit* a_widget, Text_Name::Value_Type const& a_value)
+    {
+      // This widget better have a validator, and it better be the right one...
+      assert(a_widget->validator() == Text_Name_Validator::singleton());
+      // Value should already be validated.
+      //assert(a_widget->validator()->validate(a_value, 0) == QValidator::Acceptable);
+
+      // Set the value.
+      a_widget->setText(a_value);
+
+      // Value should set properly.
+      assert(a_widget->text() == a_value);
+    }
+  }
+}
+
+//------------------------------------------------------------------------------------------------------------------------------------------------------
+
+//---------------------------------------------------------------------------
+// Text_Name
+//---------------------------------------------------------------------------
+// A short string of unicode text containing any characters except control
+// characters. Max length is 256 chars. Must contain something.
+
+std::unique_ptr<QWidget> sak::Text_Name::make_empty_widget()
+{
+  // Make an empty widget and repackage it.
+  return std::unique_ptr<QWidget>(text_name_make_true_empty_widget().release());
+}
+
+std::unique_ptr<QWidget> sak::Text_Name::make_widget(Value_Type const& a_value)
+{
+  // Make an empty true widget.
+  auto l_widget = text_name_make_true_empty_widget();
+
+  // Set the value.
+  text_name_set_true_widget_value(l_widget.get(), a_value);
+
+  // Repackage the widget.
+  return std::unique_ptr<QWidget>(l_widget.release());
+}
+
+void sak::Text_Name::set_widget_value(QWidget* a_widget, Value_Type const& a_value)
+{
+  // Cast and set the value.
+  text_name_set_true_widget_value(static_cast<qtlib::Line_Edit*>(a_widget), a_value);
+}
+
+typename sak::Text_Name::Value_Type sak::Text_Name::get_widget_value(QWidget* a_widget)
+{
+  // Cast and access the value.
+  return static_cast<QLineEdit*>(a_widget)->text();
+}
+
+void sak::Text_Name::connect_to(QWidget* a_widget, Abstract_Member_Edit_Widget* a_editor)
+{
+  auto l_true_widget = static_cast<qtlib::Line_Edit*>(a_widget);
+
+  QObject::connect(l_true_widget,
+                   &qtlib::Line_Edit::editingFinished,
+                   a_editor,
+                   &Abstract_Member_Edit_Widget::editing_finished);
+  // This would have to be there for all line edits with validators....
+  QObject::connect(l_true_widget,
+                   &qtlib::Line_Edit::lostFocus,
+  [l_true_widget, a_editor] ()
+  {
+    int l_pos{0};
+    auto l_text = l_true_widget->text();
+    auto l_state = Text_Name_Validator::singleton()->validate(l_text,l_pos);
+    if (l_state == QValidator::Acceptable)
+    {
+      a_editor->editing_finished();
+    }
+    else
+    {
+      a_editor->update_data();
+    }
+  });
+}
+
+
+//------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+namespace sak
+{
+  namespace
+  {
+    //---------------------------------------------------------------------------
     // Text_Line_Validator
     //---------------------------------------------------------------------------
     class Text_Line_Validator :
@@ -76,16 +255,10 @@ namespace sak
         // directory seperator = / or \\
         // If the last char is a seperator then the result is intermediate.
 
-        // A name cannot be empty
+        // Can be empty
         if (a_input.isEmpty())
         {
-          return QValidator::Invalid;
-        }
-
-        // A name cannot be longer than 256 chars
-        if (a_input.isEmpty())
-        {
-          return QValidator::Invalid;
+          return QValidator::Acceptable;
         }
 
         // Initialise a last category marker.
@@ -168,6 +341,14 @@ namespace sak
   }
 }
 
+//------------------------------------------------------------------------------------------------------------------------------------------------------
+
+//---------------------------------------------------------------------------
+// Text_Line
+//---------------------------------------------------------------------------
+// A short string of unicode text containing any characters except control
+// characters. Max length is 256 chars.
+
 std::unique_ptr<QWidget> sak::Text_Line::make_empty_widget()
 {
   // Make an empty widget and repackage it.
@@ -202,7 +383,6 @@ void sak::Text_Line::connect_to(QWidget* a_widget, Abstract_Member_Edit_Widget* 
 {
   QObject::connect(static_cast<QLineEdit*>(a_widget), &QLineEdit::editingFinished, a_editor, &Abstract_Member_Edit_Widget::editing_finished);
 }
-
 
 //------------------------------------------------------------------------------------------------------------------------------------------------------
 

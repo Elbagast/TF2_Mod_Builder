@@ -49,15 +49,6 @@ namespace sak
 
     // Interface
     //============================================================
-    // If the final interface allows it, saving and loading should probably not be
-    // member functions.
-
-    // Save the current data to the file.
-    //void save() const;
-
-    // Get the data from the file and discard the current data.
-    //void load();
-    
     // Data that is fixed on contruction.
     QString name() const;
     QString location() const;

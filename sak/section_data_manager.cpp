@@ -1,15 +1,13 @@
 ﻿#include "section_data_manager.hpp"
 
-#include <QDebug>
-
 #include "section_data.hpp"
 #include "section_handle.hpp"
 #include "abstract_section_signalbox.hpp"
-
 #include <sak/name_utilities.hpp>
 
 #include <cassert>
 
+#include <QDebug>
 
 //---------------------------------------------------------------------------
 // sak::Section_Data_Manager<T>

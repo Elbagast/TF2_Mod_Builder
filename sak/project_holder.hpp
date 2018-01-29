@@ -1,12 +1,26 @@
 ﻿#ifndef SAK_PROJECT_HOLDER_HPP
 #define SAK_PROJECT_HOLDER_HPP
 
+#ifndef SAK_PROJECT_DATA_FWD_HPP
 #include "project_data_fwd.hpp"
-#include "command_history_fwd.hpp"
-#include "project_interface_fwd.hpp"
-#include "project_main_widget_fwd.hpp"
+#endif
 
+#ifndef SAK_PROJECT_INTERFACE_FWD_HPP
+#include "project_interface_fwd.hpp"
+#endif
+
+#ifndef SAK_COMMAND_HISTORY_FWD_HPP
+#include "command_history_fwd.hpp"
+#endif
+
+#ifndef SAK_PROJECT_MAIN_WIDGET_FWD_HPP
+#include "project_main_widget_fwd.hpp"
+#endif
+
+#ifndef INCLUDE_STD_MEMORY
+#define INCLUDE_STD_MEMORY
 #include <memory>
+#endif
 
 class QString;
 

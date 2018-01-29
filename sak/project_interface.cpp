@@ -3,8 +3,7 @@
 #include "section_interface.hpp"
 #include "command_history.hpp"
 #include "project_data.hpp"
-
-#include "abstract_project_signalbox.hpp"
+//#include "abstract_project_signalbox.hpp"
 
 #include <QString>
 
@@ -29,16 +28,6 @@ sak::Project_Interface& sak::Project_Interface::operator=(Project_Interface &&) 
 
 // Interface
 //============================================================
-/*
-void sak::Project_Interface::save() const
-{
-  return m_project_data->save();
-}
-
-void sak::Project_Interface::load()
-{
-  return m_project_data->load();
-}*/
 
 QString sak::Project_Interface::name() const
 {

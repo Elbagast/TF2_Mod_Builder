@@ -45,7 +45,7 @@ namespace sak
     using Shared_Data_Class =
     flamingo::data_class
     <
-    flamingo::data_member<Text_Line, FLAMINGO_LITYPE_STRING(u8"Name")>
+    flamingo::data_member<Text_Name, FLAMINGO_LITYPE_STRING(u8"Name")>
     ,flamingo::data_member<Text_Line, FLAMINGO_LITYPE_STRING(u8"Description")>
     >;
 

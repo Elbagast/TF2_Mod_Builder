@@ -25,6 +25,12 @@ namespace sak
   // A short string of unicode text containing any characters except control
   // characters. Max length is 256 chars. Must contain something.
 
+  // Right now if you end a name with an invalid or intermediate result (e.g.
+  // empty) by loosing focus, There is no signal to tell the widget to refresh
+  // its content to the old value. But this works fine in the outliner. It may
+  // be worth displaying the members in a tableview with a QAbstractItemModel
+  // powering it. Oh joy.
+
   class Text_Name
   {
   public:

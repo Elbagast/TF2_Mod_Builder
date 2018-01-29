@@ -1,5 +1,21 @@
 ﻿#include "project_main_window.hpp"
 
+#include "project_holder.hpp"
+//#include "project_data.hpp"
+#include "project_interface.hpp"
+#include "section_interface.hpp"
+//#include "command_history.hpp"
+#include "project_main_widget.hpp"
+
+#include <sak/dialog/new_project_dialog.hpp>
+#include <sak/fixed_settings.hpp>
+#include "exception.hpp"
+#include "abstract_project_signalbox.hpp"
+
+#include <cassert>
+#include <algorithm>
+#include <iterator>
+
 #include <QMenuBar>
 #include <QMenu>
 #include <QAction>
@@ -11,26 +27,10 @@
 #include <QCloseEvent>
 #include <QFileDialog>
 #include <QDebug>
-
 #include <QString>
 #include <QDir>
 #include <QDebug>
-#include <cassert>
-#include <algorithm>
-#include <iterator>
 
-#include "project_holder.hpp"
-
-#include "project_data.hpp"
-#include "project_interface.hpp"
-#include "section_interface.hpp"
-#include "command_history.hpp"
-#include "project_main_widget.hpp"
-
-#include <sak/dialog/new_project_dialog.hpp>
-#include <sak/fixed_settings.hpp>
-#include "exception.hpp"
-#include "abstract_project_signalbox.hpp"
 
 // Internal constants and impl
 //============================================================
@@ -132,10 +132,6 @@ namespace sak
     Project_Main_Window* m_owner;
 
     std::unique_ptr<Project_Holder> m_project_holder;
-
-    //std::unique_ptr<Project_Data> m_project_data;
-    //std::unique_ptr<Command_History> m_command_history;
-    //std::unique_ptr<Project_Interface> m_project_interface;
 
     bool m_unsaved_edits;
 
@@ -419,7 +415,6 @@ sak::Project_Main_Window::Project_Main_Window(QWidget* a_parent):
   this->setCentralWidget(imp().m_central_stack.get());
 
   // Window Title
-  //this->setWindowTitle(c_title_application);
   update_window_title();
 
   // Minimum Window Size (720p for now)

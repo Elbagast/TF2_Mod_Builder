@@ -1,5 +1,10 @@
 ﻿#include "project_outliner_items.hpp"
 
+#include "outliner_model.hpp"
+#include "project_interface.hpp"
+#include "section_interface.hpp"
+#include "section_outliner_items.hpp"
+
 #include <QDebug>
 #include <QString>
 #include <QVariant>
@@ -7,14 +12,6 @@
 #include <QAction>
 #include <QLineEdit>
 #include <QAbstractItemView>
-
-//#include <qtlib/outliner/model.hpp>
-#include "outliner_model.hpp"
-
-#include "project_interface.hpp"
-
-#include "section_interface.hpp"
-#include "section_outliner_items.hpp"
 
 namespace
 {

@@ -1,5 +1,14 @@
 ﻿#include "project_main_widget.hpp"
 
+#include "section_data.hpp"
+#include "section_handle.hpp"
+#include "section_widget.hpp"
+#include "project_interface.hpp"
+//#include "section_interface.hpp"
+
+#include "abstract_project_signalbox.hpp"
+#include "project_editor_widget.hpp"
+#include "project_outliner_widget.hpp"
 
 #include <cassert>
 #include <iterator>
@@ -8,19 +17,6 @@
 #include <QDebug>
 #include <QHBoxLayout>
 #include <QSplitter>
-
-#include "section_data.hpp"
-#include "section_handle.hpp"
-#include "section_widget.hpp"
-#include "section_interface.hpp"
-
-//#include "project_data.hpp"
-#include "abstract_project_signalbox.hpp"
-#include "project_editor_widget.hpp"
-#include "project_outliner_widget.hpp"
-
-#include "project_interface.hpp"
-
 
 //---------------------------------------------------------------------------
 // Project_Main_Widget::Implementation

@@ -1,5 +1,12 @@
 ﻿#include "section_outliner_items.hpp"
 
+#include "outliner_model.hpp"
+#include "project_interface.hpp"
+#include "project_outliner_items.hpp"
+#include "section_interface.hpp"
+#include "section_handle.hpp"
+#include "section_data.hpp"
+
 #include <cassert>
 #include <algorithm>
 #include <limits>
@@ -14,16 +21,6 @@
 #include <QAbstractItemView>
 #include <QPixmap>
 #include <QIcon>
-
-//#include <qtlib/outliner/model.hpp>
-
-#include "outliner_model.hpp"
-
-#include "project_interface.hpp"
-#include "project_outliner_items.hpp"
-#include "section_interface.hpp"
-#include "section_handle.hpp"
-#include "section_data.hpp"
 
 namespace
 {

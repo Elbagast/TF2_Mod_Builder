@@ -1,6 +1,6 @@
 ﻿#include "xml_traits.hpp"
 
-#include <qtlib/string_conversion.hpp>
+//#include <qtlib/string_conversion.hpp>
 #include "typestring_qstring.hpp"
 #include "section_data_manager.hpp"
 #include "section_data.hpp"

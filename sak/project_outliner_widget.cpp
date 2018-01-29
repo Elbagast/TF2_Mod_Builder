@@ -1,24 +1,20 @@
 ﻿#include "project_outliner_widget.hpp"
 
+#include "section_handle.hpp"
+#include "project_interface.hpp"
+#include "section_interface.hpp"
+#include "abstract_project_signalbox.hpp"
+#include "outliner_model.hpp"
+#include "outliner_delegate.hpp"
+#include "outliner_view_widget.hpp"
+#include "project_outliner_items.hpp"
+#include "section_outliner_items.hpp"
+
 #include <QHBoxLayout>
 #include <QTreeView>
 #include <QLabel>
 #include <QDebug>
 #include <cassert>
-
-#include "section_data.hpp"
-#include "section_handle.hpp"
-#include "section_outliner_items.hpp"
-
-
-#include "project_data.hpp"
-#include "project_interface.hpp"
-#include "abstract_project_signalbox.hpp"
-
-#include "outliner_model.hpp"
-#include "outliner_delegate.hpp"
-#include "outliner_view_widget.hpp"
-#include "project_outliner_items.hpp"
 
 //---------------------------------------------------------------------------
 // Project_Outliner

@@ -140,7 +140,8 @@ SOURCES += \
     sak/exception.cpp \
     sak/exception_dialogs.cpp \
     sak/project_interface.cpp \
-    sak/project_holder.cpp
+    sak/project_holder.cpp \
+    qtlib/line_edit.cpp
     
 
 HEADERS  += \
@@ -225,7 +226,8 @@ HEADERS  += \
     sak/exception_dialogs.hpp \
     sak/project_interface.hpp \
     sak/project_interface_fwd.hpp \
-    sak/project_holder.hpp
+    sak/project_holder.hpp \
+    qtlib/line_edit.hpp
     
 
 FORMS
