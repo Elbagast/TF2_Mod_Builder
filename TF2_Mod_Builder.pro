@@ -101,7 +101,6 @@ SOURCES += \
     qtlib/directory_name_validator.cpp \
     qtlib/existing_directory_validator.cpp \
     sak/fixed_settings.cpp \
-    sak/exceptions/exception.cpp \
     sak/system_settings.cpp \
     sak/name_utilities.cpp \
     valve/asset_filepath.cpp \
@@ -140,7 +139,8 @@ SOURCES += \
     sak/abstract_outliner_leaf_item.cpp \
     sak/exception.cpp \
     sak/exception_dialogs.cpp \
-    sak/project_interface.cpp
+    sak/project_interface.cpp \
+    sak/project_holder.cpp
     
 
 HEADERS  += \
@@ -150,7 +150,6 @@ HEADERS  += \
     qtlib/text_colour_state_changer.hpp \
     qtlib/validating_line_edit.hpp \
     sak/dialog/new_project_dialog.hpp \
-    sak/exceptions/exception.hpp \
     sak/fixed_settings.hpp \
     sak/name_utilities.hpp \
     sak/system_settings.hpp \
@@ -225,7 +224,8 @@ HEADERS  += \
     sak/exception.hpp \
     sak/exception_dialogs.hpp \
     sak/project_interface.hpp \
-    sak/project_interface_fwd.hpp
+    sak/project_interface_fwd.hpp \
+    sak/project_holder.hpp
     
 
 FORMS

@@ -30,6 +30,11 @@ namespace sak
 
   class File_Write_Error;
 
+
+  class File_Format_Error;
+
+  class XML_Error;
+
 }
 
 #endif // SAK_EXCEPTION_FWD_HPP

@@ -9,8 +9,6 @@
 #include <QHBoxLayout>
 #include <QSplitter>
 
-#include <sak/exceptions/exception.hpp>
-
 #include "section_data.hpp"
 #include "section_handle.hpp"
 #include "section_widget.hpp"

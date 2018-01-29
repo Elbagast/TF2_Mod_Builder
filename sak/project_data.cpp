@@ -16,8 +16,6 @@
 
 //#include "command_history.hpp"
 
-#include <sak/exceptions/exception.hpp>
-
 #include "section_data.hpp"
 #include "section_handle.hpp"
 #include "section_data_manager.hpp"
@@ -80,13 +78,19 @@ namespace sak
   {
   public:
     QFileInfo m_filepath;
-    QString m_message;
-    QString m_data;
 
     File_Data_Manager m_file_manager;
     Texture_Data_Manager m_texture_manager;
 
     //Command_History m_command_history;
+
+    Implementation():
+      m_filepath{},
+      m_file_manager{},
+      m_texture_manager{}//,
+      //m_command_history{}
+    {
+    }
 
     explicit Implementation(QString const& a_filepath):
       m_filepath{a_filepath},
@@ -112,9 +116,18 @@ namespace sak
 // does not exist or is inaccessible it will fail. If the file does
 // not exist it will attempt to create it and save the initial data
 // to it. If the file exists it will attempt to load the data from it.
+/*
+sak::Project_Data::Project_Data():
+  m_data{std::make_unique<Implementation>()}
+
+{
+
+}*/
+
 sak::Project_Data::Project_Data(QString const& a_filepath):
     m_data{std::make_unique<Implementation>(a_filepath)}
 {
+  /*
   // Should this emit exceptions?
   // Does that make sense to do to loading and saving?
 
@@ -134,7 +147,7 @@ sak::Project_Data::Project_Data(QString const& a_filepath):
   else
   {
     save();
-  }
+  }*/
 }
 sak::Project_Data::~Project_Data() = default;
 
@@ -144,6 +157,7 @@ sak::Project_Data& sak::Project_Data::operator=(Project_Data &&) = default;
 // Interface
 //============================================================
 // Save the current data to the file.
+/*
 void sak::Project_Data::save() const
 {
   // Needs to spit out a detailed error if it fails.
@@ -247,7 +261,7 @@ void sak::Project_Data::load()
     throw File_Read_Error(imp().m_filepath.absoluteFilePath());
   }
 }
-
+*/
 QString sak::Project_Data::name() const
 {
   return cimp().m_filepath.baseName();
@@ -267,6 +281,7 @@ QString sak::Project_Data::filepath() const
 // Add an object that will rely on the Project's signals. If nulltpr, nothing happens.
 void sak::Project_Data::add_signalbox(Abstract_Project_Signalbox* a_signalbox)
 {
+  qDebug() << "sak::Project_Data::add_signalbox";
   //qDebug() << "adding file signalbox";
   imp().m_file_manager.add_signalbox(a_signalbox);
   //qDebug() << "adding texture signalbox";
@@ -277,6 +292,7 @@ void sak::Project_Data::add_signalbox(Abstract_Project_Signalbox* a_signalbox)
 // Remove an object that will rely on the Project's signals. If nulltpr, nothing happens.
 void sak::Project_Data::remove_signalbox(Abstract_Project_Signalbox* a_signalbox)
 {
+  qDebug() << "sak::Project_Data::remove_signalbox";
   imp().m_file_manager.remove_signalbox(a_signalbox);
   imp().m_texture_manager.remove_signalbox(a_signalbox);
 }
@@ -285,76 +301,10 @@ void sak::Project_Data::remove_signalbox(Abstract_Project_Signalbox* a_signalbox
 // Clear all the signalboxes so that nothing relies on changes to this.
 void sak::Project_Data::clear_signalboxes()
 {
+  qDebug() << "sak::Project_Data::clear_signalboxes";
   imp().m_file_manager.clear_signalboxes();
   imp().m_texture_manager.clear_signalboxes();
 }
-
-
-/*
-// Can we currently call undo?
-bool sak::Project_Data::can_undo() const
-{
-  return cimp().m_command_history.can_undo();
-}
-
-// Can we currently call redo?
-bool sak::Project_Data::can_redo() const
-{
-  return cimp().m_command_history.can_redo();
-}
-
-// How many times can undo() be called?
-std::size_t sak::Project_Data::undo_count() const
-{
-  return cimp().m_command_history.undo_count();
-}
-
-// How many times can redo() be called?
-std::size_t sak::Project_Data::redo_count() const
-{
-  return cimp().m_command_history.redo_count();
-}
-
-// Undo the last command issued.
-void sak::Project_Data::undo()
-{
-  imp().m_command_history.undo();
-}
-
-// Redo the last undone command in the command history
-void sak::Project_Data::redo()
-{
-  imp().m_command_history.redo();
-}
-
-// Clear the undo/redo history.
-void sak::Project_Data::clear_history()
-{
-  imp().m_command_history.clear();
-}
-
-template <>
-sak::Section_Interface<sak::File_Data> sak::Project_Data::get_interface<sak::File_Data>()
-{
-  return get_file_interface();
-}
-
-template <>
-sak::Section_Interface<sak::Texture_Data> sak::Project_Data::get_interface<sak::Texture_Data>()
-{
-  return get_texture_interface();
-}
-
-sak::File_Interface sak::Project_Data::get_file_interface()
-{
-  return Section_Interface<File_Data>(std::addressof(imp().m_file_manager), std::addressof(imp().m_command_history));
-}
-
-sak::Texture_Interface sak::Project_Data::get_texture_interface()
-{
-  return Section_Interface<Texture_Data>(std::addressof(imp().m_texture_manager), std::addressof(imp().m_command_history));
-}
-*/
 
 template <>
 sak::Section_Data_Manager<sak::File_Data>* sak::Project_Data::get_manager<sak::File_Data>()
@@ -376,4 +326,27 @@ sak::File_Data_Manager* sak::Project_Data::get_file_manager()
 sak::Texture_Data_Manager* sak::Project_Data::get_texture_manager()
 {
   return std::addressof(imp().m_texture_manager);
+}
+
+
+template <>
+sak::Section_Data_Manager<sak::File_Data> const* sak::Project_Data::cget_manager<sak::File_Data>() const
+{
+  return cget_file_manager();
+}
+
+template <>
+sak::Section_Data_Manager<sak::Texture_Data> const* sak::Project_Data::cget_manager<sak::Texture_Data>() const
+{
+  return cget_texture_manager();
+}
+
+sak::File_Data_Manager const* sak::Project_Data::cget_file_manager() const
+{
+  return std::addressof(cimp().m_file_manager);
+}
+
+sak::Texture_Data_Manager const* sak::Project_Data::cget_texture_manager() const
+{
+  return std::addressof(cimp().m_texture_manager);
 }

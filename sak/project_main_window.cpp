@@ -12,6 +12,15 @@
 #include <QFileDialog>
 #include <QDebug>
 
+#include <QString>
+#include <QDir>
+#include <QDebug>
+#include <cassert>
+#include <algorithm>
+#include <iterator>
+
+#include "project_holder.hpp"
+
 #include "project_data.hpp"
 #include "project_interface.hpp"
 #include "section_interface.hpp"
@@ -20,12 +29,8 @@
 
 #include <sak/dialog/new_project_dialog.hpp>
 #include <sak/fixed_settings.hpp>
-#include <sak/exceptions/exception.hpp>
+#include "exception.hpp"
 #include "abstract_project_signalbox.hpp"
-
-//---------------------------------------------------------------------------
-// window
-//---------------------------------------------------------------------------
 
 // Internal constants and impl
 //============================================================
@@ -106,27 +111,31 @@ namespace
 }
 
 
-//---------------------------------------------------------------------------
-// Project_Main_Window::Implementation
-//---------------------------------------------------------------------------
-// Implements the class data. we can't implement the entire class here
-// without inheriting QMainWindow and forwarding all functions from that to
-// here...
 
 // Pimpl Data
 //============================================================
 
+
 namespace sak
 {
+  //---------------------------------------------------------------------------
+  // Project_Main_Window::Implementation
+  //---------------------------------------------------------------------------
+  // Implements the class data. we can't implement the entire class here
+  // without inheriting QMainWindow and forwarding all functions from that to
+  // here...
+
   class Project_Main_Window::Implementation :
       public Abstract_Project_Signalbox
   {
   public:
     Project_Main_Window* m_owner;
 
-    std::unique_ptr<Project_Data> m_project_data;
-    std::unique_ptr<Command_History> m_command_history;
-    std::unique_ptr<Project_Interface> m_project_interface;
+    std::unique_ptr<Project_Holder> m_project_holder;
+
+    //std::unique_ptr<Project_Data> m_project_data;
+    //std::unique_ptr<Command_History> m_command_history;
+    //std::unique_ptr<Project_Interface> m_project_interface;
 
     bool m_unsaved_edits;
 
@@ -228,9 +237,7 @@ namespace sak
 sak::Project_Main_Window::Implementation::Implementation(Project_Main_Window* a_owner):
   m_owner{a_owner},
 
-  m_project_data{},
-  m_command_history{},
-  m_project_interface{},
+  m_project_holder{},
   m_unsaved_edits{false},
 
   m_central_stack{std::make_unique<QStackedWidget>()},
@@ -389,7 +396,7 @@ void sak::Project_Main_Window::Implementation::signal_unsaved_edits_change(bool 
 void sak::Project_Main_Window::Implementation::signal_undo_change()
 {
   qDebug() << "sak::Project_Main_Window::Implementation::signal_undo_change";
-  qDebug() << "Undo = " << m_command_history->undo_count() << " Redo = " << m_command_history->redo_count();
+  qDebug() << "Undo = " << m_project_holder->interface()->undo_count() << " Redo = " << m_project_holder->interface()->redo_count();
   m_owner->notify_undo_changes();
 }
 
@@ -573,6 +580,7 @@ sak::Project_Main_Window::~Project_Main_Window()
 // If the user cancels out, nothing happens.
 bool sak::Project_Main_Window::new_project()
 {
+  qDebug() << "sak::Project_Main_Window::new_project";
   // close the open project or do nothing if there isn't one.
   // if we didn't close it, stop
   if (!close_project())
@@ -608,7 +616,6 @@ bool sak::Project_Main_Window::new_project()
   QString l_filename{l_dialog.name() + Fixed_Settings::project_file_extension()};
   QString l_filepath{l_dir.filePath(l_filename)};
 
-  qDebug() << "new project:";
   qDebug() << "dir: " << l_dir.absolutePath();
   qDebug() << "filename: " << l_filename;
   qDebug() << "filepath: " << l_filepath;
@@ -617,32 +624,29 @@ bool sak::Project_Main_Window::new_project()
   // That way things like write permissions can be checked without making the data object?
   try
   {
+    qDebug() << "make Project_Holder";
     // Right now this constructor does the file stuff and emits exceptions if it can't
-    auto l_project_data = std::make_unique<Project_Data>(l_filepath);
+    auto l_project_holder = std::make_unique<Project_Holder>(l_filepath);
 
-    // Make everything else so we can do the swap in
-    auto l_command_history = std::make_unique<Command_History>();
-    auto l_project_interface = std::make_unique<Project_Interface>(l_project_data.get(), l_command_history.get());
-    auto l_project_widget = std::make_unique<Project_Main_Widget>(l_project_interface.get());
-
-    // Install the new data.
+    qDebug() << "make Project_Holder END";
+    // Install the new data.    
     // None of this should throw.
-    std::swap(l_project_data, imp().m_project_data);
-    std::swap(l_command_history, imp().m_command_history);
-    std::swap(l_project_interface, imp().m_project_interface);
-    std::swap(l_project_widget, imp().m_project_widget);
+    std::swap(l_project_holder, imp().m_project_holder);
 
     // add this to the signalboxes
-    imp().m_project_data->add_signalbox(m_data.get());
+    //imp().m_project_data->add_signalbox(m_data.get());
+    imp().m_project_holder->interface()->add_signalbox(m_data.get());
     imp().m_unsaved_edits = false;
   }
   catch(Filesystem_Error& e)
   {
-    e.dialog(this);
+    // failed to make the project directory
+    QMessageBox::warning(this, "Filesystem Error","There was an error with the new project file:\n" + l_filepath);
+    //e.dialog(this);
     return false;
   }
 
-  imp().m_central_stack->addWidget(imp().m_project_widget.get());
+  imp().m_central_stack->addWidget(imp().m_project_holder->widget());
   imp().m_central_stack->setCurrentIndex(1);
 
   notify_project_changes();
@@ -653,6 +657,7 @@ bool sak::Project_Main_Window::new_project()
 // via a dialog. If the user cancels out, nothing happens.
 bool sak::Project_Main_Window::open_project()
 {
+  qDebug() << "sak::Project_Main_Window::open_project";
   // close the open project or do nothing if there isn't one.
   // if we didn't close it, stop
   if (!close_project())
@@ -672,42 +677,33 @@ bool sak::Project_Main_Window::open_project()
     return false;
   }
 
+  qDebug() << "filepath: " << l_filepath;
 
-  //qDebug() << "open project:";
-  //qDebug() << "filepath: " << l_filename;
 
   try
   {
+    qDebug() << "make Project_Holder";
     // Right now this constructor does the file stuff and emits exceptions if it can't
-    auto l_project_data = std::make_unique<Project_Data>(l_filepath);
+    auto l_project_holder = std::make_unique<Project_Holder>(l_filepath);
 
-    // Make everything else so we can do the swap in
-    auto l_command_history = std::make_unique<Command_History>();
-    auto l_project_interface = std::make_unique<Project_Interface>(l_project_data.get(), l_command_history.get());
-    auto l_project_widget = std::make_unique<Project_Main_Widget>(l_project_interface.get());
-
-
+    qDebug() << "make Project_Holder END";
     // Install the new data.
     // None of this should throw.
-    std::swap(l_project_data, imp().m_project_data);
-    std::swap(l_command_history, imp().m_command_history);
-    std::swap(l_project_interface, imp().m_project_interface);
-    std::swap(l_project_widget, imp().m_project_widget);
+    std::swap(l_project_holder, imp().m_project_holder);
 
-    qDebug() << "here";
     // add this to the signalboxes
-    imp().m_project_data->add_signalbox(m_data.get());
-
-    qDebug() << "there";
+    //imp().m_project_data->add_signalbox(m_data.get());
+    imp().m_project_holder->interface()->add_signalbox(m_data.get());
     imp().m_unsaved_edits = false;
   }
   catch(Filesystem_Error& e)
   {
-    e.dialog(this);
+    QMessageBox::warning(this, "Filesystem Error","There was an error loading the project file:\n" + l_filepath);
+    //e.dialog(this);
     return false;
   }
 
-  imp().m_central_stack->addWidget(imp().m_project_widget.get());
+  imp().m_central_stack->addWidget(imp().m_project_holder->widget());
   imp().m_central_stack->setCurrentIndex(1);
 
   notify_project_changes();
@@ -719,7 +715,7 @@ void sak::Project_Main_Window::save_project()
 {
   if(is_project_open())
   {
-    imp().m_project_interface->save();
+    imp().m_project_holder->save();
     imp().m_unsaved_edits = false;
   }
 }
@@ -735,19 +731,16 @@ bool sak::Project_Main_Window::close_project()
       // user has not cancelled, do the close
 
       // disconnect everything
-      imp().m_project_data->clear_signalboxes();
+      imp().m_project_holder->interface()->clear_signalboxes();
+
       // Unhook the project widget.
-      imp().m_central_stack->removeWidget(imp().m_project_widget.get());
-      // Now destory it.
-      imp().m_project_widget.reset();
+      imp().m_central_stack->removeWidget(imp().m_project_holder->widget());
+
       // Set the stack to point to the first widget again.
       imp().m_central_stack->setCurrentIndex(0);
 
-      // Clear the command list
-      imp().m_command_history.reset();
-      // Destroy the project data
-      imp().m_project_interface.reset();
-      imp().m_project_data.reset();
+      // Destory all the data associated with the open project.
+      imp().m_project_holder.reset();
 
       imp().m_unsaved_edits = false;
 
@@ -772,6 +765,9 @@ bool sak::Project_Main_Window::close_project()
 // Ask to save then quit if that is not cancelled.
 void sak::Project_Main_Window::exit()
 {
+  // Just sned it to QMainWindow::close which triggers a close event.
+  // Dealing with that event is overriden so we get the behaviour we
+  // want with all sources of closing.
   this->close();
 }
 
@@ -782,7 +778,7 @@ void sak::Project_Main_Window::undo()
 {
   if(is_project_open())
   {
-    imp().m_project_interface->undo();
+    imp().m_project_holder->interface()->undo();
   }
 }
 
@@ -791,7 +787,7 @@ void sak::Project_Main_Window::redo()
 {
   if(is_project_open())
   {
-    imp().m_project_interface->redo();
+    imp().m_project_holder->interface()->redo();
   }
 }
 
@@ -809,7 +805,7 @@ void sak::Project_Main_Window::clear_history()
 {
   if(is_project_open())
   {
-    imp().m_command_history->clear();
+    imp().m_project_holder->interface()->clear_history();
   }
 }
 
@@ -820,7 +816,7 @@ void sak::Project_Main_Window::create_file()
 {
   if(is_project_open())
   {
-    imp().m_project_interface->get_file_interface().add_default();
+    imp().m_project_holder->interface()->get_file_interface().add_default();
   }
 }
 
@@ -829,7 +825,7 @@ void sak::Project_Main_Window::create_texture()
 {
   if(is_project_open())
   {
-    imp().m_project_interface->get_texture_interface().add_default();
+    imp().m_project_holder->interface()->get_texture_interface().add_default();
   }
 }
 
@@ -948,8 +944,8 @@ void sak::Project_Main_Window::about()
 // Is a project currently open?
 bool sak::Project_Main_Window::is_project_open() const
 {
-  qDebug() << "sak::Project_Main_Window::is_project_open() = " << (cimp().m_project_data != nullptr);
-  return cimp().m_project_data != nullptr;
+  qDebug() << "sak::Project_Main_Window::is_project_open() = " << (cimp().m_project_holder != nullptr);
+  return cimp().m_project_holder != nullptr;
 }
 
 // Can we currently call undo?
@@ -957,7 +953,7 @@ bool sak::Project_Main_Window::can_undo() const
 {
   if(is_project_open())
   {
-    return cimp().m_command_history->can_undo();
+    return cimp().m_project_holder->interface()->can_undo();
   }
   else
   {
@@ -970,7 +966,7 @@ bool sak::Project_Main_Window::can_redo() const
 {
   if(is_project_open())
   {
-    return cimp().m_command_history->can_redo();
+    return cimp().m_project_holder->interface()->can_redo();
   }
   else
   {
@@ -1061,6 +1057,8 @@ void sak::Project_Main_Window::closeEvent(QCloseEvent *event)
   }
   else
   {
+    // Need to detatch the widget from the stack in order to stop a double-delete
+    imp().m_project_holder.reset();
     // Handle the event as normal
     QMainWindow::closeEvent(event);
   }
@@ -1152,7 +1150,7 @@ void sak::Project_Main_Window::update_window_title()
   QString l_title{};
   if (is_project_open())
   {
-    l_title += imp().m_project_data->name() + " - ";
+    l_title += imp().m_project_holder->name() + " - ";
   }
   l_title += c_title_application;
   this->setWindowTitle(l_title);

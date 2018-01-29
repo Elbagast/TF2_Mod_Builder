@@ -4,6 +4,8 @@
 #ifndef SAK_EXCEPTION_FWD_HPP
 #include "exception_fwd.hpp"
 #endif
+
+#include <cstdint>
 /*
 #ifndef INCLUDE_STD_EXCEPTION
 #define INCLUDE_STD_EXCEPTION
@@ -15,7 +17,6 @@
 */
 namespace sak
 {
-  /*
   //---------------------------------------------------------------------------
   // Exception
   //---------------------------------------------------------------------------
@@ -135,7 +136,49 @@ namespace sak
   {
   public:
     ~File_Write_Error() override;
-  };*/
+  };
+
+  //---------------------------------------------------------------------------
+  // File_Format_Error
+  //---------------------------------------------------------------------------
+  class File_Format_Error :
+      public File_Error
+  {
+  public:
+    ~File_Format_Error() override;
+  };
+
+
+  //---------------------------------------------------------------------------
+  // XML_Error
+  //---------------------------------------------------------------------------
+  class XML_Error :
+      public File_Error
+  {
+  public:
+    explicit XML_Error(std::int64_t a_line);
+    ~XML_Error() override;
+
+    std::int64_t line() const;
+  private:
+    std::int64_t m_line;
+  };
+
+
+  //---------------------------------------------------------------------------
+  // XML_Missing_Start_Element_Error
+  //---------------------------------------------------------------------------
+  class XML_Missing_Start_Element_Error :
+      public XML_Error
+  {
+  public:
+    explicit XML_Missing_Start_Element_Error(char const* a_name, std::int64_t a_line);
+    ~XML_Missing_Start_Element_Error() override;
+
+    char const* name() const;
+  private:
+    std::int64_t m_line;
+  };
 }
 
 #endif // SAK_EXCEPTION_HPP

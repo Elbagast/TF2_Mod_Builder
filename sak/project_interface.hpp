@@ -53,10 +53,10 @@ namespace sak
     // member functions.
 
     // Save the current data to the file.
-    void save() const;
+    //void save() const;
 
     // Get the data from the file and discard the current data.
-    void load();
+    //void load();
     
     // Data that is fixed on contruction.
     QString name() const;
@@ -68,6 +68,9 @@ namespace sak
 
     // Remove an object that will rely on the Project's signals. If nulltpr, nothing happens.
     void remove_signalbox(Abstract_Project_Signalbox* a_signalbox);
+
+    // Clear all the signalboxes so that nothing relies on changes to this.
+    void clear_signalboxes();
 
     // Can we currently call undo?
     bool can_undo() const;

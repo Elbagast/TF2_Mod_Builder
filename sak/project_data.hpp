@@ -117,6 +117,7 @@ namespace sak
     // does not exist or is inaccessible it will fail. If the file does
     // not exist it will attempt to create it and save the initial data
     // to it. If the file exists it will attempt to load the data from it.
+    //Project_Data();
     explicit Project_Data(QString const& a_filepath);
     ~Project_Data();
 
@@ -132,11 +133,12 @@ namespace sak
     // member functions.
 
     // Save the current data to the file.
-    void save() const;
+    //void save() const;
 
     // Get the data from the file and discard the current data.
-    void load();
+    //void load();
 
+    // if you want to move save/load then these need to move too.
     QString name() const;
     QString location() const;
     QString filepath() const;
@@ -149,35 +151,6 @@ namespace sak
 
     // Clear all the signalboxes so that nothing relies on changes to this.
     void clear_signalboxes();
-/*
-    // Can we currently call undo?
-    bool can_undo() const;
-
-    // Can we currently call redo?
-    bool can_redo() const;
-
-    // How many times can undo() be called?
-    std::size_t undo_count() const;
-
-    // How many times can redo() be called?
-    std::size_t redo_count() const;
-
-    // Undo the last command issued.
-    void undo();
-
-    // Redo the last undone command in the command history
-    void redo();
-
-    // Clear the undo/redo history.
-    void clear_history();
-
-    // Section interfaces
-    template <typename T>
-    Section_Interface<T> get_interface();
-
-    File_Interface get_file_interface();
-    Texture_Interface get_texture_interface();
-    */
     
     // Section data managers
     template <typename T>
@@ -185,6 +158,13 @@ namespace sak
 
     File_Data_Manager* get_file_manager();
     Texture_Data_Manager* get_texture_manager();
+
+    // Section data managers
+    template <typename T>
+    Section_Data_Manager<T> const* cget_manager() const;
+
+    File_Data_Manager const* cget_file_manager() const;
+    Texture_Data_Manager const* cget_texture_manager() const;
 
   private:
     // Pimpl Data

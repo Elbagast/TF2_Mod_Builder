@@ -31,6 +31,7 @@
 
 namespace sak
 {
+  //---------------------------------------------------------------------------
   // Command_History
   //---------------------------------------------------------------------------
   // Queue-like container that manages a history of commands and supports undo/redo functionality on the
@@ -68,10 +69,10 @@ namespace sak
     void add_execute(std::unique_ptr<Abstract_Command>&& a_command);
 
     // Forward arguments to construct the templated Command_Class without having to use operator new manually
-    template <typename Command_Class>
-    void add_execute(std::unique_ptr<Command_Class>&& a_command)
+    template <typename T_Command_Class>
+    void add_execute(std::unique_ptr<T_Command_Class>&& a_command)
     {
-      static_assert(std::is_base_of<Abstract_Command, Command_Class>::value, "Cannot add_execute this pointer, the class is not derived from Abstract_Command.");
+      static_assert(std::is_base_of<Abstract_Command, T_Command_Class>::value, "Cannot add_execute this pointer, the class is not derived from Abstract_Command.");
       add_execute(std::unique_ptr<Abstract_Command>(a_command.release()));
     }
 

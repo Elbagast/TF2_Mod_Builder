@@ -4,11 +4,75 @@
 #include "typestring_qstring.hpp"
 #include "section_data_manager.hpp"
 #include "section_data.hpp"
+#include "project_data.hpp"
 
 #include <QXmlStreamWriter>
 #include <QXmlStreamReader>
 #include <QDebug>
 #include <QString>
+#include <QFile>
+
+#include "exception.hpp"
+
+//---------------------------------------------------------------------------
+// Xml_Traits<Project_Data>
+//---------------------------------------------------------------------------
+
+QXmlStreamWriter& sak::Xml_Traits<sak::Project_Data>::to_stream(QXmlStreamWriter& a_stream, Project_Data const& a_data)
+{
+  a_stream.setAutoFormatting(true);
+  a_stream.writeStartDocument();
+
+  // start the element that contains all the data
+  a_stream.writeStartElement("Project");
+
+  Xml_Traits<File_Data_Manager>::to_stream(a_stream, *(a_data.cget_file_manager()));
+  Xml_Traits<Texture_Data_Manager>::to_stream(a_stream, *(a_data.cget_texture_manager()));
+
+  // end the element that contains all the data
+  a_stream.writeEndElement();
+
+  a_stream.writeEndDocument();
+
+  return a_stream;
+}
+
+QXmlStreamReader& sak::Xml_Traits<sak::Project_Data>::from_stream(QXmlStreamReader& a_stream, Project_Data& a_data)
+{
+  // <Project>
+  if (a_stream.readNextStartElement()
+      && a_stream.name().toString() != "Project")
+  {
+    throw XML_Error(a_stream.lineNumber());
+  }
+
+  Xml_Traits<File_Data_Manager>::from_stream(a_stream, *(a_data.get_file_manager()));
+  Xml_Traits<Texture_Data_Manager>::from_stream(a_stream, *(a_data.get_texture_manager()));
+
+  //l_data->m_file_manager.from_xmlstream(l_stream);
+  //l_data->m_texture_manager.from_xmlstream(l_stream);
+
+  // </Project>
+  qDebug() << "tokenstring = " << a_stream.tokenString() << a_stream.name().toString();
+  if (a_stream.readNext() != QXmlStreamReader::Characters)
+  {
+    qDebug() << "Didn't find Project Characters";
+    throw XML_Error(a_stream.lineNumber());
+    // Bad file structure
+  }
+  qDebug() << "tokenstring = " << a_stream.tokenString() << a_stream.name().toString();
+  if (a_stream.readNext() != QXmlStreamReader::EndElement)
+  {
+    qDebug() << "Didn't find Project EndElement";
+    throw XML_Error(a_stream.lineNumber());
+    // Bad file structure
+  }
+  qDebug() << "tokenstring = " << a_stream.tokenString() << a_stream.name().toString();
+
+  return a_stream;
+}
+
+
 
 //---------------------------------------------------------------------------
 // Xml_Traits<Section_Data_Manager<T>>
@@ -54,79 +118,66 @@ QXmlStreamReader& sak::internal::Xml_Traits_Section_Data_Manager<T>::from_stream
   using Data_Type = typename Section_Data_Manager<T>::Data_Type;
 
   // Read the start e.g. <Foos>
-  if (a_stream.readNextStartElement() && a_stream.name() == Typestring_QString<Data_Type::Typestring_Plural>::value())
-  {
-    qDebug() << "tokenstring = " << a_stream.tokenString() << a_stream.name().toString();
-    //qDebug() << "Files:";
-    int l_count {0};
-
-    // <Count>
-    if (a_stream.readNextStartElement() && a_stream.name().toString() == c_count_title)
-    {
-      qDebug() << "tokenstring = " << a_stream.tokenString() << a_stream.name().toString();
-
-      l_count = a_stream.readElementText().toInt();
-      //qDebug() << "Count = " << l_count;
-
-      qDebug() << "tokenstring = " << a_stream.tokenString() << a_stream.name().toString();
-    }
-    else
-    {
-      qDebug() << "Didn't find " << Typestring_QString<Data_Type::Typestring_Plural>::value() << " " << c_count_title;
-      qDebug() << "Last element: " << a_stream.qualifiedName().toString();
-      // file format error
-
-      // END
-      return a_stream;
-    }
-
-    // Data to build into
-    Section_Data_Manager<T> l_data{};
-
-    //m_handles.reserve(l_count); // only call outside members...and it could be made public
-    // read the files
-    for (int l_index = 0; l_index != l_count; ++l_index)
-    {
-      Data_Type l_object{};
-      Xml_Traits<Data_Type>::from_stream(a_stream, l_object);
-
-      // make a handle for this
-      auto l_handle = l_data.make_emplace(std::move(l_object));
-
-      // add it to the data
-      l_data.added(l_handle);
-    }
-    // </Files>
-
-    qDebug() << "tokenstring = " << a_stream.tokenString() << a_stream.name().toString();
-    if (a_stream.readNext() != QXmlStreamReader::Characters)
-    {
-      // Bad file structure
-      qDebug() << "Didn't find Characters";
-
-      // END
-      return a_stream;
-    }
-    qDebug() << "tokenstring = " << a_stream.tokenString() << a_stream.name().toString();
-    if (a_stream.readNext() != QXmlStreamReader::EndElement)
-    {
-      // Bad file structure
-      qDebug() << "Didn't find EndElement";
-
-      // END
-      return a_stream;
-    }
-    qDebug() << "tokenstring = " << a_stream.tokenString() << a_stream.name().toString();
-
-    // swap the data
-    swap(a_data,l_data);
-  }
-  else
+  if (a_stream.readNextStartElement() && a_stream.name() != Typestring_QString<Data_Type::Typestring_Plural>::value())
   {
     // Bad file structure
     qDebug() << "Didn't find " << Typestring_QString<Data_Type::Typestring_Plural>::value() << "...";
     qDebug() << "Last element: " << a_stream.qualifiedName().toString();
+    throw XML_Error(a_stream.lineNumber());
   }
+  //qDebug() << "tokenstring = " << a_stream.tokenString() << a_stream.name().toString();
+  //qDebug() << "Files:";
+  //int l_count {0};
+
+  // <Count>
+  if (a_stream.readNextStartElement() && a_stream.name().toString() != c_count_title)
+  {
+    qDebug() << "Didn't find " << Typestring_QString<Data_Type::Typestring_Plural>::value() << " " << c_count_title;
+    qDebug() << "Last element: " << a_stream.qualifiedName().toString();
+    // file format error
+    throw XML_Error(a_stream.lineNumber());
+  }
+
+  int l_count = a_stream.readElementText().toInt();
+
+  // Data to build into
+  Section_Data_Manager<T> l_data{};
+
+  //m_handles.reserve(l_count); // only call outside members...and it could be made public
+  // read the files
+  for (int l_index = 0; l_index != l_count; ++l_index)
+  {
+    Data_Type l_object{};
+    Xml_Traits<Data_Type>::from_stream(a_stream, l_object);
+
+    // make a handle for this
+    auto l_handle = l_data.make_emplace(std::move(l_object));
+
+    // add it to the data
+    l_data.added(l_handle);
+  }
+  // </Files>
+
+  qDebug() << "tokenstring = " << a_stream.tokenString() << a_stream.name().toString();
+  if (a_stream.readNext() != QXmlStreamReader::Characters)
+  {
+    // Bad file structure
+    qDebug() << "Didn't find Characters";
+
+    throw XML_Error(a_stream.lineNumber());
+  }
+  qDebug() << "tokenstring = " << a_stream.tokenString() << a_stream.name().toString();
+  if (a_stream.readNext() != QXmlStreamReader::EndElement)
+  {
+    // Bad file structure
+    throw XML_Error(a_stream.lineNumber());
+  }
+  qDebug() << "tokenstring = " << a_stream.tokenString() << a_stream.name().toString();
+
+  // swap the data
+  swap(a_data,l_data);
+  assert(a_data.count() == static_cast<std::size_t>(l_count));
+
   return a_stream;
 }
 
@@ -214,33 +265,33 @@ namespace sak
         void operator()(QXmlStreamReader& a_stream, Data_Type& a_data)
         {
           if (a_stream.readNextStartElement()
-              && a_stream.name().toString() == Typestring_QString<Member_Name_Type>::value())
+              && a_stream.name().toString() != Typestring_QString<Member_Name_Type>::value())
           {
-            qDebug() << "tokenstring = " << a_stream.tokenString() << a_stream.name().toString();
 
-
-            Member_Value_Type l_data{};
-
-            // This bit will go to hell for reference counted data....
-            Xml_Traits<Member_Value_Type>::from_stream(a_stream, l_data);
-
-
-            // read the data as a string
-            //auto l_data_qstring = a_stream.readElementText();
-            // convert the data
-            //auto l_data = qtlib::From_QString<Member_Value_Type>()(l_data_qstring);
-            // write it
-            a_data.member_at<Index>() = l_data;
-
-            qDebug() << "tokenstring = " << a_stream.tokenString() << a_stream.name().toString();
-            // apparently we jump to the end element when we use readElementText()
-          }
-          else
-          {
             // bad member name...
             qDebug() << "Bad member name...";
             qDebug() << "Last element: " << a_stream.qualifiedName().toString();
+            throw XML_Error(a_stream.lineNumber());
           }
+          //qDebug() << "tokenstring = " << a_stream.tokenString() << a_stream.name().toString();
+
+
+          Member_Value_Type l_data{};
+
+          // This bit will go to hell for reference counted data....
+          Xml_Traits<Member_Value_Type>::from_stream(a_stream, l_data);
+
+
+          // read the data as a string
+          //auto l_data_qstring = a_stream.readElementText();
+          // convert the data
+          //auto l_data = qtlib::From_QString<Member_Value_Type>()(l_data_qstring);
+          // write it
+          a_data.member_at<Index>() = l_data;
+
+          //qDebug() << "tokenstring = " << a_stream.tokenString() << a_stream.name().toString();
+          // apparently we jump to the end element when we use readElementText()
+
           do_loop<Index+1,End>()(a_stream, a_data);
         }
       };
@@ -259,33 +310,33 @@ namespace sak
       {
         // open the element and verify it's correct
         if (a_stream.readNextStartElement()
-            && a_stream.name().toString() == Typestring_QString<Typestring>::value())
-        {
-          qDebug() << "tokenstring = " << a_stream.tokenString() << a_stream.name().toString();
-          do_loop<0>()(a_stream, a_data);
-          // close the element
-          //a_stream.readNext();
-
-          qDebug() << "tokenstring = " << a_stream.tokenString() << a_stream.name().toString();
-          if (a_stream.readNext() != QXmlStreamReader::Characters)
-          {
-            // Bad file structure
-            qDebug() << "Didn't find Characters";
-          }
-          qDebug() << "tokenstring = " << a_stream.tokenString() << a_stream.name().toString();
-          if (a_stream.readNext() != QXmlStreamReader::EndElement)
-          {
-            // Bad file structure
-            qDebug() << "Didn't find EndElement";
-          }
-          qDebug() << "tokenstring = " << a_stream.tokenString() << a_stream.name().toString();
-        }
-        else
+            && a_stream.name().toString() != Typestring_QString<Typestring>::value())
         {
           // bad type...
           qDebug() << "Didn't find " << Typestring_QString<Typestring>::value();
           qDebug() << "Last element: " << a_stream.qualifiedName().toString();
+          throw XML_Error(a_stream.lineNumber());
         }
+        //qDebug() << "tokenstring = " << a_stream.tokenString() << a_stream.name().toString();
+        do_loop<0>()(a_stream, a_data);
+        // close the element
+        //a_stream.readNext();
+
+        //qDebug() << "tokenstring = " << a_stream.tokenString() << a_stream.name().toString();
+        if (a_stream.readNext() != QXmlStreamReader::Characters)
+        {
+          // Bad file structure
+          qDebug() << "Didn't find Characters";
+          throw XML_Error(a_stream.lineNumber());
+        }
+        //qDebug() << "tokenstring = " << a_stream.tokenString() << a_stream.name().toString();
+        if (a_stream.readNext() != QXmlStreamReader::EndElement)
+        {
+          // Bad file structure
+          qDebug() << "Didn't find EndElement";
+          throw XML_Error(a_stream.lineNumber());
+        }
+        //qDebug() << "tokenstring = " << a_stream.tokenString() << a_stream.name().toString();
       }
     };
   }

@@ -29,6 +29,7 @@ sak::Project_Interface& sak::Project_Interface::operator=(Project_Interface &&) 
 
 // Interface
 //============================================================
+/*
 void sak::Project_Interface::save() const
 {
   return m_project_data->save();
@@ -37,7 +38,7 @@ void sak::Project_Interface::save() const
 void sak::Project_Interface::load()
 {
   return m_project_data->load();
-}
+}*/
 
 QString sak::Project_Interface::name() const
 {
@@ -65,6 +66,12 @@ void sak::Project_Interface::add_signalbox(Abstract_Project_Signalbox* a_signalb
 void sak::Project_Interface::remove_signalbox(Abstract_Project_Signalbox* a_signalbox)
 {
   m_project_data->remove_signalbox(a_signalbox);
+}
+
+// Clear all the signalboxes so that nothing relies on changes to this.
+void sak::Project_Interface::clear_signalboxes()
+{
+  m_project_data->clear_signalboxes();
 }
 
 // Can we currently call undo?

@@ -5,6 +5,10 @@
 #include "xml_traits_fwd.hpp"
 #endif
 
+#ifndef SAK_PROJECT_DATA_FWD_HPP
+#include "project_data_fwd.hpp"
+#endif
+
 #ifndef SAK_SECTION_DATA_MANAGER_FWD_HPP
 #include "section_data_manager_fwd.hpp"
 #endif
@@ -35,6 +39,18 @@ namespace sak
     static QXmlStreamReader& from_stream(QXmlStreamReader& a_stream, Data_Type& a_data);
   };
   */
+
+  //---------------------------------------------------------------------------
+  // Xml_Traits<Project_Data>
+  //---------------------------------------------------------------------------
+
+  template <>
+  class Xml_Traits<Project_Data>
+  {
+  public:
+    static QXmlStreamWriter& to_stream(QXmlStreamWriter& a_stream, Project_Data const& a_data);
+    static QXmlStreamReader& from_stream(QXmlStreamReader& a_stream, Project_Data& a_data);
+  };
 
 
   //---------------------------------------------------------------------------
