@@ -600,7 +600,10 @@ bool sak::Project_Main_Window::new_project()
   if(!l_dir.exists(l_dialog.name()) && !l_dir.mkdir(l_dialog.name()))
   {
     // failed to make the project directory
-    QMessageBox::warning(this, "New Project Failed","Could not create the project directory.");
+    QMessageBox::warning(this,
+                         "New Project Failed",
+                         "Could not create the project directory:"
+                         + l_dir.absolutePath());
     return false;
   }
 
@@ -633,10 +636,23 @@ bool sak::Project_Main_Window::new_project()
     imp().m_project_holder->interface()->add_signalbox(m_data.get());
     imp().m_unsaved_edits = false;
   }
-  catch(Filesystem_Error& e)
+  catch(XML_Error& l_exception)
+  {
+    QMessageBox::warning(this,
+                         "Exception: XML_Error",
+                         "There was an error loading the project file:\n"
+                         + l_filepath
+                         + "\n at line "
+                         + QString::number(l_exception.line()));
+    return false;
+  }
+  catch(Filesystem_Error&)
   {
     // failed to make the project directory
-    QMessageBox::warning(this, "Filesystem Error","There was an error with the new project file:\n" + l_filepath);
+    QMessageBox::warning(this,
+                         "Exception: Filesystem_Error",
+                         "There was an error with the new project file:\n"
+                         + l_filepath);
     //e.dialog(this);
     return false;
   }
@@ -653,12 +669,6 @@ bool sak::Project_Main_Window::new_project()
 bool sak::Project_Main_Window::open_project()
 {
   qDebug() << "sak::Project_Main_Window::open_project";
-  // close the open project or do nothing if there isn't one.
-  // if we didn't close it, stop
-  if (!close_project())
-  {
-    return false;
-  }
 
   // Get a project file
   QString l_filepath = QFileDialog::getOpenFileName(this,
@@ -674,6 +684,12 @@ bool sak::Project_Main_Window::open_project()
 
   qDebug() << "filepath: " << l_filepath;
 
+  // close the open project or do nothing if there isn't one.
+  // if we didn't close it, stop
+  if (!close_project())
+  {
+    return false;
+  }
 
   try
   {
@@ -691,10 +707,21 @@ bool sak::Project_Main_Window::open_project()
     imp().m_project_holder->interface()->add_signalbox(m_data.get());
     imp().m_unsaved_edits = false;
   }
-  catch(Filesystem_Error& e)
+  catch(XML_Error& l_exception)
   {
-    QMessageBox::warning(this, "Filesystem Error","There was an error loading the project file:\n" + l_filepath);
-    //e.dialog(this);
+    QMessageBox::warning(this,
+                         "Exception: XML_Error","There was an error loading the project file:\n"
+                         + l_filepath
+                         + "\n at line "
+                         + QString::number(l_exception.line()));
+    return false;
+  }
+  catch(Filesystem_Error&)
+  {
+    QMessageBox::warning(this,
+                         "Exception: Filesystem_Error",
+                         "There was an error loading the project file:\n"
+                         + l_filepath);
     return false;
   }
 

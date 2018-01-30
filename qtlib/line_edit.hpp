@@ -38,6 +38,7 @@ namespace qtlib
 
   signals:
     void lostFocus();
+    void editingFailed();
   };
 }
 

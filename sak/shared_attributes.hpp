@@ -25,12 +25,6 @@ namespace sak
   // A short string of unicode text containing any characters except control
   // characters. Max length is 256 chars. Must contain something.
 
-  // Right now if you end a name with an invalid or intermediate result (e.g.
-  // empty) by loosing focus, There is no signal to tell the widget to refresh
-  // its content to the old value. But this works fine in the outliner. It may
-  // be worth displaying the members in a tableview with a QAbstractItemModel
-  // powering it. Oh joy.
-
   class Text_Name
   {
   public:
@@ -42,6 +36,7 @@ namespace sak
     static void set_widget_value(QWidget* a_widget, Value_Type const& a_value);
     static Value_Type get_widget_value(QWidget* a_widget);
     static void connect_to(QWidget* a_widget, Abstract_Member_Edit_Widget* a_editor);
+    static QString tooltip();
   };
 
 
@@ -62,6 +57,7 @@ namespace sak
     static void set_widget_value(QWidget* a_widget, Value_Type const& a_value);
     static Value_Type get_widget_value(QWidget* a_widget);
     static void connect_to(QWidget* a_widget, Abstract_Member_Edit_Widget* a_editor);
+    static QString tooltip();
   };
 
   //---------------------------------------------------------------------------
@@ -81,6 +77,7 @@ namespace sak
     static void set_widget_value(QWidget* a_widget, Value_Type const& a_value);
     static Value_Type get_widget_value(QWidget* a_widget);
     static void connect_to(QWidget* a_widget, Abstract_Member_Edit_Widget* a_editor);
+    static QString tooltip();
   };
 }
 

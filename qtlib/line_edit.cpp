@@ -41,6 +41,10 @@ void qtlib::Line_Edit::focusOutEvent(QFocusEvent* a_event)
   if (a_event->lostFocus())
   {
     emit this->lostFocus();
+    if (!this->hasAcceptableInput())
+    {
+      emit this->editingFailed();
+    }
   }
   // continue as normal
   this->QLineEdit::focusOutEvent(a_event);

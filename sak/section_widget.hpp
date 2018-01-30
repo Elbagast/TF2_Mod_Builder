@@ -76,10 +76,22 @@ namespace sak
     Section_Widget(Project_Interface* a_project, Handle_Type const& a_handle, QWidget* a_parent = nullptr);
     ~Section_Widget() override;
 
+    Section_Widget(Section_Widget const&) = delete;
+    Section_Widget& operator=(Section_Widget const&) = delete;
+
+    Section_Widget(Section_Widget &&) = delete;
+    Section_Widget& operator=(Section_Widget &&) = delete;
+
     // Public Interface
     //============================================================
+    // Called when the data for this handle has drastically changed.
     void changed();
+
+    // Called when the data a given member has changed.
     void changed_at(std::size_t a_section);
+
+    // Get the handle this widget is related to. Mostly so what
+    // owns this can investigate it.
     Handle_Type const& cget_handle() const;
 
   private:

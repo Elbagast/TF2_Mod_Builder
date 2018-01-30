@@ -184,6 +184,7 @@ namespace sak
           a_tabwidget->setUpdatesEnabled(true);
         }
       }
+      // Focus on
     }
 
     // When a texture has been added, this is called.
@@ -371,11 +372,15 @@ sak::Project_Editor_Widget::Implementation::Implementation(Project_Interface* a_
 void sak::Project_Editor_Widget::Implementation::changed(File_Handle const& a_handle)
 {
   do_stuff<File_Data>::changed(m_file_widgets, a_handle);
+  do_stuff<File_Data>::requests_editor(m_file_widgets, m_tabwidget.get(), m_project, a_handle);
+  update_visible();
 }
 // When a File has its data changed(anything but the name), this is called.
 void sak::Project_Editor_Widget::Implementation::changed_at(File_Handle const& a_handle, std::size_t a_section)
 {
   do_stuff<File_Data>::changed_at(m_file_widgets, m_tabwidget.get(), a_handle, a_section);
+  do_stuff<File_Data>::requests_editor(m_file_widgets, m_tabwidget.get(), m_project, a_handle);
+  update_visible();
 }
 // When a File has been added, this is called.
 void sak::Project_Editor_Widget::Implementation::added(File_Handle const& a_handle)
@@ -406,11 +411,15 @@ void sak::Project_Editor_Widget::Implementation::requests_focus(File_Handle cons
 void sak::Project_Editor_Widget::Implementation::changed(Texture_Handle const& a_handle)
 {
   do_stuff<Texture_Data>::changed(m_texture_widgets, a_handle);
+  do_stuff<Texture_Data>::requests_editor(m_texture_widgets, m_tabwidget.get(), m_project, a_handle);
+  update_visible();
 }
 // When a texture has its data changed(anything but the name), this is called.
 void sak::Project_Editor_Widget::Implementation::changed_at(Texture_Handle const& a_handle, std::size_t a_section)
 {
   do_stuff<Texture_Data>::changed_at(m_texture_widgets, m_tabwidget.get(), a_handle, a_section);
+  do_stuff<Texture_Data>::requests_editor(m_texture_widgets, m_tabwidget.get(), m_project, a_handle);
+  update_visible();
 }
 // When a texture has been added, this is called.
 void sak::Project_Editor_Widget::Implementation::added(Texture_Handle const& a_handle)
@@ -473,6 +482,3 @@ sak::Project_Editor_Widget::Project_Editor_Widget(Project_Interface* a_project, 
   this->setLayout(imp().m_layout.get());
 }
 sak::Project_Editor_Widget::~Project_Editor_Widget() = default;
-
-//sak::Project_Editor_Widget::Project_Editor_Widget(Project_Editor_Widget && a_other) = default;
-//sak::Project_Editor_Widget& sak::Project_Editor_Widget::operator=(Project_Editor_Widget && a_other) = default;

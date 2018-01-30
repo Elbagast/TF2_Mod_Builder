@@ -7,6 +7,7 @@
 
 #include <QHBoxLayout>
 #include <QFormLayout>
+#include <QDebug>
 
 namespace sak
 {
@@ -36,12 +37,6 @@ namespace sak
 
       using Handle_Type = Section_Handle<Data_Type>;
 
-      // Currently we deduce the widget traits from the member type, but the
-      // member type could instead hold the widget traits type which would
-      // allow us to not need to make new data types whilst having new editing
-      // widgets e.g. lots of things are strings as data but have input restrictions
-      //using Widget_Traits_Type = Edit_Widget_Traits<Member_Type>;
-
       // Special 6
       //============================================================
       Member_Edit_Widget(Project_Interface* a_project, Handle_Type& a_handle, QWidget* a_parent = nullptr):
@@ -51,28 +46,53 @@ namespace sak
         m_layout{std::make_unique<QHBoxLayout>(nullptr)},
         m_widget{Member_Type::make_empty_widget()}
       {
+        // Configure the layout.
         m_layout->setContentsMargins(0,0,0,0);
         m_layout->addWidget(m_widget.get());
         this->setLayout(m_layout.get());
-        this->setToolTip("This is a tooltip. Where should we get tooltips from for each type?");
 
-        // Capture the signal and dispatch it
-        //QObject::connect(m_widget.get(), Widget_Traits_Type::editing_finished_signal(), this, &Member_Edit_Widget::editing_finished);
+        // Connect the editor.
         Member_Type::connect_to(m_widget.get(), this);
+
+        // Update it.
         update_data();
       }
       ~Member_Edit_Widget() override final = default;
 
       // Virtuals
       //============================================================
+      // Called when the data has changed elsewhere.
       void update_data() override final
       {
+        qDebug() << "sak::Member_Edit_Widget::update_data";
+        // Set the widget data to match the handle data.
         Member_Type::set_widget_value(m_widget.get(), m_handle->cmember_at<Index>());
       }
 
+      // Called when the widget has been used to edit the value to
+      // something acceptable.
       void editing_finished() override final
       {
-        m_project->get_interface<Data_Type>().change_at<Index>(m_handle, Member_Type::get_widget_value(m_widget.get()));
+        qDebug() << "sak::Member_Edit_Widget::editing_finished";
+        // The editor now contains a different value to the data.
+
+        // Use the interface to change stuff.
+        auto l_result = m_project->get_interface<Data_Type>().change_at<Index>(m_handle, Member_Type::get_widget_value(m_widget.get()));
+
+        // If a command wasn't issued then editing failed, so update the data
+        if (!l_result)
+        {
+          this->Member_Edit_Widget::editing_failed();
+        }
+      }
+
+      // Called when the widget has been used to edit the value to
+      // something unacceptable.
+      void editing_failed() override final
+      {
+        qDebug() << "sak::Member_Edit_Widget::editing_failed";
+        // Just call update_data to make sure editor and data match.
+        this->Member_Edit_Widget::update_data();
       }
 
       // Data members
@@ -146,27 +166,6 @@ namespace sak
 //---------------------------------------------------------------------------
 // Section_Widget<T>
 //---------------------------------------------------------------------------
-/*
-Ok so what do component widgets look like?
-If we start basic, just a form layout of the members, what do we need from that at runtime?
-
-- for each member
-  - make a form row with the name and editor widget
-  - connect the editing finished signal to output the changes
-  - call update to set the editor to use the current value
-- editor needs
-  - access to the handle for updating
-  - void changed()
-  - void connect(handle&) -> or guarantee a signal to connect to in the template
-- widget needs
-  - the handle to signify that the data is active
-  - void changed() -> call changed() on all editors
-  - void changed_at(index) -> call changed() on the editor at index
-
-Since the main editor is only called to change things at runtime, the editors
-can be held in a runtime array with only the initialisation being the problem.
-Then the editors just need a baseclass...
-*/
 
 // Special 6
 //============================================================
@@ -186,21 +185,28 @@ sak::Section_Widget<T>::~Section_Widget() = default;
 
 // Public Interface
 //============================================================
+// Called when the data for this handle has drastically changed.
 template <typename T>
 void sak::Section_Widget<T>::changed()
 {
+  // Call update_data on all the widgets
   for (auto& l_widget : m_widgets)
   {
-    l_widget->update();
+    // Take note that this different to QWidget::update
+    l_widget->update_data();
   }
 }
 
+// Called when the data a given member has changed.
 template <typename T>
 void sak::Section_Widget<T>::changed_at(std::size_t a_section)
 {
-  m_widgets.at(a_section)->update();
+  // Call update_data on the indexed widgets
+  // Take note that this different to QWidget::update
+  m_widgets.at(a_section)->update_data();
 }
 
+// Get the handle this widget is related to. Mostly so what
 template <typename T>
 typename sak::Section_Widget<T>::Handle_Type const& sak::Section_Widget<T>::cget_handle() const
 {

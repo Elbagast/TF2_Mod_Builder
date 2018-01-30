@@ -134,7 +134,7 @@ void sak::Section_Interface<T>::remove(Handle_Type const& a_handle)
 // Got to separate out the actual work so the specialisation for the first member is hidden.
 
 template <std::size_t Index, typename T>
-void sak::internal::Do_Change_At<Index,T>::operator()(
+bool sak::internal::Do_Change_At<Index,T>::operator()(
     Data_Manager_Type* a_data_manager,
     Command_History* a_command_history,
     Handle_Type const& a_handle,
@@ -145,15 +145,16 @@ void sak::internal::Do_Change_At<Index,T>::operator()(
   {
     // Nothing happens to the value, but we need to tell things to update
     // to keep the gui correct.
-    a_data_manager->changed_at(a_handle,Index );
-    return;
+    //a_data_manager->changed_at(a_handle,Index );
+    return false;
   }
   a_command_history->add_execute(make_command_assign<Index,T>(a_data_manager, a_handle, a_value));
+  return true;
 }
 
 
 template <typename T>
-void sak::internal::Do_Change_At<0,T>::operator()(
+bool sak::internal::Do_Change_At<0,T>::operator()(
     Data_Manager_Type* a_data_manager,
     Command_History* a_command_history,
     Handle_Type const& a_handle,
@@ -166,8 +167,8 @@ void sak::internal::Do_Change_At<0,T>::operator()(
   {
     // Nothing happens to the value, but we need to tell things to update
     // to keep the gui correct.
-    a_data_manager->changed_at(a_handle,0);
-    return;
+    //a_data_manager->changed_at(a_handle,0);
+    return false;
   }
   // We must make sure the name does not already exist among the other names.
   auto l_names = a_data_manager->get_all_names();
@@ -183,10 +184,11 @@ void sak::internal::Do_Change_At<0,T>::operator()(
   {
     // Nothing happens to the value, but we need to tell things to update
     // to keep the gui correct.
-    a_data_manager->changed_at(a_handle,0);
-    return;
+    //a_data_manager->changed_at(a_handle,0);
+    return false;
   }
   a_command_history->add_execute(make_command_assign<0,T>(a_data_manager, a_handle, l_final_name));
+  return true;
 }
 
 

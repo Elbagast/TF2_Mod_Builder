@@ -49,7 +49,7 @@ namespace sak
 
       // Interface
       //============================================================
-      void operator()(
+      bool operator()(
           Data_Manager_Type* a_data_manager,
           Command_History* a_command_history,
           Handle_Type const& a_handle,
@@ -70,7 +70,7 @@ namespace sak
 
       // Interface
       //============================================================
-      void operator()(
+      bool operator()(
           Data_Manager_Type* a_data_manager,
           Command_History* a_command_history,
           Handle_Type const& a_handle,
@@ -148,11 +148,13 @@ namespace sak
     // Data is not deleted until the last reference is deleted.
     void remove(Handle_Type const& a_handle);
 
-    // Undoable change an object's member value. If this handle is invalid or not in the data nothing happens.
+    // Undoable change an object's member value. Returns true if this call results in a change being made.
+    // Does nothing and returns false if this handle is invalid or not in the data, or if the supplied value
+    // doesn't result in data being changed.
     template <std::size_t Index>
-    void change_at(Handle_Type const& a_handle, Section_Data_Member_Value_Type<Index,Data_Type> const& a_value)
+    bool change_at(Handle_Type const& a_handle, Section_Data_Member_Value_Type<Index,Data_Type> const& a_value)
     {
-      internal::Do_Change_At<Index,Data_Type>()(m_data_manager, m_command_history, a_handle, a_value);
+      return internal::Do_Change_At<Index,Data_Type>()(m_data_manager, m_command_history, a_handle, a_value);
     }
 
     // Request that the editor for this file be opened or switched to.

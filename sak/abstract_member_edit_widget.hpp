@@ -29,9 +29,16 @@ namespace sak
     explicit Abstract_Member_Edit_Widget(QWidget* a_parent = nullptr);
     ~Abstract_Member_Edit_Widget() override;
 
+    // Called when the external data has changed.
     virtual void update_data() = 0;
-  //public slots:
+
+    // Called when the widget has been used to edit the value to
+    // something acceptable.
     virtual void editing_finished() = 0;
+
+    // Called when the widget has been used to edit the value to
+    // something unacceptable.
+    virtual void editing_failed() = 0;
   };
 }
 
