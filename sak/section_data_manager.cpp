@@ -1,8 +1,9 @@
 ﻿#include "section_data_manager.hpp"
 
 #include "section_data.hpp"
-#include "section_handle.hpp"
+#include "handle.hpp"
 #include "abstract_section_signalbox.hpp"
+
 #include <sak/name_utilities.hpp>
 
 #include <cassert>
@@ -14,32 +15,12 @@
 //---------------------------------------------------------------------------
 // Splitting out the repeated backend management system for project.
 
-// Constants
-//============================================================
-namespace
-{
-  template <typename T>
-  struct section_title
-  {
-    //static QString const s_value;
-    static QString value()
-    {
-      static QString const s_value{QString::fromStdString(T::Typestring_Plural::data())};
-      return s_value;
-    }
-  };
-
-  QString const c_count_title{ u8"Count" };
-}
-
-//template <typename T>
-//QString const section_title<T>::s_value{ QString::fromStdString(T::type()) + u8"s"  };
-
 // Special 6
 //============================================================
 template <typename T>
 sak::Section_Data_Manager<T>::Section_Data_Manager():
-  m_manager{std::make_unique<Manager_Type>()},
+  m_factory{},
+  //m_manager{std::make_unique<Manager_Type>()},
   m_handles{},
   m_signalboxes{}
 {}
@@ -54,10 +35,10 @@ sak::Section_Data_Manager<T>::~Section_Data_Manager() = default;
 template <typename T>
 void sak::Section_Data_Manager<T>::changed(Handle_Type const& a_handle)
 {
-  qDebug() << "sak::Section_Data_Manager<T>::changed "<< a_handle.id().value();
+  qDebug() << "sak::Section_Data_Manager<T>::changed "<< a_handle.id();
   // This thing must exist
-  assert(flamingo::not_null(a_handle));
-  assert(m_manager.get() == a_handle.manager());
+  assert(not_null(a_handle));
+  //assert(m_manager.get() == a_handle.manager());
   assert(std::find(m_handles.cbegin(), m_handles.cend(), a_handle) != m_handles.cend());
 
   for (Signalbox_Type* l_item : m_signalboxes) l_item->changed(a_handle);
@@ -68,10 +49,10 @@ void sak::Section_Data_Manager<T>::changed(Handle_Type const& a_handle)
 template <typename T>
 void sak::Section_Data_Manager<T>::changed_at(Handle_Type const& a_handle, std::size_t a_section)
 {
-  qDebug() << "sak::Section_Data_Manager<T>::changed_at "<< a_handle.id().value() << ", " << a_section;
+  qDebug() << "sak::Section_Data_Manager<T>::changed_at "<< a_handle.id() << ", " << a_section;
   // This thing must exist
-  assert(flamingo::not_null(a_handle));
-  assert(m_manager.get() == a_handle.manager());
+  assert(not_null(a_handle));
+  //assert(m_manager.get() == a_handle.manager());
   assert(std::find(m_handles.cbegin(), m_handles.cend(), a_handle) != m_handles.cend());
 
   for (Signalbox_Type* l_item : m_signalboxes) l_item->changed_at(a_handle, a_section);
@@ -81,11 +62,11 @@ void sak::Section_Data_Manager<T>::changed_at(Handle_Type const& a_handle, std::
 template <typename T>
 void sak::Section_Data_Manager<T>::added(Handle_Type const& a_handle)
 {
-  qDebug() << "sak::Section_Data_Manager<T>::added "<< a_handle.id().value();
+  qDebug() << "sak::Section_Data_Manager<T>::added "<< a_handle.id();
   // This thing must exist
-  assert(flamingo::not_null(a_handle));
-  assert(m_manager.get() == a_handle.manager());
-  assert(m_manager->is_valid(a_handle.id()));
+  assert(not_null(a_handle));
+  //assert(m_manager.get() == a_handle.manager());
+  //assert(m_manager->is_valid(a_handle.id()));
   // but not yet be part of the Project
   assert(std::find(m_handles.cbegin(), m_handles.cend(), a_handle) == m_handles.cend());
   m_handles.push_back(a_handle);
@@ -97,9 +78,9 @@ void sak::Section_Data_Manager<T>::added(Handle_Type const& a_handle)
 template <typename T>
 void sak::Section_Data_Manager<T>::removed(Handle_Type const& a_handle)
 {
-  qDebug() << "sak::Section_Data_Manager<T>::removed "<< a_handle.id().value();
-  assert(flamingo::not_null(a_handle));
-  assert(m_manager.get() == a_handle.manager());
+  qDebug() << "sak::Section_Data_Manager<T>::removed "<< a_handle.id();
+  assert(not_null(a_handle));
+  //assert(m_manager.get() == a_handle.manager());
   auto l_found = std::find(m_handles.begin(), m_handles.end(), a_handle);
   assert(l_found != m_handles.cend());
   assert(std::addressof(a_handle) != std::addressof(*l_found));
@@ -120,10 +101,10 @@ void sak::Section_Data_Manager<T>::removed(Handle_Type const& a_handle)
 template <typename T>
 void sak::Section_Data_Manager<T>::requests_editor(Handle_Type const& a_handle)
 {
-  qDebug() << "sak::Section_Data_Manager<T>::requests_editor "<< a_handle.id().value();
+  qDebug() << "sak::Section_Data_Manager<T>::requests_editor "<< a_handle.id();
   // This thing must exist
-  assert(flamingo::not_null(a_handle));
-  assert(m_manager.get() == a_handle.manager());
+  assert(not_null(a_handle));
+  //assert(m_manager.get() == a_handle.manager());
   assert(std::find(m_handles.cbegin(), m_handles.cend(), a_handle) != m_handles.cend());
 
   for (Signalbox_Type* l_item : m_signalboxes) l_item->requests_editor(a_handle);
@@ -133,10 +114,10 @@ void sak::Section_Data_Manager<T>::requests_editor(Handle_Type const& a_handle)
 template <typename T>
 void sak::Section_Data_Manager<T>::requests_focus(Handle_Type const& a_handle)
 {
-  qDebug() << "sak::Section_Data_Manager<T>::requests_focus "<< a_handle.id().value();
+  qDebug() << "sak::Section_Data_Manager<T>::requests_focus "<< a_handle.id();
   // This thing must exist
-  assert(flamingo::not_null(a_handle));
-  assert(m_manager.get() == a_handle.manager());
+  assert(not_null(a_handle));
+  //assert(m_manager.get() == a_handle.manager());
   assert(std::find(m_handles.cbegin(), m_handles.cend(), a_handle) != m_handles.cend());
 
   for (Signalbox_Type* l_item : m_signalboxes) l_item->requests_focus(a_handle);
@@ -162,7 +143,7 @@ std::size_t sak::Section_Data_Manager<T>::count() const
 template <typename T>
 bool sak::Section_Data_Manager<T>::has_handle(Handle_Type const& a_handle) const
 {
-  if (flamingo::not_null(a_handle))
+  if (not_null(a_handle))
   {
     // search for the handle in the active handles.
     return std::find(m_handles.cbegin(), m_handles.cend(), a_handle) != m_handles.cend();
@@ -211,20 +192,44 @@ std::vector<QString> sak::Section_Data_Manager<T>::get_all_names() const
 template <typename T>
 typename sak::Section_Data_Manager<T>::Handle_Type sak::Section_Data_Manager<T>::make_emplace(Data_Type&& a_object)
 {
-  return m_manager->make_handle(std::move(a_object));
+  // Capture the name.
+  auto l_name = a_object.cmember_at<0>();
+
+  // Uniqueify the name.
+  uniqueify_name(l_name, get_all_names());
+
+  // Capture the data
+  auto l_object = std::make_shared<Data_Type>(std::move(a_object));
+
+  // Set the name.
+  l_object->member_at<0>() = l_name;
+
+  // Make a handle out of the data.
+  return m_factory.make_handle(std::move(l_object));
 }
 
 // Make a new file using the default parameters. Project's data management system owns it
 // but it is not part of the Project.
 template <typename T>
-typename sak::Section_Data_Manager<T>::Handle_Type sak::Section_Data_Manager<T>::make()
+typename sak::Section_Data_Manager<T>::Handle_Type sak::Section_Data_Manager<T>::make_default()
 {
-  // uniqueify the name.
-  QString l_name{u8"New " + QString::fromStdString(Data_Type::type())};
+  // The default name for a new object.
+  static QString const s_name{u8"New " + QString::fromStdString(Data_Type::type())};
+
+  // Copy the name locally so we can edit it.
+  auto l_name = s_name;
+
+  // Uniqueify the name.
   uniqueify_name(l_name, get_all_names());
-  Data_Type l_object{};
-  l_object.member_at<0>() = l_name;
-  return make_emplace(std::move(l_object));
+
+  // Make a new object.
+  auto l_object = std::make_shared<Data_Type>(Data_Type{});
+
+  // Set the name.
+  l_object->member_at<0>() = s_name;
+
+  // Make a handle out of the data.
+  return m_factory.make_handle(std::move(l_object));
 }
 
 // Add an object that will rely on the outbound data signals. If nulltpr, nothing happens.
@@ -262,9 +267,8 @@ template <typename T>
 void sak::Section_Data_Manager<T>::swap(Section_Data_Manager& a_other)
 {
   using std::swap;
-  using flamingo::swap;
 
-  swap(m_manager, a_other.m_manager);
+  swap(m_factory, a_other.m_factory);
   swap(m_handles, a_other.m_handles);
   swap(m_signalboxes, a_other.m_signalboxes);
 }

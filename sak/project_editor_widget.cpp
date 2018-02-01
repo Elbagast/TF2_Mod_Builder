@@ -11,7 +11,7 @@
 #include <QLabel>
 
 #include "section_data.hpp"
-#include "section_handle.hpp"
+#include "handle.hpp"
 #include "section_interface.hpp"
 #include "section_widget.hpp"
 
@@ -49,7 +49,7 @@ namespace
   struct widget_equals_handle
   {
 
-    using Handle_Type = sak::Section_Handle<T>;
+    using Handle_Type = sak::Handle<T>;
     using Widget_Type = sak::Section_Widget<T>;
 
     Handle_Type const& m_handle;
@@ -130,7 +130,7 @@ namespace sak
   struct do_stuff
   {
     using Data_Type = T;
-    using Handle_Type = Section_Handle<Data_Type>;
+    using Handle_Type = Handle<Data_Type>;
     using Widget_Type = Section_Widget<Data_Type>;
 
     using vector_type = std::vector<std::unique_ptr<Widget_Type>>;
@@ -138,7 +138,7 @@ namespace sak
     // When a texture has its data changed(anything but the name), this is called.
     static void changed(vector_type& a_widgets, Handle_Type const& a_handle)
     {
-      qDebug() << "sak::Project_Editor_Widget::Implementation::data_changed "<< QString::fromStdString(Data_Type::type()) <<" " << a_handle.id().value();
+      qDebug() << "sak::Project_Editor_Widget::Implementation::data_changed "<< QString::fromStdString(Data_Type::type()) <<" " << a_handle.id();
       // Find the editor for this handle
       auto l_found = std::find_if(a_widgets.cbegin(),
                                   a_widgets.cend(),
@@ -153,7 +153,7 @@ namespace sak
     // When a texture has its data changed in a specific place, this is called.
     static void changed_at(vector_type& a_widgets, QTabWidget* a_tabwidget, Handle_Type const& a_handle, std::size_t a_section)
     {
-      qDebug() << "sak::Project_Editor_Widget::Implementation::data_changed_at "<< QString::fromStdString(Data_Type::type()) <<" " << a_handle.id().value() << " " << a_section;
+      qDebug() << "sak::Project_Editor_Widget::Implementation::data_changed_at "<< QString::fromStdString(Data_Type::type()) <<" " << a_handle.id() << " " << a_section;
       // Find the editor for this handle
       auto l_found = std::find_if(a_widgets.cbegin(),
                                   a_widgets.cend(),
@@ -190,7 +190,7 @@ namespace sak
     // When a texture has been added, this is called.
     static void added(vector_type& a_widgets, QTabWidget* a_tabwidget, Project_Interface* a_project, Handle_Type const& a_handle)
     {
-      qDebug() << "sak::Project_Editor_Widget::Implementation::added "<< QString::fromStdString(Data_Type::type()) <<" " << a_handle.id().value();
+      qDebug() << "sak::Project_Editor_Widget::Implementation::added "<< QString::fromStdString(Data_Type::type()) <<" " << a_handle.id();
       // update the file widget count and open the widget for it.
       // Shouldn't exist yet
       assert(std::find_if(a_widgets.cbegin(),
@@ -211,7 +211,7 @@ namespace sak
     // When a texture has been removed, this is called.
     static void removed(vector_type& a_widgets, QTabWidget* a_tabwidget, Handle_Type const& a_handle)
     {
-      qDebug() << "sak::Project_Editor_Widget::Implementation::removed "<< QString::fromStdString(Data_Type::type()) <<" " << a_handle.id().value();
+      qDebug() << "sak::Project_Editor_Widget::Implementation::removed "<< QString::fromStdString(Data_Type::type()) <<" " << a_handle.id();
       auto l_found = std::find_if(a_widgets.begin(),
                                   a_widgets.end(),
                                   widget_equals_handle<Data_Type>(a_handle));
@@ -244,7 +244,7 @@ namespace sak
     // When a texture editor is to be opened, this is called.
     static void requests_editor(vector_type& a_widgets, QTabWidget* a_tabwidget, Project_Interface* a_project, Handle_Type const& a_handle)
     {
-      qDebug() << "sak::Project_Editor_Widget::Implementation::requests_editor "<< QString::fromStdString(Data_Type::type()) <<" " << a_handle.id().value();
+      qDebug() << "sak::Project_Editor_Widget::Implementation::requests_editor "<< QString::fromStdString(Data_Type::type()) <<" " << a_handle.id();
       // Find the editor for this handle
       auto l_found = std::find_if(a_widgets.begin(),
                                   a_widgets.end(),
@@ -279,7 +279,7 @@ namespace sak
     // When focus is changed to be on a texture, call this
     static void requests_focus(Handle_Type const& a_handle)
     {
-      qDebug() << "sak::Project_Editor_Widget::Implementation::requests_focus "<< QString::fromStdString(Data_Type::type()) <<" " << a_handle.id().value() << " does nothing.";
+      qDebug() << "sak::Project_Editor_Widget::Implementation::requests_focus "<< QString::fromStdString(Data_Type::type()) <<" " << a_handle.id() << " does nothing.";
     }
 
     // cast the tabwidget at this index and close it if it's the right type

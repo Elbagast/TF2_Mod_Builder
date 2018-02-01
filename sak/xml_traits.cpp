@@ -5,6 +5,7 @@
 #include "section_data_manager.hpp"
 #include "section_data.hpp"
 #include "project_data.hpp"
+#include "handle.hpp"
 
 #include <QXmlStreamWriter>
 #include <QXmlStreamReader>
@@ -152,7 +153,9 @@ QXmlStreamReader& sak::internal::Xml_Traits_Section_Data_Manager<T>::from_stream
 
     // make a handle for this
     auto l_handle = l_data.make_emplace(std::move(l_object));
-
+    assert(l_handle.id() != 0);
+    assert(l_handle.get() != nullptr);
+    assert(not_null(l_handle));
     // add it to the data
     l_data.added(l_handle);
   }

@@ -35,7 +35,7 @@ namespace sak
       using Member_Value_Type = Section_Data_Member_Value_Type<Index,Data_Type>;
       using Member_Name_Type = Section_Data_Member_Name_Type<Index,Data_Type>;
 
-      using Handle_Type = Section_Handle<Data_Type>;
+      using Handle_Type = Handle<Data_Type>;
 
       // Special 6
       //============================================================
@@ -44,7 +44,7 @@ namespace sak
         m_project{a_project},
         m_handle{a_handle},
         m_layout{std::make_unique<QHBoxLayout>(nullptr)},
-        m_widget{Member_Type::make_empty_widget()}
+        m_widget{Member_Type::make_widget()}
       {
         // Configure the layout.
         m_layout->setContentsMargins(0,0,0,0);
@@ -113,7 +113,7 @@ namespace sak
     {
     private:
       using Data_Type = T;
-      using Handle_Type = Section_Handle<Data_Type>;
+      using Handle_Type = Handle<Data_Type>;
 
       using widget_type = Abstract_Member_Edit_Widget;
       using Widget_Array_Type = typename Section_Widget<T>::Widget_Array_Type;

@@ -2,7 +2,7 @@
 
 #include "abstract_project_signalbox.hpp"
 #include "section_data.hpp"
-#include "section_handle.hpp"
+#include "handle.hpp"
 #include "section_data_manager.hpp"
 #include "abstract_section_signalbox.hpp"
 #include "xml_traits.hpp"

@@ -163,7 +163,7 @@ namespace sak
   }
 }
 
-std::unique_ptr<QWidget> sak::Valve_Buildpath::make_empty_widget()
+std::unique_ptr<QWidget> sak::Valve_Buildpath::make_widget()
 {
   // Make an empty widget and repackage it.
   return std::unique_ptr<QWidget>(valve_buildpath_make_true_empty_widget.release());
@@ -207,7 +207,7 @@ void sak::Valve_Buildpath::connect_to(QWidget* a_widget, Abstract_Member_Edit_Wi
 // Widget true type is a QCheckbox
 
 
-std::unique_ptr<QWidget> sak::Valve_Buildpath::make_empty_widget()
+std::unique_ptr<QWidget> sak::Valve_Buildpath::make_widget()
 {
   // Make an empty widget and repackage it.
   return std::unique_ptr<QWidget>(std::make_unique<QCheckBox>(nullptr).release());
@@ -216,7 +216,7 @@ std::unique_ptr<QWidget> sak::Valve_Buildpath::make_empty_widget()
 std::unique_ptr<QWidget> sak::Valve_Buildpath::make_widget(Value_Type const& a_value)
 {
   // Make an empty true widget.
-  auto l_widget = make_empty_widget();
+  auto l_widget = make_widget();
 
   // Set the value.
   set_widget_value(l_widget.get(), a_value);

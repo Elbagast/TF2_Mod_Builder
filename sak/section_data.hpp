@@ -131,6 +131,7 @@ namespace sak
       return std::basic_string<typename Iconpath_String::char_type>(Iconpath_String::data());
     }
 
+    // could forward the other stuff too......
 
 
     Section_Data() :
@@ -182,7 +183,6 @@ namespace sak
     Value_Data_Class m_data;
   };
 
-
   //---------------------------------------------------------------------------
   // Section_Data_Size<T>
   //---------------------------------------------------------------------------
@@ -197,7 +197,6 @@ namespace sak
 
   template <typename T>
   constexpr std::size_t const Section_Data_Size_v = Section_Data_Size<T>::value;
-
 
   //---------------------------------------------------------------------------
   // Section_Data_Member<Index, T>
@@ -233,7 +232,6 @@ namespace sak
   template <std::size_t I, typename T>
   using Section_Data_Member_Value_Type = typename Section_Data_Member_Value<I,T>::Type;
 
-
   //---------------------------------------------------------------------------
   // Section_Data_Member_Name<Index, T>
   //---------------------------------------------------------------------------
@@ -249,8 +247,6 @@ namespace sak
 
   template <std::size_t I, typename T>
   using Section_Data_Member_Name_Type = typename Section_Data_Member_Name<I,T>::Type;
-
-
 
   //---------------------------------------------------------------------------
   // Section_Data_Member_Typelist<T>
@@ -280,8 +276,6 @@ namespace sak
   template <typename T>
   using Section_Data_Member_Value_Typelist_Type = typename Section_Data_Member_Value_Typelist<T>::Type;
 
-
-
   //---------------------------------------------------------------------------
   // Section_Data_Member_Name_Typelist<T>
   //---------------------------------------------------------------------------
@@ -310,18 +304,14 @@ namespace sak
   template <typename T>
   using Section_Data_Member_Value_Variant_Type = typename Section_Data_Member_Value_Variant<T>::Type;
 
-
   //------------------------------------------------------------------------------------------------------------------------------------------------------
   // Now we define the individual data sections. These could go in their own
   // files depending on how complicated they get.
-
 
   namespace internal
   {
     using Literal_String_S =   FLAMINGO_LITYPE_STRING(u8"s");
   }
-
-
 
   //---------------------------------------------------------------------------
   // File
@@ -344,7 +334,6 @@ namespace sak
     //,flamingo::data_member<bool, FLAMINGO_LITYPE_STRING(u8"Booltest")>
     //,flamingo::data_member<QString, FLAMINGO_LITYPE_STRING(u8"std_stringtest")>
     >;
-
   };
 
   //------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -353,7 +342,6 @@ namespace sak
   // Texture
   //---------------------------------------------------------------------------
   // Typestring classes and unique data members
-
 
   class Texture_Data_Traits
   {
@@ -369,11 +357,7 @@ namespace sak
     //flamingo::data_member<QString, FLAMINGO_LITYPE_STRING(u8"Buildpath")>
     //,flamingo::data_member<QString, FLAMINGO_LITYPE_STRING(u8"Sourcepath")>
     >;
-
   };
-
 }
-
-
 
 #endif // SAK_SECTION_DATA_HPP

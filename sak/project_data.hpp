@@ -9,10 +9,6 @@
 #include "abstract_project_signalbox_fwd.hpp"
 #endif
 
-#ifndef SAK_SECTION_HANDLE_FWD_HPP
-#include "section_handle_fwd.hpp"
-#endif
-
 #ifndef SAK_SECTION_DATA_MANAGER_FWD_HPP
 #include "section_data_manager_fwd.hpp"
 #endif

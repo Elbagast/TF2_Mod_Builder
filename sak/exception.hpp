@@ -5,16 +5,11 @@
 #include "exception_fwd.hpp"
 #endif
 
+#ifndef INCLUDE_STD_CSTDINT
+#define INCLUDE_STD_CSTDINT
 #include <cstdint>
-/*
-#ifndef INCLUDE_STD_EXCEPTION
-#define INCLUDE_STD_EXCEPTION
-#include <exception>
 #endif
 
-#include <stdexcept>
-#include <QException>
-*/
 namespace sak
 {
   //---------------------------------------------------------------------------

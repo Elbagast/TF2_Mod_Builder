@@ -5,8 +5,8 @@
 #include "section_interface_fwd.hpp"
 #endif
 
-#ifndef SAK_SECTION_HANDLE_FWD_HPP
-#include "section_handle_fwd.hpp"
+#ifndef SAK_Handle_FWD_HPP
+#include "Handle_fwd.hpp"
 #endif
 
 #ifndef SAK_SECTION_DATA_MANAGER_FWD_HPP
@@ -44,7 +44,7 @@ namespace sak
       //============================================================
       using Data_Type = T;
       using Data_Manager_Type = Section_Data_Manager<T>;
-      using Handle_Type = Section_Handle<T>;
+      using Handle_Type = Handle<T>;
       using Member_Value_Type = Section_Data_Member_Value_Type<Index,Data_Type>;
 
       // Interface
@@ -65,7 +65,7 @@ namespace sak
       //============================================================
       using Data_Type = T;
       using Data_Manager_Type = Section_Data_Manager<T>;
-      using Handle_Type = Section_Handle<T>;
+      using Handle_Type = Handle<T>;
       using Member_Value_Type = Section_Data_Member_Value_Type<0,Data_Type>;
 
       // Interface
@@ -91,7 +91,7 @@ namespace sak
   public:
     using Data_Type = T;
     using Data_Manager_Type = Section_Data_Manager<T>;
-    using Handle_Type = Section_Handle<T>;
+    using Handle_Type = Handle<T>;
 
     // Special 6
     //============================================================

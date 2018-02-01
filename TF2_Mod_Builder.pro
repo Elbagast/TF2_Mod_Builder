@@ -116,7 +116,6 @@ SOURCES += \
     sak/project_outliner_widget.cpp \
     sak/project_outliner_items.cpp \
     sak/section_data.cpp \
-    sak/section_handle.cpp \
     sak/abstract_section_signalbox.cpp \
     sak/section_data_manager.cpp \
     sak/abstract_member_edit_widget.cpp \
@@ -138,10 +137,12 @@ SOURCES += \
     sak/abstract_outliner_multitrunk_item.cpp \
     sak/abstract_outliner_leaf_item.cpp \
     sak/exception.cpp \
-    sak/exception_dialogs.cpp \
     sak/project_interface.cpp \
     sak/project_holder.cpp \
-    qtlib/line_edit.cpp
+    qtlib/line_edit.cpp \
+    sak/abstract_project_interface.cpp \
+    sak/handle.cpp \
+    sak/handle_factory.cpp
     
 
 HEADERS  += \
@@ -179,8 +180,6 @@ HEADERS  += \
     sak/project_outliner_items.hpp \
     sak/section_data.hpp \
     sak/section_data_fwd.hpp \
-    sak/section_handle.hpp \
-    sak/section_handle_fwd.hpp \
     sak/abstract_section_signalbox_fwd.hpp \
     sak/section_data_manager.hpp \
     sak/section_data_manager_fwd.hpp \
@@ -223,11 +222,15 @@ HEADERS  += \
     sak/abstract_outliner_leaf_item_fwd.hpp \
     sak/exception_fwd.hpp \
     sak/exception.hpp \
-    sak/exception_dialogs.hpp \
     sak/project_interface.hpp \
     sak/project_interface_fwd.hpp \
     sak/project_holder.hpp \
-    qtlib/line_edit.hpp
+    qtlib/line_edit.hpp \
+    sak/abstract_project_interface.hpp \
+    sak/handle.hpp \
+    sak/handle_fwd.hpp \
+    sak/handle_factory.hpp \
+    sak/handle_factory_fwd.hpp
     
 
 FORMS

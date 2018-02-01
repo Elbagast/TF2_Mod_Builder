@@ -4,7 +4,7 @@
 #include "project_interface.hpp"
 #include "project_outliner_items.hpp"
 #include "section_interface.hpp"
-#include "section_handle.hpp"
+#include "handle.hpp"
 #include "section_data.hpp"
 
 #include <cassert>
@@ -47,7 +47,7 @@ sak::Section_Outliner_Item<T>::Section_Outliner_Item(Parent_Item_Type* a_parent,
     m_handle{a_handle}
 {
   assert(a_parent != nullptr);
-  assert(flamingo::not_null(a_handle));
+  assert(not_null(a_handle));
 }
 
 template <typename T>
@@ -97,7 +97,7 @@ template <typename T>
 QWidget* sak::Section_Outliner_Item<T>::get_editor(QWidget* a_parent)
 {
   using Member_Type = Section_Data_Member_Type<0,T>;
-  auto l_widget = Member_Type::make_empty_widget();
+  auto l_widget = Member_Type::make_widget();
   l_widget->setParent(a_parent);
 
   return l_widget.release();
@@ -351,7 +351,7 @@ typename sak::Section_Outliner_Header_Item<T>::Child_Item_Type* sak::Section_Out
 template <typename T>
 void sak::Section_Outliner_Header_Item<T>::name_changed(Handle_Type const& a_handle)
 {
-  assert(flamingo::not_null(a_handle));
+  assert(not_null(a_handle));
   // reorder the Files based on the sorting...
 }
 
@@ -359,7 +359,7 @@ void sak::Section_Outliner_Header_Item<T>::name_changed(Handle_Type const& a_han
 template <typename T>
 void sak::Section_Outliner_Header_Item<T>::added(Handle_Type const& a_handle)
 {
-  assert(flamingo::not_null(a_handle));
+  assert(not_null(a_handle));
   // insert a child in a location that obeys the sorting...
   append_child(std::make_unique<Section_Outliner_Item<T>>(this, a_handle));
 }
@@ -368,7 +368,7 @@ void sak::Section_Outliner_Header_Item<T>::added(Handle_Type const& a_handle)
 template <typename T>
 void sak::Section_Outliner_Header_Item<T>::removed(Handle_Type const& a_handle)
 {
-  assert(flamingo::not_null(a_handle));
+  assert(not_null(a_handle));
   // insert the child with this data...
   remove_child(index_of(a_handle));
 }

@@ -31,8 +31,7 @@ namespace sak
     using Typestring = FLAMINGO_LITYPE_STRING(u8"Text_Name");
     using Value_Type = QString;
 
-    static std::unique_ptr<QWidget> make_empty_widget();
-    static std::unique_ptr<QWidget> make_widget(Value_Type const& a_value);
+    static std::unique_ptr<QWidget> make_widget();
     static void set_widget_value(QWidget* a_widget, Value_Type const& a_value);
     static Value_Type get_widget_value(QWidget* a_widget);
     static void connect_to(QWidget* a_widget, Abstract_Member_Edit_Widget* a_editor);
@@ -52,8 +51,7 @@ namespace sak
     using Typestring = FLAMINGO_LITYPE_STRING(u8"Text_Line");
     using Value_Type = QString;
 
-    static std::unique_ptr<QWidget> make_empty_widget();
-    static std::unique_ptr<QWidget> make_widget(Value_Type const& a_value);
+    static std::unique_ptr<QWidget> make_widget();
     static void set_widget_value(QWidget* a_widget, Value_Type const& a_value);
     static Value_Type get_widget_value(QWidget* a_widget);
     static void connect_to(QWidget* a_widget, Abstract_Member_Edit_Widget* a_editor);
@@ -72,13 +70,38 @@ namespace sak
     using Typestring = FLAMINGO_LITYPE_STRING(u8"Text_Long");
     using Value_Type = QString;
 
-    static std::unique_ptr<QWidget> make_empty_widget();
-    static std::unique_ptr<QWidget> make_widget(Value_Type const& a_value);
+    static std::unique_ptr<QWidget> make_widget();
     static void set_widget_value(QWidget* a_widget, Value_Type const& a_value);
     static Value_Type get_widget_value(QWidget* a_widget);
     static void connect_to(QWidget* a_widget, Abstract_Member_Edit_Widget* a_editor);
     static QString tooltip();
   };
+
+
+
+
+  //---------------------------------------------------------------------------
+  //
+  //---------------------------------------------------------------------------
+  /*
+  template <typename T_Traits>
+  class Handle
+  {
+  public:
+    using Typestring = typename T_Traits::Typestring;
+    using Value_Type = Handle<Section_Data<T_Traits>>;
+
+    // If the editor is going to actively link to something the project manages, then
+    // it needs the Project_Interface. Lets say an editor is a drop down menu of all
+    // the active ones, then the widget must have the interface to update, and the full
+    // signalbox to get updated properly.
+    static std::unique_ptr<QWidget> make_widget(Project_Interface* a_project);
+    static void set_widget_value(QWidget* a_widget, Value_Type const& a_value);
+    static Value_Type get_widget_value(QWidget* a_widget);
+    static void connect_to(QWidget* a_widget, Abstract_Member_Edit_Widget* a_editor);
+    static QString tooltip();
+  };
+  */
 }
 
 #endif // SAK_SHARED_ATTRIBUTES_HPP

@@ -79,7 +79,7 @@ std::vector<QString> sak::Section_Interface<T>::get_all_names() const
 template <typename T>
 typename sak::Section_Interface<T>::Handle_Type sak::Section_Interface<T>::make_default()
 {
-  return m_data_manager->make();
+  return m_data_manager->make_default();
 }
 
 // Make a new object using the supplied data. Project's data management system owns it but
@@ -95,7 +95,7 @@ typename sak::Section_Interface<T>::Handle_Type sak::Section_Interface<T>::make_
 template <typename T>
 void sak::Section_Interface<T>::add_default()
 {
-  m_command_history->add_execute(make_command_added<Data_Type>(m_data_manager, m_data_manager->make()));
+  m_command_history->add_execute(make_command_added<Data_Type>(m_data_manager, m_data_manager->make_default()));
 }
 
 // Undoable add a new object using the supplied data. This data is assigned a new handle. The name will
@@ -111,7 +111,7 @@ void sak::Section_Interface<T>::add_emplace(Data_Type&& a_object)
 template <typename T>
 void sak::Section_Interface<T>::add(Handle_Type const& a_handle)
 {
-  if (flamingo::not_null(a_handle) && !(m_data_manager->has_handle(a_handle)))
+  if (not_null(a_handle) && !(m_data_manager->has_handle(a_handle)))
   {
     m_command_history->add_execute(make_command_added<Data_Type>(m_data_manager, a_handle));
   }
@@ -122,7 +122,7 @@ void sak::Section_Interface<T>::add(Handle_Type const& a_handle)
 template <typename T>
 void sak::Section_Interface<T>::remove(Handle_Type const& a_handle)
 {
-  if (flamingo::not_null(a_handle) && m_data_manager->has_handle(a_handle))
+  if (not_null(a_handle) && m_data_manager->has_handle(a_handle))
   {
     m_command_history->add_execute(make_command_removed<Data_Type>(m_data_manager, a_handle));
   }
@@ -196,7 +196,7 @@ bool sak::internal::Do_Change_At<0,T>::operator()(
 template <typename T>
 void sak::Section_Interface<T>::request_editor(Handle_Type const& a_handle)
 {
-  if (flamingo::not_null(a_handle) && m_data_manager->has_handle(a_handle))
+  if (not_null(a_handle) && m_data_manager->has_handle(a_handle))
   {
     m_data_manager->requests_editor(a_handle);
   }
@@ -206,7 +206,7 @@ void sak::Section_Interface<T>::request_editor(Handle_Type const& a_handle)
 template <typename T>
 void sak::Section_Interface<T>::request_focus(Handle_Type const& a_handle)
 {
-  if (flamingo::not_null(a_handle) && m_data_manager->has_handle(a_handle))
+  if (not_null(a_handle) && m_data_manager->has_handle(a_handle))
   {
     m_data_manager->requests_focus(a_handle);
   }

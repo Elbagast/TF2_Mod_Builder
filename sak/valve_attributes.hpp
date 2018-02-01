@@ -34,11 +34,11 @@ namespace sak
     using Typestring = FLAMINGO_LITYPE_STRING(u8"Valve_Buildpath");
     using Value_Type = QString;
 
-    static std::unique_ptr<QWidget> make_empty_widget();
-    static std::unique_ptr<QWidget> make_widget(Value_Type const& a_value);
+    static std::unique_ptr<QWidget> make_widget();
     static void set_widget_value(QWidget* a_widget, Value_Type const& a_value);
     static Value_Type get_widget_value(QWidget* a_widget);
     static void connect_to(QWidget* a_widget, Abstract_Member_Edit_Widget* a_editor);
+    static QString tooltip();
   };
 
   //---------------------------------------------------------------------------
@@ -52,11 +52,11 @@ namespace sak
     using Typestring = FLAMINGO_LITYPE_STRING(u8"Valve_Bool");
     using Value_Type = bool;
 
-    static std::unique_ptr<QWidget> make_empty_widget();
-    static std::unique_ptr<QWidget> make_widget(Value_Type const& a_value);
+    static std::unique_ptr<QWidget> make_widget();
     static void set_widget_value(QWidget* a_widget, Value_Type const& a_value);
     static Value_Type get_widget_value(QWidget* a_widget);
     static void connect_to(QWidget* a_widget, Abstract_Member_Edit_Widget* a_editor);
+    static QString tooltip();
   };
 
 }

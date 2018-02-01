@@ -9,8 +9,12 @@
 #include "abstract_section_signalbox_fwd.hpp"
 #endif
 
-#ifndef SAK_SECTION_HANDLE_HPP
-#include "section_handle.hpp"
+#ifndef SAK_HANDLE_FWD_HPP
+#include "handle_fwd.hpp"
+#endif
+
+#ifndef SAK_HANDLE_FACTORY_HPP
+#include "handle_factory.hpp"
 #endif
 
 #ifndef INCLUDE_STD_VECTOR
@@ -57,8 +61,9 @@ namespace sak
     // Typedefs
     //============================================================
     using Data_Type = T;
-    using Manager_Type = Section_Manager<T>;
-    using Handle_Type = Section_Handle<T>;
+    using Factory_Type = Handle_Factory<T>;
+    using Handle_Type = Handle<T>;
+
     using Signalbox_Type = Abstract_Section_Signalbox<T>;
 
 
@@ -118,13 +123,7 @@ namespace sak
 
     // Make a new file using the default parameters. Project's data management system owns it
     // but it is not part of the Project.
-    Handle_Type make();
-
-    // Write the contents of this to the xml stream.
-    //void to_xmlstream(QXmlStreamWriter& a_stream) const;
-
-    // Replace all data in this with that which is read from the xml stream.
-    //void from_xmlstream(QXmlStreamReader& a_stream);
+    Handle_Type make_default();
 
     // Add an object that will rely on the outbound data signals. If nulltpr, nothing happens.
     void add_signalbox(Signalbox_Type* a_signalbox);
@@ -141,7 +140,7 @@ namespace sak
   private:
     // Data Members
     //============================================================
-    std::unique_ptr<Manager_Type> m_manager; //has to be a pointer because it can't move
+    Factory_Type m_factory;
     std::vector<Handle_Type> m_handles;
     std::vector<Signalbox_Type*> m_signalboxes;
   };

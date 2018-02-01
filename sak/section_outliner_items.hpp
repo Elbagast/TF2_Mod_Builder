@@ -13,8 +13,8 @@
 #include "project_interface_fwd.hpp"
 #endif
 
-#ifndef SAK_SECTION_HANDLE_HPP
-#include "section_handle.hpp"
+#ifndef SAK_ANDLE_HPP
+#include "handle.hpp"
 #endif
 
 #ifndef SAK_SECTION_DATA_HPP
@@ -51,7 +51,7 @@ namespace sak
     using Inherited_Type = internal::Section_Outliner_Item_Base<T>;
   public:
     using Data_Type = T;
-    using Handle_Type = Section_Handle<Data_Type>;
+    using Handle_Type = Handle<Data_Type>;
 
     // Special 6
     //============================================================
@@ -126,7 +126,7 @@ namespace sak
     // Typedefs
     //============================================================
     using Data_Type = T;
-    using Handle_Type = Section_Handle<Data_Type>;
+    using Handle_Type = Handle<Data_Type>;
 
     // Special 6
     //============================================================

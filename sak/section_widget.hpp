@@ -9,13 +9,15 @@
 #include "abstract_member_edit_widget_fwd.hpp"
 #endif
 
-#ifndef SAK_SECTION_HANDLE_HPP
-#include "section_handle.hpp"
+#ifndef SAK_HANDLE_HPP
+#include "handle.hpp"
 #endif
 
 #ifndef SAK_PROJECT_INTERFACE_FWD_HPP
 #include "project_interface_fwd.hpp"
 #endif
+
+#include "section_data.hpp"
 
 #ifndef INCLUDE_STD_MEMORY
 #define INCLUDE_STD_MEMORY
@@ -68,7 +70,7 @@ namespace sak
     // Typedefs
     //============================================================
     using Data_Type = T;
-    using Handle_Type = Section_Handle<Data_Type>;
+    using Handle_Type = Handle<Data_Type>;
     using Widget_Array_Type = std::array<std::unique_ptr<Abstract_Member_Edit_Widget>, Section_Data_Size_v<Data_Type>>;
 
     // Special 6

@@ -5,8 +5,8 @@
 #include "abstract_section_signalbox_fwd.hpp"
 #endif
 
-#ifndef SAK_SECTION_HANDLE_FWD_HPP
-#include "section_handle_fwd.hpp"
+#ifndef SAK_HANDLE_FWD_HPP
+#include "handle_fwd.hpp"
 #endif
 
 #ifndef INCLUDE_STD_CSTDDEF
@@ -28,7 +28,7 @@ namespace sak
   {
   public:
     using Data_Type = T;
-    using Handle_Type = Section_Handle<T>;
+    using Handle_Type = Handle<T>;
 
     virtual ~Abstract_Section_Signalbox() = 0;
 

@@ -13,18 +13,16 @@
 #include "section_data.hpp"
 #endif
 
-#ifndef SAK_SECTION_HANDLE_HPP
-#include "section_handle.hpp"
+#ifndef SAK_HANDLE_HPP
+#include "handle.hpp"
 #endif
 
 #ifndef SAK_SECTION_DATA_MANAGER_HPP
 #include "section_data_manager.hpp"
 #endif
 
-
 namespace sak
 {
-
   //---------------------------------------------------------------------------
   // Abstract_Signalling_Command<T>
   //---------------------------------------------------------------------------
@@ -40,7 +38,7 @@ namespace sak
     //============================================================
     using Data_Type = T;
     using Data_Manager_Type = Section_Data_Manager<Data_Type>;
-    using Handle_Type = Section_Handle<Data_Type>;
+    using Handle_Type = Handle<Data_Type>;
 
     // Special 6
     //============================================================
@@ -73,7 +71,7 @@ namespace sak
   //------------------------------------------------------------------------------------------------------------------------------------------------------
 
   //---------------------------------------------------------------------------
-  // command_assign<Index,T>
+  // Command_Assign<Index,T>
   //---------------------------------------------------------------------------
   // Class that derives from Abstract_Command that wraps the assignement of a
   // member's data.
@@ -129,7 +127,6 @@ namespace sak
   {
     return std::unique_ptr<Abstract_Command>(std::make_unique<Command_Assign<Index,T>>(a_data_manager, a_handle, a_value).release());
   }
-
 
   //------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -192,7 +189,7 @@ namespace sak
   //---------------------------------------------------------------------------
   // Command_Removed<T>
   //---------------------------------------------------------------------------
-  // Class that derives from Abstract_Command that wraps the addition of an
+  // Class that derives from Abstract_Command that wraps the removal of an
   // object to the project.
 
   template <typename T>
@@ -227,6 +224,7 @@ namespace sak
       m_data_manager->added(m_handle); // outbound signal.
       assert(m_data_manager->has_handle(m_handle));
     }
+  private:
   };
 
   template <typename T>

@@ -13,13 +13,6 @@
 #define INCLUDE_STD_MEMORY
 #include <memory>
 #endif
-/*
-#ifndef INCLUDE_QT_QVARIANT
-#define INCLUDE_QT_QVARIANT
-#include <QVariant>
-#endif
-
-*/
 
 namespace sak
 {
@@ -203,7 +196,6 @@ namespace sak
     void set_true_child(std::unique_ptr<Child_Item_Type>&& a_item);
 
   private:
-    //std::unique_ptr<Child_Item_Type> m_child;
     internal::Outliner_Trunk_Item_Implementation<Child_Item_Type> m_data;
   };
 

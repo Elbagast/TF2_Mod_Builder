@@ -2,6 +2,8 @@
 
 #include "abstract_member_edit_widget.hpp"
 
+#include <qtlib/line_edit.hpp>
+
 #include <cassert>
 
 #include <QString>
@@ -10,8 +12,6 @@
 #include <QValidator>
 #include <QCheckBox>
 #include <QTextEdit>
-
-#include <qtlib/line_edit.hpp>
 
 namespace sak
 {
@@ -26,15 +26,15 @@ namespace sak
   public:
     static std::unique_ptr<qtlib::Line_Edit> make_empty_true_widget(QValidator* a_validator, int a_max_length, QString const& a_tooltip);
 
-    static std::unique_ptr<qtlib::Line_Edit> make_true_widget(QValidator* a_validator, int a_max_length, QString const& a_tooltip, QString const& a_value);
+    //static std::unique_ptr<qtlib::Line_Edit> make_true_widget(QValidator* a_validator, int a_max_length, QString const& a_tooltip, QString const& a_value);
 
     static void set_true_widget_value(qtlib::Line_Edit* a_widget, QString const& a_value);
 
     static QString get_true_widget_value(qtlib::Line_Edit* a_widget);
 
-    static std::unique_ptr<QWidget> make_empty_widget(QValidator* a_validator, int a_max_length, QString const& a_tooltip);
+    static std::unique_ptr<QWidget> make_widget(QValidator* a_validator, int a_max_length, QString const& a_tooltip);
 
-    static std::unique_ptr<QWidget> make_widget(QValidator* a_validator, int a_max_length, QString const& a_tooltip, QString const& a_value);
+    //static std::unique_ptr<QWidget> make_widget(QValidator* a_validator, int a_max_length, QString const& a_tooltip, QString const& a_value);
 
     static void set_widget_value(QWidget* a_widget, QString const& a_value);
 
@@ -62,18 +62,6 @@ std::unique_ptr<qtlib::Line_Edit> sak::Default_Line_Edit::make_empty_true_widget
   return std::move(l_widget);
 }
 
-std::unique_ptr<qtlib::Line_Edit> sak::Default_Line_Edit::make_true_widget(QValidator* a_validator, int a_max_length, QString const& a_tooltip, QString const& a_value)
-{
-  // Make an empty widget.
-  auto l_widget = make_empty_true_widget(a_validator,a_max_length,a_tooltip);
-
-  // SEt the value using the prescribed method.
-  set_true_widget_value(l_widget.get(), a_value);
-
-  // Return the setup widget.
-  return std::move(l_widget);
-}
-
 void sak::Default_Line_Edit::set_true_widget_value(qtlib::Line_Edit* a_widget, QString const& a_value)
 {
   a_widget->setText(a_value);
@@ -85,18 +73,9 @@ QString sak::Default_Line_Edit::get_true_widget_value(qtlib::Line_Edit* a_widget
   return a_widget->text();
 }
 
-std::unique_ptr<QWidget> sak::Default_Line_Edit::make_empty_widget(QValidator* a_validator, int a_max_length, QString const& a_tooltip)
+std::unique_ptr<QWidget> sak::Default_Line_Edit::make_widget(QValidator* a_validator, int a_max_length, QString const& a_tooltip)
 {
   auto l_true_widget = make_empty_true_widget(a_validator, a_max_length, a_tooltip);
-  std::unique_ptr<QWidget> l_widget{ l_true_widget.release() };
-
-  // Return the setup widget.
-  return std::move(l_widget);
-}
-
-std::unique_ptr<QWidget> sak::Default_Line_Edit::make_widget(QValidator* a_validator, int a_max_length, QString const& a_tooltip, QString const& a_value)
-{
-  auto l_true_widget = make_true_widget(a_validator, a_max_length, a_tooltip, a_value);
   std::unique_ptr<QWidget> l_widget{ l_true_widget.release() };
 
   // Return the setup widget.
@@ -282,14 +261,9 @@ namespace sak
 // A short string of unicode text containing any characters except control
 // characters. Max length is 256 chars. Must contain something.
 
-std::unique_ptr<QWidget> sak::Text_Name::make_empty_widget()
+std::unique_ptr<QWidget> sak::Text_Name::make_widget()
 {
-  return Default_Line_Edit::make_empty_widget(Text_Name_Validator::singleton(), 256, tooltip());
-}
-
-std::unique_ptr<QWidget> sak::Text_Name::make_widget(Value_Type const& a_value)
-{
-  return Default_Line_Edit::make_widget(Text_Name_Validator::singleton(), 256, tooltip(), a_value);
+  return Default_Line_Edit::make_widget(Text_Name_Validator::singleton(), 256, tooltip());
 }
 
 void sak::Text_Name::set_widget_value(QWidget* a_widget, Value_Type const& a_value)
@@ -445,14 +419,9 @@ namespace sak
 // A short string of unicode text containing any characters except control
 // characters. Max length is 256 chars.
 
-std::unique_ptr<QWidget> sak::Text_Line::make_empty_widget()
+std::unique_ptr<QWidget> sak::Text_Line::make_widget()
 {
-  return Default_Line_Edit::make_empty_widget(Text_Line_Validator::singleton(), 256, tooltip());
-}
-
-std::unique_ptr<QWidget> sak::Text_Line::make_widget(Value_Type const& a_value)
-{
-  return Default_Line_Edit::make_widget(Text_Line_Validator::singleton(), 256, tooltip(), a_value);
+  return Default_Line_Edit::make_widget(Text_Line_Validator::singleton(), 256, tooltip());
 }
 
 void sak::Text_Line::set_widget_value(QWidget* a_widget, Value_Type const& a_value)
@@ -616,11 +585,6 @@ namespace sak
 
     void text_long_set_true_widget_value(QTextEdit* a_widget, Text_Long::Value_Type const& a_value)
     {
-      // This widget better have a validator, and it better be the right one...
-      //assert(a_widget->validator() == Text_Long_Validator::singleton());
-      // Value should already be validated.
-      //assert(a_widget->validator()->validate(a_value, 0) == QValidator::Acceptable);
-
       // Set the value.
       a_widget->setPlainText(a_value);
 
@@ -632,22 +596,10 @@ namespace sak
 
 
 
-std::unique_ptr<QWidget> sak::Text_Long::make_empty_widget()
+std::unique_ptr<QWidget> sak::Text_Long::make_widget()
 {
   // Make an empty widget and repackage it.
   return std::unique_ptr<QWidget>(text_long_make_true_empty_widget().release());
-}
-
-std::unique_ptr<QWidget> sak::Text_Long::make_widget(Value_Type const& a_value)
-{
-  // Make an empty true widget.
-  auto l_widget = text_long_make_true_empty_widget();
-
-  // Set the value.
-  text_long_set_true_widget_value(l_widget.get(), a_value);
-
-  // Repackage the widget.
-  return std::unique_ptr<QWidget>(l_widget.release());
 }
 
 void sak::Text_Long::set_widget_value(QWidget* a_widget, Value_Type const& a_value)

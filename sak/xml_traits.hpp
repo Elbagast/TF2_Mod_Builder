@@ -67,7 +67,6 @@ namespace sak
       static QXmlStreamWriter& to_stream(QXmlStreamWriter& a_stream, Section_Data_Manager<T> const& a_data);
       static QXmlStreamReader& from_stream(QXmlStreamReader& a_stream, Section_Data_Manager<T>& a_data);
     };
-
   }
 
   template <typename T>
