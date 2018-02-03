@@ -142,7 +142,8 @@ SOURCES += \
     qtlib/line_edit.cpp \
     sak/abstract_project_interface.cpp \
     sak/handle.cpp \
-    sak/handle_factory.cpp
+    sak/handle_factory.cpp \
+    sak/tag.cpp
     
 
 HEADERS  += \
@@ -230,7 +231,10 @@ HEADERS  += \
     sak/handle.hpp \
     sak/handle_fwd.hpp \
     sak/handle_factory.hpp \
-    sak/handle_factory_fwd.hpp
+    sak/handle_factory_fwd.hpp \
+    sak/tag.hpp \
+    sak/tag_fwd.hpp \
+    sak/abstract_project_interface_fwd.hpp
     
 
 FORMS
