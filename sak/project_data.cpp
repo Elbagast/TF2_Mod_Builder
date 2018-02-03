@@ -212,7 +212,7 @@ sak::v2::internal::Project_Signalbox_Imp<T,Args...>::~Project_Signalbox_Imp() = 
 //============================================================
 // Add an object that will rely on the Project's signals. If nulltpr, nothing happens.
 template <typename T, typename...Args>
-void sak::v2::internal::Project_Signalbox_Imp<T,Args...>::add_signalbox(v2::Abstract_Chained_Signalbox<T,Args...>* a_signalbox)
+void sak::v2::internal::Project_Signalbox_Imp<T,Args...>::add_signalbox(Signalbox_Type* a_signalbox)
 {
   if (a_signalbox != nullptr
       && std::find(m_signalboxes.cbegin(), m_signalboxes.cend(), a_signalbox) == m_signalboxes.cend())
@@ -223,7 +223,7 @@ void sak::v2::internal::Project_Signalbox_Imp<T,Args...>::add_signalbox(v2::Abst
 
 // Remove an object that will rely on the Project's signals. If nulltpr, nothing happens.
 template <typename T, typename...Args>
-void sak::v2::internal::Project_Signalbox_Imp<T,Args...>::remove_signalbox(v2::Abstract_Chained_Signalbox<T,Args...>* a_signalbox)
+void sak::v2::internal::Project_Signalbox_Imp<T,Args...>::remove_signalbox(Signalbox_Type* a_signalbox)
 {
   if (a_signalbox == nullptr)
   {
@@ -246,13 +246,13 @@ void sak::v2::internal::Project_Signalbox_Imp<T,Args...>::clear_signalboxes()
 // Internal Interface
 //============================================================
 template <typename T, typename...Args>
-std::vector<sak::v2::Abstract_Chained_Signalbox<T,Args...>*>& sak::v2::internal::Project_Signalbox_Imp<T,Args...>::get_signalboxes()
+std::vector<typename sak::v2::internal::Project_Signalbox_Imp<T,Args...>::Signalbox_Type*>& sak::v2::internal::Project_Signalbox_Imp<T,Args...>::get_signalboxes()
 {
   return m_signalboxes;
 }
 
 template <typename T, typename...Args>
-std::vector<sak::v2::Abstract_Chained_Signalbox<T,Args...>*> const& sak::v2::internal::Project_Signalbox_Imp<T,Args...>::cget_signalboxes() const
+std::vector<typename sak::v2::internal::Project_Signalbox_Imp<T,Args...>::Signalbox_Type*> const& sak::v2::internal::Project_Signalbox_Imp<T,Args...>::cget_signalboxes() const
 {
   return m_signalboxes;
 }
@@ -275,6 +275,13 @@ template <typename T_Base, typename T>
 void sak::v2::internal::Project_Chained_Signalbox_Imp<T_Base,T>::changed(Handle<T> const& a_handle)
 {
   for (auto l_item : get_signalboxes()) l_item->changed(a_handle);
+}
+
+// When a handle has its name changed, this is called.
+template <typename T_Base, typename T>
+void sak::v2::internal::Project_Chained_Signalbox_Imp<T_Base,T>::changed_name(Handle<T> const& a_handle)
+{
+  for (auto l_item : get_signalboxes()) l_item->changed_name(a_handle);
 }
 
 // When a handle has its data changed in a specific place, this is called.
@@ -361,14 +368,36 @@ bool sak::v2::internal::Project_Section_Data_Imp<T>::has_handle(Handle<T> const&
   }
 }
 
+// Is this handle in the currently active project data?
+template <typename T>
+bool sak::v2::internal::Project_Section_Data_Imp<T>::has_name(Tag<T>&&, QString const& a_name) const
+{
+  // MAKE THIS
+  return false;
+}
+
 // Get the handle at this index. Handles are sorted alphabetically by the name
 // member of the objects they reference.
 template <typename T>
 sak::Handle<T> sak::v2::internal::Project_Section_Data_Imp<T>::get_handle_at(Tag<T>&&, std::size_t a_index) const
 {
-  return m_handles.at(a_index);
+  if (a_index < m_handles.size())
+  {
+    return m_handles.at(a_index);
+  }
+  else
+  {
+    return Handle<T>{};
+  }
 }
 
+// Get the handle with this name. If the name is invalid a null handle is returned.
+template <typename T>
+sak::Handle<T> sak::v2::internal::Project_Section_Data_Imp<T>::get_handle_named(Tag<T>&&, QString const& a_name) const
+{
+  // MAKE THIS
+  return sak::Handle<T>{};
+}
 // Get all the handles alphabetically sorted by name
 template <typename T>
 std::vector<sak::Handle<T>> sak::v2::internal::Project_Section_Data_Imp<T>::get_all_handles(Tag<T>&&) const
@@ -397,7 +426,7 @@ std::vector<QString> sak::v2::internal::Project_Section_Data_Imp<T>::get_all_nam
 // Make a new object using the supplied data. Project's data management system owns it but
 // it is not part of the Project.
 template <typename T>
-sak::Handle<T> sak::v2::internal::Project_Section_Data_Imp<T>::make_emplace(T&& a_object)
+sak::Handle<T> sak::v2::internal::Project_Section_Data_Imp<T>::make_emplace(T&& a_object) const
 {
   // Capture the name.
   auto l_name = a_object.cmember_at<0>();
@@ -418,7 +447,7 @@ sak::Handle<T> sak::v2::internal::Project_Section_Data_Imp<T>::make_emplace(T&& 
 // Make a new file using the default parameters. Project's data management system owns it
 // but it is not part of the Project.
 template <typename T>
-sak::Handle<T> sak::v2::internal::Project_Section_Data_Imp<T>::make_default(Tag<T>&&)
+sak::Handle<T> sak::v2::internal::Project_Section_Data_Imp<T>::make_default(Tag<T>&&) const
 {
   // The default name for a new object.
   static QString const s_name{u8"New " + QString::fromStdString(T::type())};
@@ -439,8 +468,36 @@ sak::Handle<T> sak::v2::internal::Project_Section_Data_Imp<T>::make_default(Tag<
   return m_factory.make_handle(std::move(l_object));
 }
 
+// Attempt to add a handle to the data and return true if it succeeds. Will
+// fail and return false if the handle is null or already present in the data.
+template <typename T>
+bool sak::v2::internal::Project_Section_Data_Imp<T>::add(Handle<T> const& a_handle)
+{
+  if (this->has_handle(a_handle)
+      && std::find(m_handles.cbegin(), m_handles.cend(), a_handle) == m_handles.cend())
+  {
+    m_handles.push_back(a_handle);
+    return true;
+  }
+  return false;
+}
 
-
+// Attempt to remove a handle from the data and return true if it succeeds. Will
+// fail and return false if the handle is null or not present in the data.
+template <typename T>
+bool sak::v2::internal::Project_Section_Data_Imp<T>::remove(Handle<T> const& a_handle)
+{
+  if (this->has_handle(a_handle))
+  {
+    auto l_found = std::find(m_handles.cbegin(), m_handles.cend(), a_handle);
+    if (l_found != m_handles.cend())
+    {
+      m_handles.erase(l_found);
+      return true;
+    }
+  }
+  return false;
+}
 
 //---------------------------------------------------------------------------
 // Project_Chained_Data<T,Args...>
@@ -458,6 +515,11 @@ sak::v2::Project_Chained_Data<T,Args...>::Project_Chained_Data(QString const& a_
 template <typename T, typename...Args>
 sak::v2::Project_Chained_Data<T,Args...>::~Project_Chained_Data() = default;
 
+// need to instantiate these to hide the implementation.
+// But since it's entirely hidden behind the interface, could probably expose the imp and just use it.
+
+template class sak::v2::internal::Project_Section_Data_Imp<sak::File_Data>;
+template class sak::v2::internal::Project_Section_Data_Imp<sak::Texture_Data>;
 
 template class sak::v2::Project_Data;
 

@@ -62,6 +62,10 @@ sak::v2::Abstract_Project_Path_Interface::~Abstract_Project_Path_Interface() = d
 //---------------------------------------------------------------------------
 sak::v2::Abstract_Project_History_Interface::~Abstract_Project_History_Interface() = default;
 
+//---------------------------------------------------------------------------
+// Abstract_Project_Name_Interface
+//---------------------------------------------------------------------------
+sak::v2::Abstract_Project_Name_Interface::~Abstract_Project_Name_Interface() = default;
 
 //---------------------------------------------------------------------------
 // Abstract_Project_Signalbox_Interface
@@ -151,34 +155,59 @@ namespace sak
       // How many objects are in this Project?
       static std::size_t count(T_Base const*);
       // Get the objects at this index
+
+
+      // Does this handle appear in the data?
+      static bool has_handle(T_Base const*, Handle<T> const&);
+      // Does this name appear in the data?
+      static bool has_name(T_Base const*, QString const&);
+      // Alter the supplied name so that it is unique among the existing data names
+      //static bool fix_name(T_Base const*, QString&);
+
+      // Get the handle at this index. If the index is invalid a null handle is returned.
       static Handle<T> get_handle_at(T_Base const*, std::size_t a_index);
+
+      // Get the handle with this name. If the name is invalid a null handle is returned.
+      static Handle<T> get_handle_named(T_Base const*, QString const&);
+
       // Get all the objects
       static std::vector<Handle<T>> get_all_handles(T_Base const*);
       // Get all the object names
       static std::vector<QString> get_all_names(T_Base const*);
       // Make a new object using the default parameters. Project's data management system owns it
       // but it is not part of the Project. Does not trigger any commands.
-      static Handle<T> make_default(T_Base*);
+      static Handle<T> make_default(T_Base const*);
       // Make a new object using the supplied data. Project's data management system owns it but
       // it is not part of the Project. Does not trigger any commands.
-      static Handle<T> make_emplace(T_Base*, T&& a_data);
+      static Handle<T> make_emplace(T_Base const*, T&& a_data);
       // Undoable add a new object made using the default parameters. The name will be modified if it is
       // currently in use by another object.
-      static void add_default(T_Base*);
+      static bool add_default(T_Base*);
       // Undoable add a new object using the supplied data. This data is assigned a new handle. The name will
       // be modified if it is currently in use by another object.
-      static void add_emplace(T_Base*, T&& a_data);
+      static bool add_emplace(T_Base*, T&& a_data);
       // Undoable add a new object using the supplied handle. The name will be modified if it is currently in
       // use by another object. If this handle is invalid or already in the data then nothing happens.
-      static void add(T_Base*, Handle<T> const& a_handle);
+      static bool add(T_Base*, Handle<T> const& a_handle);
       // Undoable remove object. If this handle is invalid or not in the data nothing happens.
       // Data is not deleted until the last reference is deleted.
-      static void remove(T_Base*, Handle<T> const& a_handle);
+      static bool remove(T_Base*, Handle<T> const& a_handle);
       // Request that the editor for this file be opened or switched to.
       static void request_editor(T_Base*, Handle<T> const& a_handle);
       // Request that the focus change to this object.
       static void request_focus(T_Base*, Handle<T> const& a_handle);
 
+      // Undoable change a handles name. Returns true if this call results in a change being made.
+      // If the name supplied is already in use then the supplied name will be altered.
+
+      static bool change_name(T_Base*,
+                            Handle<T> const& a_handle,
+                            QString const& a_name
+                           );
+
+      // Undoable change an object's member value. Returns true if this call results in a change being made.
+      // Does nothing and returns false if this handle is invalid or not in the data, or if the supplied value
+      // doesn't result in data being changed.
       template <std::size_t Index>
       static bool change_at(T_Base*,
                             Handle<T> const& a_handle,
@@ -225,10 +254,34 @@ namespace sak
         return Project_Interface_Impl<T_Base,T>::count(this);
       }
 
+      // Does this handle appear in the data?
+      bool has_handle(Handle<T> const& a_handle) const override final
+      {
+        return Project_Interface_Impl<T_Base,T>::has_handle(this, a_handle);
+      }
+
+      // Does this name appear in the data?
+      bool has_name(Tag<T>&&, QString const& a_name) const override final
+      {
+        return Project_Interface_Impl<T_Base,T>::has_name(this, a_name);
+      }
+
+      // Alter the supplied name so that it is unique among the existing data names
+      //bool fix_name(Tag<T>&&, QString& a_name) const override final
+      //{
+      //  return Project_Interface_Impl<T_Base,T>::fix_name(this, a_name);
+      //}
+
       // Get the objects at this index
       Handle<T> get_handle_at(Tag<T>&&, std::size_t a_index) const override final
       {
         return Project_Interface_Impl<T_Base,T>::get_handle_at(this,a_index);
+      }
+
+      // Get the objects at this index
+      Handle<T> get_handle_named(Tag<T>&&, QString const& a_name) const override final
+      {
+        return Project_Interface_Impl<T_Base,T>::get_handle_named(this, a_name);
       }
 
       // Get all the objects
@@ -245,44 +298,50 @@ namespace sak
 
       // Make a new object using the default parameters. Project's data management system owns it
       // but it is not part of the Project. Does not trigger any commands.
-      Handle<T> make_default(Tag<T>&&) override final
+      Handle<T> make_default(Tag<T>&&) const override final
       {
         return Project_Interface_Impl<T_Base,T>::make_default(this);
       }
 
       // Make a new object using the supplied data. Project's data management system owns it but
       // it is not part of the Project. Does not trigger any commands.
-      Handle<T> make_emplace(T&& a_data) override final
+      Handle<T> make_emplace(T&& a_data) const override final
       {
         return Project_Interface_Impl<T_Base,T>::make_emplace(this,std::move(a_data));
       }
 
       // Undoable add a new object made using the default parameters. The name will be modified if it is
       // currently in use by another object.
-      void add_default(Tag<T>&&) override final
+      bool add_default(Tag<T>&&) override final
       {
         return Project_Interface_Impl<T_Base,T>::add_default(this);
       }
 
       // Undoable add a new object using the supplied data. This data is assigned a new handle. The name will
       // be modified if it is currently in use by another object.
-      void add_emplace(T&& a_data) override final
+      bool add_emplace(T&& a_data) override final
       {
         return Project_Interface_Impl<T_Base,T>::add_emplace(this,std::move(a_data));
       }
 
       // Undoable add a new object using the supplied handle. The name will be modified if it is currently in
       // use by another object. If this handle is invalid or already in the data then nothing happens.
-      void add(Handle<T> const& a_handle) override final
+      bool add(Handle<T> const& a_handle) override final
       {
         return Project_Interface_Impl<T_Base,T>::add(this,a_handle);
       }
 
       // Undoable remove object. If this handle is invalid or not in the data nothing happens.
       // Data is not deleted until the last reference is deleted.
-      void remove(Handle<T> const& a_handle) override final
+      bool remove(Handle<T> const& a_handle) override final
       {
         return Project_Interface_Impl<T_Base,T>::remove(this,a_handle);
+      }
+
+      // Undoable change a handles name. If the name supplied is already in use then the supplied name will be altered.
+      bool change_name(Handle<T> const& a_handle, QString const& a_name) override final
+      {
+        return Project_Interface_Impl<T_Base,T>::change_name(this,a_handle,a_name);
       }
 
       // Request that the editor for this file be opened or switched to.
@@ -329,10 +388,34 @@ namespace sak
         return Project_Interface_Impl<T_Base,T>::count(this);
       }
 
+      // Does this handle appear in the data?
+      bool has_handle(Handle<T> const& a_handle) const override final
+      {
+        return Project_Interface_Impl<T_Base,T>::has_handle(this, a_handle);
+      }
+
+      // Does this name appear in the data?
+      bool has_name(Tag<T>&&, QString const& a_name) const override final
+      {
+        return Project_Interface_Impl<T_Base,T>::has_name(this, a_name);
+      }
+
+      // Alter the supplied name so that it is unique among the existing data names
+      //bool fix_name(Tag<T>&&, QString& a_name) const override final
+      //{
+      //  return Project_Interface_Impl<T_Base,T>::fix_name(this, a_name);
+      //}
+
       // Get the objects at this index
       Handle<T> get_handle_at(Tag<T>&&, std::size_t a_index) const override final
       {
         return Project_Interface_Impl<T_Base,T>::get_handle_at(this,a_index);
+      }
+
+      // Get the objects at this index
+      Handle<T> get_handle_named(Tag<T>&&, QString const& a_name) const override final
+      {
+        return Project_Interface_Impl<T_Base,T>::get_handle_named(this, a_name);
       }
 
       // Get all the objects
@@ -349,44 +432,50 @@ namespace sak
 
       // Make a new object using the default parameters. Project's data management system owns it
       // but it is not part of the Project. Does not trigger any commands.
-      Handle<T> make_default(Tag<T>&&) override final
+      Handle<T> make_default(Tag<T>&&) const override final
       {
         return Project_Interface_Impl<T_Base,T>::make_default(this);
       }
 
       // Make a new object using the supplied data. Project's data management system owns it but
       // it is not part of the Project. Does not trigger any commands.
-      Handle<T> make_emplace(T&& a_data) override final
+      Handle<T> make_emplace(T&& a_data) const override final
       {
         return Project_Interface_Impl<T_Base,T>::make_emplace(this,std::move(a_data));
       }
 
       // Undoable add a new object made using the default parameters. The name will be modified if it is
       // currently in use by another object.
-      void add_default(Tag<T>&&) override final
+      bool add_default(Tag<T>&&) override final
       {
         return Project_Interface_Impl<T_Base,T>::add_default(this);
       }
 
       // Undoable add a new object using the supplied data. This data is assigned a new handle. The name will
       // be modified if it is currently in use by another object.
-      void add_emplace(T&& a_data) override final
+      bool add_emplace(T&& a_data) override final
       {
         return Project_Interface_Impl<T_Base,T>::add_emplace(this,std::move(a_data));
       }
 
       // Undoable add a new object using the supplied handle. The name will be modified if it is currently in
       // use by another object. If this handle is invalid or already in the data then nothing happens.
-      void add(Handle<T> const& a_handle) override final
+      bool add(Handle<T> const& a_handle) override final
       {
         return Project_Interface_Impl<T_Base,T>::add(this,a_handle);
       }
 
       // Undoable remove object. If this handle is invalid or not in the data nothing happens.
       // Data is not deleted until the last reference is deleted.
-      void remove(Handle<T> const& a_handle) override final
+      bool remove(Handle<T> const& a_handle) override final
       {
         return Project_Interface_Impl<T_Base,T>::remove(this,a_handle);
+      }
+
+      // Undoable change a handles name. If the name supplied is already in use then the supplied name will be altered.
+      bool change_name(Handle<T> const& a_handle, QString const& a_name) override final
+      {
+        return Project_Interface_Impl<T_Base,T>::change_name(this,a_handle,a_name);
       }
 
       // Request that the editor for this file be opened or switched to.
@@ -451,10 +540,16 @@ namespace sak
       }
       ~Project_Final_Interface() override = default;
 
+      bool has_name(QString const&) const override final { return true; }
+      std::vector<QString>  get_all_names() const override final { return std::vector<QString>{};  }
+      void fix_name(QString&) const override final {  }
+
 
       void save() const override final  {}
       void load() override final        {}
     };
+
+
 
 
     using Project_Interface = Project_Final_Interface<File_Data,Texture_Data>;
@@ -603,89 +698,145 @@ bool sak::v2::Project_Interface_Impl<B,T>::not_empty(B const* a_base)
 {
   return !is_empty(a_base);
 }
+
 // How many objects are in this Project?
 template <typename B,typename T>
 std::size_t sak::v2::Project_Interface_Impl<B,T>::count(B const* a_base)
 {
   return a_base->cdata().count(Tag<T>());
 }
+
+// Does this handle appear in the data?
+template <typename B,typename T>
+bool sak::v2::Project_Interface_Impl<B,T>::has_handle(B const* a_base, Handle<T> const& a_handle)
+{
+  return a_base->cdata().has_handle(a_handle);
+}
+
+// How many objects are in this Project?
+template <typename B,typename T>
+bool sak::v2::Project_Interface_Impl<B,T>::has_name(B const* a_base, QString const& a_name)
+{
+  return a_base->cdata().has_name(Tag<T>(), a_name);
+}
+
+// How many objects are in this Project?
+//template <typename B,typename T>
+//bool sak::v2::Project_Interface_Impl<B,T>::fix_name(B const* a_base, QString& a_name)
+//{
+//  return false;
+  //a_base->cdata().fix_name(Tag<T>(), a_name);
+//}
+
 // Get the objects at this index
 template <typename B,typename T>
 sak::Handle<T> sak::v2::Project_Interface_Impl<B,T>::get_handle_at(B const* a_base, std::size_t a_index)
 {
   return a_base->cdata().get_handle_at(Tag<T>(), a_index);
 }
+
+// Get the objects at this index
+template <typename B,typename T>
+sak::Handle<T> sak::v2::Project_Interface_Impl<B,T>::get_handle_named(B const* a_base, QString const& a_name)
+{
+  return a_base->cdata().get_handle_named(Tag<T>(), a_name);
+}
+
 // Get all the objects
 template <typename B,typename T>
 std::vector<sak::Handle<T>> sak::v2::Project_Interface_Impl<B,T>::get_all_handles(B const* a_base)
 {
   return a_base->cdata().get_all_handles(Tag<T>());
 }
+
 // Get all the object names
 template <typename B,typename T>
 std::vector<QString> sak::v2::Project_Interface_Impl<B,T>::get_all_names(B const* a_base)
 {
   return a_base->cdata().get_all_names(Tag<T>());
 }
+
 // Make a new object using the default parameters. Project's data management system owns it
 // but it is not part of the Project. Does not trigger any commands.
 template <typename B,typename T>
-sak::Handle<T> sak::v2::Project_Interface_Impl<B,T>::make_default(B* a_base)
+sak::Handle<T> sak::v2::Project_Interface_Impl<B,T>::make_default(B const* a_base)
 {
-  return a_base->data().make_default(Tag<T>());
+  return a_base->cdata().make_default(Tag<T>());
 }
+
 // Make a new object using the supplied data. Project's data management system owns it but
 // it is not part of the Project. Does not trigger any commands.
 template <typename B,typename T>
-sak::Handle<T> sak::v2::Project_Interface_Impl<B,T>::make_emplace(B* a_base, T&& a_data)
+sak::Handle<T> sak::v2::Project_Interface_Impl<B,T>::make_emplace(B const* a_base, T&& a_data)
 {
-  return a_base->data().make_emplace(std::move(a_data));
+  return a_base->cdata().make_emplace(std::move(a_data));
 }
+
 // Undoable add a new object made using the default parameters. The name will be modified if it is
 // currently in use by another object.
 template <typename B,typename T>
-void sak::v2::Project_Interface_Impl<B,T>::add_default(B* a_base)
+bool sak::v2::Project_Interface_Impl<B,T>::add_default(B* a_base)
 {
-
+  //COMMAND GOES HERE
+  //COMMAND ONLY NEEDS TO BE KNOWN HERE
+  return false;
 }
+
 // Undoable add a new object using the supplied data. This data is assigned a new handle. The name will
 // be modified if it is currently in use by another object.
 template <typename B,typename T>
-void sak::v2::Project_Interface_Impl<B,T>::add_emplace(B* a_base, T&& a_data)
+bool sak::v2::Project_Interface_Impl<B,T>::add_emplace(B* a_base, T&& a_data)
 {
   //COMMAND GOES HERE
+  //COMMAND ONLY NEEDS TO BE KNOWN HERE
+  return false;
 }
 // Undoable add a new object using the supplied handle. The name will be modified if it is currently in
 // use by another object. If this handle is invalid or already in the data then nothing happens.
 template <typename B,typename T>
-void sak::v2::Project_Interface_Impl<B,T>::add(B* a_base, Handle<T> const& a_handle)
+bool sak::v2::Project_Interface_Impl<B,T>::add(B* a_base, Handle<T> const& a_handle)
 {
   //COMMAND GOES HERE
+  //COMMAND ONLY NEEDS TO BE KNOWN HERE
+  return false;
 }
+
 // Undoable remove object. If this handle is invalid or not in the data nothing happens.
 // Data is not deleted until the last reference is deleted.
 template <typename B,typename T>
-void sak::v2::Project_Interface_Impl<B,T>::remove(B* a_base, Handle<T> const& a_handle)
+bool sak::v2::Project_Interface_Impl<B,T>::remove(B* a_base, Handle<T> const& a_handle)
 {
   //COMMAND GOES HERE
+  //COMMAND ONLY NEEDS TO BE KNOWN HERE
+  return false;
 }
+
 // Request that the editor for this file be opened or switched to.
 template <typename B,typename T>
 void sak::v2::Project_Interface_Impl<B,T>::request_editor(B* a_base, Handle<T> const& a_handle)
 {
-  if (not_null(a_handle) && a_base->cdata().has_handle(a_handle))
+  if (a_base->cdata().has_handle(a_handle))
   {
     a_base->request_editor(a_handle);
   }
 }
+
 // Request that the focus change to this object.
 template <typename B,typename T>
 void sak::v2::Project_Interface_Impl<B,T>::request_focus(B* a_base, Handle<T> const& a_handle)
 {
-  if (not_null(a_handle) && a_base->cdata().has_handle(a_handle))
+  if (a_base->cdata().has_handle(a_handle))
   {
     a_base->request_focus(a_handle);
   }
+}
+
+template <typename B,typename T>
+bool sak::v2::Project_Interface_Impl<B,T>::change_name(B* a_base, Handle<T> const& a_handle, QString const& a_name)
+{
+  //COMMAND GOES HERE
+  //COMMAND ONLY NEEDS TO BE KNOWN HERE
+  return false;
 }
 
 template <typename B,typename T>
@@ -693,12 +844,11 @@ template <std::size_t Index>
 bool sak::v2::Project_Interface_Impl<B,T>::change_at(B* a_base, Handle<T> const& a_handle, Section_Data_Member_Value_Type<Index,T> const& a_value)
 {
   //COMMAND GOES HERE
+  //COMMAND ONLY NEEDS TO BE KNOWN HERE
   return false;
 }
 
-
 std::unique_ptr<sak::v2::Abstract_Project_Interface> sak::v2::make_project_interface(Project_Data&& a_data)
 {
-  //return std::unique_ptr<Abstract_Project_Interface>(nullptr);
-  return std::make_unique<Project_Interface>(std::move(a_data));
+  return std::unique_ptr<Abstract_Project_Interface>(std::make_unique<Project_Interface>(std::move(a_data)).release());
 }

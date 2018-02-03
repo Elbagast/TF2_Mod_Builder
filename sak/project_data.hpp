@@ -151,30 +151,34 @@ namespace sak
       class Project_Signalbox_Imp
       {
       public:
+        // Typedefs
+        //============================================================
+        using Signalbox_Type = Abstract_Chained_Signalbox<T,Args...>;
+
         // Special 6
         //============================================================
         Project_Signalbox_Imp();
         ~Project_Signalbox_Imp();
 
-        // Virtuals
+        // Interface
         //============================================================
         // Add an object that will rely on the Project's signals. If nulltpr, nothing happens.
-        void add_signalbox(v2::Abstract_Chained_Signalbox<T,Args...>* a_signalbox);
+        void add_signalbox(Signalbox_Type* a_signalbox);
         // Remove an object that will rely on the Project's signals. If nulltpr, nothing happens.
-        void remove_signalbox(v2::Abstract_Chained_Signalbox<T,Args...>* a_signalbox);
+        void remove_signalbox(Signalbox_Type* a_signalbox);
         // Clear all the signalboxes so that nothing relies on changes to this.
         void clear_signalboxes();
 
       protected:
         // Internal Interface
         //============================================================
-        std::vector<v2::Abstract_Chained_Signalbox<T,Args...>*>& get_signalboxes();
-        std::vector<v2::Abstract_Chained_Signalbox<T,Args...>*> const& cget_signalboxes() const;
+        std::vector<Signalbox_Type*>& get_signalboxes();
+        std::vector<Signalbox_Type*> const& cget_signalboxes() const;
 
       private:
         // Data Members
         //============================================================
-        std::vector<v2::Abstract_Chained_Signalbox<T,Args...>*> m_signalboxes;
+        std::vector<Signalbox_Type*> m_signalboxes;
       };
 
       //---------------------------------------------------------------------------
@@ -191,13 +195,23 @@ namespace sak
           protected virtual T_Base
       {
       public:
+        // Typedefs
+        //============================================================
+        using Signalbox_Type = typename T_Base::Signalbox_Type;
+
+        // Special 6
+        //============================================================
         Project_Chained_Signalbox_Imp();
         ~Project_Chained_Signalbox_Imp();
 
+        // Interface
+        //============================================================
         // calls each of these on all the stored signalboxes.
 
         // When a handle has its data changed, this is called.
         void changed(Handle<T> const& a_handle);
+        // When a handle has its name changed, this is called.
+        void changed_name(Handle<T> const& a_handle);
         // When a handle has its data changed in a specific place, this is called.
         // a_section == 0 denotes the name and may have special logic requirements.
         void changed_at(Handle<T> const& a_handle, std::size_t a_section);
@@ -226,9 +240,17 @@ namespace sak
         using Inh2 = Project_Chained_Signalbox_Imp<T_Base,R,Args...>;
 
       public:
+        // Typedefs
+        //============================================================
+        using Signalbox_Type = typename T_Base::Signalbox_Type;
+
+        // Special 6
+        //============================================================
         Project_Chained_Signalbox_Imp() = default;
         ~Project_Chained_Signalbox_Imp() = default;
 
+        // Interface
+        //============================================================
         using Inh1::changed;
         using Inh1::changed_at;
         using Inh1::added;
@@ -260,11 +282,17 @@ namespace sak
       {
         using Inh = Project_Chained_Signalbox_Imp<Project_Signalbox_Imp<T,Args...>,T,Args...>;
       public:
+        // Typedefs
+        //============================================================
+        using Signalbox_Type = typename Inh::Signalbox_Type;
+
         // Special 6
         //============================================================
         Project_Signalbox_Data() = default;
         ~Project_Signalbox_Data() = default;
 
+        // Interface
+        //============================================================
         using Inh::add_signalbox;
         using Inh::remove_signalbox;
         using Inh::clear_signalboxes;
@@ -300,17 +328,23 @@ namespace sak
         // How handles of this type in the currently active project data?
         std::size_t count(Tag<T>&&) const;
 
-        // Is this handle in the currently active project data?
+        // Does this handle appear in the data?
         bool has_handle(Handle<T> const& a_handle) const;
+
+        // Does this name appear in the data?
+        bool has_name(Tag<T>&&, QString const& a_name) const;
 
         // Get the handle at this index. Handles are sorted alphabetically by the name
         // member of the objects they reference.
         Handle<T> get_handle_at(Tag<T>&&, std::size_t a_index) const;
 
-        // Get all the handles alphabetically sorted by name
+        // Get the handle with this name. If the name is invalid a null handle is returned.
+        Handle<T> get_handle_named(Tag<T>&&, QString const& a_name) const;
+
+        // Get all the handles in data order
         std::vector<Handle<T>> get_all_handles(Tag<T>&&) const;
 
-        // Get all the objects' alphabetically sorted names
+        // Get all the handles names in data order
         std::vector<QString> get_all_names(Tag<T>&&) const;
 
         // You may create new objects using these two functions. Objects created in this way
@@ -320,16 +354,24 @@ namespace sak
 
         // Make a new object using the supplied data. Project's data management system owns it but
         // it is not part of the Project.
-        Handle<T> make_emplace(T&& a_object);
+        Handle<T> make_emplace(T&& a_object) const;
 
         // Make a new file using the default parameters. Project's data management system owns it
         // but it is not part of the Project.
-        Handle<T> make_default(Tag<T>&&);
+        Handle<T> make_default(Tag<T>&&) const;
+
+        // Attempt to add a handle to the data and return true if it succeeds. Will
+        // fail and return false if the handle is null or already present in the data.
+        bool add(Handle<T> const& a_handle);
+
+        // Attempt to remove a handle from the data and return true if it succeeds. Will
+        // fail and return false if the handle is null or not present in the data.
+        bool remove(Handle<T> const& a_handle);
 
       private:
         // Data Members
         //============================================================
-        Handle_Factory<T> m_factory;
+        mutable Handle_Factory<T> m_factory;
         std::vector<Handle<T>> m_handles;
       };
 
@@ -356,11 +398,15 @@ namespace sak
         using Inh::empty;
         using Inh::count;
         using Inh::has_handle;
+        using Inh::has_name;
         using Inh::get_handle_at;
+        using Inh::get_handle_named;
         using Inh::get_all_handles;
         using Inh::get_all_names;
         using Inh::make_emplace;
         using Inh::make_default;
+        using Inh::add;
+        using Inh::remove;
       };
 
       // For two or more chain them
@@ -372,6 +418,7 @@ namespace sak
         using Inh1 = Project_Section_Data<T>;
         using Inh2 = Project_Section_Data<R,Args...>;
       public:
+
         // Special 6
         //============================================================
         Project_Section_Data() = default;
@@ -382,20 +429,28 @@ namespace sak
         using Inh1::empty;
         using Inh1::count;
         using Inh1::has_handle;
+        using Inh1::has_name;
         using Inh1::get_handle_at;
+        using Inh1::get_handle_named;
         using Inh1::get_all_handles;
         using Inh1::get_all_names;
         using Inh1::make_emplace;
         using Inh1::make_default;
+        using Inh1::add;
+        using Inh1::remove;
 
         using Inh2::empty;
         using Inh2::count;
         using Inh2::has_handle;
+        using Inh2::has_name;
         using Inh2::get_handle_at;
+        using Inh2::get_handle_named;
         using Inh2::get_all_handles;
         using Inh2::get_all_names;
         using Inh2::make_emplace;
         using Inh2::make_default;
+        using Inh2::add;
+        using Inh2::remove;
       };
 
     }
@@ -414,6 +469,10 @@ namespace sak
       using Inh2 = internal::Project_Signalbox_Data<T,Args...>;
       using Inh3 = internal::Project_Section_Data<T,Args...>;
     public:
+      // Typedefs
+      //============================================================
+      using Signalbox_Type = typename Inh2::Signalbox_Type;
+
       // Special 6
       //============================================================
       explicit Project_Chained_Data(QString const& a_filepath);
@@ -438,15 +497,17 @@ namespace sak
       using Inh3::empty;
       using Inh3::count;
       using Inh3::has_handle;
+      using Inh3::has_name;
       using Inh3::get_handle_at;
+      using Inh3::get_handle_named;
       using Inh3::get_all_handles;
       using Inh3::get_all_names;
       using Inh3::make_emplace;
       using Inh3::make_default;
+      using Inh3::add;
+      using Inh3::remove;
     };
-
-  }
-}
-
+  } // namespace v2
+} // namespace sak
 
 #endif // SAK_PROJECT_DATA_HPP
