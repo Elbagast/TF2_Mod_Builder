@@ -22,7 +22,7 @@
 #include <QXmlStreamReader>
 #include <QDebug>
 
-#include <sak/name_utilities.hpp>
+#include "name_utilities.hpp"
 
 //---------------------------------------------------------------------------
 // Project_Data::Implementation

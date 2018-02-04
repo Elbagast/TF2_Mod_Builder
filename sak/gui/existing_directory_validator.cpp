@@ -1,4 +1,4 @@
-#include "existing_directory_validator.hpp"
+﻿#include "existing_directory_validator.hpp"
 
 #include <QDir>
 
@@ -20,13 +20,13 @@ namespace
 
 // Special 6
 //============================================================
-qtlib::Existing_Directory_Validator::~Existing_Directory_Validator() = default;
+sak::gui::Existing_Directory_Validator::~Existing_Directory_Validator() = default;
 
 // QValidator overrides
 //============================================================
-//void qtlib::Directory_Name_Validator::fixup(QString& a_input) const;
+//void sak::gui::Directory_Name_Validator::fixup(QString& a_input) const;
 
-QValidator::State qtlib::Existing_Directory_Validator::validate(QString& a_input, int& /*a_position*/) const
+QValidator::State sak::gui::Existing_Directory_Validator::validate(QString& a_input, int& /*a_position*/) const
 {
     if (is_existing_directory(a_input))
     {

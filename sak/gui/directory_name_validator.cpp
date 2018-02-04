@@ -1,4 +1,4 @@
-#include "directory_name_validator.hpp"
+﻿#include "directory_name_validator.hpp"
 
 namespace
 {
@@ -70,13 +70,13 @@ namespace
 
 // Special 6
 //============================================================
-qtlib::Directory_Name_Validator::~Directory_Name_Validator() = default;
+sak::gui::Directory_Name_Validator::~Directory_Name_Validator() = default;
 
 // QValidator overrides
 //============================================================
-//void qtlib::Directory_Name_Validator::fixup(QString& a_input) const;
+//void sak::gui::Directory_Name_Validator::fixup(QString& a_input) const;
 
-QValidator::State qtlib::Directory_Name_Validator::validate(QString& a_input, int& /*a_position*/) const
+QValidator::State sak::gui::Directory_Name_Validator::validate(QString& a_input, int& /*a_position*/) const
 {
     if (is_valid_directory_name(a_input))
     {
@@ -92,7 +92,7 @@ QValidator::State qtlib::Directory_Name_Validator::validate(QString& a_input, in
 //============================================================
 // Produce a string that describes the first error found in string that
 // stops it from being valid. String is empty if no errors.
-QString qtlib::Directory_Name_Validator::first_error(QString const& a_string)
+QString sak::gui::Directory_Name_Validator::first_error(QString const& a_string)
 {
     if (a_string.isEmpty())
     {

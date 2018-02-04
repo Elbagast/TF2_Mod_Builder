@@ -1,5 +1,12 @@
 ﻿#include "new_project_dialog.hpp"
 
+#include "../fixed_settings.hpp"
+
+#include <gui/validating_line_edit.hpp>
+#include <gui/text_colour_state_changer.hpp>
+#include <gui/directory_name_validator.hpp>
+#include <gui/existing_directory_validator.hpp>
+
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QPushButton>
@@ -7,13 +14,7 @@
 #include <QFormLayout>
 #include <QLabel>
 #include <QLineEdit>
-#include "../../qtlib/validating_line_edit.hpp"
-#include "../../qtlib/text_colour_state_changer.hpp"
-#include "../../qtlib/directory_name_validator.hpp"
-#include "../../qtlib/existing_directory_validator.hpp"
-#include "../fixed_settings.hpp"
 #include <QFileDialog>
-
 
 //---------------------------------------------------------------------------
 // New_Project_Dialog
@@ -35,7 +36,7 @@ namespace
 
   // Seems like these classes could be templates?
   class Project_Name_Entry :
-        public qtlib::Validating_Line_Edit
+        public sak::gui::Validating_Line_Edit
   {
   public:
     explicit Project_Name_Entry(QWidget* a_parent = nullptr):
@@ -53,12 +54,12 @@ namespace
         return m_val.first_error(this->text());
     }
   private:
-    qtlib::Directory_Name_Validator m_val;
-    qtlib::Text_Colour_State_Changer m_sc;
+    sak::gui::Directory_Name_Validator m_val;
+    sak::gui::Text_Colour_State_Changer m_sc;
   };
 
   class Project_Location_Entry :
-          public qtlib::Validating_Line_Edit
+          public sak::gui::Validating_Line_Edit
   {
   public:
     explicit Project_Location_Entry(QWidget* a_parent = nullptr):
@@ -71,8 +72,8 @@ namespace
     }
     ~Project_Location_Entry() override = default;
   private:
-    qtlib::Existing_Directory_Validator m_val;
-    qtlib::Text_Colour_State_Changer m_sc;
+    sak::gui::Existing_Directory_Validator m_val;
+    sak::gui::Text_Colour_State_Changer m_sc;
   };
 
 

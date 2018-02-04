@@ -1,8 +1,11 @@
-#ifndef GENERIC_STRING_CONVERSION_H
-#define GENERIC_STRING_CONVERSION_H
+﻿#ifndef SAK_GENERIC_STRING_CONVERSION_HPP
+#define SAK_GENERIC_STRING_CONVERSION_HPP
 
 #include "string_conversion_formats.hpp"
 #include <string>
+
+namespace sak
+{
 
 namespace generic
 {
@@ -124,5 +127,6 @@ namespace generic
     bool operator()(std::string const& a_string) const;
   };
 } // namespace generic
+} // namespace sak
 
-#endif // GENERIC_STRING_CONVERSION_H
+#endif // SAK_GENERIC_STRING_CONVERSION_HPP

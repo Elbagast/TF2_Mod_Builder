@@ -2,7 +2,7 @@
 
 #include "abstract_member_edit_widget.hpp"
 
-#include <qtlib/line_edit.hpp>
+#include <gui/line_edit.hpp>
 
 #include <cassert>
 
@@ -18,19 +18,19 @@ namespace sak
   //---------------------------------------------------------------------------
   // Default_Line_Edit
   //---------------------------------------------------------------------------
-  // Widget operations for qtlib::Line_Edit. That entire class could be hidden
+  // Widget operations for sak::gui::Line_Edit. That entire class could be hidden
   // in here...
 
   class Default_Line_Edit
   {
   public:
-    static std::unique_ptr<qtlib::Line_Edit> make_empty_true_widget(QValidator* a_validator, int a_max_length, QString const& a_tooltip);
+    static std::unique_ptr<sak::gui::Line_Edit> make_empty_true_widget(QValidator* a_validator, int a_max_length, QString const& a_tooltip);
 
-    //static std::unique_ptr<qtlib::Line_Edit> make_true_widget(QValidator* a_validator, int a_max_length, QString const& a_tooltip, QString const& a_value);
+    //static std::unique_ptr<sak::gui::Line_Edit> make_true_widget(QValidator* a_validator, int a_max_length, QString const& a_tooltip, QString const& a_value);
 
-    static void set_true_widget_value(qtlib::Line_Edit* a_widget, QString const& a_value);
+    static void set_true_widget_value(sak::gui::Line_Edit* a_widget, QString const& a_value);
 
-    static QString get_true_widget_value(qtlib::Line_Edit* a_widget);
+    static QString get_true_widget_value(sak::gui::Line_Edit* a_widget);
 
     static std::unique_ptr<QWidget> make_widget(QValidator* a_validator, int a_max_length, QString const& a_tooltip);
 
@@ -48,10 +48,10 @@ namespace sak
 // Default_Line_Edit
 //---------------------------------------------------------------------------
 
-std::unique_ptr<qtlib::Line_Edit> sak::Default_Line_Edit::make_empty_true_widget(QValidator* a_validator, int a_max_length, QString const& a_tooltip)
+std::unique_ptr<sak::gui::Line_Edit> sak::Default_Line_Edit::make_empty_true_widget(QValidator* a_validator, int a_max_length, QString const& a_tooltip)
 {
   // Build a true-type widget so we can manipulate it.
-  auto l_widget = std::make_unique<qtlib::Line_Edit>(nullptr);
+  auto l_widget = std::make_unique<sak::gui::Line_Edit>(nullptr);
 
   // Setup using supplied arguments.
   l_widget->setValidator(a_validator);
@@ -62,13 +62,13 @@ std::unique_ptr<qtlib::Line_Edit> sak::Default_Line_Edit::make_empty_true_widget
   return std::move(l_widget);
 }
 
-void sak::Default_Line_Edit::set_true_widget_value(qtlib::Line_Edit* a_widget, QString const& a_value)
+void sak::Default_Line_Edit::set_true_widget_value(sak::gui::Line_Edit* a_widget, QString const& a_value)
 {
   a_widget->setText(a_value);
 }
 
 
-QString sak::Default_Line_Edit::get_true_widget_value(qtlib::Line_Edit* a_widget)
+QString sak::Default_Line_Edit::get_true_widget_value(sak::gui::Line_Edit* a_widget)
 {
   return a_widget->text();
 }
@@ -84,27 +84,27 @@ std::unique_ptr<QWidget> sak::Default_Line_Edit::make_widget(QValidator* a_valid
 
 void sak::Default_Line_Edit::set_widget_value(QWidget* a_widget, QString const& a_value)
 {
-  auto l_true_widget = static_cast<qtlib::Line_Edit*>(a_widget);
+  auto l_true_widget = static_cast<sak::gui::Line_Edit*>(a_widget);
   set_true_widget_value(l_true_widget, a_value);
 }
 
 QString sak::Default_Line_Edit::get_widget_value(QWidget* a_widget)
 {
-  auto l_true_widget = static_cast<qtlib::Line_Edit*>(a_widget);
+  auto l_true_widget = static_cast<sak::gui::Line_Edit*>(a_widget);
   return get_true_widget_value(l_true_widget);
 }
 
 void sak::Default_Line_Edit::connect_to(QWidget* a_widget, Abstract_Member_Edit_Widget* a_editor)
 {
-  auto l_true_widget = static_cast<qtlib::Line_Edit*>(a_widget);
+  auto l_true_widget = static_cast<sak::gui::Line_Edit*>(a_widget);
 
   QObject::connect(l_true_widget,
-                   &qtlib::Line_Edit::editingFinished,
+                   &sak::gui::Line_Edit::editingFinished,
                    a_editor,
                    &Abstract_Member_Edit_Widget::editing_finished);
 
   QObject::connect(l_true_widget,
-                   &qtlib::Line_Edit::editingFailed,
+                   &sak::gui::Line_Edit::editingFailed,
                    a_editor,
                    &Abstract_Member_Edit_Widget::editing_failed);
 }
@@ -223,10 +223,10 @@ namespace sak
     }
   };
 
-  std::unique_ptr<qtlib::Line_Edit> text_name_make_true_empty_widget()
+  std::unique_ptr<sak::gui::Line_Edit> text_name_make_true_empty_widget()
   {
     // Build a true-type widget so we can manipulate it.
-    auto l_widget = std::make_unique<qtlib::Line_Edit>(nullptr);
+    auto l_widget = std::make_unique<sak::gui::Line_Edit>(nullptr);
 
     // Setup
     l_widget->setMaxLength(256);
@@ -238,7 +238,7 @@ namespace sak
     return std::move(l_widget);
   }
 
-  void text_name_set_true_widget_value(qtlib::Line_Edit* a_widget, Text_Name::Value_Type const& a_value)
+  void text_name_set_true_widget_value(sak::gui::Line_Edit* a_widget, Text_Name::Value_Type const& a_value)
   {
     // This widget better have a validator, and it better be the right one...
     assert(a_widget->validator() == Text_Name_Validator::singleton());

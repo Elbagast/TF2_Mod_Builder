@@ -1,6 +1,6 @@
 ﻿#include "xml_traits.hpp"
 
-//#include <qtlib/string_conversion.hpp>
+//#include <gui/string_conversion.hpp>
 #include "typestring_qstring.hpp"
 #include "section_data_manager.hpp"
 #include "section_data.hpp"
@@ -288,7 +288,7 @@ namespace sak
           // read the data as a string
           //auto l_data_qstring = a_stream.readElementText();
           // convert the data
-          //auto l_data = qtlib::From_QString<Member_Value_Type>()(l_data_qstring);
+          //auto l_data = sak::gui::From_QString<Member_Value_Type>()(l_data_qstring);
           // write it
           a_data.member_at<Index>() = l_data;
 

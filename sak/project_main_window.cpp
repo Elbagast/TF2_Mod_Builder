@@ -7,8 +7,8 @@
 //#include "command_history.hpp"
 #include "project_main_widget.hpp"
 
-#include <sak/dialog/new_project_dialog.hpp>
-#include <sak/fixed_settings.hpp>
+#include "dialog/new_project_dialog.hpp"
+#include "fixed_settings.hpp"
 #include "exception.hpp"
 #include "abstract_project_signalbox.hpp"
 

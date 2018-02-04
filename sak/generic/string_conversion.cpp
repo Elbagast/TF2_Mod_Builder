@@ -1,4 +1,4 @@
-#include "string_conversion.hpp"
+﻿#include "string_conversion.hpp"
 #include <array>
 #include <iostream>
 #include <iomanip>
@@ -14,7 +14,7 @@ namespace
 }
 
 
-std::string generic::To_Std_String<bool>::operator()(bool a_value, generic::Bool_Text_Format a_format) const
+std::string sak::generic::To_Std_String<bool>::operator()(bool a_value, sak::generic::Bool_Text_Format a_format) const
 {
     switch(a_format)
     {
@@ -94,15 +94,15 @@ namespace
 
 
     template <typename T_Int>
-    std::string to_string_int_implementation(T_Int a_value, generic::Int_Text_Format a_format)
+    std::string to_string_int_implementation(T_Int a_value, sak::generic::Int_Text_Format a_format)
     {
         switch(a_format)
         {
-        case generic::Int_Text_Format::Signed_If_Negative:
+        case sak::generic::Int_Text_Format::Signed_If_Negative:
             return to_string_int_signed_if_negative(a_value);
-        case generic::Int_Text_Format::Signed:
+        case sak::generic::Int_Text_Format::Signed:
             return to_string_int_signed(a_value);
-        case generic::Int_Text_Format::Hexadecimal:
+        case sak::generic::Int_Text_Format::Hexadecimal:
             //return to_string_int_hex(static_cast<typename Get_Unsigned_Type<T_Int>::type>(a_value));
             return to_string_int_hex(a_value);
         default:
@@ -111,15 +111,15 @@ namespace
     }
 
     template <typename T_Unt>
-    std::string to_string_uint_implementation(T_Unt a_value, generic::Int_Text_Format a_format)
+    std::string to_string_uint_implementation(T_Unt a_value, sak::generic::Int_Text_Format a_format)
     {
         switch(a_format)
         {
-            case generic::Int_Text_Format::Signed_If_Negative:
+            case sak::generic::Int_Text_Format::Signed_If_Negative:
                 return to_string_int_default(a_value);
-            case generic::Int_Text_Format::Signed:
+            case sak::generic::Int_Text_Format::Signed:
                 return '+' + to_string_int_default(a_value);
-            case generic::Int_Text_Format::Hexadecimal:
+            case sak::generic::Int_Text_Format::Hexadecimal:
                 return to_string_int_hex(a_value);
         default:
             return std::string();
@@ -127,42 +127,42 @@ namespace
     }
 }
 
-std::string generic::To_Std_String<std::int8_t>::operator()(std::int8_t a_value, generic::Int_Text_Format a_format) const
+std::string sak::generic::To_Std_String<std::int8_t>::operator()(std::int8_t a_value, sak::generic::Int_Text_Format a_format) const
 {
     return to_string_int_implementation(a_value, a_format);
 }
 
-std::string generic::To_Std_String<std::int16_t>::operator()(std::int16_t a_value, generic::Int_Text_Format a_format) const
+std::string sak::generic::To_Std_String<std::int16_t>::operator()(std::int16_t a_value, sak::generic::Int_Text_Format a_format) const
 {
     return to_string_int_implementation(a_value, a_format);
 }
 
-std::string generic::To_Std_String<std::int32_t>::operator()(std::int32_t a_value, generic::Int_Text_Format a_format) const
+std::string sak::generic::To_Std_String<std::int32_t>::operator()(std::int32_t a_value, sak::generic::Int_Text_Format a_format) const
 {
     return to_string_int_implementation(a_value, a_format);
 }
 
-std::string generic::To_Std_String<std::int64_t>::operator()(std::int64_t a_value, generic::Int_Text_Format a_format) const
+std::string sak::generic::To_Std_String<std::int64_t>::operator()(std::int64_t a_value, sak::generic::Int_Text_Format a_format) const
 {
     return to_string_int_implementation(a_value, a_format);
 }
 
-std::string generic::To_Std_String<std::uint8_t>::operator()(std::uint8_t a_value, generic::Int_Text_Format a_format) const
+std::string sak::generic::To_Std_String<std::uint8_t>::operator()(std::uint8_t a_value, sak::generic::Int_Text_Format a_format) const
 {
     return to_string_uint_implementation(a_value, a_format);
 }
 
-std::string generic::To_Std_String<std::uint16_t>::operator()(std::uint16_t a_value, generic::Int_Text_Format a_format) const
+std::string sak::generic::To_Std_String<std::uint16_t>::operator()(std::uint16_t a_value, sak::generic::Int_Text_Format a_format) const
 {
     return to_string_uint_implementation(a_value, a_format);
 }
 
-std::string generic::To_Std_String<std::uint32_t>::operator()(std::uint32_t a_value, generic::Int_Text_Format a_format) const
+std::string sak::generic::To_Std_String<std::uint32_t>::operator()(std::uint32_t a_value, sak::generic::Int_Text_Format a_format) const
 {
     return to_string_uint_implementation(a_value, a_format);
 }
 
-std::string generic::To_Std_String<std::uint64_t>::operator()(std::uint64_t a_value, generic::Int_Text_Format a_format) const
+std::string sak::generic::To_Std_String<std::uint64_t>::operator()(std::uint64_t a_value, sak::generic::Int_Text_Format a_format) const
 {
     return to_string_uint_implementation(a_value, a_format);
 }
@@ -224,15 +224,15 @@ namespace
     }
 
     template <typename T_Float>
-    std::string to_string_float_implementation(T_Float a_value, generic::Float_Text_Format a_format)
+    std::string to_string_float_implementation(T_Float a_value, sak::generic::Float_Text_Format a_format)
     {
         switch(a_format)
         {
-        case generic::Float_Text_Format::Simplest:
+        case sak::generic::Float_Text_Format::Simplest:
             return to_string_float_calculator(a_value);
-        case generic::Float_Text_Format::Scientific:
+        case sak::generic::Float_Text_Format::Scientific:
             return to_string_float_scientific(a_value);
-        case generic::Float_Text_Format::Hexadecimal:
+        case sak::generic::Float_Text_Format::Hexadecimal:
             return to_string_float_hex(a_value);
         default:
             return std::string();
@@ -240,44 +240,44 @@ namespace
     }
 }
 
-std::string generic::To_Std_String<float>::operator()(float a_value, generic::Float_Text_Format a_format) const
+std::string sak::generic::To_Std_String<float>::operator()(float a_value, sak::generic::Float_Text_Format a_format) const
 {
     return to_string_float_implementation<float>(a_value, a_format);
 }
 
-std::string generic::To_Std_String<double>::operator()(double a_value, generic::Float_Text_Format a_format) const
+std::string sak::generic::To_Std_String<double>::operator()(double a_value, sak::generic::Float_Text_Format a_format) const
 {
     return to_string_float_implementation<double>(a_value, a_format);
 }
 
-std::string generic::To_Std_String<long double>::operator()(long double a_value, generic::Float_Text_Format a_format) const
+std::string sak::generic::To_Std_String<long double>::operator()(long double a_value, sak::generic::Float_Text_Format a_format) const
 {
     return to_string_float_implementation<long double>(a_value, a_format);
 }
 
-std::string generic::To_Std_String<std::string>::operator()(std::string const& a_value) const
+std::string sak::generic::To_Std_String<std::string>::operator()(std::string const& a_value) const
 {
     return a_value;
 }
 
-std::string generic::To_Std_String<std::u16string>::operator()(std::u16string const&) const
+std::string sak::generic::To_Std_String<std::u16string>::operator()(std::u16string const&) const
 {
     return "!!!std::u16string to std::string not implemented.";
 }
 
-std::string generic::To_Std_String<std::u32string>::operator()(std::u32string const&) const
+std::string sak::generic::To_Std_String<std::u32string>::operator()(std::u32string const&) const
 {
     return "!!!std::u32string to std::string not implemented.";
 }
 
-std::string generic::To_Std_String<std::wstring>::operator()(std::wstring const&) const
+std::string sak::generic::To_Std_String<std::wstring>::operator()(std::wstring const&) const
 {
     return "!!!std::wstring to std::string not implemented.";
 }
 
 
 
-bool generic::From_Std_String<bool>::operator()(std::string const& a_string) const
+bool sak::generic::From_Std_String<bool>::operator()(std::string const& a_string) const
 {
   if (std::find(c_true_strings.cbegin(), c_true_strings.cend(), a_string) != c_true_strings.cend())
   {
