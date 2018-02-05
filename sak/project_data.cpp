@@ -382,11 +382,9 @@ sak::Project_Chained_Data<T,Args...>::Project_Chained_Data(QString const& a_file
 template <typename T, typename...Args>
 sak::Project_Chained_Data<T,Args...>::~Project_Chained_Data() = default;
 
-// need to instantiate these to hide the implementation.
-// But since it's entirely hidden behind the interface, could probably expose the imp and just use it.
-
-template class sak::internal::Project_Section_Data_Imp<sak::File_Definition>;
-template class sak::internal::Project_Section_Data_Imp<sak::Texture_Definition>;
+//template class sak::internal::Project_Signalbox_Imp<sak::File_Definition,sak::Texture_Definition>;
+//template class sak::internal::Project_Section_Data_Imp<sak::File_Definition>;
+//template class sak::internal::Project_Section_Data_Imp<sak::Texture_Definition>;
 
 template class sak::Project_Data;
 

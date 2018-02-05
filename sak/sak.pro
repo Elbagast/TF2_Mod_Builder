@@ -87,7 +87,10 @@ SOURCES += \
     project_data.cpp \
     tag.cpp \
     abstract_project_signalbox.cpp \
-    name_utilities.cpp
+    name_utilities.cpp \
+    abstract_project_interface.cpp \
+    command_history.cpp \
+    abstract_command.cpp
 
 HEADERS  += \
     class_definitions.hpp \
@@ -109,7 +112,13 @@ HEADERS  += \
     tag_fwd.hpp \
     abstract_project_signalbox.hpp \
     abstract_project_signalbox_fwd.hpp \
-    name_utilities.hpp
+    name_utilities.hpp \
+    abstract_project_interface.hpp \
+    abstract_project_interface_fwd.hpp \
+    command_history.hpp \
+    command_history_fwd.hpp \
+    abstract_command.hpp \
+    abstract_command_fwd.hpp
 
 FORMS += \
 

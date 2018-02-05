@@ -139,7 +139,6 @@ namespace sak
   {
   public:
     using Type = flamingo::typelist_at_t<typename T::Member_Def_Typelist,Index>;
-
   };
 
   template <std::size_t I, typename T>
@@ -155,7 +154,8 @@ namespace sak
   class Data_Member_Name
   {
   public:
-    using Type = flamingo::data_class_member_name_t<Index,typename T::Data_Class>;
+    using Type = flamingo::typelist_at_t<typename T::Member_Name_Typelist,Index>;
+    //using Type = flamingo::data_class_member_name_t<Index,typename T::Data_Class>;
   };
 
   template <std::size_t I, typename T>
@@ -171,7 +171,8 @@ namespace sak
   class Data_Member_Value
   {
   public:
-    using Type = flamingo::data_class_member_t<Index,typename T::Value_Data_Class>;
+    using Type = flamingo::typelist_at_t<typename T::Member_Value_Typelist,Index>;
+    //using Type = flamingo::data_class_member_t<Index,typename T::Value_Data_Class>;
   };
 
   template <std::size_t I, typename T>

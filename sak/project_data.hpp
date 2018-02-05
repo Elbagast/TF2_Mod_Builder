@@ -31,25 +31,20 @@
 #include <vector>
 #endif
 
-
-//#include "abstract_project_interface.hpp"
-
-class QString;
-
+#ifndef INCLUDE_QT_QSTRING
+#define INCLUDE_QT_QSTRING
 #include <QString>
+#endif
+
+#ifndef INCLUDE_QT_QFILEINFO
+#define INCLUDE_QT_QFILEINFO
 #include <QFileInfo>
-//#include "command_history.hpp"
-#include "handle_factory.hpp"
-
-#include "abstract_project_signalbox.hpp"
-
+#endif
 
 namespace sak
 {
   namespace internal
   {
-    // build Project_Data in a way that results in the full interface in the top class.
-
     //---------------------------------------------------------------------------
     // Project_Base_Data
     //---------------------------------------------------------------------------
@@ -383,9 +378,7 @@ namespace sak
       using Inh2::add;
       using Inh2::remove;
     };
-
-  }
-
+  } // namespace internal
 
   //---------------------------------------------------------------------------
   // Project_Chained_Data<T,Args...>

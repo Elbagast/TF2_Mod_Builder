@@ -55,8 +55,8 @@ void sak::testing::test_project_data()
   Project_Data l_p{l_filepath};
 
   std::cout << "Name =     \"" << l_p.name().toStdString() << "\"" << std::endl;
-  std::cout << "Location = \"" << l_p.name().toStdString() << "\"" << std::endl;
-  std::cout << "Filepath = \"" << l_p.name().toStdString() << "\"" << std::endl;
+  std::cout << "Location = \"" << l_p.location().toStdString() << "\"" << std::endl;
+  std::cout << "Filepath = \"" << l_p.filepath().toStdString() << "\"" << std::endl;
 
   do_project_test<File_Definition>(l_p);
   do_project_test<Texture_Definition>(l_p);
