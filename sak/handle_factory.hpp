@@ -17,17 +17,17 @@
 namespace sak
 {
   //---------------------------------------------------------------------------
-  // Handle_Factory<T>
+  // Handle_Factory<T_Class_Def>
   //---------------------------------------------------------------------------
   // Object that makes Handle<T> by encapsulating the production of id values.
 
-  template <typename T>
+  template <typename T_Class_Def>
   class Handle_Factory
   {
   public:
     // Typedefs
     //============================================================
-    using Element_Type = T;
+    using Element_Type = typename Handle<T_Class_Def>::Element_Type;
     using ID_Type = std::size_t;
 
     // Special 6
@@ -44,16 +44,17 @@ namespace sak
     // Interface
     //============================================================
     // Explicitly make a null handle.
-    static Handle<T> make_null_handle();
+    static Handle<T_Class_Def> make_null_handle();
 
     // Make a new handle with the supplied data. This data will be associated
     // with the returned handle's id value until all handles referencing it
     // are destroyed.
-    Handle<T> make_handle(std::shared_ptr<T>&& a_data);
+    Handle<T_Class_Def> make_handle(std::shared_ptr<Element_Type>&& a_data);
 
   private:
     ID_Type m_next_id;
   };
 }
+
 
 #endif // SAK_HANDLE_FACTORY_HPP

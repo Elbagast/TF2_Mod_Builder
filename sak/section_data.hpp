@@ -5,12 +5,8 @@
 #include "section_data_fwd.hpp"
 #endif
 
-#ifndef SAK_SHARED_ATTRIBUTES_HPP
-#include "shared_attributes.hpp"
-#endif
-
-#ifndef FLAMINGO_DATA_CLASS_HPP
-#include <flamingo/data_class.hpp>
+#ifndef SAK_DATA_DEFINITIONS_HPP
+#include "class_definitions.hpp"
 #endif
 
 #ifndef FLAMINGO_LITYPE_STRING_HPP
@@ -303,7 +299,7 @@ namespace sak
 
   template <typename T>
   using Section_Data_Member_Value_Variant_Type = typename Section_Data_Member_Value_Variant<T>::Type;
-
+/*
   //------------------------------------------------------------------------------------------------------------------------------------------------------
   // Now we define the individual data sections. These could go in their own
   // files depending on how complicated they get.
@@ -358,6 +354,7 @@ namespace sak
     //,flamingo::data_member<QString, FLAMINGO_LITYPE_STRING(u8"Sourcepath")>
     >;
   };
+  */
 }
 
 
@@ -660,7 +657,7 @@ namespace v2
   //------------------------------------------------------------------------------------------------------------------------------------------------------
   // Now we define the individual data sections. These could go in their own
   // files depending on how complicated they get.
-
+/*
   namespace internal
   {
     using Literal_String_S =   FLAMINGO_LITYPE_STRING(u8"s");
@@ -712,7 +709,7 @@ namespace v2
     //flamingo::data_member<QString, FLAMINGO_LITYPE_STRING(u8"Buildpath")>
     //,flamingo::data_member<QString, FLAMINGO_LITYPE_STRING(u8"Sourcepath")>
     >;
-  };
+  };*/
 } // namespace v2
 }
 

@@ -1,9 +1,17 @@
-﻿#ifndef SAK_SHARED_ATTRIBUTES_HPP
-#define SAK_SHARED_ATTRIBUTES_HPP
+﻿#ifndef SAK_DATA_DEFINITIONS_HPP
+#define SAK_DATA_DEFINITIONS_HPP
+
+#ifndef SAK_DATA_DEFINITIONS_FWD_HPP
+#include "data_definitions_fwd.hpp"
+#endif
 
 #ifndef SAK_ABSTRACT_MEMBER_EDIT_WIDGET_FWD_HPP
 #include "abstract_member_edit_widget_fwd.hpp"
 #endif
+
+//#ifndef SAK_ABSTRACT_PROJECT_INTERFACE_FWD_HPP
+//#include "abstract_project_interface_fwd.hpp"
+//#endif
 
 #ifndef FLAMINGO_LITYPE_STRING_HPP
 #include <flamingo/litype/string.hpp>
@@ -20,15 +28,35 @@ class QWidget;
 namespace sak
 {
   //---------------------------------------------------------------------------
-  // Text_Name
+  // Example_Data_Definition
+  //---------------------------------------------------------------------------
+  // This is everything you must provide in a data definition class.
+  class Example_Data_Definition
+  {
+  public:
+    using Typestring_Type = FLAMINGO_LITYPE_STRING(u8"Example_Data");
+    using Value_Type = int;
+
+    //static std::unique_ptr<QWidget> make_widget(Abstract_Project_Interface* a_project); // hmmmmmmmm
+    static std::unique_ptr<QWidget> make_widget();
+    static void set_widget_value(QWidget* a_widget, Value_Type const& a_value);
+    static Value_Type get_widget_value(QWidget* a_widget);
+    static void connect_to(QWidget* a_widget, Abstract_Member_Edit_Widget* a_editor);
+    static QString tooltip();
+
+    // Does not include stream interface because we defer that to whatever
+    // handles each type for that.
+  };
+
+  //---------------------------------------------------------------------------
+  // Text_Name_Definition
   //---------------------------------------------------------------------------
   // A short string of unicode text containing any characters except control
   // characters. Max length is 256 chars. Must contain something.
-
-  class Text_Name
+  class Text_Name_Definition
   {
   public:
-    using Typestring = FLAMINGO_LITYPE_STRING(u8"Text_Name");
+    using Typestring_Type = FLAMINGO_LITYPE_STRING(u8"Text_Name");
     using Value_Type = QString;
 
     static std::unique_ptr<QWidget> make_widget();
@@ -38,17 +66,16 @@ namespace sak
     static QString tooltip();
   };
 
-
   //---------------------------------------------------------------------------
-  // Text_Line
+  // Text_Line_Definition
   //---------------------------------------------------------------------------
   // A short string of unicode text containing any characters except control
   // characters. Max length is 256 chars.
 
-  class Text_Line
+  class Text_Line_Definition
   {
   public:
-    using Typestring = FLAMINGO_LITYPE_STRING(u8"Text_Line");
+    using Typestring_Type = FLAMINGO_LITYPE_STRING(u8"Text_Line");
     using Value_Type = QString;
 
     static std::unique_ptr<QWidget> make_widget();
@@ -57,51 +84,7 @@ namespace sak
     static void connect_to(QWidget* a_widget, Abstract_Member_Edit_Widget* a_editor);
     static QString tooltip();
   };
-
-  //---------------------------------------------------------------------------
-  // Text_Long
-  //---------------------------------------------------------------------------
-  // A string of unicode text containing any characters that would make human
-  // readable text. Max length is 1024 chars.
-
-  class Text_Long
-  {
-  public:
-    using Typestring = FLAMINGO_LITYPE_STRING(u8"Text_Long");
-    using Value_Type = QString;
-
-    static std::unique_ptr<QWidget> make_widget();
-    static void set_widget_value(QWidget* a_widget, Value_Type const& a_value);
-    static Value_Type get_widget_value(QWidget* a_widget);
-    static void connect_to(QWidget* a_widget, Abstract_Member_Edit_Widget* a_editor);
-    static QString tooltip();
-  };
+} // namespace sak
 
 
-
-
-  //---------------------------------------------------------------------------
-  //
-  //---------------------------------------------------------------------------
-  /*
-  template <typename T_Traits>
-  class Handle
-  {
-  public:
-    using Typestring = typename T_Traits::Typestring;
-    using Value_Type = Handle<Section_Data<T_Traits>>;
-
-    // If the editor is going to actively link to something the project manages, then
-    // it needs the Project_Interface. Lets say an editor is a drop down menu of all
-    // the active ones, then the widget must have the interface to update, and the full
-    // signalbox to get updated properly.
-    static std::unique_ptr<QWidget> make_widget(Project_Interface* a_project);
-    static void set_widget_value(QWidget* a_widget, Value_Type const& a_value);
-    static Value_Type get_widget_value(QWidget* a_widget);
-    static void connect_to(QWidget* a_widget, Abstract_Member_Edit_Widget* a_editor);
-    static QString tooltip();
-  };
-  */
-}
-
-#endif // SAK_SHARED_ATTRIBUTES_HPP
+#endif // SAK_DATA_DEFINITIONS_HPP

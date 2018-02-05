@@ -1,11 +1,13 @@
 ﻿#include "handle.hpp"
 
-#include "section_data.hpp"
+#include "data_definitions.hpp"
+#include "class_definitions.hpp"
+#include "data.hpp"
 
 #include <cassert>
 
 //---------------------------------------------------------------------------
-// Handle<T>
+// Handle<T_Class_Def>
 //---------------------------------------------------------------------------
 
 // Construct a null Handle. It does not reference any data and has no
@@ -145,16 +147,22 @@ sak::Handle<T>::operator bool() const noexcept
 template <typename T>
 bool sak::Handle<T>::operator==(Handle const& a_other) const noexcept
 {
-  return m_id == a_other.m_id && m_data == a_other.m_data;
+  // We only compare the ids. This isn't going to detect handles
+  // made by different factories.
+  return m_id == a_other.m_id;
+  //return m_id == a_other.m_id && m_data == a_other.m_data;
 }
 
 template <typename T>
 bool sak::Handle<T>::operator<(Handle const& a_other) const noexcept
 {
-  return m_id < a_other.m_id && m_data < a_other.m_data;
+  // We only compare the ids. This isn't going to detect handles
+  // made by different factories.
+  return m_id < a_other.m_id;
+  //return m_id < a_other.m_id && m_data < a_other.m_data;
 }
 
 // Forced Instantiations
 //============================================================
-template sak::File_Handle;
-template sak::Texture_Handle;
+template sak::Handle<sak::File_Definition>;
+template sak::Handle<sak::Texture_Definition>;

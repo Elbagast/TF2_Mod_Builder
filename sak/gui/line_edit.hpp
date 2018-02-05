@@ -45,5 +45,4 @@ namespace sak
   }
 }
 
-
 #endif // SAK_GUI_LINE_EDIT_HPP

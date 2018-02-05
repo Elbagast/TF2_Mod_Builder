@@ -10,7 +10,7 @@ namespace sak
   template <std::size_t I>
   class Index_Tag {};
 
-  template <typename T>
+  template <typename T_Class_Def>
   class Tag {};
 }
 

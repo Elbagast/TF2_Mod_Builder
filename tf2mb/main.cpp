@@ -1,6 +1,6 @@
 ﻿#include <QApplication>
 #include <iostream>
-#include <sak/project_main_window.hpp>
+//#include <sak/project_main_window.hpp>
 
 void myMessageOutput(QtMsgType type, QMessageLogContext const& context, QString const& msg)
 {
@@ -32,8 +32,8 @@ void myMessageOutput(QtMsgType type, QMessageLogContext const& context, QString 
 int main(int argc, char *argv[])
 {    
     QApplication l_application(argc, argv);
-    sak::Project_Main_Window l_window{};
-    l_window.show();
+    //sak::Project_Main_Window l_window{};
+    //l_window.show();
 
     return l_application.exec();
 

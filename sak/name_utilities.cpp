@@ -1,4 +1,5 @@
 ﻿#include "name_utilities.hpp"
+
 #include <QString>
 #include <algorithm>
 #include <limits>

@@ -5,6 +5,10 @@
 #include "handle_fwd.hpp"
 #endif
 
+#ifndef SAK_DATA_FWD_HPP
+#include "data_fwd.hpp"
+#endif
+
 #ifndef INCLUDE_STD_MEMORY
 #define INCLUDE_STD_MEMORY
 #include <memory>
@@ -13,7 +17,7 @@
 namespace sak
 {
   //---------------------------------------------------------------------------
-  // Handle<T>
+  // Handle<T_Class_Def>
   //---------------------------------------------------------------------------
   // So it turns of the seperated out Handle class does things we don't need.
   // We just want to associate a single object with a single ID value that gets
@@ -24,13 +28,13 @@ namespace sak
 
   // Need to include section_data.hpp to actually use the data...
 
-  template <typename T>
+  template <typename T_Class_Def>
   class Handle
   {
   public:
     // Typedefs
     //============================================================
-    using Element_Type = T;
+    using Element_Type = Data<T_Class_Def>;
     using ID_Type = std::size_t;
 
     // Special 6
@@ -129,7 +133,6 @@ bool sak::operator!=(Handle<T> const& a_lhs, Handle<T> const& a_rhs) noexcept
 {
   return std::rel_ops::operator !=(a_lhs, a_rhs);
 }
-
 
 template <typename T>
 bool sak::operator>(Handle<T> const& a_lhs, Handle<T> const& a_rhs) noexcept

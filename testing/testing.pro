@@ -15,12 +15,22 @@ CONFIG += threads
 #CONFIG += object_parallel_to_source
 
 SOURCES += \
-    main.cpp
+    main.cpp \
+    test_data.cpp \
+    test_class_definitions.cpp \
+    test_handle.cpp \
+    test_handle_factory.cpp \
+    test_project_data.cpp
 
 HEADERS += \
+    test_data.hpp \
+    test_class_definitions.hpp \
+    test_handle.hpp \
+    test_handle_factory.hpp \
+    test_project_data.hpp
 
 
-#include($$PWD/../Library_Name.pri)
+include($$PWD/../library_flamingo.pri)
 
 INCLUDE_DIR = $${PWD}/..
 INCLUDEPATH += $${INCLUDE_DIR}
@@ -38,6 +48,3 @@ LIBS += -lsak
 
 DEPENDPATH += $${LIBRARY_DIR}
 
-
-
-DEPENDPATH += $${LIBRARY_DIR}

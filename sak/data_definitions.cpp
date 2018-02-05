@@ -1,4 +1,4 @@
-﻿#include "shared_attributes.hpp"
+﻿#include "data_definitions.hpp"
 
 #include "abstract_member_edit_widget.hpp"
 
@@ -238,7 +238,7 @@ namespace sak
     return std::move(l_widget);
   }
 
-  void text_name_set_true_widget_value(sak::gui::Line_Edit* a_widget, Text_Name::Value_Type const& a_value)
+  void text_name_set_true_widget_value(sak::gui::Line_Edit* a_widget, Text_Name_Definition::Value_Type const& a_value)
   {
     // This widget better have a validator, and it better be the right one...
     assert(a_widget->validator() == Text_Name_Validator::singleton());
@@ -261,27 +261,27 @@ namespace sak
 // A short string of unicode text containing any characters except control
 // characters. Max length is 256 chars. Must contain something.
 
-std::unique_ptr<QWidget> sak::Text_Name::make_widget()
+std::unique_ptr<QWidget> sak::Text_Name_Definition::make_widget()
 {
   return Default_Line_Edit::make_widget(Text_Name_Validator::singleton(), 256, tooltip());
 }
 
-void sak::Text_Name::set_widget_value(QWidget* a_widget, Value_Type const& a_value)
+void sak::Text_Name_Definition::set_widget_value(QWidget* a_widget, Value_Type const& a_value)
 {
   Default_Line_Edit::set_widget_value(a_widget, a_value);
 }
 
-typename sak::Text_Name::Value_Type sak::Text_Name::get_widget_value(QWidget* a_widget)
+typename sak::Text_Name_Definition::Value_Type sak::Text_Name_Definition::get_widget_value(QWidget* a_widget)
 {
   return Default_Line_Edit::get_widget_value(a_widget);
 }
 
-void sak::Text_Name::connect_to(QWidget* a_widget, Abstract_Member_Edit_Widget* a_editor)
+void sak::Text_Name_Definition::connect_to(QWidget* a_widget, Abstract_Member_Edit_Widget* a_editor)
 {
   Default_Line_Edit::connect_to(a_widget, a_editor);
 }
 
-QString sak::Text_Name::tooltip()
+QString sak::Text_Name_Definition::tooltip()
 {
   return QString::fromUtf8(u8"A short string containing printable characters, including spaces.\n"
                            "- Max length = 256 characters.\n"
@@ -395,7 +395,7 @@ namespace sak
       return std::move(l_widget);
     }
 
-    void text_line_set_true_widget_value(QLineEdit* a_widget, Text_Line::Value_Type const& a_value)
+    void text_line_set_true_widget_value(QLineEdit* a_widget, Text_Line_Definition::Value_Type const& a_value)
     {
       // This widget better have a validator, and it better be the right one...
       assert(a_widget->validator() == Text_Line_Validator::singleton());
@@ -414,32 +414,32 @@ namespace sak
 //------------------------------------------------------------------------------------------------------------------------------------------------------
 
 //---------------------------------------------------------------------------
-// Text_Line
+// Text_Line_Definition
 //---------------------------------------------------------------------------
 // A short string of unicode text containing any characters except control
 // characters. Max length is 256 chars.
 
-std::unique_ptr<QWidget> sak::Text_Line::make_widget()
+std::unique_ptr<QWidget> sak::Text_Line_Definition::make_widget()
 {
   return Default_Line_Edit::make_widget(Text_Line_Validator::singleton(), 256, tooltip());
 }
 
-void sak::Text_Line::set_widget_value(QWidget* a_widget, Value_Type const& a_value)
+void sak::Text_Line_Definition::set_widget_value(QWidget* a_widget, Value_Type const& a_value)
 {
   Default_Line_Edit::set_widget_value(a_widget, a_value);
 }
 
-typename sak::Text_Line::Value_Type sak::Text_Line::get_widget_value(QWidget* a_widget)
+typename sak::Text_Line_Definition::Value_Type sak::Text_Line_Definition::get_widget_value(QWidget* a_widget)
 {
   return Default_Line_Edit::get_widget_value(a_widget);
 }
 
-void sak::Text_Line::connect_to(QWidget* a_widget, Abstract_Member_Edit_Widget* a_editor)
+void sak::Text_Line_Definition::connect_to(QWidget* a_widget, Abstract_Member_Edit_Widget* a_editor)
 {
   Default_Line_Edit::connect_to(a_widget, a_editor);
 }
 
-QString sak::Text_Line::tooltip()
+QString sak::Text_Line_Definition::tooltip()
 {
   return QString::fromUtf8(u8"A short string containing printable characters, including spaces.\n"
                            "- Max length = 256 characters."
@@ -448,173 +448,3 @@ QString sak::Text_Line::tooltip()
 
 //------------------------------------------------------------------------------------------------------------------------------------------------------
 
-//---------------------------------------------------------------------------
-// Text_Long
-//---------------------------------------------------------------------------
-// A string of unicode text containing any characters that would make human
-// readable text. Max length is 1024 chars.
-
-
-namespace sak
-{
-  namespace
-  {
-    /*
-    enum class Category
-    {
-      Invalid,
-      Low_Surrogate,
-      High_Surrogate,
-      Valid
-    };*/
-
-    Category text_long_char_category(QChar a_char)
-    {
-      if (a_char.isPrint() || a_char.isSpace())
-      {
-        return Category::Valid;
-      }
-      else if (a_char.isLowSurrogate())
-      {
-        return Category::Low_Surrogate;
-      }
-      else if (a_char.isHighSurrogate())
-      {
-        return Category::High_Surrogate;
-      }
-      else
-      {
-        return Category::Invalid;
-      }
-    }
-
-
-    //---------------------------------------------------------------------------
-    // Text_Long_Validator
-    //---------------------------------------------------------------------------
-    class Text_Long_Validator :
-        public QValidator
-    {
-    private:
-      // Special 6
-      //============================================================
-      Text_Long_Validator() = default;
-    public:
-      ~Text_Long_Validator() override = default;
-
-      // QValidator overrides
-      //============================================================
-      //void fixup(QString& a_input) const override final;
-
-      QValidator::State validate(QString& a_input, int& /*a_cursor_position*/) const override final
-      {
-        // Format [word]{Nx[directory seperator][word]} where N can be 0
-        // word = combination of a...z,A...Z,_ chars
-        // directory seperator = / or \\
-        // If the last char is a seperator then the result is intermediate.
-
-        // A name cannot be empty
-        if (a_input.isEmpty())
-        {
-          return QValidator::Invalid;
-        }
-        // Initialise a last category marker.
-        Category l_last_category{Category::Valid};
-
-        for (auto l_iter = a_input.cbegin(), l_end = a_input.cend(); l_iter != l_end; ++l_iter)
-        {
-          // Determine the current category
-          auto l_this_category = text_line_char_category(*l_iter);
-
-          // If the char is invalid the whole thing is invalid.
-          if (l_this_category == Category::Invalid)
-          {
-            return QValidator::Invalid;
-          }
-
-          // High surrogate must follow a lower surrogate
-          if (l_last_category == Category::Low_Surrogate && l_this_category != Category::High_Surrogate)
-          {
-            return QValidator::Invalid;
-          }
-
-          // Since an invalid char will have already been detected, and Valid can be followed by
-          // Valid or High_Surrogate, no more processing is needed.
-
-          // Updated the last category and continue.
-          l_last_category = l_this_category;
-        }
-
-        // if the last character was a Low_Surrogate then we are intermediate
-        if (l_last_category == Category::Low_Surrogate)
-        {
-          return QValidator::Intermediate;
-        }
-        // otherwise everything validated
-        else
-        {
-          return QValidator::Acceptable;
-        }
-
-      }
-
-      static Text_Long_Validator* singleton()
-      {
-        // Since the validator has no individual state we use a static one.
-        static Text_Long_Validator s_validator{};
-
-        return std::addressof(s_validator);
-      }
-    };
-
-    std::unique_ptr<QTextEdit> text_long_make_true_empty_widget()
-    {
-      // Build a true-type widget so we can manipulate it.
-      auto l_widget = std::make_unique<QTextEdit>(nullptr);
-
-      // Setup
-      //l_widget->setMaxLength(2048);
-      l_widget->setAcceptRichText(false);
-
-      // Install it.
-      //l_widget->setValidator(Text_Long_Validator::singleton());
-
-      // Return the setup widget.
-      return std::move(l_widget);
-    }
-
-    void text_long_set_true_widget_value(QTextEdit* a_widget, Text_Long::Value_Type const& a_value)
-    {
-      // Set the value.
-      a_widget->setPlainText(a_value);
-
-      // Value should set properly.
-      assert(a_widget->toPlainText() == a_value);
-    }
-  }
-}
-
-
-
-std::unique_ptr<QWidget> sak::Text_Long::make_widget()
-{
-  // Make an empty widget and repackage it.
-  return std::unique_ptr<QWidget>(text_long_make_true_empty_widget().release());
-}
-
-void sak::Text_Long::set_widget_value(QWidget* a_widget, Value_Type const& a_value)
-{
-  // Cast and set the value.
-  text_long_set_true_widget_value(static_cast<QTextEdit*>(a_widget), a_value);
-}
-
-typename sak::Text_Long::Value_Type sak::Text_Long::get_widget_value(QWidget* a_widget)
-{
-  // Cast and access the value.
-  return static_cast<QTextEdit*>(a_widget)->toPlainText();
-}
-
-void sak::Text_Long::connect_to(QWidget* a_widget, Abstract_Member_Edit_Widget* a_editor)
-{
-  QObject::connect(static_cast<QTextEdit*>(a_widget), &QTextEdit::textChanged, a_editor, &Abstract_Member_Edit_Widget::editing_finished);
-}

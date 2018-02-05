@@ -1,4 +1,6 @@
 ﻿#include "tag.hpp"
 
-template class sak::File_Tag;
-template class sak::Texture_Tag;
+//#include "class_definitions.hpp"
+
+template class sak::Tag<sak::File_Definition>;
+template class sak::Tag<sak::Texture_Definition>;

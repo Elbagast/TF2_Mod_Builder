@@ -1,7 +1,11 @@
-﻿#ifndef NAME_UTILITIES_HPP
-#define NAME_UTILITIES_HPP
+﻿#ifndef SAK_NAME_UTILITIES_HPP
+#define SAK_NAME_UTILITIES_HPP
 
+#ifndef INCLUDE_STD_VECTOR
+#define INCLUDE_STD_VECTOR
 #include <vector>
+#endif
+
 class QString;
 
 namespace sak
@@ -11,4 +15,4 @@ namespace sak
   void uniqueify_name(QString& a_name, std::vector<QString> const& a_names);
 }
 
-#endif // NAME_UTILITIES_HPP
+#endif // SAK_NAME_UTILITIES_HPP

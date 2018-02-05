@@ -730,21 +730,21 @@ bool sak::v2::Project_Interface_Impl<B,T>::has_name(B const* a_base, QString con
 
 // Get the objects at this index
 template <typename B,typename T>
-sak::Handle<T> sak::v2::Project_Interface_Impl<B,T>::get_handle_at(B const* a_base, std::size_t a_index)
+sak::v2::Handle<T> sak::v2::Project_Interface_Impl<B,T>::get_handle_at(B const* a_base, std::size_t a_index)
 {
   return a_base->cdata().get_handle_at(Tag<T>(), a_index);
 }
 
 // Get the objects at this index
 template <typename B,typename T>
-sak::Handle<T> sak::v2::Project_Interface_Impl<B,T>::get_handle_named(B const* a_base, QString const& a_name)
+sak::v2::Handle<T> sak::v2::Project_Interface_Impl<B,T>::get_handle_named(B const* a_base, QString const& a_name)
 {
   return a_base->cdata().get_handle_named(Tag<T>(), a_name);
 }
 
 // Get all the objects
 template <typename B,typename T>
-std::vector<sak::Handle<T>> sak::v2::Project_Interface_Impl<B,T>::get_all_handles(B const* a_base)
+std::vector<sak::v2::Handle<T>> sak::v2::Project_Interface_Impl<B,T>::get_all_handles(B const* a_base)
 {
   return a_base->cdata().get_all_handles(Tag<T>());
 }
@@ -759,7 +759,7 @@ std::vector<QString> sak::v2::Project_Interface_Impl<B,T>::get_all_names(B const
 // Make a new object using the default parameters. Project's data management system owns it
 // but it is not part of the Project. Does not trigger any commands.
 template <typename B,typename T>
-sak::Handle<T> sak::v2::Project_Interface_Impl<B,T>::make_default(B const* a_base)
+sak::v2::Handle<T> sak::v2::Project_Interface_Impl<B,T>::make_default(B const* a_base)
 {
   return a_base->cdata().make_default(Tag<T>());
 }
@@ -767,7 +767,7 @@ sak::Handle<T> sak::v2::Project_Interface_Impl<B,T>::make_default(B const* a_bas
 // Make a new object using the supplied data. Project's data management system owns it but
 // it is not part of the Project. Does not trigger any commands.
 template <typename B,typename T>
-sak::Handle<T> sak::v2::Project_Interface_Impl<B,T>::make_emplace(B const* a_base, T&& a_data)
+sak::v2::Handle<T> sak::v2::Project_Interface_Impl<B,T>::make_emplace(B const* a_base, T&& a_data)
 {
   return a_base->cdata().make_emplace(std::move(a_data));
 }
