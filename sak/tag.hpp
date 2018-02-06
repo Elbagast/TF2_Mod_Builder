@@ -12,6 +12,7 @@ namespace sak
 
   template <typename T_Class_Def>
   class Tag {};
+
 }
 
 #endif // SAK_TAG_HPP

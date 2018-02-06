@@ -17,6 +17,8 @@ namespace
   {
     using namespace sak;
 
+    //constexpr Tag<T> TAG {};
+
     std::cout << "Section<T>:" << std::endl;
     std::cout << "-------------------------" << std::endl;
     std::cout << "Typestring = \"" << T::Typestring_Type::data() << "\"" << std::endl;
@@ -30,12 +32,94 @@ namespace
     assert(!l_h);
 
     // no handles so this should be empty
-    auto l_hs = a_project.get_all_handles(Tag<T>());
+    auto l_hs = a_project.get_handles(Tag<T>());
     assert(l_hs.size() == 0);
 
     // no handles so this should be empty
-    auto l_ns = a_project.get_all_names(Tag<T>());
+    auto l_ns = a_project.get_names(Tag<T>());
     assert(l_ns.size() == 0);
+
+    assert(a_project.empty(Tag<T>()));
+    assert(a_project.count(Tag<T>()) == 0);
+
+
+    // make a default handle
+    auto lh1 = a_project.make_default(Tag<T>());
+    assert(lh1);
+    std::cout << "make_default()" << std::endl;
+    std::cout << "id = " << lh1.id() << std::endl;
+    std::cout << "name = " << lh1->cname().toStdString() << std::endl;
+
+    // add it to the project
+    bool l_res1 = a_project.add(lh1);
+    assert(l_res1);
+    assert(!a_project.empty(Tag<T>()));
+    assert(a_project.count(Tag<T>()) == 1);
+    assert(a_project.has_handle(lh1));
+    assert(a_project.has_handle_named(Tag<T>(),lh1->cname()));
+
+    // Try adding it again, should fail
+    bool l_res1a = a_project.add(lh1);
+    assert(!l_res1a);
+    assert(!a_project.empty(Tag<T>()));
+    assert(a_project.count(Tag<T>()) == 1);
+    assert(a_project.has_handle(lh1));
+
+    // make another default handle
+    auto lh2 = a_project.make_default(Tag<T>());
+    assert(lh1);
+    std::cout << "make_default()" << std::endl;
+    std::cout << "id = " << lh2.id() << std::endl;
+    std::cout << "name = " << lh2->cname().toStdString() << std::endl;
+
+    // add it to the project
+    bool l_res2 = a_project.add(lh2);
+    assert(l_res2);
+    assert(!a_project.empty(Tag<T>()));
+    assert(a_project.count(Tag<T>()) == 2);
+    assert(a_project.has_handle(lh2));
+    assert(a_project.has_handle_named(Tag<T>(),lh2->cname()));
+
+
+    // Make a name
+    QString l_name{"dataname"};
+    // Make some data
+    Data<T> l_d1{l_name};
+
+    // make emplace handle
+    auto lh3 = a_project.make_emplace(std::move(l_d1));
+    assert(lh3);
+    std::cout << "make_emplace()" << std::endl;
+    std::cout << "id = " << lh3.id() << std::endl;
+    std::cout << "name = " << lh3->cname().toStdString() << std::endl;
+
+    // add it to the project
+    bool l_res3 = a_project.add(lh3);
+    assert(l_res3);
+    assert(!a_project.empty(Tag<T>()));
+    assert(a_project.count(Tag<T>()) == 3);
+    assert(a_project.has_handle(lh3));
+    assert(a_project.has_handle_named(Tag<T>(),lh3->cname()));
+
+    // Make some more data with the same name
+    Data<T> l_d2{l_name};
+
+    // make emplace handle
+    auto lh4 = a_project.make_emplace(std::move(l_d2));
+    assert(lh4);
+    std::cout << "make_emplace()" << std::endl;
+    std::cout << "id = " << lh4.id() << std::endl;
+    std::cout << "name = " << lh4->cname().toStdString() << std::endl;
+
+    // add it to the project
+    bool l_res4 = a_project.add(lh4);
+    assert(l_res4);
+    assert(!a_project.empty(Tag<T>()));
+    assert(a_project.count(Tag<T>()) == 4);
+    assert(a_project.has_handle(lh4));
+    assert(a_project.has_handle_named(Tag<T>(),lh4->cname()));
+
+
 
     std::cout << "-------------------------" << std::endl;
   }
@@ -57,6 +141,22 @@ void sak::testing::test_project_data()
   std::cout << "Name =     \"" << l_p.name().toStdString() << "\"" << std::endl;
   std::cout << "Location = \"" << l_p.location().toStdString() << "\"" << std::endl;
   std::cout << "Filepath = \"" << l_p.filepath().toStdString() << "\"" << std::endl;
+
+  //constexpr File_Tag const file_tag{};
+  //constexpr Texture_Tag const texture_tag{};
+
+  // Test the id access is being shared properly
+  auto l_fh1 = l_p.make_default(File_Tag());
+  assert(l_fh1.id() == 1);
+
+  auto l_fh2 = l_p.make_default(File_Tag());
+  assert(l_fh2.id() == 2);
+
+  auto l_th1 = l_p.make_default(Texture_Tag());
+  assert(l_th1.id() == 3);
+
+  auto l_th2 = l_p.make_default(Texture_Tag());
+  assert(l_th2.id() == 4);
 
   do_project_test<File_Definition>(l_p);
   do_project_test<Texture_Definition>(l_p);

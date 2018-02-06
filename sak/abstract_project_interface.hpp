@@ -131,7 +131,7 @@ namespace sak
     // Does this handle appear in the data?
     virtual bool has_handle(Handle<T> const&) const = 0;
     // Does this name appear in the data?
-    virtual bool has_name(Tag<T>&&, QString const&) const = 0;
+    virtual bool has_handle_named(Tag<T>&&, QString const&) const = 0;
     // Alter the supplied name so that it is unique among the existing data names
     //virtual bool fix_name(Tag<T>&&, QString&) const = 0;
 
@@ -142,9 +142,9 @@ namespace sak
     virtual Handle<T> get_handle_named(Tag<T>&&, QString const&) const = 0;
 
     // Get all the handles in data order
-    virtual std::vector<Handle<T>> get_all_handles(Tag<T>&&) const = 0;
+    virtual std::vector<Handle<T>> get_handles(Tag<T>&&) const = 0;
     // Get all the handles names in data order
-    virtual std::vector<QString> get_all_names(Tag<T>&&) const = 0;
+    virtual std::vector<QString> get_names(Tag<T>&&) const = 0;
     // Make a new object using the default parameters. Project's data management system owns it
     // but it is not part of the Project. Does not trigger any commands.
     virtual Handle<T> make_default(Tag<T>&&) const = 0;
@@ -205,12 +205,12 @@ namespace sak
     using Inh::not_empty;
     using Inh::count;
     using Inh::has_handle;
-    using Inh::has_name;
+    using Inh::has_handle_named;
     //using Inh::fix_name;
     using Inh::get_handle_at;
     using Inh::get_handle_named;
-    using Inh::get_all_handles;
-    using Inh::get_all_names;
+    using Inh::get_handles;
+    using Inh::get_names;
     using Inh::make_default;
     using Inh::make_emplace;
     using Inh::add_default;
@@ -243,12 +243,12 @@ namespace sak
     using Inh1::not_empty;
     using Inh1::count;
     using Inh1::has_handle;
-    using Inh1::has_name;
+    using Inh1::has_handle_named;
     //using Inh1::fix_name;
     using Inh1::get_handle_at;
     using Inh1::get_handle_named;
-    using Inh1::get_all_handles;
-    using Inh1::get_all_names;
+    using Inh1::get_handles;
+    using Inh1::get_names;
     using Inh1::make_default;
     using Inh1::make_emplace;
     using Inh1::add_default;
@@ -264,12 +264,12 @@ namespace sak
     using Inh2::not_empty;
     using Inh2::count;
     using Inh2::has_handle;
-    using Inh2::has_name;
+    using Inh2::has_handle_named;
     //using Inh2::fix_name;
     using Inh2::get_handle_at;
     using Inh2::get_handle_named;
-    using Inh2::get_all_handles;
-    using Inh2::get_all_names;
+    using Inh2::get_handles;
+    using Inh2::get_names;
     using Inh2::make_default;
     using Inh2::make_emplace;
     using Inh2::add_default;
@@ -441,12 +441,12 @@ namespace sak
     using Abstract_Chained_Interface<T,Args...>::not_empty;
     using Abstract_Chained_Interface<T,Args...>::count;
     using Abstract_Chained_Interface<T,Args...>::has_handle;
-    using Abstract_Chained_Interface<T,Args...>::has_name;
+    using Abstract_Chained_Interface<T,Args...>::has_handle_named;
     //using Abstract_Chained_Interface<T,Args...>::fix_name;
     using Abstract_Chained_Interface<T,Args...>::get_handle_at;
     using Abstract_Chained_Interface<T,Args...>::get_handle_named;
-    using Abstract_Chained_Interface<T,Args...>::get_all_handles;
-    using Abstract_Chained_Interface<T,Args...>::get_all_names;
+    using Abstract_Chained_Interface<T,Args...>::get_handles;
+    using Abstract_Chained_Interface<T,Args...>::get_names;
     using Abstract_Chained_Interface<T,Args...>::make_default;
     using Abstract_Chained_Interface<T,Args...>::make_emplace;
     using Abstract_Chained_Interface<T,Args...>::add_default;

@@ -99,7 +99,7 @@ namespace sak
       public Abstract_Project_Chained_Interface<T,Args...>
   {
   public:
-    using Constructor_Arg = Project_Chained_Data<T,Args...>&&;
+    using Constructor_Arg = Project_Data_Imp<T,Args...>&&;
 
     explicit Project_Interface_Data(Constructor_Arg a_data);
     ~Project_Interface_Data() override;
@@ -131,12 +131,12 @@ namespace sak
     void clear_signalboxes() override final;
 
   //protected:
-    void set_data(Project_Chained_Data<T,Args...>&& a_data);
+    void set_data(Project_Data_Imp<T,Args...>&& a_data);
     void add_execute(std::unique_ptr<Abstract_Command>&& a_command);
-    Project_Chained_Data<T,Args...>& data();
-    Project_Chained_Data<T,Args...> const& cdata() const;
+    Project_Data_Imp<T,Args...>& data();
+    Project_Data_Imp<T,Args...> const& cdata() const;
   private:
-    Project_Chained_Data<T,Args...> m_data;
+    Project_Data_Imp<T,Args...> m_data;
     Command_History m_history;
   };
 
@@ -161,7 +161,7 @@ namespace sak
     // Does this handle appear in the data?
     static bool has_handle(T_Base const*, Handle<T> const&);
     // Does this name appear in the data?
-    static bool has_name(T_Base const*, QString const&);
+    static bool has_handle_named(T_Base const*, QString const&);
     // Alter the supplied name so that it is unique among the existing data names
     //static bool fix_name(T_Base const*, QString&);
 
@@ -172,9 +172,9 @@ namespace sak
     static Handle<T> get_handle_named(T_Base const*, QString const&);
 
     // Get all the objects
-    static std::vector<Handle<T>> get_all_handles(T_Base const*);
+    static std::vector<Handle<T>> get_handles(T_Base const*);
     // Get all the object names
-    static std::vector<QString> get_all_names(T_Base const*);
+    static std::vector<QString> get_names(T_Base const*);
     // Make a new object using the default parameters. Project's data management system owns it
     // but it is not part of the Project. Does not trigger any commands.
     static Handle<T> make_default(T_Base const*);
@@ -262,9 +262,9 @@ namespace sak
     }
 
     // Does this name appear in the data?
-    bool has_name(Tag<T>&&, QString const& a_name) const override final
+    bool has_handle_named(Tag<T>&&, QString const& a_name) const override final
     {
-      return Project_Interface_Impl<T_Base,T>::has_name(this, a_name);
+      return Project_Interface_Impl<T_Base,T>::has_handle_named(this, a_name);
     }
 
     // Alter the supplied name so that it is unique among the existing data names
@@ -286,15 +286,15 @@ namespace sak
     }
 
     // Get all the objects
-    std::vector<Handle<T>> get_all_handles(Tag<T>&&) const override final
+    std::vector<Handle<T>> get_handles(Tag<T>&&) const override final
     {
-      return Project_Interface_Impl<T_Base,T>::get_all_handles(this);
+      return Project_Interface_Impl<T_Base,T>::get_handles(this);
     }
 
     // Get all the object names
-    std::vector<QString> get_all_names(Tag<T>&&) const override final
+    std::vector<QString> get_names(Tag<T>&&) const override final
     {
-      return Project_Interface_Impl<T_Base,T>::get_all_names(this);
+      return Project_Interface_Impl<T_Base,T>::get_names(this);
     }
 
     // Make a new object using the default parameters. Project's data management system owns it
@@ -396,9 +396,9 @@ namespace sak
     }
 
     // Does this name appear in the data?
-    bool has_name(Tag<T>&&, QString const& a_name) const override final
+    bool has_handle_named(Tag<T>&&, QString const& a_name) const override final
     {
-      return Project_Interface_Impl<T_Base,T>::has_name(this, a_name);
+      return Project_Interface_Impl<T_Base,T>::has_handle_named(this, a_name);
     }
 
     // Alter the supplied name so that it is unique among the existing data names
@@ -420,15 +420,15 @@ namespace sak
     }
 
     // Get all the objects
-    std::vector<Handle<T>> get_all_handles(Tag<T>&&) const override final
+    std::vector<Handle<T>> get_handles(Tag<T>&&) const override final
     {
-      return Project_Interface_Impl<T_Base,T>::get_all_handles(this);
+      return Project_Interface_Impl<T_Base,T>::get_handles(this);
     }
 
     // Get all the object names
-    std::vector<QString> get_all_names(Tag<T>&&) const override final
+    std::vector<QString> get_names(Tag<T>&&) const override final
     {
-      return Project_Interface_Impl<T_Base,T>::get_all_names(this);
+      return Project_Interface_Impl<T_Base,T>::get_names(this);
     }
 
     // Make a new object using the default parameters. Project's data management system owns it
@@ -524,7 +524,7 @@ namespace sak
   };
 
   //---------------------------------------------------------------------------
-  // Project_Final_Interface<t,Args...>
+  // Project_Final_Interface<T,Args...>
   //---------------------------------------------------------------------------
   // final object.
   template <typename T, typename...Args>
@@ -660,7 +660,7 @@ void sak::Project_Interface_Data<T,Args...>::clear_signalboxes()
 }
 
 template <typename T, typename...Args>
-void sak::Project_Interface_Data<T,Args...>::set_data(Project_Chained_Data<T,Args...>&& a_data)
+void sak::Project_Interface_Data<T,Args...>::set_data(Project_Data_Imp<T,Args...>&& a_data)
 {
   m_data = std::move(a_data);
 }
@@ -672,13 +672,13 @@ void sak::Project_Interface_Data<T,Args...>::add_execute(std::unique_ptr<Abstrac
 }
 
 template <typename T, typename...Args>
-sak::Project_Chained_Data<T,Args...>& sak::Project_Interface_Data<T,Args...>::data()
+sak::Project_Data_Imp<T,Args...>& sak::Project_Interface_Data<T,Args...>::data()
 {
   return m_data;
 }
 
 template <typename T, typename...Args>
-sak::Project_Chained_Data<T,Args...> const& sak::Project_Interface_Data<T,Args...>::cdata() const
+sak::Project_Data_Imp<T,Args...> const& sak::Project_Interface_Data<T,Args...>::cdata() const
 {
   return m_data;
 }
@@ -715,9 +715,9 @@ bool sak::Project_Interface_Impl<B,T>::has_handle(B const* a_base, Handle<T> con
 
 // How many objects are in this Project?
 template <typename B,typename T>
-bool sak::Project_Interface_Impl<B,T>::has_name(B const* a_base, QString const& a_name)
+bool sak::Project_Interface_Impl<B,T>::has_handle_named(B const* a_base, QString const& a_name)
 {
-  return a_base->cdata().has_name(Tag<T>(), a_name);
+  return a_base->cdata().has_handle_named(Tag<T>(), a_name);
 }
 
 // How many objects are in this Project?
@@ -744,16 +744,16 @@ sak::Handle<T> sak::Project_Interface_Impl<B,T>::get_handle_named(B const* a_bas
 
 // Get all the objects
 template <typename B,typename T>
-std::vector<sak::Handle<T>> sak::Project_Interface_Impl<B,T>::get_all_handles(B const* a_base)
+std::vector<sak::Handle<T>> sak::Project_Interface_Impl<B,T>::get_handles(B const* a_base)
 {
-  return a_base->cdata().get_all_handles(Tag<T>());
+  return a_base->cdata().get_handles(Tag<T>());
 }
 
 // Get all the object names
 template <typename B,typename T>
-std::vector<QString> sak::Project_Interface_Impl<B,T>::get_all_names(B const* a_base)
+std::vector<QString> sak::Project_Interface_Impl<B,T>::get_names(B const* a_base)
 {
-  return a_base->cdata().get_all_names(Tag<T>());
+  return a_base->cdata().get_names(Tag<T>());
 }
 
 // Make a new object using the default parameters. Project's data management system owns it

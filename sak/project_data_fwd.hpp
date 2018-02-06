@@ -8,9 +8,15 @@
 namespace sak
 {
   template <typename T, typename...Args>
-  class Project_Chained_Data;
+  class Project_Data_Shared_Imp;
 
-  using Project_Data = Project_Chained_Data<File_Definition,Texture_Definition>;
+  template <typename T_List, typename...Args>
+  class Project_Data_Section_Imp;
+
+  template <typename T, typename...Args>
+  class Project_Data_Imp;
+
+  using Project_Data = Project_Data_Imp<File_Definition,Texture_Definition>;
 } // namespace sak
 
 #endif // SAK_PROJECT_DATA_FWD_HPP

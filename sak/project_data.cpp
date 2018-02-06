@@ -24,57 +24,34 @@
 #include <QDebug>
 
 
-
-//---------------------------------------------------------------------------
-// Project_Base_Data
-//---------------------------------------------------------------------------
-// The bit that is detached from everything else.
-
-// Special 6
-//============================================================
-sak::internal::Project_Base_Data::Project_Base_Data(QString const& a_filepath):
-  m_filepath{a_filepath}
-{}
-sak::internal::Project_Base_Data::~Project_Base_Data() = default;
-
-// Interface
-//============================================================
-QString sak::internal::Project_Base_Data::name() const
-{
-  return m_filepath.baseName();
-}
-
-QString sak::internal::Project_Base_Data::location() const
-{
-  return m_filepath.absolutePath();
-}
-
-QString sak::internal::Project_Base_Data::filepath() const
-{
-  return m_filepath.absoluteFilePath();
-}
-
 //---------------------------------------------------------------------------
 // Project_Signalbox_Imp<T,Args...>
 //---------------------------------------------------------------------------
-// Implement the things that are not section dependent and will be used by
-// other parts of the implementation.
+// Implement the parts that the data sections will depend on via virtual
+// inheritance.
 
 // Special 6
 //============================================================
 template <typename T, typename...Args>
-sak::internal::Project_Signalbox_Imp<T,Args...>::Project_Signalbox_Imp():
+sak::Project_Data_Shared_Imp<T,Args...>::Project_Data_Shared_Imp():
+  m_next_id{0},
   m_signalboxes{}
 {}
 
 template <typename T, typename...Args>
-sak::internal::Project_Signalbox_Imp<T,Args...>::~Project_Signalbox_Imp() = default;
+sak::Project_Data_Shared_Imp<T,Args...>::~Project_Data_Shared_Imp() = default;
 
-// Virtuals
+template <typename T, typename...Args>
+sak::Project_Data_Shared_Imp<T,Args...>::Project_Data_Shared_Imp(Project_Data_Shared_Imp &&) = default;
+
+template <typename T, typename...Args>
+sak::Project_Data_Shared_Imp<T,Args...>& sak::Project_Data_Shared_Imp<T,Args...>::operator=(Project_Data_Shared_Imp &&) = default;
+
+// Interface
 //============================================================
 // Add an object that will rely on the Project's signals. If nulltpr, nothing happens.
 template <typename T, typename...Args>
-void sak::internal::Project_Signalbox_Imp<T,Args...>::add_signalbox(Signalbox_Type* a_signalbox)
+void sak::Project_Data_Shared_Imp<T,Args...>::add_signalbox(Signalbox_Type* a_signalbox)
 {
   if (a_signalbox != nullptr
       && std::find(m_signalboxes.cbegin(), m_signalboxes.cend(), a_signalbox) == m_signalboxes.cend())
@@ -85,7 +62,7 @@ void sak::internal::Project_Signalbox_Imp<T,Args...>::add_signalbox(Signalbox_Ty
 
 // Remove an object that will rely on the Project's signals. If nulltpr, nothing happens.
 template <typename T, typename...Args>
-void sak::internal::Project_Signalbox_Imp<T,Args...>::remove_signalbox(Signalbox_Type* a_signalbox)
+void sak::Project_Data_Shared_Imp<T,Args...>::remove_signalbox(Signalbox_Type* a_signalbox)
 {
   if (a_signalbox == nullptr)
   {
@@ -100,128 +77,99 @@ void sak::internal::Project_Signalbox_Imp<T,Args...>::remove_signalbox(Signalbox
 
 // Clear all the signalboxes so that nothing relies on changes to this.
 template <typename T, typename...Args>
-void sak::internal::Project_Signalbox_Imp<T,Args...>::clear_signalboxes()
+void sak::Project_Data_Shared_Imp<T,Args...>::clear_signalboxes()
 {
   m_signalboxes.clear();
 }
 
 // Internal Interface
 //============================================================
+// Access the signalboxes so functions can be called in them.
 template <typename T, typename...Args>
-std::vector<typename sak::internal::Project_Signalbox_Imp<T,Args...>::Signalbox_Type*>& sak::internal::Project_Signalbox_Imp<T,Args...>::get_signalboxes()
+std::vector<typename sak::Project_Data_Shared_Imp<T,Args...>::Signalbox_Type*>& sak::Project_Data_Shared_Imp<T,Args...>::get_signalboxes()
 {
   return m_signalboxes;
 }
 
 template <typename T, typename...Args>
-std::vector<typename sak::internal::Project_Signalbox_Imp<T,Args...>::Signalbox_Type*> const& sak::internal::Project_Signalbox_Imp<T,Args...>::cget_signalboxes() const
+std::vector<typename sak::Project_Data_Shared_Imp<T,Args...>::Signalbox_Type*> const& sak::Project_Data_Shared_Imp<T,Args...>::cget_signalboxes() const
 {
   return m_signalboxes;
 }
 
-//---------------------------------------------------------------------------
-// Project_Chained_Signalbox_Imp<ASBD,Args...>
-//---------------------------------------------------------------------------
-// Create a class that allows triggering the signals
-
-template <typename T_Base, typename T>
-sak::internal::Project_Chained_Signalbox_Imp<T_Base,T>::Project_Chained_Signalbox_Imp() = default;
-
-template <typename T_Base, typename T>
-sak::internal::Project_Chained_Signalbox_Imp<T_Base,T>::~Project_Chained_Signalbox_Imp() = default;
-
-// calls each of these on all the stored signalboxes.
-
-// When a handle has its data changed, this is called.
-template <typename T_Base, typename T>
-void sak::internal::Project_Chained_Signalbox_Imp<T_Base,T>::changed(Handle<T> const& a_handle)
+// Get the next id for making handles.
+template <typename T, typename...Args>
+std::size_t sak::Project_Data_Shared_Imp<T,Args...>::next_id() const
 {
-  for (auto l_item : get_signalboxes()) l_item->changed(a_handle);
+  ++m_next_id;
+  assert(m_next_id != 0);
+  return m_next_id;
 }
 
-// When a handle has its name changed, this is called.
-template <typename T_Base, typename T>
-void sak::internal::Project_Chained_Signalbox_Imp<T_Base,T>::changed_name(Handle<T> const& a_handle)
-{
-  for (auto l_item : get_signalboxes()) l_item->changed_name(a_handle);
-}
+//------------------------------------------------------------------------------------------------------------------------------------------------------
 
-// When a handle has its data changed in a specific place, this is called.
-// a_section == 0 denotes the name and may have special logic requirements.
-template <typename T_Base, typename T>
-void sak::internal::Project_Chained_Signalbox_Imp<T_Base,T>::changed_at(Handle<T> const& a_handle, std::size_t a_section)
+namespace
 {
-  for (auto l_item : get_signalboxes()) l_item->changed_at(a_handle, a_section);
-}
+  template <typename T>
+  decltype(auto) find_handle(std::vector<sak::Handle<T>> const& a_handles, sak::Handle<T> const& a_handle)
+  {
+    return std::find(a_handles.cbegin(), a_handles.cend(), a_handle);
+  }
 
-// When a handle has been added, this is called.
-template <typename T_Base, typename T>
-void sak::internal::Project_Chained_Signalbox_Imp<T_Base,T>::added(Handle<T> const& a_handle)
-{
-  for (auto l_item : get_signalboxes()) l_item->added(a_handle);
-}
-
-// When a handle has been removed, this is called.
-template <typename T_Base, typename T>
-void sak::internal::Project_Chained_Signalbox_Imp<T_Base,T>::removed(Handle<T> const& a_handle)
-{
-  for (auto l_item : get_signalboxes()) l_item->removed(a_handle);
-}
-
-// When a handle editor is to be opened, this is called.
-template <typename T_Base, typename T>
-void sak::internal::Project_Chained_Signalbox_Imp<T_Base,T>::requests_editor(Handle<T> const& a_handle)
-{
-  for (auto l_item : get_signalboxes()) l_item->requests_editor(a_handle);
-}
-
-// When focus is changed to be on a handle, call this
-template <typename T_Base, typename T>
-void sak::internal::Project_Chained_Signalbox_Imp<T_Base,T>::requests_focus(Handle<T> const& a_handle)
-{
-  for (auto l_item : get_signalboxes()) l_item->requests_focus(a_handle);
+  template <typename T>
+  decltype(auto) find_handle_named(std::vector<sak::Handle<T>> const& a_handles, QString const& a_name)
+  {
+    return std::find_if(a_handles.cbegin(), a_handles.cend(), [&a_name](sak::Handle<T> const& a_handle) -> bool { return a_handle->cname() == a_name; });
+  }
 }
 
 //---------------------------------------------------------------------------
-// Project_Section_Data_Imp<T>
+// Project_Data_Section_Imp<List,T,Args...>
 //---------------------------------------------------------------------------
-// the bit that manages data for a given type. No signals emitted.
+// Implement the data sections via a recursive template. Each argument
+// uses Project_Data_Shared_Imp via virtual inheritance.
 
 // Special 6
 //============================================================
-template <typename T>
-sak::internal::Project_Section_Data_Imp<T>::Project_Section_Data_Imp():
-  m_factory{},
+template <typename T_List, typename T>
+sak::Project_Data_Section_Imp<T_List,T>::Project_Data_Section_Imp():
+  Base(),
   m_handles{}
 {}
 
-template <typename T>
-sak::internal::Project_Section_Data_Imp<T>::~Project_Section_Data_Imp() = default;
+template <typename T_List, typename T>
+sak::Project_Data_Section_Imp<T_List,T>::~Project_Data_Section_Imp() = default;
+
+template <typename T_List, typename T>
+sak::Project_Data_Section_Imp<T_List,T>::Project_Data_Section_Imp(Project_Data_Section_Imp &&) = default;
+
+template <typename T_List, typename T>
+sak::Project_Data_Section_Imp<T_List,T>& sak::Project_Data_Section_Imp<T_List,T>::operator=(Project_Data_Section_Imp &&) = default;
 
 // Public Interface
 //============================================================
 // Are there any handles of this type in the currently active project data?
-template <typename T>
-bool sak::internal::Project_Section_Data_Imp<T>::empty(Tag<T>&&) const
+template <typename T_List, typename T>
+bool sak::Project_Data_Section_Imp<T_List,T>::empty(Tag<T>&&) const
 {
   return m_handles.empty();
 }
 
 // How handles of this type in the currently active project data?
-template <typename T>
-std::size_t sak::internal::Project_Section_Data_Imp<T>::count(Tag<T>&&) const
+template <typename T_List, typename T>
+std::size_t sak::Project_Data_Section_Imp<T_List,T>::count(Tag<T>&&) const
 {
   return m_handles.size();
 }
 
 // Is this handle in the currently active project data?
-template <typename T>
-bool sak::internal::Project_Section_Data_Imp<T>::has_handle(Handle<T> const& a_handle) const
+template <typename T_List, typename T>
+bool sak::Project_Data_Section_Imp<T_List,T>::has_handle(Handle<T> const& a_handle) const
 {
   if (not_null(a_handle))
   {
     // search for the handle in the active handles.
-    return std::find(m_handles.cbegin(), m_handles.cend(), a_handle) != m_handles.cend();
+    return find_handle(m_handles, a_handle) != m_handles.cend();
   }
   else
   {
@@ -230,18 +178,19 @@ bool sak::internal::Project_Section_Data_Imp<T>::has_handle(Handle<T> const& a_h
   }
 }
 
+
+
 // Is this handle in the currently active project data?
-template <typename T>
-bool sak::internal::Project_Section_Data_Imp<T>::has_name(Tag<T>&&, QString const& a_name) const
+template <typename T_List, typename T>
+bool sak::Project_Data_Section_Imp<T_List,T>::has_handle_named(Tag<T>&&, QString const& a_name) const
 {
-  // MAKE THIS
-  return false;
+  return find_handle_named(m_handles,a_name) != m_handles.cend();
 }
 
 // Get the handle at this index. Handles are sorted alphabetically by the name
 // member of the objects they reference.
-template <typename T>
-sak::Handle<T> sak::internal::Project_Section_Data_Imp<T>::get_handle_at(Tag<T>&&, std::size_t a_index) const
+template <typename T_List, typename T>
+sak::Handle<T> sak::Project_Data_Section_Imp<T_List,T>::get_handle_at(Tag<T>&&, std::size_t a_index) const
 {
   if (a_index < m_handles.size())
   {
@@ -254,28 +203,32 @@ sak::Handle<T> sak::internal::Project_Section_Data_Imp<T>::get_handle_at(Tag<T>&
 }
 
 // Get the handle with this name. If the name is invalid a null handle is returned.
-template <typename T>
-sak::Handle<T> sak::internal::Project_Section_Data_Imp<T>::get_handle_named(Tag<T>&&, QString const& a_name) const
+template <typename T_List, typename T>
+sak::Handle<T> sak::Project_Data_Section_Imp<T_List,T>::get_handle_named(Tag<T>&&, QString const& a_name) const
 {
-  // MAKE THIS
-  return sak::Handle<T>{};
+  auto l_found = find_handle_named(m_handles, a_name);
+  if (l_found != m_handles.cend())
+  {
+    return *l_found;
+  }
+  return Handle<T>{};
 }
 // Get all the handles alphabetically sorted by name
-template <typename T>
-std::vector<sak::Handle<T>> sak::internal::Project_Section_Data_Imp<T>::get_all_handles(Tag<T>&&) const
+template <typename T_List, typename T>
+std::vector<sak::Handle<T>> const& sak::Project_Data_Section_Imp<T_List,T>::get_handles(Tag<T>&&) const
 {
   return m_handles;
 }
 
 // Get all the objects' alphabetically sorted names
-template <typename T>
-std::vector<QString> sak::internal::Project_Section_Data_Imp<T>::get_all_names(Tag<T>&&) const
+template <typename T_List, typename T>
+std::vector<QString> sak::Project_Data_Section_Imp<T_List,T>::get_names(Tag<T>&&) const
 {
   std::vector<QString> l_result{};
   l_result.reserve(m_handles.size());
   for (auto const& l_handle : m_handles)
   {
-    l_result.push_back(l_handle->cmember_at<0>());
+    l_result.push_back(l_handle->cname());
   }
   return l_result;
 }
@@ -287,61 +240,39 @@ std::vector<QString> sak::internal::Project_Section_Data_Imp<T>::get_all_names(T
 
 // Make a new object using the supplied data. Project's data management system owns it but
 // it is not part of the Project.
-template <typename T>
-sak::Handle<T> sak::internal::Project_Section_Data_Imp<T>::make_emplace(Data<T>&& a_object) const
+template <typename T_List, typename T>
+sak::Handle<T> sak::Project_Data_Section_Imp<T_List,T>::make_emplace(Data<T>&& a_object) const
 {
-  // Capture the name.
-  auto l_name = a_object.cmember_at<0>();
-
-  // Uniqueify the name.
-  uniqueify_name(l_name, get_all_names(Tag<T>()));
-
   // Capture the data
   auto l_object = std::make_shared<Data<T>>(std::move(a_object));
 
-  // Set the name.
-  l_object->member_at<0>() = l_name;
-
   // Make a handle out of the data.
-  return m_factory.make_handle(std::move(l_object));
+  return Handle<T>{std::move(l_object),this->next_id()};
 }
 
 // Make a new file using the default parameters. Project's data management system owns it
 // but it is not part of the Project.
-template <typename T>
-sak::Handle<T> sak::internal::Project_Section_Data_Imp<T>::make_default(Tag<T>&&) const
+template <typename T_List, typename T>
+sak::Handle<T> sak::Project_Data_Section_Imp<T_List,T>::make_default(Tag<T>&&) const
 {
-  static_assert(std::is_same_v<T,File_Definition> || std::is_same_v<T,Texture_Definition>,
-                "bad type here.");
-
   using Typestring_Type = typename T::Typestring_Type;
   // The default name for a new object.
   static QString const s_name{u8"New " + QString::fromStdString(Typestring_Type::data())};
 
-  // Copy the name locally so we can edit it.
-  auto l_name = s_name;
-
-  // Uniqueify the name.
-  uniqueify_name(l_name, get_all_names(Tag<T>()));
-
   // Make a new object.
-  auto l_object = std::make_shared<Data<T>>();
-
-  // Set the name.
-  //l_object->member_at<0>() = s_name;
-  l_object->name() = l_name;
+  auto l_object = std::make_shared<Data<T>>(s_name);
 
   // Make a handle out of the data.
-  return m_factory.make_handle(std::move(l_object));
+  return Handle<T>{std::move(l_object),this->next_id()};
 }
 
 // Attempt to add a handle to the data and return true if it succeeds. Will
 // fail and return false if the handle is null or already present in the data.
-template <typename T>
-bool sak::internal::Project_Section_Data_Imp<T>::add(Handle<T> const& a_handle)
+template <typename T_List, typename T>
+bool sak::Project_Data_Section_Imp<T_List,T>::add(Handle<T> const& a_handle)
 {
-  if (this->has_handle(a_handle)
-      && std::find(m_handles.cbegin(), m_handles.cend(), a_handle) == m_handles.cend())
+  // If the handle is already in the project, don't add it
+  if (!has_handle(a_handle))
   {
     m_handles.push_back(a_handle);
     return true;
@@ -351,12 +282,12 @@ bool sak::internal::Project_Section_Data_Imp<T>::add(Handle<T> const& a_handle)
 
 // Attempt to remove a handle from the data and return true if it succeeds. Will
 // fail and return false if the handle is null or not present in the data.
-template <typename T>
-bool sak::internal::Project_Section_Data_Imp<T>::remove(Handle<T> const& a_handle)
+template <typename T_List, typename T>
+bool sak::Project_Data_Section_Imp<T_List,T>::remove(Handle<T> const& a_handle)
 {
-  if (this->has_handle(a_handle))
+  if (has_handle(a_handle))
   {
-    auto l_found = std::find(m_handles.cbegin(), m_handles.cend(), a_handle);
+    auto l_found = find_handle(m_handles, a_handle);
     if (l_found != m_handles.cend())
     {
       m_handles.erase(l_found);
@@ -366,26 +297,276 @@ bool sak::internal::Project_Section_Data_Imp<T>::remove(Handle<T> const& a_handl
   return false;
 }
 
-//---------------------------------------------------------------------------
-// Project_Chained_Data<T,Args...>
-//---------------------------------------------------------------------------
-// Special 6
-//============================================================
-template <typename T, typename...Args>
-sak::Project_Chained_Data<T,Args...>::Project_Chained_Data(QString const& a_filepath):
-  Inh1(a_filepath),
-  Inh2(),
-  Inh3()
+
+// calls each of these on all the stored signalboxes.
+
+// When a handle has its data changed, this is called.
+template <typename T_List, typename T>
+void sak::Project_Data_Section_Imp<T_List,T>::changed(Handle<T> const& a_handle)
 {
+  for (auto l_item : get_signalboxes()) l_item->changed(a_handle);
+}
+
+// When a handle has its name changed, this is called.
+template <typename T_List, typename T>
+void sak::Project_Data_Section_Imp<T_List,T>::changed_name(Handle<T> const& a_handle)
+{
+  for (auto l_item : get_signalboxes()) l_item->changed_name(a_handle);
+}
+
+// When a handle has its data changed in a specific place, this is called.
+// a_section == 0 denotes the name and may have special logic requirements.
+template <typename T_List, typename T>
+void sak::Project_Data_Section_Imp<T_List,T>::changed_at(Handle<T> const& a_handle, std::size_t a_section)
+{
+  for (auto l_item : get_signalboxes()) l_item->changed_at(a_handle, a_section);
+}
+
+// When a handle has been added, this is called.
+template <typename T_List, typename T>
+void sak::Project_Data_Section_Imp<T_List,T>::added(Handle<T> const& a_handle)
+{
+  for (auto l_item : get_signalboxes()) l_item->added(a_handle);
+}
+
+// When a handle has been removed, this is called.
+template <typename T_List, typename T>
+void sak::Project_Data_Section_Imp<T_List,T>::removed(Handle<T> const& a_handle)
+{
+  for (auto l_item : get_signalboxes()) l_item->removed(a_handle);
+}
+
+// When a handle editor is to be opened, this is called.
+template <typename T_List, typename T>
+void sak::Project_Data_Section_Imp<T_List,T>::requests_editor(Handle<T> const& a_handle)
+{
+  for (auto l_item : get_signalboxes()) l_item->requests_editor(a_handle);
+}
+
+// When focus is changed to be on a handle, call this
+template <typename T_List, typename T>
+void sak::Project_Data_Section_Imp<T_List,T>::requests_focus(Handle<T> const& a_handle)
+{
+  for (auto l_item : get_signalboxes()) l_item->requests_focus(a_handle);
+}
+
+//------------------------------------------------------------------------------------------------------------------------------------------------------
+
+//---------------------------------------------------------------------------
+// Project_Data_Imp<T,Args...>
+//---------------------------------------------------------------------------
+// The top of the project data implements the parts of the project that are
+// independent of all else (e.g. filename) and also the parts that require
+// all the data sections (e.g. fix_name).
+
+
+template <typename T, typename...Args>
+sak::Project_Data_Imp<T,Args...>::Project_Data_Imp(QString const& a_filepath) :
+  Inh(),
+  m_filepath{a_filepath}
+{}
+
+template <typename T, typename...Args>
+sak::Project_Data_Imp<T,Args...>::~Project_Data_Imp() = default;
+
+template <typename T, typename...Args>
+sak::Project_Data_Imp<T,Args...>::Project_Data_Imp(Project_Data_Imp &&) = default;
+
+template <typename T, typename...Args>
+sak::Project_Data_Imp<T,Args...>& sak::Project_Data_Imp<T,Args...>::operator=(Project_Data_Imp &&) = default;
+
+template <typename T, typename...Args>
+QString sak::Project_Data_Imp<T,Args...>::name() const
+{
+  return m_filepath.baseName();
 }
 
 template <typename T, typename...Args>
-sak::Project_Chained_Data<T,Args...>::~Project_Chained_Data() = default;
+QString sak::Project_Data_Imp<T,Args...>::location() const
+{
+  return m_filepath.absolutePath();
+}
 
-//template class sak::internal::Project_Signalbox_Imp<sak::File_Definition,sak::Texture_Definition>;
-//template class sak::internal::Project_Section_Data_Imp<sak::File_Definition>;
-//template class sak::internal::Project_Section_Data_Imp<sak::Texture_Definition>;
+template <typename T, typename...Args>
+QString sak::Project_Data_Imp<T,Args...>::filepath() const
+{
+  return m_filepath.absoluteFilePath();
+}
 
-template class sak::Project_Data;
 
 
+namespace
+{
+  //---------------------------------------------------------------------------
+  // Do_All_Handle_Count<T,Args...>
+  //---------------------------------------------------------------------------
+  // count how many of all things are managed by the project.
+  template <typename T, typename...Args>
+  class Do_All_Handle_Count
+  {
+  private:
+    using Project_Typelist = flamingo::typelist<T,Args...>;
+    using Project_Data_Type = sak::Project_Data_Section_Imp<Project_Typelist,T,Args...>;
+
+    template <std::size_t Index, std::size_t End = flamingo::typelist_size_v<Project_Typelist>>
+    class Do_Loop
+    {
+      using Tag_Type = sak::Tag<flamingo::typelist_at_t<Project_Typelist,Index>>;
+    public:
+      void operator()(Project_Data_Type const* a_data, std::size_t& a_count)
+      {
+        a_count += a_data->count(Tag_Type());
+        Do_Loop<Index+1,End>()(a_data,a_count);
+      }
+    };
+    template <std::size_t End>
+    class Do_Loop<End,End>
+    {
+    public:
+      void operator()(Project_Data_Type const*, std::size_t&)
+      {
+      }
+    };
+
+  public:
+    std::size_t operator()(Project_Data_Type const* a_data) const
+    {
+      std::size_t l_result{0};
+      Do_Loop<0>()(a_data, l_result);
+      return l_result;
+    }
+  };
+
+  //---------------------------------------------------------------------------
+  // Do_Has_Name<T,Args...>
+  //---------------------------------------------------------------------------
+  template <typename T, typename...Args>
+  class Do_Has_Name
+  {
+  private:
+    using Project_Typelist = flamingo::typelist<T,Args...>;
+    using Project_Data_Type = sak::Project_Data_Section_Imp<Project_Typelist,T,Args...>;
+
+    template <std::size_t Index, std::size_t End = flamingo::typelist_size_v<Project_Typelist>>
+    class Do_Loop
+    {
+      using Tag_Type = sak::Tag<flamingo::typelist_at_t<Project_Typelist,Index>>;
+    public:
+      bool operator()(Project_Data_Type const* a_data, QString const& a_name) const
+      {
+        if (a_data->has_handle_named(Tag_Type(),a_name))
+        {
+          return true;
+        }
+        return Do_Loop<Index+1,End>()(a_data, a_name);
+      }
+    };
+
+    // Recusion stops at the end.
+    template <std::size_t End>
+    class Do_Loop<End,End>
+    {
+    public:
+      bool operator()(Project_Data_Type const*, QString const&) const
+      {
+        return false;
+      }
+    };
+
+  public:
+    bool operator()(Project_Data_Type const* a_data, QString const& a_name) const
+    {
+      // Check all the data sections. If name is found then it returns true.
+      // If it reaches the end then it returns false.
+      return Do_Loop<0>()(a_data, a_name);
+    }
+  };
+
+  //---------------------------------------------------------------------------
+  // Do_Get_All_Names<T,Args...>
+  //---------------------------------------------------------------------------
+  template <typename T, typename...Args>
+  class Do_Get_All_Names
+  {
+  private:
+    using Project_Typelist = flamingo::typelist<T,Args...>;
+    using Project_Data_Type = sak::Project_Data_Section_Imp<Project_Typelist,T,Args...>;
+
+    template <std::size_t Index, std::size_t End = flamingo::typelist_size_v<Project_Typelist>>
+    class Do_Loop
+    {
+      using Tag_Type = sak::Tag<flamingo::typelist_at_t<Project_Typelist,Index>>;
+    public:
+      void operator()(Project_Data_Type const* a_data, std::vector<QString>& a_result) const
+      {
+        // Go through all the handles for this section
+        for (auto const& l_handle : a_data->get_handles(Tag_Type()))
+        {
+          // and add the name to the result.
+          a_result.push_back(l_handle->cname());
+        }
+        // Then recurse
+        Do_Loop<Index+1,End>()(a_data, a_result);
+      }
+    };
+
+    // Recusion stops at the end.
+    template <std::size_t End>
+    class Do_Loop<End,End>
+    {
+    public:
+      void operator()(Project_Data_Type const*, std::vector<QString>&) const
+      {
+      }
+    };
+
+  public:
+    std::vector<QString> operator()(Project_Data_Type const* a_data) const
+    {
+      // Where we shall put the results.
+      std::vector<QString> l_result{};
+      // Reserve a number equal to the count to prevent multiple allocations.
+      l_result.reserve(Do_All_Handle_Count<T,Args...>()(a_data));
+      // Get names for each type and add them to the result
+      Do_Loop<0>()(a_data, l_result);
+
+      return l_result;
+    }
+  };
+}
+
+// Does this name appear in the data?
+template <typename T, typename...Args>
+bool sak::Project_Data_Imp<T,Args...>::has_name(QString const& a_name) const
+{
+  return Do_Has_Name<T,Args...>()(this,a_name);
+}
+
+// Get all the objects names in data order
+template <typename T, typename...Args>
+std::vector<QString> sak::Project_Data_Imp<T,Args...>::get_all_names() const
+{
+  return Do_Get_All_Names<T,Args...>()(this);
+}
+
+// Alter the supplied name so that it is unique among the existing data names
+template <typename T, typename...Args>
+void sak::Project_Data_Imp<T,Args...>::fix_name(QString& a_name) const
+{
+  auto l_names = this->get_all_names();
+  std::sort(l_names.begin(), l_names.end());
+  uniqueify_name(a_name, l_names);
+}
+
+//------------------------------------------------------------------------------------------------------------------------------------------------------
+
+namespace
+{
+  using Project_Typelist = flamingo::typelist<sak::File_Definition,sak::Texture_Definition>;
+}
+
+template class sak::Project_Data_Shared_Imp<sak::File_Definition,sak::Texture_Definition>;
+template class sak::Project_Data_Section_Imp<Project_Typelist,sak::File_Definition>;
+template class sak::Project_Data_Section_Imp<Project_Typelist,sak::Texture_Definition>;
+
+template class sak::Project_Data_Imp<sak::File_Definition,sak::Texture_Definition>;
