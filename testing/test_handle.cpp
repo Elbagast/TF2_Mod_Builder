@@ -17,6 +17,8 @@ namespace
     using Data_Type = Data<T>;
     using Handle_Type = Handle<T>;
 
+    std::cout << "sizeof(Handle<T>) = " << sizeof(Handle<T>) <<  std::endl;
+
     a_stream << "Handle<T>:" << std::endl;
     a_stream << "-------------------------" << std::endl;
     a_stream << "Typestring = \"" << T::Typestring_Type::data() << "\"" << std::endl;

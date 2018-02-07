@@ -86,6 +86,8 @@ namespace
     using namespace sak;
     using Data_Type = Data<T>;
 
+    std::cout << "sizeof(Data<T>) = " << sizeof(Data<T>) <<  std::endl;
+
     // Default construction
     Data_Type l_d1{};
     //std::cout << "Default name = \"" << l_d1.cname().toStdString() << "\"" << std::endl;

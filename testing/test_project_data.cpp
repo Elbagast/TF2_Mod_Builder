@@ -25,6 +25,8 @@ namespace
 
     std::cout << "empty() = \"" << a_project.empty(Tag<T>()) << "\"" << std::endl;
     std::cout << "count() = \"" << a_project.count(Tag<T>()) << "\"" << std::endl;
+    //std::cout << "empty() = \"" << a_project.empty(TAG) << "\"" << std::endl;
+    //std::cout << "count() = \"" << a_project.count(TAG) << "\"" << std::endl;
     std::cout << "has_handle() = \"" << a_project.has_handle(Handle<T>()) << "\"" << std::endl;
 
     // no handles so this should be null
@@ -134,6 +136,23 @@ void sak::testing::test_project_data()
 
   using namespace sak;
 
+  auto l_pd_size = sizeof(Project_Data);
+  auto l_pd_members_size = sizeof(std::size_t)
+                           + sizeof(std::vector<Handle<File_Definition>>)
+                           + sizeof(std::vector<Handle<Texture_Definition>>)
+                           + sizeof(std::vector<Handle<Material_Definition>>);
+  std::cout << "sizeof(Project_Data) = " << l_pd_size <<  std::endl;
+  std::cout << "sizeof(Project_Data::members) = " << l_pd_members_size <<  std::endl;
+  std::cout << "Project_Data imp overhead = " << l_pd_size - l_pd_members_size <<  std::endl;
+
+  using PD_F = Project_Data_Imp<File_Definition>;
+  using PD_FT = Project_Data_Imp<File_Definition, Texture_Definition>;
+  using PD_FTM = Project_Data_Imp<File_Definition, Texture_Definition, Material_Definition>;
+
+  std::cout << "sizeof(PD_F) = " << sizeof(PD_F) <<  std::endl;
+  std::cout << "sizeof(PD_FT) = " << sizeof(PD_FT) <<  std::endl;
+  std::cout << "sizeof(PD_FTM) = " << sizeof(PD_FTM) <<  std::endl;
+
   QString l_filepath{"D:/Source Army Knife/Test Projects/Project/Project.sakpro"};
 
   Project_Data l_p{l_filepath};
@@ -160,7 +179,7 @@ void sak::testing::test_project_data()
 
   do_project_test<File_Definition>(l_p);
   do_project_test<Texture_Definition>(l_p);
-
+  do_project_test<Material_Definition>(l_p);
 
   std::cout << "==============================" << std::endl;
 }

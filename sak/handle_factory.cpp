@@ -66,3 +66,4 @@ sak::Handle<T> sak::Handle_Factory<T>::make_handle(std::shared_ptr<Element_Type>
 //============================================================
 template class sak::Handle_Factory<sak::File_Definition>;
 template class sak::Handle_Factory<sak::Texture_Definition>;
+template class sak::Handle_Factory<sak::Material_Definition>;

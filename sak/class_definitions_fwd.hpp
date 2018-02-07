@@ -11,6 +11,7 @@ namespace sak
 
   class File_Definition;
   class Texture_Definition;
+  class Material_Definition;
 } // namespace sak
 
 #endif // SAK_CLASS_DEFINITIONS_FWD_HPP

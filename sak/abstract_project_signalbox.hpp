@@ -9,10 +9,6 @@
 #include "handle_fwd.hpp"
 #endif
 
-#include "section_data_fwd.hpp"
-
-#include "abstract_section_signalbox.hpp"
-
 namespace sak
 {
   //---------------------------------------------------------------------------
@@ -48,8 +44,8 @@ namespace sak
   // and expose its functions too.
   template <typename T, typename R, typename...Args>
   class Abstract_Signalbox<T,R,Args...>:
-      private virtual Abstract_Signalbox<T>,
-      private virtual Abstract_Signalbox<R, Args...>
+      protected virtual Abstract_Signalbox<T>,
+      protected virtual Abstract_Signalbox<R, Args...>
   {
     using Inh1 = Abstract_Signalbox<T>;
     using Inh2 = Abstract_Signalbox<R, Args...>;

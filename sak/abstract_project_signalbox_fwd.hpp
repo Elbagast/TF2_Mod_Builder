@@ -10,7 +10,7 @@ namespace sak
   template <typename T, typename...Args>
   class Abstract_Signalbox;
 
-  using Abstract_Project_Signalbox = Abstract_Signalbox<File_Definition,Texture_Definition>;
+  using Abstract_Project_Signalbox = Abstract_Signalbox<File_Definition,Texture_Definition,Material_Definition>;
 } // namespace sak
 
 #endif // SAK_ABSTRACT_PROJECT_SIGNALBOX_FWD_HPP

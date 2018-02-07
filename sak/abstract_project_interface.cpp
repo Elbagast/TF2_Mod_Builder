@@ -6,10 +6,11 @@
 #include "handle.hpp"
 #include "tag.hpp"
 #include "project_data.hpp"
+#include "project_signalbox_data.hpp"
 #include "command_history.hpp"
 
 #include <type_traits>
-
+/*
 //---------------------------------------------------------------------------
 // Abstract_Section_Member_Interface<T>
 //---------------------------------------------------------------------------
@@ -137,6 +138,7 @@ namespace sak
     Project_Data_Imp<T,Args...> const& cdata() const;
   private:
     Project_Data_Imp<T,Args...> m_data;
+    Project_Signalbox_Data_Imp<T,Args...> m_signalboxes;
     Command_History m_history;
   };
 
@@ -642,21 +644,21 @@ void sak::Project_Interface_Data<T,Args...>::clear_history()
 template <typename T, typename...Args>
 void sak::Project_Interface_Data<T,Args...>::add_signalbox(Abstract_Signalbox<T,Args...>* a_signalbox)
 {
-  m_data.add_signalbox(a_signalbox);
+  m_signalboxes.add_signalbox(a_signalbox);
 }
 
 // Remove an object that will rely on the Project's signals. If nulltpr, nothing happens.
 template <typename T, typename...Args>
 void sak::Project_Interface_Data<T,Args...>::remove_signalbox(Abstract_Signalbox<T,Args...>* a_signalbox)
 {
-  m_data.remove_signalbox(a_signalbox);
+  m_signalboxes.remove_signalbox(a_signalbox);
 }
 
 // Clear all the signalboxes so that nothing relies on changes to this.
 template <typename T, typename...Args>
 void sak::Project_Interface_Data<T,Args...>::clear_signalboxes()
 {
-  m_data.clear_signalboxes();
+  m_signalboxes.clear_signalboxes();
 }
 
 template <typename T, typename...Args>
@@ -857,3 +859,4 @@ std::unique_ptr<sak::Abstract_Project_Interface> sak::make_project_interface(Pro
 //template class sak::internal::Project_Signalbox_Imp<sak::File_Definition,sak::Texture_Definition>;
 //template class sak::internal::Project_Signalbox_Data<sak::File_Definition,sak::Texture_Definition>;
 template class sak::Project_Interface;
+*/

@@ -45,12 +45,49 @@
 #endif
 
 class QString;
+/*
+Virtual inheritance creates a massive overhead, and this class is to be used in
+only one place. So how do we remove it?
+
+if
+A has 3 members
+B has 1 members
+C has 2 members
+
+Top<A,B,C>
+  - rest of the interface
+  - using lower
+  Part<List<A,B,C>,0,2,0,2> - List index, List size-1, member index, member count-1
+    - A<0> interface
+    - using lower
+    Part<List<A,B,C>,0,2,1,2>
+      - A<1> interface
+      - using lower
+      Part<List<A,B,C>,0,2,2,2>
+        - A<2> interface - last one
+        - A interface
+        - using lower
+        Part<List<A,B,C>,1,2,0,0>
+          - B<0> interface - last one
+          - B interface
+          - using lower
+          Part<List<A,B,C>,2,2,0,1>
+            - C<0> interface
+            - using lower
+            Part<List<A,B,C>,2,2,1,1>
+              - A<1> interface - last one
+              - C interface - last one
+
+
+*/
 
 namespace sak
 {
   //---------------------------------------------------------------------------
   // Abstract_Section_Member_Interface<T>
   //---------------------------------------------------------------------------
+  // The interface for the member of a managed type.
+
   template <std::size_t Index, typename T>
   class Abstract_Section_Member_Interface
   {
@@ -71,9 +108,15 @@ namespace sak
                            ) = 0;
   };
 
+  //------------------------------------------------------------------------------------------------------------------------------------------------------
+
   //---------------------------------------------------------------------------
   // Abstract_Chained_Member_Interface<T, Index, Last>
   //---------------------------------------------------------------------------
+  // Combine the interfaces of all of the members of a given type.
+
+  // Since there is no member at End index, we must stop at the Last index,
+  // otherwise the function reveal will have no functions to reveal.
   template <typename T, std::size_t Index = 0, std::size_t Last = (Data_Size_v<Data<T>> - 1)>
   class Abstract_Chained_Member_Interface :
       protected virtual Abstract_Chained_Member_Interface<T,Index+1,Last>,
@@ -90,6 +133,9 @@ namespace sak
     using Inh2::change_at;
   };
 
+  //------------------------------------------------------------------------------------------------------------------------------------------------------
+
+  // For the last, inherit and reveal the individual interface.
   template <typename T, std::size_t Last>
   class Abstract_Chained_Member_Interface<T,Last,Last>:
       protected virtual Abstract_Section_Member_Interface<Last,T>
@@ -103,9 +149,14 @@ namespace sak
     using Inh::change_at;
   };
 
+  //------------------------------------------------------------------------------------------------------------------------------------------------------
+
   //---------------------------------------------------------------------------
   // Abstract_Section_Interface<T>
   //---------------------------------------------------------------------------
+  // The full interface for a single type that the project manages. It includes
+  // all of the member interfaces.
+
   template <typename T>
   class Abstract_Section_Interface :
       protected virtual Abstract_Chained_Member_Interface<T,0>
@@ -132,12 +183,9 @@ namespace sak
     virtual bool has_handle(Handle<T> const&) const = 0;
     // Does this name appear in the data?
     virtual bool has_handle_named(Tag<T>&&, QString const&) const = 0;
-    // Alter the supplied name so that it is unique among the existing data names
-    //virtual bool fix_name(Tag<T>&&, QString&) const = 0;
 
     // Get the handle at this index. If the index is invalid a null handle is returned.
     virtual Handle<T> get_handle_at(Tag<T>&&, std::size_t a_index) const = 0;
-
     // Get the handle with this name. If the name is invalid a null handle is returned.
     virtual Handle<T> get_handle_named(Tag<T>&&, QString const&) const = 0;
 
@@ -145,12 +193,14 @@ namespace sak
     virtual std::vector<Handle<T>> get_handles(Tag<T>&&) const = 0;
     // Get all the handles names in data order
     virtual std::vector<QString> get_names(Tag<T>&&) const = 0;
+
     // Make a new object using the default parameters. Project's data management system owns it
     // but it is not part of the Project. Does not trigger any commands.
     virtual Handle<T> make_default(Tag<T>&&) const = 0;
     // Make a new object using the supplied data. Project's data management system owns it but
     // it is not part of the Project. Does not trigger any commands.
     virtual Handle<T> make_emplace(Data<T>&& a_data) const = 0;
+
     // Undoable add a new object made using the default parameters. The name will be modified if it is
     // currently in use by another object. Return true if the operation resulted in an undoable command.
     virtual bool add_default(Tag<T>&&) = 0;
@@ -181,14 +231,18 @@ namespace sak
     virtual void request_focus(Handle<T> const& a_handle) = 0;
   };
 
+  //------------------------------------------------------------------------------------------------------------------------------------------------------
+
   //---------------------------------------------------------------------------
   // Abstract_Chained_Interface<Args...>
   //---------------------------------------------------------------------------
+  // Combine the interfaces of all of the members of a given type.
 
   template <typename T, typename ...Args>
   class Abstract_Chained_Interface;
 
-  // One type has all these functions.
+  // Since there is no member at End index, we must stop at the Last index,
+  // otherwise the function reveal will have no functions to reveal.
   template <typename T>
   class Abstract_Chained_Interface<T> :
       protected virtual Abstract_Section_Interface<T>
@@ -206,7 +260,6 @@ namespace sak
     using Inh::count;
     using Inh::has_handle;
     using Inh::has_handle_named;
-    //using Inh::fix_name;
     using Inh::get_handle_at;
     using Inh::get_handle_named;
     using Inh::get_handles;
@@ -222,6 +275,8 @@ namespace sak
     using Inh::request_editor;
     using Inh::request_focus;
   };
+
+  //------------------------------------------------------------------------------------------------------------------------------------------------------
 
   // For at least 2, we inherit one and use it's functions, then chain the next
   // and expose its functions too.
@@ -244,7 +299,6 @@ namespace sak
     using Inh1::count;
     using Inh1::has_handle;
     using Inh1::has_handle_named;
-    //using Inh1::fix_name;
     using Inh1::get_handle_at;
     using Inh1::get_handle_named;
     using Inh1::get_handles;
@@ -265,7 +319,6 @@ namespace sak
     using Inh2::count;
     using Inh2::has_handle;
     using Inh2::has_handle_named;
-    //using Inh2::fix_name;
     using Inh2::get_handle_at;
     using Inh2::get_handle_named;
     using Inh2::get_handles;
@@ -282,6 +335,8 @@ namespace sak
     using Inh2::request_focus;
   };
 
+  //------------------------------------------------------------------------------------------------------------------------------------------------------
+
   //---------------------------------------------------------------------------
   // Abstract_Project_Save_Interface
   //---------------------------------------------------------------------------
@@ -297,6 +352,8 @@ namespace sak
     virtual void save() const = 0;
     virtual void load() = 0;
   };
+
+  //------------------------------------------------------------------------------------------------------------------------------------------------------
 
   //---------------------------------------------------------------------------
   // Abstract_Project_Path_Interface
@@ -315,6 +372,8 @@ namespace sak
     virtual QString location() const = 0;
     virtual QString filepath() const = 0;
   };
+
+  //------------------------------------------------------------------------------------------------------------------------------------------------------
 
   //---------------------------------------------------------------------------
   // Abstract_Project_History_Interface
@@ -345,6 +404,8 @@ namespace sak
     virtual void clear_history() = 0;
   };
 
+  //------------------------------------------------------------------------------------------------------------------------------------------------------
+
   //---------------------------------------------------------------------------
   // Abstract_Project_Name_Interface
   //---------------------------------------------------------------------------
@@ -365,6 +426,8 @@ namespace sak
     // Alter the supplied name so that it is unique among the existing data names
     virtual void fix_name(QString&) const = 0;
   };
+
+  //------------------------------------------------------------------------------------------------------------------------------------------------------
 
   //---------------------------------------------------------------------------
   // Abstract_Project_Signalbox_Interface
@@ -388,17 +451,19 @@ namespace sak
     virtual void clear_signalboxes() = 0;
   };
 
+  //------------------------------------------------------------------------------------------------------------------------------------------------------
+
   //---------------------------------------------------------------------------
   // Abstract_Project_Chained_Interface<T,Args...>
   //---------------------------------------------------------------------------
   // Inheritance is private because we don't want to be splitting this up...
   template <typename T, typename...Args>
   class Abstract_Project_Chained_Interface:
-      protected virtual Abstract_Project_Save_Interface,
-      protected virtual Abstract_Project_Path_Interface,
-      protected virtual Abstract_Project_History_Interface,
-      protected virtual Abstract_Project_Name_Interface,
-      protected virtual Abstract_Project_Signalbox_Interface<T,Args...>,
+      //protected virtual Abstract_Project_Save_Interface,
+      //protected virtual Abstract_Project_Path_Interface,
+      //protected virtual Abstract_Project_History_Interface,
+      //protected virtual Abstract_Project_Name_Interface,
+      //protected virtual Abstract_Project_Signalbox_Interface<T,Args...>,
       protected virtual Abstract_Chained_Interface<T,Args...>
   {
   public:
@@ -413,6 +478,46 @@ namespace sak
 
     // Virtuals
     //============================================================
+    virtual void save() const = 0;
+    virtual void load() = 0;
+
+    // Data that is fixed on contruction.
+    virtual QString name() const = 0;
+    virtual QString location() const = 0;
+    virtual QString filepath() const = 0;
+
+    // Can we currently call undo?
+    virtual bool can_undo() const = 0;
+    // Can we currently call redo?
+    virtual bool can_redo() const = 0;
+    // How many times can undo() be called?
+    virtual std::size_t undo_count() const = 0;
+    // How many times can redo() be called?
+    virtual std::size_t redo_count() const = 0;
+    // Undo the last command issued.
+    virtual void undo() = 0;
+    // Redo the last undone command in the command history
+    virtual void redo() = 0;
+    // Clear the undo/redo history.
+    virtual void clear_history() = 0;
+
+    // Does this name appear in the data?
+    virtual bool has_name(QString const&) const = 0;
+    // Get all the objects names in data order
+    virtual std::vector<QString> get_all_names() const = 0;
+    // Alter the supplied name so that it is unique among the existing data names
+    virtual void fix_name(QString&) const = 0;
+
+    // Virtuals
+    //============================================================
+    // Add an object that will rely on the Project's signals. If nulltpr, nothing happens.
+    virtual void add_signalbox(Abstract_Signalbox<T,Args...>* a_signalbox) = 0;
+    // Remove an object that will rely on the Project's signals. If nulltpr, nothing happens.
+    virtual void remove_signalbox(Abstract_Signalbox<T,Args...>* a_signalbox) = 0;
+    // Clear all the signalboxes so that nothing relies on changes to this.
+    virtual void clear_signalboxes() = 0;
+
+    /*
     using Abstract_Project_Save_Interface::save;
     using Abstract_Project_Save_Interface::load;
 
@@ -435,7 +540,7 @@ namespace sak
     using Abstract_Project_Signalbox_Interface<T,Args...>::add_signalbox;
     using Abstract_Project_Signalbox_Interface<T,Args...>::remove_signalbox;
     using Abstract_Project_Signalbox_Interface<T,Args...>::clear_signalboxes;
-
+    */
     // All of the following will have an overload for each type
     using Abstract_Chained_Interface<T,Args...>::is_empty;
     using Abstract_Chained_Interface<T,Args...>::not_empty;
@@ -460,15 +565,14 @@ namespace sak
     using Abstract_Chained_Interface<T,Args...>::request_focus;
   };
 
+  //------------------------------------------------------------------------------------------------------------------------------------------------------
+
   //---------------------------------------------------------------------------
   // Abstract_Project_Interface
   //---------------------------------------------------------------------------
-  // Being able to expand this whenever is literally the only reason to do this.
-  //using Abstract_Project_Interface = Abstract_Project_Chained_Interface<File_Data,Texture_Data>;
+  // Factory function to make a type that implements this interface.
 
   std::unique_ptr<Abstract_Project_Interface> make_project_interface(Project_Data&& a_data);
-
 }
-
 
 #endif // SAK_ABSTRACT_PROJECT_INTERFACE_HPP

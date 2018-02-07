@@ -164,5 +164,6 @@ bool sak::Handle<T>::operator<(Handle const& a_other) const noexcept
 
 // Forced Instantiations
 //============================================================
-template sak::Handle<sak::File_Definition>;
-template sak::Handle<sak::Texture_Definition>;
+template class sak::Handle<sak::File_Definition>;
+template class sak::Handle<sak::Texture_Definition>;
+template class sak::Handle<sak::Material_Definition>;

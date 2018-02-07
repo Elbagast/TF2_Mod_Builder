@@ -90,7 +90,8 @@ SOURCES += \
     name_utilities.cpp \
     abstract_project_interface.cpp \
     command_history.cpp \
-    abstract_command.cpp
+    abstract_command.cpp \
+    project_signalbox_data.cpp
 
 HEADERS  += \
     class_definitions.hpp \
@@ -118,7 +119,9 @@ HEADERS  += \
     command_history.hpp \
     command_history_fwd.hpp \
     abstract_command.hpp \
-    abstract_command_fwd.hpp
+    abstract_command_fwd.hpp \
+    project_signalbox_data.hpp \
+    project_signalbox_data_fwd.hpp
 
 FORMS += \
 
