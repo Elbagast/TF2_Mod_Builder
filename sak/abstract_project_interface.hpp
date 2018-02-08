@@ -444,9 +444,9 @@ namespace sak
     // Virtuals
     //============================================================
     // Add an object that will rely on the Project's signals. If nulltpr, nothing happens.
-    virtual void add_signalbox(Abstract_Signalbox<T,Args...>* a_signalbox) = 0;
+    virtual void add_signalbox(Abstract_Project_Signalbox_Imp<T,Args...>* a_signalbox) = 0;
     // Remove an object that will rely on the Project's signals. If nulltpr, nothing happens.
-    virtual void remove_signalbox(Abstract_Signalbox<T,Args...>* a_signalbox) = 0;
+    virtual void remove_signalbox(Abstract_Project_Signalbox_Imp<T,Args...>* a_signalbox) = 0;
     // Clear all the signalboxes so that nothing relies on changes to this.
     virtual void clear_signalboxes() = 0;
   };
@@ -470,7 +470,7 @@ namespace sak
     // Typedefs
     //============================================================
     using Section_Typelist = flamingo::typelist<T,Args...>;
-    using Signalbox_Type = Abstract_Signalbox<T,Args...>;
+    using Signalbox_Type = Abstract_Project_Signalbox_Imp<T,Args...>;
 
     // Special 6
     //============================================================
@@ -511,9 +511,9 @@ namespace sak
     // Virtuals
     //============================================================
     // Add an object that will rely on the Project's signals. If nulltpr, nothing happens.
-    virtual void add_signalbox(Abstract_Signalbox<T,Args...>* a_signalbox) = 0;
+    virtual void add_signalbox(Abstract_Project_Signalbox_Imp<T,Args...>* a_signalbox) = 0;
     // Remove an object that will rely on the Project's signals. If nulltpr, nothing happens.
-    virtual void remove_signalbox(Abstract_Signalbox<T,Args...>* a_signalbox) = 0;
+    virtual void remove_signalbox(Abstract_Project_Signalbox_Imp<T,Args...>* a_signalbox) = 0;
     // Clear all the signalboxes so that nothing relies on changes to this.
     virtual void clear_signalboxes() = 0;
 

@@ -13,6 +13,10 @@
 #include "handle_fwd.hpp"
 #endif
 
+#ifndef SAK_SIGNAL_SOURCE_FWD_HPP
+#include "signal_source_fwd.hpp"
+#endif
+
 #ifndef FLAMINGO_TYPELIST_HPP
 #include <flamingo/typelist.hpp>
 #endif
@@ -27,54 +31,141 @@
 #include <vector>
 #endif
 
-/*
-
-Object uses inheritance for construction:
-
-
-
-Project_Signalbox_Data_Imp<A,B,C>
-  protected Project_Data_Signalbox_Section_Imp<List<A,B,C>,A,B,C>
-    protected Project_Data_Signalbox_Section_Imp<List<A,B,C>,A>
-      protected virtual Project_Signalbox_Data_Shared_Imp<A,B,C>
-    protected Project_Data_Signalbox_Section_Imp<List<A,B,C>,B,C>
-      protected Project_Data_Signalbox_Section_Imp<List<A,B,C>,B>
-        protected virtual Project_Signalbox_Data_Shared_Imp<A,B,C>
-      protected Project_Data_Signalbox_Section_Imp<List<A,B,C>,C>
-        protected virtual Project_Signalbox_Data_Shared_Imp<A,B,C>
-
-
-uh oh forgot that adding and removing is going to involve the position index
-if you want undo/redo to restore the ordering...
-*/
 namespace sak
 {
+
   //---------------------------------------------------------------------------
-  // Project_Signalbox_Data_Shared_Imp<T,Args...>
+  // Project_Signalbox_Data_Part_Imp<List, Index, End>
   //---------------------------------------------------------------------------
-  // Implement the parts that the data sections will depend on via virtual
-  // inheritance.
-  template <typename T, typename...Args>
-  class Project_Signalbox_Data_Shared_Imp
+  // Declaration and default arguments for the template class that builds the
+  // template chain.
+  template
+  <
+    typename T_List,
+    std::size_t Index = 0,
+    std::size_t End = (flamingo::typelist_size_v<T_List> - 1)
+  >
+  class Project_Signalbox_Data_Part_Imp;
+
+  //------------------------------------------------------------------------------------------------------------------------------------------------------
+
+  //---------------------------------------------------------------------------
+  // Project_Signalbox_Data_Part_Imp<List, Index, End>
+  //---------------------------------------------------------------------------
+  // For a type that isn't at the end of the list.
+  template <std::size_t Index, std::size_t End, typename...Args>
+  class Project_Signalbox_Data_Part_Imp<flamingo::typelist<Args...>,Index,End> :
+      public Project_Signalbox_Data_Part_Imp<flamingo::typelist<Args...>,Index+1,End>
   {
+    using Inh = Project_Signalbox_Data_Part_Imp<flamingo::typelist<Args...>,Index+1,End>;
+
+    using Type = flamingo::typelist_at_t<flamingo::typelist<Args...>,Index>;
+
   public:
     // Typedefs
     //============================================================
-    using Signalbox_Type = Abstract_Signalbox<T,Args...>;
+    using Signalbox_Type = typename Inh::Signalbox_Type;
 
     // Special 6
     //============================================================
-    Project_Signalbox_Data_Shared_Imp();
-    ~Project_Signalbox_Data_Shared_Imp();
+    Project_Signalbox_Data_Part_Imp();
+    ~Project_Signalbox_Data_Part_Imp();
 
-    Project_Signalbox_Data_Shared_Imp(Project_Signalbox_Data_Shared_Imp const&) = delete;
-    Project_Signalbox_Data_Shared_Imp& operator=(Project_Signalbox_Data_Shared_Imp const&) = delete;
+    Project_Signalbox_Data_Part_Imp(Project_Signalbox_Data_Part_Imp const&);
+    Project_Signalbox_Data_Part_Imp& operator=(Project_Signalbox_Data_Part_Imp const&);
 
-    Project_Signalbox_Data_Shared_Imp(Project_Signalbox_Data_Shared_Imp &&);
-    Project_Signalbox_Data_Shared_Imp& operator=(Project_Signalbox_Data_Shared_Imp &&);
+    Project_Signalbox_Data_Part_Imp(Project_Signalbox_Data_Part_Imp &&);
+    Project_Signalbox_Data_Part_Imp& operator=(Project_Signalbox_Data_Part_Imp &&);
 
     // Interface
     //============================================================
+    // calls each of these on all the stored signalboxes.
+
+    // When a handle has been added at a given index.
+    void added(Signal_Source a_source, Handle<Type> const& a_handle, std::size_t a_index);
+    // When a handle has been removed from a given index.
+    void removed(Signal_Source a_source, Handle<Type> const& a_handle, std::size_t a_index);
+    // When a handle at a given index has been moved to another index.
+    void moved(Signal_Source a_source, Handle<Type> const& a_handle, std::size_t a_from, std::size_t a_to);
+    // When a handle at a given index has its name changed.
+    void changed_name(Signal_Source a_source, Handle<Type> const& a_handle, std::size_t a_index);
+    // When a handle at a given index has all of its data changed.
+    void changed_data(Signal_Source a_source, Handle<Type> const& a_handle, std::size_t a_index);
+    // When a handle at a given index has its data changed in a specific place.
+    void changed_data_at(Signal_Source a_source, Handle<Type> const& a_handler, std::size_t a_index, std::size_t a_member);
+    // When a handle at a given index requests its editor be opened/brought to the top.
+    void requests_editor(Signal_Source a_source, Handle<Type> const& a_handle, std::size_t a_index);
+    // When a handle at a given index requests focus in the outliner.
+    void requests_outliner(Signal_Source a_source, Handle<Type> const& a_handle, std::size_t a_index);
+
+    using Inh::added;
+    using Inh::removed;
+    using Inh::moved;
+    using Inh::changed_name;
+    using Inh::changed_data;
+    using Inh::changed_data_at;
+    using Inh::requests_editor;
+    using Inh::requests_outliner;
+
+    using Inh::add_signalbox;
+    using Inh::remove_signalbox;
+    using Inh::clear_signalboxes;
+
+  protected:
+    // Internal Interface
+    //============================================================
+    // Access the signalboxes so functions can be called in them.
+    using Inh::get_signalboxes;
+    using Inh::cget_signalboxes;
+  };
+
+  //------------------------------------------------------------------------------------------------------------------------------------------------------
+
+  //---------------------------------------------------------------------------
+  // Project_Signalbox_Data_Part_Imp<List, End, End>
+  //---------------------------------------------------------------------------
+  // For the last type in the list
+  template <std::size_t End, typename...Args>
+  class Project_Signalbox_Data_Part_Imp<flamingo::typelist<Args...>,End,End>
+  {
+    using Type = flamingo::typelist_at_t<flamingo::typelist<Args...>,End>;
+  public:
+    // Typedefs
+    //============================================================
+    using Signalbox_Type = Abstract_Project_Signalbox_Imp<Args...>;
+
+    // Special 6
+    //============================================================
+    Project_Signalbox_Data_Part_Imp();
+    ~Project_Signalbox_Data_Part_Imp();
+
+    Project_Signalbox_Data_Part_Imp(Project_Signalbox_Data_Part_Imp const&);
+    Project_Signalbox_Data_Part_Imp& operator=(Project_Signalbox_Data_Part_Imp const&);
+
+    Project_Signalbox_Data_Part_Imp(Project_Signalbox_Data_Part_Imp &&);
+    Project_Signalbox_Data_Part_Imp& operator=(Project_Signalbox_Data_Part_Imp &&);
+
+    // Interface
+    //============================================================
+    // calls each of these on all the stored signalboxes.
+
+    // When a handle has been added at a given index.
+    void added(Signal_Source a_source, Handle<Type> const& a_handle, std::size_t a_index);
+    // When a handle has been removed from a given index.
+    void removed(Signal_Source a_source, Handle<Type> const& a_handle, std::size_t a_index);
+    // When a handle at a given index has been moved to another index.
+    void moved(Signal_Source a_source, Handle<Type> const& a_handle, std::size_t a_from, std::size_t a_to);
+    // When a handle at a given index has its name changed.
+    void changed_name(Signal_Source a_source, Handle<Type> const& a_handle, std::size_t a_index);
+    // When a handle at a given index has all of its data changed.
+    void changed_data(Signal_Source a_source, Handle<Type> const& a_handle, std::size_t a_index);
+    // When a handle at a given index has its data changed in a specific place.
+    void changed_data_at(Signal_Source a_source, Handle<Type> const& a_handler, std::size_t a_index, std::size_t a_member);
+    // When a handle at a given index requests its editor be opened/brought to the top.
+    void requests_editor(Signal_Source a_source, Handle<Type> const& a_handle, std::size_t a_index);
+    // When a handle at a given index requests focus in the outliner.
+    void requests_outliner(Signal_Source a_source, Handle<Type> const& a_handle, std::size_t a_index);
+
     // Add an object that will rely on the Project's signals. If nulltpr, nothing happens.
     void add_signalbox(Signalbox_Type* a_signalbox);
     // Remove an object that will rely on the Project's signals. If nulltpr, nothing happens.
@@ -96,160 +187,44 @@ namespace sak
 
   //------------------------------------------------------------------------------------------------------------------------------------------------------
 
-  namespace internal
-  {
-    //---------------------------------------------------------------------------
-    // Typelist_To_Project_Singnalbox_Data_Shared_Imp<List>
-    //---------------------------------------------------------------------------
-    // Metafunction to convert a list of template arguments into a
-    // Project_Data_Shared_Imp so that it can be used.
-    template <typename T>
-    class Typelist_To_Project_Signalbox_Data_Shared_Imp;
-
-    template <typename...Args>
-    class Typelist_To_Project_Signalbox_Data_Shared_Imp<flamingo::typelist<Args...>>
-    {
-    public:
-      using Type = Project_Signalbox_Data_Shared_Imp<Args...>;
-    };
-
-    template <typename T>
-    using Typelist_To_Project_Signalbox_Data_Shared_Imp_Type = typename Typelist_To_Project_Signalbox_Data_Shared_Imp<T>::Type;
-  } // namespace internal
-
-
-  //------------------------------------------------------------------------------------------------------------------------------------------------------
-
-  //---------------------------------------------------------------------------
-  // Project_Signalbox_Data_Section_Imp<List,T,Args...>
-  //---------------------------------------------------------------------------
-  // Implement the data sections via a recursive template. Each argument
-  // uses Project_Signalbox_Data_Shared_Imp via virtual inheritance.
-
-  // A single type implements the data.
-  template <typename T_List, typename T>
-  class Project_Signalbox_Data_Section_Imp<T_List,T> :
-      protected virtual internal::Typelist_To_Project_Signalbox_Data_Shared_Imp_Type<T_List>
-  {
-    using Base = internal::Typelist_To_Project_Signalbox_Data_Shared_Imp_Type<T_List>;
-  public:
-    // Special 6
-    //============================================================
-    Project_Signalbox_Data_Section_Imp();
-    ~Project_Signalbox_Data_Section_Imp();
-
-    Project_Signalbox_Data_Section_Imp(Project_Signalbox_Data_Section_Imp const&) = delete;
-    Project_Signalbox_Data_Section_Imp& operator=(Project_Signalbox_Data_Section_Imp const&) = delete;
-
-    Project_Signalbox_Data_Section_Imp(Project_Signalbox_Data_Section_Imp &&);
-    Project_Signalbox_Data_Section_Imp& operator=(Project_Signalbox_Data_Section_Imp &&);
-
-    // Public Interface
-    //============================================================
-    // calls each of these on all the stored signalboxes.
-
-    // When a handle has its data changed, this is called.
-    void changed(Handle<T> const& a_handle);
-    // When a handle has its name changed, this is called.
-    void changed_name(Handle<T> const& a_handle);
-    // When a handle has its data changed in a specific place, this is called.
-    // a_section == 0 denotes the name and may have special logic requirements.
-    void changed_at(Handle<T> const& a_handle, std::size_t a_section);
-    // When a handle has been added, this is called.
-    void added(Handle<T> const& a_handle);
-    // When a handle has been removed, this is called.
-    void removed(Handle<T> const& a_handle);
-    // When a handle editor is to be opened, this is called.
-    void requests_editor(Handle<T> const& a_handle);
-    // When focus is changed to be on a handle, call this
-    void requests_focus(Handle<T> const& a_handle);
-
-    using Base::add_signalbox;
-    using Base::remove_signalbox;
-    using Base::clear_signalboxes;
-  };
-
-  //------------------------------------------------------------------------------------------------------------------------------------------------------
-
-  // Multiple types defers to the single type implementation and
-  // chains them together with multiple inheritance.
-  template <typename T_List, typename T, typename R, typename...Args>
-  class Project_Signalbox_Data_Section_Imp<T_List,T,R,Args...> :
-      protected Project_Signalbox_Data_Section_Imp<T_List,T>,
-      protected Project_Signalbox_Data_Section_Imp<T_List,R,Args...>
-  {
-    using Inh1 = Project_Signalbox_Data_Section_Imp<T_List,T>;
-    using Inh2 = Project_Signalbox_Data_Section_Imp<T_List,R,Args...>;
-    using Base = internal::Typelist_To_Project_Signalbox_Data_Shared_Imp_Type<T_List>;
-  public:
-    // Special 6
-    //============================================================
-    Project_Signalbox_Data_Section_Imp() = default;
-    ~Project_Signalbox_Data_Section_Imp() = default;
-
-    Project_Signalbox_Data_Section_Imp(Project_Signalbox_Data_Section_Imp const&) = delete;
-    Project_Signalbox_Data_Section_Imp& operator=(Project_Signalbox_Data_Section_Imp const&) = delete;
-
-    Project_Signalbox_Data_Section_Imp(Project_Signalbox_Data_Section_Imp &&) = default;
-    Project_Signalbox_Data_Section_Imp& operator=(Project_Signalbox_Data_Section_Imp &&) = default;
-
-    // Public Interface
-    //============================================================
-
-    using Inh1::changed;
-    using Inh1::changed_at;
-    using Inh1::changed_name;
-    using Inh1::added;
-    using Inh1::removed;
-    using Inh1::requests_editor;
-    using Inh1::requests_focus;
-
-    using Inh2::changed;
-    using Inh2::changed_at;
-    using Inh2::changed_name;
-    using Inh2::added;
-    using Inh2::removed;
-    using Inh2::requests_editor;
-    using Inh2::requests_focus;
-
-    using Base::add_signalbox;
-    using Base::remove_signalbox;
-    using Base::clear_signalboxes;
-  };
-
-  //------------------------------------------------------------------------------------------------------------------------------------------------------
 
   //---------------------------------------------------------------------------
   // Project_Signalbox_Data_Imp<T,Args...>
   //---------------------------------------------------------------------------
-  //
+  // The top class of the template chain, where we gather and cleanup
+  // everything. Also the requirement of at least one type stops bad template
+  // instantiations.
   template <typename T, typename...Args>
   class Project_Signalbox_Data_Imp :
-      private Project_Signalbox_Data_Section_Imp<flamingo::typelist<T,Args...>,T,Args...>
+      protected Project_Signalbox_Data_Part_Imp<flamingo::typelist<T,Args...>>
   {
-    using Inh = Project_Signalbox_Data_Section_Imp<flamingo::typelist<T,Args...>,T,Args...>;
-
+    using Inh = Project_Signalbox_Data_Part_Imp<flamingo::typelist<T,Args...>>;
   public:
+    // Typedefs
+    //============================================================
+    using Signalbox_Type = typename Inh::Signalbox_Type;
+
     // Special 6
     //============================================================
     Project_Signalbox_Data_Imp();
     ~Project_Signalbox_Data_Imp();
 
-    Project_Signalbox_Data_Imp(Project_Signalbox_Data_Imp const&) = delete;
-    Project_Signalbox_Data_Imp& operator=(Project_Signalbox_Data_Imp const&) = delete;
+    Project_Signalbox_Data_Imp(Project_Signalbox_Data_Imp const&);
+    Project_Signalbox_Data_Imp& operator=(Project_Signalbox_Data_Imp const&);
 
     Project_Signalbox_Data_Imp(Project_Signalbox_Data_Imp &&);
     Project_Signalbox_Data_Imp& operator=(Project_Signalbox_Data_Imp &&);
 
     // Interface
     //============================================================
-    using Inh::changed;
-    using Inh::changed_at;
-    using Inh::changed_name;
     using Inh::added;
     using Inh::removed;
+    using Inh::moved;
+    using Inh::changed_name;
+    using Inh::changed_data;
+    using Inh::changed_data_at;
     using Inh::requests_editor;
-    using Inh::requests_focus;
+    using Inh::requests_outliner;
 
     using Inh::add_signalbox;
     using Inh::remove_signalbox;

@@ -91,7 +91,8 @@ SOURCES += \
     abstract_project_interface.cpp \
     command_history.cpp \
     abstract_command.cpp \
-    project_signalbox_data.cpp
+    project_signalbox_data.cpp \
+    signal_source.cpp
 
 HEADERS  += \
     class_definitions.hpp \
@@ -121,7 +122,9 @@ HEADERS  += \
     abstract_command.hpp \
     abstract_command_fwd.hpp \
     project_signalbox_data.hpp \
-    project_signalbox_data_fwd.hpp
+    project_signalbox_data_fwd.hpp \
+    signal_source.hpp \
+    signal_source_fwd.hpp
 
 FORMS += \
 

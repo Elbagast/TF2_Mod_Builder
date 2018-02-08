@@ -61,6 +61,17 @@ Top<A,B,C>
 
 namespace sak
 {
+  template <typename T>
+  class Inherit :
+      public T
+  {
+  protected:
+    using Inherited_Type = T;
+  public:
+    using Inherited_Type::Inherited_Type;
+    ~Inherit() = default;
+  };
+
 
   template
   <
@@ -73,14 +84,15 @@ namespace sak
   class Part;
 
   // for any member that isn't at the end of a type
-  template <std::size_t LI, std::size_t LL, std::size_t MI, std::size_t ML, typename T, typename...Args>
-  class Part<flamingo::typelist<T,Args...>,LI,LL,MI,ML> :
-      public Part<flamingo::typelist<T,Args...>,LI,LL,MI+1,ML>
+  template <std::size_t LI, std::size_t LL, std::size_t MI, std::size_t ML, typename...Args>
+  class Part<flamingo::typelist<Args...>,LI,LL,MI,ML> :
+      public Part<flamingo::typelist<Args...>,LI,LL,MI+1,ML>
   {
-    static_assert(Data_Size_v<Data<T>> != 0 ,"can't have no members.");
-    using Inh = Part<flamingo::typelist<T,Args...>,LI,LL,MI+1,ML>;
+    using Inh = Part<flamingo::typelist<Args...>,LI,LL,MI+1,ML>;
 
-    using Type = flamingo::typelist_at_t<flamingo::typelist<T,Args...>,LI>;
+    using Type = flamingo::typelist_at_t<flamingo::typelist<Args...>,LI>;
+    static_assert(Data_Size_v<Data<Type>> != 0 ,"can't have no members.");
+
     static constexpr std::size_t index = MI;
   public:
     Part()
@@ -99,28 +111,29 @@ namespace sak
   };
 
   //  the last member of a type not at the end
-  template <std::size_t LI, std::size_t LL, std::size_t ML, typename T, typename...Args>
-  class Part<flamingo::typelist<T,Args...>,LI,LL,ML,ML> :
+  template <std::size_t LI, std::size_t LL, std::size_t ML, typename...Args>
+  class Part<flamingo::typelist<Args...>,LI,LL,ML,ML> :
       public Part
       <
-        flamingo::typelist<T,Args...>,
+        flamingo::typelist<Args...>,
         LI+1,
         LL,
         0,
-        (Data_Size_v<Data<flamingo::typelist_at_t<flamingo::typelist<T,Args...>,LI+1>>> - 1) // last member of next
+        (Data_Size_v<Data<flamingo::typelist_at_t<flamingo::typelist<Args...>,LI+1>>> - 1) // last member of next
       >
   {
-    static_assert(Data_Size_v<Data<T>> != 0 ,"can't have no members.");
     using Inh = Part
     <
-      flamingo::typelist<T,Args...>,
+      flamingo::typelist<Args...>,
       LI+1,
       LL,
       0,
-      (Data_Size_v<Data<flamingo::typelist_at_t<flamingo::typelist<T,Args...>,LI+1>>> - 1) // last member of next
+      (Data_Size_v<Data<flamingo::typelist_at_t<flamingo::typelist<Args...>,LI+1>>> - 1) // last member of next
     >;
 
-    using Type = flamingo::typelist_at_t<flamingo::typelist<T,Args...>,LI>;
+    using Type = flamingo::typelist_at_t<flamingo::typelist<Args...>,LI>;
+    static_assert(Data_Size_v<Data<Type>> != 0 ,"can't have no members.");
+
     static constexpr std::size_t index = ML;
   public:
     Part()
@@ -143,12 +156,12 @@ namespace sak
   };
 
   // the last member of the last type
-  template <std::size_t LL, std::size_t ML, typename T, typename...Args>
-  class Part<flamingo::typelist<T,Args...>,LL,LL,ML,ML>
+  template <std::size_t LL, std::size_t ML, typename...Args>
+  class Part<flamingo::typelist<Args...>,LL,LL,ML,ML>
   {
-    static_assert(Data_Size_v<Data<T>> != 0 ,"can't have no members.");
+    using Type = flamingo::typelist_at_t<flamingo::typelist<Args...>,LL>;
+    static_assert(Data_Size_v<Data<Type>> != 0 ,"can't have no members.");
 
-    using Type = flamingo::typelist_at_t<flamingo::typelist<T,Args...>,LL>;
     static constexpr std::size_t index = ML;
   public:
     Part()
