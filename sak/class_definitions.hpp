@@ -225,13 +225,15 @@ namespace sak
       <
       FLAMINGO_LITYPE_STRING(u8"Material"),
       internal::Iconpath_Type<FLAMINGO_LITYPE_STRING(u8"material_icon.png")>,
-      Member_Definition<Text_Line_Definition, FLAMINGO_LITYPE_STRING(u8"bit")>
+      Member_Definition<Text_Line_Definition, FLAMINGO_LITYPE_STRING(u8"a")>,
+      Member_Definition<Text_Line_Definition, FLAMINGO_LITYPE_STRING(u8"b")>,
+      Member_Definition<Text_Line_Definition, FLAMINGO_LITYPE_STRING(u8"c")>
       >
   {
     static_assert(Class_Def_Size_v<Texture_Definition> == 1,  "bad size");
-    static_assert(flamingo::typelist_size_v<Member_Def_Typelist> == 1,  "bad size");
-    static_assert(flamingo::typelist_size_v<Member_Name_Typelist> == 1,  "bad size");
-    static_assert(flamingo::typelist_size_v<Member_Value_Typelist> == 1,  "bad size");
+    static_assert(flamingo::typelist_size_v<Member_Def_Typelist> == 3,  "bad size");
+    static_assert(flamingo::typelist_size_v<Member_Name_Typelist> == 3,  "bad size");
+    static_assert(flamingo::typelist_size_v<Member_Value_Typelist> == 3,  "bad size");
   };
 } // namespace sak
 

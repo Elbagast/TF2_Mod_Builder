@@ -26,6 +26,10 @@
 #include "project_data_fwd.hpp"
 #endif
 
+#ifndef SAK_SIGNAL_SOURCE_FWD_HPP
+#include "signal_source_fwd.hpp"
+#endif
+
 #ifndef SAK_DATA_HPP
 #include "data.hpp"
 #endif
@@ -83,180 +87,332 @@ Top<A,B,C>
 
 namespace sak
 {
-  //---------------------------------------------------------------------------
-  // Abstract_Section_Member_Interface<T>
-  //---------------------------------------------------------------------------
-  // The interface for the member of a managed type.
 
-  template <std::size_t Index, typename T>
-  class Abstract_Section_Member_Interface
+  //------------------------------------------------------------------------------------------------------------------------------------------------------
+  namespace internal
   {
+    //---------------------------------------------------------------------------
+    // Abstract_Project_Interface_Part_Imp<List,LI,LL,MI,ML>
+    //---------------------------------------------------------------------------
+    // Declaration and default arguments for the template class that builds the
+    // template chain.
+    template
+    <
+      typename T_List,
+      std::size_t T_List_Index = 0,
+      std::size_t T_List_Last = (flamingo::typelist_size_v<T_List> - 1 ),
+      std::size_t T_Member_Index = 0,
+      std::size_t T_Member_Last = (Data_Size_v<Data<flamingo::typelist_at_t<T_List,T_List_Index>>> - 1 )
+    >
+    class Abstract_Project_Interface_Part_Imp;
+
+    //------------------------------------------------------------------------------------------------------------------------------------------------------
+
+    //---------------------------------------------------------------------------
+    // Abstract_Project_Interface_Part_Imp<List,LI,LL,MI,ML>
+    //---------------------------------------------------------------------------
+    // For a member that isn't the last in a type that isn't the last in the list.
+    template <std::size_t LI, std::size_t LL, std::size_t MI, std::size_t ML, typename...Args>
+    class Abstract_Project_Interface_Part_Imp<flamingo::typelist<Args...>,LI,LL,MI,ML> :
+        protected Abstract_Project_Interface_Part_Imp<flamingo::typelist<Args...>,LI,LL,MI+1,ML>
+    {
+      using Inh = Abstract_Project_Interface_Part_Imp<flamingo::typelist<Args...>,LI,LL,MI+1,ML>;
+      using Type = flamingo::typelist_at_t<flamingo::typelist<Args...>,LI>;
+      using Data_Type = Data<Type>;
+      using Handle_Type = Handle<Type>;
+      static constexpr std::size_t const index = MI;
+      using Index_Tag_Type = Index_Tag<index>;
+      using Member_Value_Type = Data_Member_Value_Type<index,Data_Type>;
+
+      static_assert(Data_Size_v<Data_Type> != 0, "Cannot use data with no members.");
+      static_assert(Data_Size_v<Data_Type> == (ML+1), "Bad last index.");
+    public:
+
+      // Special 6
+      //============================================================
+      ~Abstract_Project_Interface_Part_Imp() override = 0;
+
+      // Interface
+      //============================================================
+
+      // Undoable change an object's member value. Returns true if this call results in a change being made.
+      // Does nothing and returns false if this handle is invalid or not in the data, or if the supplied value
+      // doesn't result in data being changed.
+      virtual bool change_data_at(Index_Tag_Type&&, Signal_Source a_source, Handle_Type const& a_handle, Member_Value_Type const& a_value) = 0;
+
+      using Inh::is_empty;
+      using Inh::count;
+      using Inh::has_handle;
+      using Inh::has_handle_named;
+      using Inh::get_handle_at;
+      using Inh::get_handle_named;
+      using Inh::get_handles;
+      using Inh::get_names;
+      using Inh::make_default;
+      using Inh::make_emplace;
+      using Inh::add_default;
+      using Inh::add_emplace;
+      using Inh::add;
+      using Inh::remove;
+      using Inh::change_name;
+      using Inh::change_data_at;
+      using Inh::request_editor;
+      using Inh::request_outliner;
+    };
+
+    //------------------------------------------------------------------------------------------------------------------------------------------------------
+
+    //---------------------------------------------------------------------------
+    // Abstract_Project_Interface_Part_Imp<List,LI,LL,ML,ML>
+    //---------------------------------------------------------------------------
+    // For the last member in a type that isn't the last in the list.
+    template <std::size_t LI, std::size_t LL, std::size_t ML, typename...Args>
+    class Abstract_Project_Interface_Part_Imp<flamingo::typelist<Args...>,LI,LL,ML,ML> :
+        protected Abstract_Project_Interface_Part_Imp<flamingo::typelist<Args...>,LI+1>
+        // The rest of the parameters should default correctly
+    {
+      using Inh = Abstract_Project_Interface_Part_Imp<flamingo::typelist<Args...>,LI+1>;
+      using Type = flamingo::typelist_at_t<flamingo::typelist<Args...>,LI>;
+      using Data_Type = Data<Type>;
+      using Handle_Type = Handle<Type>;
+      using Tag_Type = Tag<Type>;
+      static constexpr std::size_t const index = ML;
+      using Index_Tag_Type = Index_Tag<index>;
+      using Member_Value_Type = Data_Member_Value_Type<index,Data_Type>;
+
+      static_assert(Data_Size_v<Data_Type> != 0, "Cannot use data with no members.");
+      static_assert(Data_Size_v<Data_Type> == (ML+1), "Bad last index.");
+    public:
+
+      // Special 6
+      //============================================================
+      ~Abstract_Project_Interface_Part_Imp() override = 0;
+
+      // Interface
+      //============================================================
+
+      // Are there any objects in this Project?
+      virtual bool is_empty(Tag_Type&&) const = 0;
+      // How many objects are in this Project?
+      virtual std::size_t count(Tag_Type&&) const = 0;
+
+      // Does this handle appear in the data?
+      virtual bool has_handle(Handle_Type const&) const = 0;
+      // Does this name appear in the data?
+      virtual bool has_handle_named(Tag_Type&&, QString const&) const = 0;
+
+      // Get the handle at this index. If the index is invalid a null handle is returned.
+      virtual Handle_Type get_handle_at(Tag_Type&&, std::size_t a_index) const = 0;
+      // Get the handle with this name. If the name is invalid a null handle is returned.
+      virtual Handle_Type get_handle_named(Tag_Type&&, QString const&) const = 0;
+
+      // Get all the handles in data order
+      virtual std::vector<Handle_Type> get_handles(Tag_Type&&) const = 0;
+      // Get all the handles names in data order
+      virtual std::vector<QString> get_names(Tag_Type&&) const = 0;
+
+      // Make a new object using the default parameters. Project's data management system owns it
+      // but it is not part of the Project. Does not trigger any commands.
+      virtual Handle_Type make_default(Tag_Type&&) const = 0;
+      // Make a new object using the supplied data. Project's data management system owns it but
+      // it is not part of the Project. Does not trigger any commands.
+      virtual Handle_Type make_emplace(Data_Type&& a_data) const = 0;
+
+      // Undoable add a new object made using the default parameters. The name will be modified if it is
+      // currently in use by another object. Return true if the operation resulted in an undoable command.
+      virtual bool add_default(Tag_Type&&, Signal_Source a_source) = 0;
+      // Undoable add a new object using the supplied data. This data is assigned a new handle. The name will
+      // be modified if it is currently in use by another object. Return true if the operationn resulted in an undoable command.
+      virtual bool add_emplace(Signal_Source a_source, Data_Type&& a_data) = 0;
+      // Undoable add a new object using the supplied handle. The name will be modified if it is currently in
+      // use by another object. Return true if the operation resulted in an undoable command. If this handle
+      // is invalid or already in the data then nothing happens and returns false.
+      virtual bool add(Signal_Source a_source, Handle_Type const& a_handle) = 0;
+      // Undoable remove object. Return true if the operation resulted in an undoable command. If this handle
+      // is invalid or already in the data then nothing happens and returns false. Handle data is not deleted
+      // until the last handle for it is deleted.
+      virtual bool remove(Signal_Source a_source, Handle_Type const& a_handle) = 0;
+
+      // Undoable change a handles name. Returns true if this call results in a change being made.
+      // If the name supplied is already in use then the supplied name will be altered.
+      virtual bool change_name(Signal_Source a_source, Handle_Type const& a_handle, QString const& a_name) = 0;
+
+      // Undoable change an object's member value. Returns true if this call results in a change being made.
+      // Does nothing and returns false if this handle is invalid or not in the data, or if the supplied value
+      // doesn't result in data being changed.
+      virtual bool change_data_at(Index_Tag_Type&&, Signal_Source a_source, Handle_Type const& a_handle, Member_Value_Type const& a_value) = 0;
+
+      // Request that the editor for this file be opened or switched to.
+      virtual void request_editor(Signal_Source a_source, Handle_Type const& a_handle) = 0;
+      // Request that the focus change to this object.
+      virtual void request_outliner(Signal_Source a_source, Handle_Type const& a_handle) = 0;
+
+
+      using Inh::is_empty;
+      using Inh::count;
+      using Inh::has_handle;
+      using Inh::has_handle_named;
+      using Inh::get_handle_at;
+      using Inh::get_handle_named;
+      using Inh::get_handles;
+      using Inh::get_names;
+      using Inh::make_default;
+      using Inh::make_emplace;
+      using Inh::add_default;
+      using Inh::add_emplace;
+      using Inh::add;
+      using Inh::remove;
+      using Inh::change_name;
+      using Inh::change_data_at;
+      using Inh::request_editor;
+      using Inh::request_outliner;
+    };
+    //------------------------------------------------------------------------------------------------------------------------------------------------------
+
+    //---------------------------------------------------------------------------
+    // Abstract_Project_Interface_Part_Imp<List,LL,LL,ML,ML>
+    //---------------------------------------------------------------------------
+    // For the last member in the last type.
+    template <std::size_t LL, std::size_t ML, typename...Args>
+    class Abstract_Project_Interface_Part_Imp<flamingo::typelist<Args...>,LL,LL,ML,ML>
+    {
+      using Type = flamingo::typelist_at_t<flamingo::typelist<Args...>,LL>;
+      using Data_Type = Data<Type>;
+      using Handle_Type = Handle<Type>;
+      using Tag_Type = Tag<Type>;
+      static constexpr std::size_t const index = ML;
+      using Index_Tag_Type = Index_Tag<index>;
+      using Member_Value_Type = Data_Member_Value_Type<index,Data_Type>;
+
+      static_assert(Data_Size_v<Data_Type> != 0, "Cannot use data with no members.");
+      static_assert(Data_Size_v<Data_Type> == (ML+1), "Bad last index.");
+    public:
+
+      // Special 6
+      //============================================================
+      virtual ~Abstract_Project_Interface_Part_Imp() = 0;
+
+      // Interface
+      //============================================================
+
+      // Are there any objects in this Project?
+      virtual bool is_empty(Tag_Type&&) const = 0;
+      // How many objects are in this Project?
+      virtual std::size_t count(Tag_Type&&) const = 0;
+
+      // Does this handle appear in the data?
+      virtual bool has_handle(Handle_Type const&) const = 0;
+      // Does this name appear in the data?
+      virtual bool has_handle_named(Tag_Type&&, QString const&) const = 0;
+
+      // Get the handle at this index. If the index is invalid a null handle is returned.
+      virtual Handle_Type get_handle_at(Tag_Type&&, std::size_t a_index) const = 0;
+      // Get the handle with this name. If the name is invalid a null handle is returned.
+      virtual Handle_Type get_handle_named(Tag_Type&&, QString const&) const = 0;
+
+      // Get all the handles in data order
+      virtual std::vector<Handle_Type> get_handles(Tag_Type&&) const = 0;
+      // Get all the handles names in data order
+      virtual std::vector<QString> get_names(Tag_Type&&) const = 0;
+
+      // Make a new object using the default parameters. Project's data management system owns it
+      // but it is not part of the Project. Does not trigger any commands.
+      virtual Handle_Type make_default(Tag_Type&&) const = 0;
+      // Make a new object using the supplied data. Project's data management system owns it but
+      // it is not part of the Project. Does not trigger any commands.
+      virtual Handle_Type make_emplace(Data_Type&& a_data) const = 0;
+
+      // Undoable add a new object made using the default parameters. The name will be modified if it is
+      // currently in use by another object. Return true if the operation resulted in an undoable command.
+      virtual bool add_default(Tag_Type&&, Signal_Source a_source) = 0;
+      // Undoable add a new object using the supplied data. This data is assigned a new handle. The name will
+      // be modified if it is currently in use by another object. Return true if the operationn resulted in an undoable command.
+      virtual bool add_emplace(Signal_Source a_source, Data_Type&& a_data) = 0;
+      // Undoable add a new object using the supplied handle. The name will be modified if it is currently in
+      // use by another object. Return true if the operation resulted in an undoable command. If this handle
+      // is invalid or already in the data then nothing happens and returns false.
+      virtual bool add(Signal_Source a_source, Handle_Type const& a_handle) = 0;
+      // Undoable remove object. Return true if the operation resulted in an undoable command. If this handle
+      // is invalid or already in the data then nothing happens and returns false. Handle data is not deleted
+      // until the last handle for it is deleted.
+      virtual bool remove(Signal_Source a_source, Handle_Type const& a_handle) = 0;
+
+      // Undoable change a handles name. Returns true if this call results in a change being made.
+      // If the name supplied is already in use then the supplied name will be altered.
+      virtual bool change_name(Signal_Source a_source, Handle_Type const& a_handle, QString const& a_name) = 0;
+
+      // Undoable change an object's member value. Returns true if this call results in a change being made.
+      // Does nothing and returns false if this handle is invalid or not in the data, or if the supplied value
+      // doesn't result in data being changed.
+      virtual bool change_data_at(Index_Tag_Type&&, Signal_Source a_source, Handle_Type const& a_handle, Member_Value_Type const& a_value) = 0;
+
+      // Request that the editor for this file be opened or switched to.
+      virtual void request_editor(Signal_Source a_source, Handle_Type const& a_handle) = 0;
+      // Request that the focus change to this object.
+      virtual void request_outliner(Signal_Source a_source, Handle_Type const& a_handle) = 0;
+    };
+
+  } // namespace internal
+
+  //------------------------------------------------------------------------------------------------------------------------------------------------------
+
+  template <typename T, typename...Args>
+  class Abstract_Project_Interface_Imp :
+      protected internal::Abstract_Project_Interface_Part_Imp<flamingo::typelist<T,Args...>>
+  {
+    using Inh = internal::Abstract_Project_Interface_Part_Imp<flamingo::typelist<T,Args...>>;
   public:
+    // Typedefs
+    //============================================================
+    using Typelist_Type = flamingo::typelist<T,Args...>;
+    using Signalbox_Type = Abstract_Project_Signalbox_Imp<T,Args...>;
+
     // Special 6
     //============================================================
-    virtual ~Abstract_Section_Member_Interface() = 0;
+    ~Abstract_Project_Interface_Imp() override = 0;
 
     // Virtuals
     //============================================================
+    virtual void save() const = 0;
+    virtual void load() = 0;
 
-    // Undoable change an object's member value. Returns true if this call results in a change being made.
-    // Does nothing and returns false if this handle is invalid or not in the data, or if the supplied value
-    // doesn't result in data being changed.
-    virtual bool change_at( Index_Tag<Index>&&,
-                            Handle<T> const& a_handle,
-                            Data_Member_Value_Type<Index,Data<T>> const& a_value
-                           ) = 0;
-  };
+    // Data that is fixed on contruction.
+    virtual QString name() const = 0;
+    virtual QString location() const = 0;
+    virtual QString filepath() const = 0;
 
-  //------------------------------------------------------------------------------------------------------------------------------------------------------
+    // Can we currently call undo?
+    virtual bool can_undo() const = 0;
+    // Can we currently call redo?
+    virtual bool can_redo() const = 0;
+    // How many times can undo() be called?
+    virtual std::size_t undo_count() const = 0;
+    // How many times can redo() be called?
+    virtual std::size_t redo_count() const = 0;
+    // Undo the last command issued.
+    virtual void undo() = 0;
+    // Redo the last undone command in the command history
+    virtual void redo() = 0;
+    // Clear the undo/redo history.
+    virtual void clear_history() = 0;
 
-  //---------------------------------------------------------------------------
-  // Abstract_Chained_Member_Interface<T, Index, Last>
-  //---------------------------------------------------------------------------
-  // Combine the interfaces of all of the members of a given type.
-
-  // Since there is no member at End index, we must stop at the Last index,
-  // otherwise the function reveal will have no functions to reveal.
-  template <typename T, std::size_t Index = 0, std::size_t Last = (Data_Size_v<Data<T>> - 1)>
-  class Abstract_Chained_Member_Interface :
-      protected virtual Abstract_Chained_Member_Interface<T,Index+1,Last>,
-      protected virtual Abstract_Section_Member_Interface<Index,T>
-  {
-    static_assert(Data_Size_v<Data<T>> != 0, "Cannot use data with no members.");
-
-    using Inh1 = Abstract_Chained_Member_Interface<T,Index+1,Last>;
-    using Inh2 = Abstract_Section_Member_Interface<Index,T>;
-  public:
-    ~Abstract_Chained_Member_Interface() override = 0;
-
-    using Inh1::change_at;
-    using Inh2::change_at;
-  };
-
-  //------------------------------------------------------------------------------------------------------------------------------------------------------
-
-  // For the last, inherit and reveal the individual interface.
-  template <typename T, std::size_t Last>
-  class Abstract_Chained_Member_Interface<T,Last,Last>:
-      protected virtual Abstract_Section_Member_Interface<Last,T>
-  {
-    static_assert(Data_Size_v<Data<T>> == (Last+1), "Bad last index.");
-
-    using Inh = Abstract_Section_Member_Interface<Last,T>;
-  public:
-    ~Abstract_Chained_Member_Interface() override = 0;
-
-    using Inh::change_at;
-  };
-
-  //------------------------------------------------------------------------------------------------------------------------------------------------------
-
-  //---------------------------------------------------------------------------
-  // Abstract_Section_Interface<T>
-  //---------------------------------------------------------------------------
-  // The full interface for a single type that the project manages. It includes
-  // all of the member interfaces.
-
-  template <typename T>
-  class Abstract_Section_Interface :
-      protected virtual Abstract_Chained_Member_Interface<T,0>
-  {
-    static_assert(Data_Size_v<Data<T>> != 0, "Cannot use data with no members.");
-
-    using Inh = Abstract_Chained_Member_Interface<T,0>;
-  public:
-    // Special 6
-    //============================================================
-    ~Abstract_Section_Interface() override = 0;
-
-    // Interface
-    //============================================================
-    // Everything you can do with a data_class derived object.
-
-    // Are there any objects in this Project?
-    virtual bool is_empty(Tag<T>&&) const = 0;
-    virtual bool not_empty(Tag<T>&&) const = 0;
-    // How many objects are in this Project?
-    virtual std::size_t count(Tag<T>&&) const = 0;
-
-    // Does this handle appear in the data?
-    virtual bool has_handle(Handle<T> const&) const = 0;
     // Does this name appear in the data?
-    virtual bool has_handle_named(Tag<T>&&, QString const&) const = 0;
+    virtual bool has_name(QString const&) const = 0;
+    // Get all the objects names in data order
+    virtual std::vector<QString> get_all_names() const = 0;
+    // Alter the supplied name so that it is unique among the existing data names
+    virtual void fix_name(QString&) const = 0;
 
-    // Get the handle at this index. If the index is invalid a null handle is returned.
-    virtual Handle<T> get_handle_at(Tag<T>&&, std::size_t a_index) const = 0;
-    // Get the handle with this name. If the name is invalid a null handle is returned.
-    virtual Handle<T> get_handle_named(Tag<T>&&, QString const&) const = 0;
+    // Add an object that will rely on the Project's signals. If
+    // nulltpr or already present, nothing happens.
+    virtual void add_signalbox(Signalbox_Type* a_signalbox) = 0;
+    // Remove an object that will rely on the Project's signals. If
+    // nulltpr or not present, nothing happens.
+    virtual void remove_signalbox(Signalbox_Type* a_signalbox) = 0;
+    // Clear all the signalboxes so that nothing relies on changes to this.
+    virtual void clear_signalboxes() = 0;
 
-    // Get all the handles in data order
-    virtual std::vector<Handle<T>> get_handles(Tag<T>&&) const = 0;
-    // Get all the handles names in data order
-    virtual std::vector<QString> get_names(Tag<T>&&) const = 0;
-
-    // Make a new object using the default parameters. Project's data management system owns it
-    // but it is not part of the Project. Does not trigger any commands.
-    virtual Handle<T> make_default(Tag<T>&&) const = 0;
-    // Make a new object using the supplied data. Project's data management system owns it but
-    // it is not part of the Project. Does not trigger any commands.
-    virtual Handle<T> make_emplace(Data<T>&& a_data) const = 0;
-
-    // Undoable add a new object made using the default parameters. The name will be modified if it is
-    // currently in use by another object. Return true if the operation resulted in an undoable command.
-    virtual bool add_default(Tag<T>&&) = 0;
-    // Undoable add a new object using the supplied data. This data is assigned a new handle. The name will
-    // be modified if it is currently in use by another object. Return true if the operationn resulted in an undoable command.
-    virtual bool add_emplace(Data<T>&& a_data) = 0;
-    // Undoable add a new object using the supplied handle. The name will be modified if it is currently in
-    // use by another object. Return true if the operation resulted in an undoable command. If this handle
-    // is invalid or already in the data then nothing happens and returns false.
-    virtual bool add(Handle<T> const& a_handle) = 0;
-    // Undoable remove object. Return true if the operation resulted in an undoable command. If this handle
-    // is invalid or already in the data then nothing happens and returns false. Handle data is not deleted
-    // until the last handle for it is deleted.
-    virtual bool remove(Handle<T> const& a_handle) = 0;
-
-    // Undoable change a handles name. Returns true if this call results in a change being made.
-    // If the name supplied is already in use then the supplied name will be altered.
-    virtual bool change_name(Handle<T> const& a_handle, QString const& a_name) = 0;
-
-    // Undoable change an object's member value. Returns true if this call results in a change being made.
-    // Does nothing and returns false if this handle is invalid or not in the data, or if the supplied value
-    // doesn't result in data being changed.
-    using Inh::change_at;
-
-    // Request that the editor for this file be opened or switched to.
-    virtual void request_editor(Handle<T> const& a_handle) = 0;
-    // Request that the focus change to this object.
-    virtual void request_focus(Handle<T> const& a_handle) = 0;
-  };
-
-  //------------------------------------------------------------------------------------------------------------------------------------------------------
-
-  //---------------------------------------------------------------------------
-  // Abstract_Chained_Interface<Args...>
-  //---------------------------------------------------------------------------
-  // Combine the interfaces of all of the members of a given type.
-
-  template <typename T, typename ...Args>
-  class Abstract_Chained_Interface;
-
-  // Since there is no member at End index, we must stop at the Last index,
-  // otherwise the function reveal will have no functions to reveal.
-  template <typename T>
-  class Abstract_Chained_Interface<T> :
-      protected virtual Abstract_Section_Interface<T>
-  {
-    using Inh = Abstract_Section_Interface<T>;
-  public:
-    // Special 6
-    //============================================================
-    ~Abstract_Chained_Interface() override = 0;
-
-    // Interface
-    //============================================================
     using Inh::is_empty;
-    using Inh::not_empty;
     using Inh::count;
     using Inh::has_handle;
     using Inh::has_handle_named;
@@ -271,301 +427,82 @@ namespace sak
     using Inh::add;
     using Inh::remove;
     using Inh::change_name;
-    using Inh::change_at;
+    using Inh::change_data_at;
     using Inh::request_editor;
-    using Inh::request_focus;
-  };
+    using Inh::request_outliner;
 
-  //------------------------------------------------------------------------------------------------------------------------------------------------------
+    // Functions are as follows, with overloads for each Type in the
+    // the arguments <T,Args...>:
+    //------------------------------------------------------------
 
-  // For at least 2, we inherit one and use it's functions, then chain the next
-  // and expose its functions too.
-  template <typename T, typename R, typename...Args>
-  class Abstract_Chained_Interface<T,R,Args...>:
-      protected virtual Abstract_Chained_Interface<T>,
-      protected virtual Abstract_Chained_Interface<R, Args...>
-  {
-    using Inh1 = Abstract_Chained_Interface<T>;
-    using Inh2 = Abstract_Chained_Interface<R, Args...>;
-  public:
-    // Special 6
-    //============================================================
-    ~Abstract_Chained_Interface() override = 0;
+    // Are there any objects in this Project?
+    //virtual bool is_empty(Tag_Type&&) const = 0;
 
-    // Interface
-    //============================================================
-    using Inh1::is_empty;
-    using Inh1::not_empty;
-    using Inh1::count;
-    using Inh1::has_handle;
-    using Inh1::has_handle_named;
-    using Inh1::get_handle_at;
-    using Inh1::get_handle_named;
-    using Inh1::get_handles;
-    using Inh1::get_names;
-    using Inh1::make_default;
-    using Inh1::make_emplace;
-    using Inh1::add_default;
-    using Inh1::add_emplace;
-    using Inh1::add;
-    using Inh1::remove;
-    using Inh1::change_name;
-    using Inh1::change_at;
-    using Inh1::request_editor;
-    using Inh1::request_focus;
+    // How many objects are in this Project?
+    //virtual std::size_t count(Tag_Type&&) const = 0;
 
-    using Inh2::is_empty;
-    using Inh2::not_empty;
-    using Inh2::count;
-    using Inh2::has_handle;
-    using Inh2::has_handle_named;
-    using Inh2::get_handle_at;
-    using Inh2::get_handle_named;
-    using Inh2::get_handles;
-    using Inh2::get_names;
-    using Inh2::make_default;
-    using Inh2::make_emplace;
-    using Inh2::add_default;
-    using Inh2::add_emplace;
-    using Inh2::add;
-    using Inh2::remove;
-    using Inh2::change_name;
-    using Inh2::change_at;
-    using Inh2::request_editor;
-    using Inh2::request_focus;
-  };
-
-  //------------------------------------------------------------------------------------------------------------------------------------------------------
-
-  //---------------------------------------------------------------------------
-  // Abstract_Project_Save_Interface
-  //---------------------------------------------------------------------------
-  class Abstract_Project_Save_Interface
-  {
-  public:
-    // Special 6
-    //============================================================
-    virtual ~Abstract_Project_Save_Interface() = 0;
-
-    // Virtuals
-    //============================================================
-    virtual void save() const = 0;
-    virtual void load() = 0;
-  };
-
-  //------------------------------------------------------------------------------------------------------------------------------------------------------
-
-  //---------------------------------------------------------------------------
-  // Abstract_Project_Path_Interface
-  //---------------------------------------------------------------------------
-  class Abstract_Project_Path_Interface
-  {
-  public:
-    // Special 6
-    //============================================================
-    virtual ~Abstract_Project_Path_Interface() = 0;
-
-    // Virtuals
-    //============================================================
-    // Data that is fixed on contruction.
-    virtual QString name() const = 0;
-    virtual QString location() const = 0;
-    virtual QString filepath() const = 0;
-  };
-
-  //------------------------------------------------------------------------------------------------------------------------------------------------------
-
-  //---------------------------------------------------------------------------
-  // Abstract_Project_History_Interface
-  //---------------------------------------------------------------------------
-  // The interface of the project that is not part of the sections.
-  class Abstract_Project_History_Interface
-  {
-  public:
-    // Special 6
-    //============================================================
-    virtual ~Abstract_Project_History_Interface() = 0;
-
-    // Virtuals
-    //============================================================
-    // Can we currently call undo?
-    virtual bool can_undo() const = 0;
-    // Can we currently call redo?
-    virtual bool can_redo() const = 0;
-    // How many times can undo() be called?
-    virtual std::size_t undo_count() const = 0;
-    // How many times can redo() be called?
-    virtual std::size_t redo_count() const = 0;
-    // Undo the last command issued.
-    virtual void undo() = 0;
-    // Redo the last undone command in the command history
-    virtual void redo() = 0;
-    // Clear the undo/redo history.
-    virtual void clear_history() = 0;
-  };
-
-  //------------------------------------------------------------------------------------------------------------------------------------------------------
-
-  //---------------------------------------------------------------------------
-  // Abstract_Project_Name_Interface
-  //---------------------------------------------------------------------------
-  // The interface of the project relating to data names.
-  class Abstract_Project_Name_Interface
-  {
-  public:
-    // Special 6
-    //============================================================
-    virtual ~Abstract_Project_Name_Interface() = 0;
-
-    // Virtuals
-    //============================================================
-    // Does this name appear in the data?
-    virtual bool has_name(QString const&) const = 0;
-    // Get all the objects names in data order
-    virtual std::vector<QString> get_all_names() const = 0;
-    // Alter the supplied name so that it is unique among the existing data names
-    virtual void fix_name(QString&) const = 0;
-  };
-
-  //------------------------------------------------------------------------------------------------------------------------------------------------------
-
-  //---------------------------------------------------------------------------
-  // Abstract_Project_Signalbox_Interface
-  //---------------------------------------------------------------------------
-  // The interface of the project that is not part of the sections.
-  template <typename T, typename...Args>
-  class Abstract_Project_Signalbox_Interface
-  {
-  public:
-    // Special 6
-    //============================================================
-    virtual ~Abstract_Project_Signalbox_Interface() = 0;
-
-    // Virtuals
-    //============================================================
-    // Add an object that will rely on the Project's signals. If nulltpr, nothing happens.
-    virtual void add_signalbox(Abstract_Project_Signalbox_Imp<T,Args...>* a_signalbox) = 0;
-    // Remove an object that will rely on the Project's signals. If nulltpr, nothing happens.
-    virtual void remove_signalbox(Abstract_Project_Signalbox_Imp<T,Args...>* a_signalbox) = 0;
-    // Clear all the signalboxes so that nothing relies on changes to this.
-    virtual void clear_signalboxes() = 0;
-  };
-
-  //------------------------------------------------------------------------------------------------------------------------------------------------------
-
-  //---------------------------------------------------------------------------
-  // Abstract_Project_Chained_Interface<T,Args...>
-  //---------------------------------------------------------------------------
-  // Inheritance is private because we don't want to be splitting this up...
-  template <typename T, typename...Args>
-  class Abstract_Project_Chained_Interface:
-      //protected virtual Abstract_Project_Save_Interface,
-      //protected virtual Abstract_Project_Path_Interface,
-      //protected virtual Abstract_Project_History_Interface,
-      //protected virtual Abstract_Project_Name_Interface,
-      //protected virtual Abstract_Project_Signalbox_Interface<T,Args...>,
-      protected virtual Abstract_Chained_Interface<T,Args...>
-  {
-  public:
-    // Typedefs
-    //============================================================
-    using Section_Typelist = flamingo::typelist<T,Args...>;
-    using Signalbox_Type = Abstract_Project_Signalbox_Imp<T,Args...>;
-
-    // Special 6
-    //============================================================
-    ~Abstract_Project_Chained_Interface() override = 0;
-
-    // Virtuals
-    //============================================================
-    virtual void save() const = 0;
-    virtual void load() = 0;
-
-    // Data that is fixed on contruction.
-    virtual QString name() const = 0;
-    virtual QString location() const = 0;
-    virtual QString filepath() const = 0;
-
-    // Can we currently call undo?
-    virtual bool can_undo() const = 0;
-    // Can we currently call redo?
-    virtual bool can_redo() const = 0;
-    // How many times can undo() be called?
-    virtual std::size_t undo_count() const = 0;
-    // How many times can redo() be called?
-    virtual std::size_t redo_count() const = 0;
-    // Undo the last command issued.
-    virtual void undo() = 0;
-    // Redo the last undone command in the command history
-    virtual void redo() = 0;
-    // Clear the undo/redo history.
-    virtual void clear_history() = 0;
+    // Does this handle appear in the data?
+    //virtual bool has_handle(Handle_Type const&) const = 0;
 
     // Does this name appear in the data?
-    virtual bool has_name(QString const&) const = 0;
-    // Get all the objects names in data order
-    virtual std::vector<QString> get_all_names() const = 0;
-    // Alter the supplied name so that it is unique among the existing data names
-    virtual void fix_name(QString&) const = 0;
+    //virtual bool has_handle_named(Tag_Type&&, QString const&) const = 0;
 
-    // Virtuals
-    //============================================================
-    // Add an object that will rely on the Project's signals. If nulltpr, nothing happens.
-    virtual void add_signalbox(Abstract_Project_Signalbox_Imp<T,Args...>* a_signalbox) = 0;
-    // Remove an object that will rely on the Project's signals. If nulltpr, nothing happens.
-    virtual void remove_signalbox(Abstract_Project_Signalbox_Imp<T,Args...>* a_signalbox) = 0;
-    // Clear all the signalboxes so that nothing relies on changes to this.
-    virtual void clear_signalboxes() = 0;
+    // Get the handle at this index. If the index is invalid a null handle is returned.
+    //virtual Handle_Type get_handle_at(Tag_Type&&, std::size_t a_index) const = 0;
 
-    /*
-    using Abstract_Project_Save_Interface::save;
-    using Abstract_Project_Save_Interface::load;
+    // Get the handle with this name. If the name is invalid a null handle is returned.
+    //virtual Handle_Type get_handle_named(Tag_Type&&, QString const&) const = 0;
 
-    using Abstract_Project_Path_Interface::name;
-    using Abstract_Project_Path_Interface::location;
-    using Abstract_Project_Path_Interface::filepath;
+    // Get all the handles in data order
+    //virtual std::vector<Handle_Type> get_handles(Tag_Type&&) const = 0;
 
-    using Abstract_Project_History_Interface::can_undo;
-    using Abstract_Project_History_Interface::can_redo;
-    using Abstract_Project_History_Interface::undo_count;
-    using Abstract_Project_History_Interface::redo_count;
-    using Abstract_Project_History_Interface::undo;
-    using Abstract_Project_History_Interface::redo;
-    using Abstract_Project_History_Interface::clear_history;
+    // Get all the handles names in data order
+    //virtual std::vector<QString> get_names(Tag_Type&&) const = 0;
 
-    using Abstract_Project_Name_Interface::has_name;
-    using Abstract_Project_Name_Interface::get_all_names;
-    using Abstract_Project_Name_Interface::fix_name;
+    // Make a new object using the default parameters. Project's data management system owns it
+    // but it is not part of the Project. Does not trigger any commands.
+    //virtual Handle_Type make_default(Tag_Type&&) const = 0;
 
-    using Abstract_Project_Signalbox_Interface<T,Args...>::add_signalbox;
-    using Abstract_Project_Signalbox_Interface<T,Args...>::remove_signalbox;
-    using Abstract_Project_Signalbox_Interface<T,Args...>::clear_signalboxes;
-    */
-    // All of the following will have an overload for each type
-    using Abstract_Chained_Interface<T,Args...>::is_empty;
-    using Abstract_Chained_Interface<T,Args...>::not_empty;
-    using Abstract_Chained_Interface<T,Args...>::count;
-    using Abstract_Chained_Interface<T,Args...>::has_handle;
-    using Abstract_Chained_Interface<T,Args...>::has_handle_named;
-    //using Abstract_Chained_Interface<T,Args...>::fix_name;
-    using Abstract_Chained_Interface<T,Args...>::get_handle_at;
-    using Abstract_Chained_Interface<T,Args...>::get_handle_named;
-    using Abstract_Chained_Interface<T,Args...>::get_handles;
-    using Abstract_Chained_Interface<T,Args...>::get_names;
-    using Abstract_Chained_Interface<T,Args...>::make_default;
-    using Abstract_Chained_Interface<T,Args...>::make_emplace;
-    using Abstract_Chained_Interface<T,Args...>::add_default;
-    using Abstract_Chained_Interface<T,Args...>::add_emplace;
-    using Abstract_Chained_Interface<T,Args...>::add;
-    using Abstract_Chained_Interface<T,Args...>::remove;
-    using Abstract_Chained_Interface<T,Args...>::change_name;
-    // change_at has an overload for each member for each type.
-    using Abstract_Chained_Interface<T,Args...>::change_at;
-    using Abstract_Chained_Interface<T,Args...>::request_editor;
-    using Abstract_Chained_Interface<T,Args...>::request_focus;
+    // Make a new object using the supplied data. Project's data management system owns it but
+    // it is not part of the Project. Does not trigger any commands.
+    //virtual Handle_Type make_emplace(Data_Type&& a_data) const = 0;
+
+    // Undoable add a new object made using the default parameters. The name will be modified if it is
+    // currently in use by another object. Return true if the operation resulted in an undoable command.
+    //virtual bool add_default(Tag_Type&&, Signal_Source a_source) = 0;
+
+    // Undoable add a new object using the supplied data. This data is assigned a new handle. The name will
+    // be modified if it is currently in use by another object. Return true if the operationn resulted in an undoable command.
+    //virtual bool add_emplace(Signal_Source a_source, Data_Type&& a_data) = 0;
+
+    // Undoable add a new object using the supplied handle. The name will be modified if it is currently in
+    // use by another object. Return true if the operation resulted in an undoable command. If this handle
+    // is invalid or already in the data then nothing happens and returns false.
+    //virtual bool add(Signal_Source a_source, Handle_Type const& a_handle) = 0;
+
+    // Undoable remove object. Return true if the operation resulted in an undoable command. If this handle
+    // is invalid or already in the data then nothing happens and returns false. Handle data is not deleted
+    // until the last handle for it is deleted.
+    //virtual bool remove(Signal_Source a_source, Handle_Type const& a_handle) = 0;
+
+    // Undoable change a handles name. Returns true if this call results in a change being made.
+    // If the name supplied is already in use then the supplied name will be altered.
+    //virtual bool change_name(Signal_Source a_source, Handle_Type const& a_handle, QString const& a_name) = 0;
+
+    // Undoable change an object's member value. Returns true if this call results in a change being made.
+    // Does nothing and returns false if this handle is invalid or not in the data, or if the supplied value
+    // doesn't result in data being changed.
+    // For each member of a given T, where Index_Tag_Type is Index_Tag<Member_Index>.
+    //virtual bool change_data_at(Index_Tag_Type&&, Signal_Source a_source, Handle_Type const& a_handle, Member_Value_Type const& a_value) = 0;
+
+    // Request that the editor for this file be opened or switched to.
+    //virtual void request_editor(Signal_Source a_source, Handle_Type const& a_handle) = 0;
+
+    // Request that the focus change to this object.
+    //virtual void request_outliner(Signal_Source a_source, Handle_Type const& a_handle) = 0;
   };
-
   //------------------------------------------------------------------------------------------------------------------------------------------------------
+
 
   //---------------------------------------------------------------------------
   // Abstract_Project_Interface
@@ -573,6 +510,22 @@ namespace sak
   // Factory function to make a type that implements this interface.
 
   std::unique_ptr<Abstract_Project_Interface> make_project_interface(Project_Data&& a_data);
-}
+
+
+} // namespace sak
+
+//------------------------------------------------------------------------------------------------------------------------------------------------------
+
+template <std::size_t LI, std::size_t LL, std::size_t MI, std::size_t ML, typename...Args>
+sak::internal::Abstract_Project_Interface_Part_Imp<flamingo::typelist<Args...>,LI,LL,MI,ML>::~Abstract_Project_Interface_Part_Imp() = default;
+
+template <std::size_t LI, std::size_t LL, std::size_t ML, typename...Args>
+sak::internal::Abstract_Project_Interface_Part_Imp<flamingo::typelist<Args...>,LI,LL,ML,ML>::~Abstract_Project_Interface_Part_Imp() = default;
+
+template <std::size_t LL, std::size_t ML, typename...Args>
+sak::internal::Abstract_Project_Interface_Part_Imp<flamingo::typelist<Args...>,LL,LL,ML,ML>::~Abstract_Project_Interface_Part_Imp() = default;
+
+template <typename T, typename...Args>
+sak::Abstract_Project_Interface_Imp<T,Args...>::~Abstract_Project_Interface_Imp() = default;
 
 #endif // SAK_ABSTRACT_PROJECT_INTERFACE_HPP

@@ -20,6 +20,7 @@ namespace sak
 
   using File_Tag = Tag<File_Definition>;
   using Texture_Tag = Tag<Texture_Definition>;
+  using Material_Tag = Tag<Material_Definition>;
 }
 
 #endif // SAK_TAG_FWD_HPP

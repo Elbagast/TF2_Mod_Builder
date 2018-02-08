@@ -42,7 +42,7 @@ namespace sak
     // For a type that isn't at the end of the list.
     template <std::size_t Index, std::size_t End, typename...Args>
     class Abstract_Project_Signalbox_Part_Imp<flamingo::typelist<Args...>,Index,End> :
-        public Abstract_Project_Signalbox_Part_Imp<flamingo::typelist<Args...>,Index+1,End>
+        protected Abstract_Project_Signalbox_Part_Imp<flamingo::typelist<Args...>,Index+1,End>
     {
       using Inh = Abstract_Project_Signalbox_Part_Imp<flamingo::typelist<Args...>,Index+1,End>;
 
