@@ -8,6 +8,7 @@
 #include "test_project_data.hpp"
 #include "test_project_signalbox_data.hpp"
 #include "test_abstract_project_interface.hpp"
+#include "test_project_handle_factory.hpp"
 
 int main(int argc, char *argv[])
 {
@@ -20,6 +21,7 @@ int main(int argc, char *argv[])
   test_project_data();
   test_project_signalbox_data();
   test_abstract_project_interface();
+  test_project_handle_factory();
 
   return 0;
 

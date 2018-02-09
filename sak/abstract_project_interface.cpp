@@ -1,5 +1,5 @@
 ﻿#include "abstract_project_interface.hpp"
-
+/*
 #include "data_definitions.hpp"
 #include "class_definitions.hpp"
 #include "data.hpp"
@@ -10,6 +10,7 @@
 #include "command_history.hpp"
 
 #include <type_traits>
+*/
 /*
 //---------------------------------------------------------------------------
 // Abstract_Section_Member_Interface<T>

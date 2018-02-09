@@ -8,7 +8,6 @@
 #ifndef SAK_ABSTRACT_PROJECT_SIGNALBOX_FWD_HPP
 #include "abstract_project_signalbox_fwd.hpp"
 #endif
-//#include "abstract_project_signalbox.hpp"
 
 #ifndef SAK_SECTION_INTERFACE_FWD_HPP
 #include "section_interface_fwd.hpp"
@@ -22,12 +21,12 @@
 #include "tag_fwd.hpp"
 #endif
 
-#ifndef SAK_PROJECT_DATA_FWD_HPP
-#include "project_data_fwd.hpp"
-#endif
-
 #ifndef SAK_SIGNAL_SOURCE_FWD_HPP
 #include "signal_source_fwd.hpp"
+#endif
+
+#ifndef SAK_CLASS_DEFINITIONS_HPP
+#include "class_definitions.hpp"
 #endif
 
 #ifndef SAK_DATA_HPP
@@ -49,6 +48,7 @@
 #endif
 
 class QString;
+
 /*
 Virtual inheritance creates a massive overhead, and this class is to be used in
 only one place. So how do we remove it?
@@ -81,8 +81,6 @@ Top<A,B,C>
             Part<List<A,B,C>,2,2,1,1>
               - A<1> interface - last one
               - C interface - last one
-
-
 */
 
 namespace sak
@@ -102,7 +100,7 @@ namespace sak
       std::size_t T_List_Index = 0,
       std::size_t T_List_Last = (flamingo::typelist_size_v<T_List> - 1 ),
       std::size_t T_Member_Index = 0,
-      std::size_t T_Member_Last = (Data_Size_v<Data<flamingo::typelist_at_t<T_List,T_List_Index>>> - 1 )
+      std::size_t T_Member_Last = (Class_Def_Size_v<flamingo::typelist_at_t<T_List,T_List_Index>> - 1 )
     >
     class Abstract_Project_Interface_Part_Imp;
 
@@ -124,8 +122,8 @@ namespace sak
       using Index_Tag_Type = Index_Tag<index>;
       using Member_Value_Type = Data_Member_Value_Type<index,Data_Type>;
 
-      static_assert(Data_Size_v<Data_Type> != 0, "Cannot use data with no members.");
-      static_assert(Data_Size_v<Data_Type> == (ML+1), "Bad last index.");
+      static_assert(Class_Def_Size_v<Type> != 0, "Cannot use data with no members.");
+      static_assert(Class_Def_Size_v<Type> == (ML+1), "Bad last index.");
     public:
 
       // Special 6
@@ -180,8 +178,8 @@ namespace sak
       using Index_Tag_Type = Index_Tag<index>;
       using Member_Value_Type = Data_Member_Value_Type<index,Data_Type>;
 
-      static_assert(Data_Size_v<Data_Type> != 0, "Cannot use data with no members.");
-      static_assert(Data_Size_v<Data_Type> == (ML+1), "Bad last index.");
+      static_assert(Class_Def_Size_v<Type> != 0, "Cannot use data with no members.");
+      static_assert(Class_Def_Size_v<Type> == (ML+1), "Bad last index.");
     public:
 
       // Special 6
@@ -284,8 +282,8 @@ namespace sak
       using Index_Tag_Type = Index_Tag<index>;
       using Member_Value_Type = Data_Member_Value_Type<index,Data_Type>;
 
-      static_assert(Data_Size_v<Data_Type> != 0, "Cannot use data with no members.");
-      static_assert(Data_Size_v<Data_Type> == (ML+1), "Bad last index.");
+      static_assert(Class_Def_Size_v<Type> != 0, "Cannot use data with no members.");
+      static_assert(Class_Def_Size_v<Type> == (ML+1), "Bad last index.");
     public:
 
       // Special 6
@@ -431,7 +429,7 @@ namespace sak
     using Inh::request_editor;
     using Inh::request_outliner;
 
-    // Functions are as follows, with overloads for each Type in the
+    // Functions are as follows, with overloads for each Type in
     // the arguments <T,Args...>:
     //------------------------------------------------------------
 
@@ -509,7 +507,7 @@ namespace sak
   //---------------------------------------------------------------------------
   // Factory function to make a type that implements this interface.
 
-  std::unique_ptr<Abstract_Project_Interface> make_project_interface(Project_Data&& a_data);
+  //std::unique_ptr<Abstract_Project_Interface> make_project_interface(Project_Data&& a_data);
 
 
 } // namespace sak
@@ -527,5 +525,33 @@ sak::internal::Abstract_Project_Interface_Part_Imp<flamingo::typelist<Args...>,L
 
 template <typename T, typename...Args>
 sak::Abstract_Project_Interface_Imp<T,Args...>::~Abstract_Project_Interface_Imp() = default;
+
+/*
+Planning an implementation:
+- Path read functions
+  - Path data
+- History functions
+  - History data
+- Handle read functions
+  - Handle data
+- Handle factory functions
+  - Handle Factory
+    - Name access
+      - Handle data
+- Handle edit functions
+  - History data
+  - Sending signals
+    - Signalbox data
+  - Name access
+    - Handle data
+
+Data dependencies:
+- Path data
+- History data
+- Signalbox data
+- Factory data
+- Handle data<T>...
+
+*/
 
 #endif // SAK_ABSTRACT_PROJECT_INTERFACE_HPP

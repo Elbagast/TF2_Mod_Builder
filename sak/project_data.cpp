@@ -508,15 +508,10 @@ QString sak::Project_Data_Imp<T,Args...>::filepath() const
 
 //------------------------------------------------------------------------------------------------------------------------------------------------------
 
-namespace
-{
-  using Project_Typelist = flamingo::typelist<sak::File_Definition,sak::Texture_Definition, sak::Material_Definition>;
-}
-
 template class sak::Project_Data_Section_Data_Imp<sak::File_Definition,sak::Texture_Definition, sak::Material_Definition>;
 template class sak::Project_Data_Shared_Imp<sak::File_Definition,sak::Texture_Definition, sak::Material_Definition>;
-template class sak::Project_Data_Section_Imp<Project_Typelist,sak::File_Definition>;
-template class sak::Project_Data_Section_Imp<Project_Typelist,sak::Texture_Definition>;
-template class sak::Project_Data_Section_Imp<Project_Typelist,sak::Material_Definition>;
+template class sak::Project_Data_Section_Imp<sak::Project_Typelist,sak::File_Definition>;
+template class sak::Project_Data_Section_Imp<sak::Project_Typelist,sak::Texture_Definition>;
+template class sak::Project_Data_Section_Imp<sak::Project_Typelist,sak::Material_Definition>;
 
-template class sak::Project_Data_Imp<sak::File_Definition,sak::Texture_Definition, sak::Material_Definition>;
+template class sak::Project_Data;

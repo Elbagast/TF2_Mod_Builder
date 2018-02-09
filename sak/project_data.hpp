@@ -57,6 +57,7 @@ Project_Data_Imp<A,B,C>
 
 uh oh forgot that adding and removing is going to involve the position index
 if you want undo/redo to restore the ordering...
+
 */
 namespace sak
 {
@@ -397,6 +398,371 @@ namespace sak
   };
 
   //------------------------------------------------------------------------------------------------------------------------------------------------------
+  namespace internal
+  {
+    //---------------------------------------------------------------------------
+    // v2Project_Raw_Data_Part_Imp<List, Index, End>
+    //---------------------------------------------------------------------------
+    // Declaration and default arguments for the template class that builds the
+    // template chain.
+    template
+    <
+      typename T_List,
+      std::size_t Index = 0,
+      std::size_t End = (flamingo::typelist_size_v<T_List> - 1)
+    >
+    class v2Project_Raw_Data_Part_Imp;
+
+    //------------------------------------------------------------------------------------------------------------------------------------------------------
+
+    //---------------------------------------------------------------------------
+    // v2Project_Raw_Data_Part_Imp<List, Index, End>
+    //---------------------------------------------------------------------------
+    // For a type that isn't at the end of the list.
+    template <std::size_t Index, std::size_t End, typename...Args>
+    class v2Project_Raw_Data_Part_Imp<flamingo::typelist<Args...>,Index,End> :
+        protected v2Project_Raw_Data_Part_Imp<flamingo::typelist<Args...>,Index+1,End>
+    {
+      // Typedefs
+      //============================================================
+      using Inh = v2Project_Raw_Data_Part_Imp<flamingo::typelist<Args...>,Index+1,End>;
+
+      using Type = flamingo::typelist_at_t<flamingo::typelist<Args...>,Index>;
+      using Handle_Type = Handle<Type>;
+      using Tag_Type = Tag<Type>;
+
+    public:
+      // Special 6
+      //============================================================
+      v2Project_Raw_Data_Part_Imp();
+      ~v2Project_Raw_Data_Part_Imp();
+
+      // Interface
+      //============================================================
+      // Access the handles for direct manipulation.
+      std::vector<Handle_Type>& get_raw_handles(Tag_Type&&);
+      std::vector<Handle_Type> const& cget_raw_handles(Tag_Type&&) const;
+
+      using Inh::get_raw_handles;
+      using Inh::cget_raw_handles;
+
+    private:
+      std::vector<Handle_Type> m_handles;
+    };
+
+    //------------------------------------------------------------------------------------------------------------------------------------------------------
+
+    //---------------------------------------------------------------------------
+    // v2Project_Raw_Data_Part_Imp<List, End, End>
+    //---------------------------------------------------------------------------
+    // For a type that isn't at the end of the list.
+    template <std::size_t End, typename...Args>
+    class v2Project_Raw_Data_Part_Imp<flamingo::typelist<Args...>,End,End>
+    {
+      // Typedefs
+      //============================================================
+      using Type = flamingo::typelist_at_t<flamingo::typelist<Args...>,End>;
+      using Handle_Type = Handle<Type>;
+      using Tag_Type = Tag<Type>;
+
+    public:
+      // Special 6
+      //============================================================
+      v2Project_Raw_Data_Part_Imp();
+      ~v2Project_Raw_Data_Part_Imp();
+
+      // Interface
+      //============================================================
+      // Access the handles for direct manipulation.
+      std::vector<Handle_Type>& get_raw_handles(Tag_Type&&);
+      std::vector<Handle_Type> const& cget_raw_handles(Tag_Type&&) const;
+
+    private:
+      std::vector<Handle_Type> m_handles;
+    };
+
+    //------------------------------------------------------------------------------------------------------------------------------------------------------
+
+    //---------------------------------------------------------------------------
+    // v2Project_Raw_Data_Imp<List, End, End>
+    //---------------------------------------------------------------------------
+    // The bit that holds all of the Project data allowing access for layers that
+    // need all of it.
+    template <typename T, typename...Args>
+    class v2Project_Raw_Data_Imp :
+        protected v2Project_Raw_Data_Part_Imp<flamingo::typelist<T,Args...>>
+    {
+      // Typedefs
+      //============================================================
+      using Inh = v2Project_Raw_Data_Part_Imp<flamingo::typelist<T,Args...>>;
+    public:
+      // Special 6
+      //============================================================
+      v2Project_Raw_Data_Imp();
+      ~v2Project_Raw_Data_Imp();
+
+      // Interface
+      //============================================================
+      // Does this name appear in the data?
+      bool has_name(QString const&) const;
+      // Get all the objects names in alphabetical order. The true
+      // types that are associated with the names are ignored.
+      std::vector<QString> get_all_names() const;
+      // Alter the supplied name so that it is unique among the
+      // existing data names.
+      void fix_name(QString&) const;
+
+      using Inh::get_raw_handles;
+      using Inh::cget_raw_handles;
+
+      // Functions are as follows, with overloads for each Type in the
+      // the arguments <T,Args...>:
+      //------------------------------------------------------------
+      // Access the handles for direct manipulation.
+      //std::vector<Handle_Type>& get_handles(Tag_Type&&);
+      //std::vector<Handle_Type> const& cget_handles(Tag_Type&&) const;
+    };
+
+
+    //------------------------------------------------------------------------------------------------------------------------------------------------------
+
+    //---------------------------------------------------------------------------
+    // v2Project_Data_Part_Imp<List, Index, End>
+    //---------------------------------------------------------------------------
+    // Declaration and default arguments for the template class that builds the
+    // template chain.
+    template
+    <
+      typename T_List,
+      std::size_t Index = 0,
+      std::size_t End = (flamingo::typelist_size_v<T_List> - 1)
+    >
+    class v2Project_Data_Part_Imp;
+
+    //------------------------------------------------------------------------------------------------------------------------------------------------------
+
+    //---------------------------------------------------------------------------
+    // v2Project_Data_Part_Imp<List, Index, End>
+    //---------------------------------------------------------------------------
+    // For a type that isn't at the end of the list.
+    template <std::size_t Index, std::size_t End, typename...Args>
+    class v2Project_Data_Part_Imp<flamingo::typelist<Args...>,Index,End> :
+        protected v2Project_Data_Part_Imp<flamingo::typelist<Args...>,Index+1,End>
+    {
+      // Typedefs
+      //============================================================
+      using Inh = v2Project_Data_Part_Imp<flamingo::typelist<Args...>,Index+1,End>;
+
+      using Type = flamingo::typelist_at_t<flamingo::typelist<Args...>,Index>;
+      using Data_Type = Data<Type>;
+      using Handle_Type = Handle<Type>;
+      using Tag_Type = Tag<Type>;
+
+    public:
+      // Special 6
+      //============================================================
+      v2Project_Data_Part_Imp();
+      ~v2Project_Data_Part_Imp();
+
+      // Interface
+      //============================================================
+      // Are there any handles of this type in the currently
+      // active project data?
+      bool empty(Tag_Type&&) const;
+
+      // How handles of this type in the currently active project
+      // data?
+      std::size_t count(Tag_Type&&) const;
+
+      // Does this handle appear in the data?
+      bool has_handle(Handle_Type const& a_handle) const;
+
+      // Does this name appear in the data?
+      bool has_handle_named(Tag_Type&&, QString const& a_name) const;
+
+      // Get the handle at this index. Handles are sorted
+      // alphabetically by name. If the index is invalid a null
+      // handle is returned.
+      Handle_Type get_handle_at(Tag_Type&&, std::size_t a_index) const;
+
+      // Get the handle with this name. If the name is invalid a null
+      // handle is returned.
+      Handle_Type get_handle_named(Tag_Type&&, QString const& a_name) const;
+
+      // Get all the handles names in alphabetical order.
+      std::vector<QString> get_names(Tag_Type&&) const;
+
+      // Get all the handles
+      std::vector<Handle_Type> const& get_handles(Tag_Type&&) const;
+
+      using Inh::empty;
+      using Inh::count;
+      using Inh::has_handle;
+      using Inh::has_handle_named;
+      using Inh::get_handle_at;
+      using Inh::get_handle_named;
+      using Inh::get_names;
+      using Inh::get_handles;
+
+      using Inh::has_name;
+      using Inh::get_all_names;
+      using Inh::fix_name;
+
+    protected:
+      using Inh::get_raw_handles;
+      using Inh::cget_raw_handles;
+    };
+
+    //------------------------------------------------------------------------------------------------------------------------------------------------------
+
+    //---------------------------------------------------------------------------
+    // v2Project_Raw_Data_Part_Imp<List, End, End>
+    //---------------------------------------------------------------------------
+    // For a type that isn't at the end of the list.
+    template <std::size_t End, typename...Args>
+    class v2Project_Data_Part_Imp<flamingo::typelist<Args...>,End,End> :
+        protected v2Project_Raw_Data_Part_Imp<flamingo::typelist<Args...>>
+    {
+      // Typedefs
+      //============================================================
+      using Inh = v2Project_Raw_Data_Part_Imp<flamingo::typelist<Args...>>;
+      using Type = flamingo::typelist_at_t<flamingo::typelist<Args...>,End>;
+      using Data_Type = Data<Type>;
+      using Handle_Type = Handle<Type>;
+      using Tag_Type = Tag<Type>;
+
+    public:
+      // Special 6
+      //============================================================
+      v2Project_Data_Part_Imp();
+      ~v2Project_Data_Part_Imp();
+
+      // Interface
+      //============================================================
+      // Are there any handles of this type in the currently
+      // active project data?
+      bool empty(Tag_Type&&) const;
+
+      // How handles of this type in the currently active project
+      // data?
+      std::size_t count(Tag_Type&&) const;
+
+      // Does this handle appear in the data?
+      bool has_handle(Handle_Type const& a_handle) const;
+
+      // Does this name appear in the data?
+      bool has_handle_named(Tag_Type&&, QString const& a_name) const;
+
+      // Get the handle at this index. Handles are sorted
+      // alphabetically by name. If the index is invalid a null
+      // handle is returned.
+      Handle_Type get_handle_at(Tag_Type&&, std::size_t a_index) const;
+
+      // Get the handle with this name. If the name is invalid a null
+      // handle is returned.
+      Handle_Type get_handle_named(Tag_Type&&, QString const& a_name) const;
+
+      // Get all the handles names in alphabetical order.
+      std::vector<QString> get_names(Tag_Type&&) const;
+
+      // Get all the handles
+      std::vector<Handle_Type> const& get_handles(Tag_Type&&) const;
+
+      using Inh::empty;
+      using Inh::count;
+      using Inh::has_handle;
+      using Inh::has_handle_named;
+      using Inh::get_handle_at;
+      using Inh::get_handle_named;
+      using Inh::get_names;
+      using Inh::get_handles;
+
+      using Inh::has_name;
+      using Inh::get_all_names;
+      using Inh::fix_name;
+
+    protected:
+      using Inh::get_raw_handles;
+      using Inh::cget_raw_handles;
+      using Inh::next_id;
+    };
+
+
+  } // namespace internal
+
+  template <typename T, typename...Args>
+  class v2Project_Data_Imp :
+      protected internal::v2Project_Raw_Data_Part_Imp<flamingo::typelist<T,Args...>>
+  {
+    // Typedefs
+    //============================================================
+    using Inh = internal::v2Project_Raw_Data_Part_Imp<flamingo::typelist<T,Args...>>;
+  public:
+    // Special 6
+    //============================================================
+    v2Project_Data_Imp();
+    ~v2Project_Data_Imp();
+
+    // Interface
+    //============================================================
+    // Does this name appear in the data?
+    bool has_name(QString const&) const;
+    // Get all the objects names in alphabetical order. The true
+    // types that are associated with the names are ignored.
+    std::vector<QString> get_all_names() const;
+    // Alter the supplied name so that it is unique among the
+    // existing data names.
+    void fix_name(QString&) const;
+
+    // Get the next id to make a handle with.
+    std::size_t next_id() const;
+
+    using Inh::empty;
+    using Inh::count;
+    using Inh::has_handle;
+    using Inh::has_handle_named;
+    using Inh::get_handle_at;
+    using Inh::get_handle_named;
+    using Inh::get_names;
+    using Inh::get_handles;
+    using Inh::cget_handles;
+
+    // Functions are as follows, with overloads for each Type in the
+    // the arguments <T,Args...>:
+    //------------------------------------------------------------
+    // Are there any handles of this type in the currently
+    // active project data?
+    //bool empty(Tag_Type&&) const;
+
+    // How handles of this type in the currently active project
+    // data?
+    //std::size_t count(Tag_Type&&) const;
+
+    // Does this handle appear in the data?
+    //bool has_handle(Handle_Type const& a_handle) const;
+
+    // Does this name appear in the data?
+    //bool has_handle_named(Tag_Type&&, QString const& a_name) const;
+
+    // Get the handle at this index. Handles are sorted
+    // alphabetically by name. If the index is invalid a null
+    // handle is returned.
+    //Handle_Type get_handle_at(Tag_Type&&, std::size_t a_index) const;
+
+    // Get the handle with this name. If the name is invalid a null
+    // handle is returned.
+    //Handle_Type get_handle_named(Tag_Type&&, QString const& a_name) const;
+
+    // Get all the handles names in alphabetical order.
+    //std::vector<QString> get_names(Tag_Type&&) const;
+
+    // Access the handles for direct manipulation.
+    //std::vector<Handle_Type>& get_handles(Tag_Type&&);
+
+    //std::vector<Handle_Type> const& cget_handles(Tag_Type&&) const;
+  private:
+    mutable std::size_t m_next_id;
+  };
 
 } // namespace sak
 

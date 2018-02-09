@@ -6,7 +6,14 @@ namespace sak
   template <typename T_Data_Def, typename T_Name>
   class Member_Definition;
 
-  template <typename T_Type, typename T_Type_Plural, typename T_Iconpath, typename...T_Member_Defs>
+  template
+  <
+    typename T_Typestring,
+    typename T_Typestring_Plural,
+    typename T_Default_Name,
+    typename T_Iconpath,
+    typename...T_Member_Defs
+  >
   class Class_Definition;
 
   class File_Definition;

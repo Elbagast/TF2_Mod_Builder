@@ -1,5 +1,6 @@
 ﻿#include "project_signalbox_data.hpp"
 
+#include "class_definitions.hpp"
 #include "abstract_project_signalbox.hpp"
 #include "signal_source.hpp"
 
@@ -360,15 +361,11 @@ sak::Project_Signalbox_Data_Imp<T,Args...>& sak::Project_Signalbox_Data_Imp<T,Ar
 
 //------------------------------------------------------------------------------------------------------------------------------------------------------
 
-namespace
-{
-  using Project_Typelist = flamingo::typelist<sak::File_Definition,sak::Texture_Definition, sak::Material_Definition>;
-}
 
 // This is the downside of doing it like this if you want to hide stuff....
-template class sak::Project_Signalbox_Data_Part_Imp<Project_Typelist,0,2>;
-template class sak::Project_Signalbox_Data_Part_Imp<Project_Typelist,1,2>;
-template class sak::Project_Signalbox_Data_Part_Imp<Project_Typelist,2,2>;
+template class sak::Project_Signalbox_Data_Part_Imp<sak::Project_Typelist,0,2>;
+template class sak::Project_Signalbox_Data_Part_Imp<sak::Project_Typelist,1,2>;
+template class sak::Project_Signalbox_Data_Part_Imp<sak::Project_Typelist,2,2>;
 
-template class sak::Project_Signalbox_Data_Imp<sak::File_Definition, sak::Texture_Definition, sak::Material_Definition>;
+template class sak::Project_Signalbox_Data;
 

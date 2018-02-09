@@ -85,16 +85,33 @@ namespace sak
   //template <typename T_Type, typename T_Type_Plural, typename T_Iconpath, typename...T_Member_Defs>
   //class Class_Definition;
 
-  template <typename T_Type, typename T_Type_Plural, typename T_Iconpath, typename...T_Data_Defs, typename...T_Names>
-  class Class_Definition<T_Type,T_Type_Plural,T_Iconpath, Member_Definition<T_Data_Defs,T_Names>...>
+  template
+  <
+    typename T_Typestring,
+    typename T_Typestring_Plural,
+    typename T_Default_Name,
+    typename T_Iconpath,
+    typename...T_Data_Defs,
+    typename...T_Names
+  >
+  class Class_Definition
+  <
+    T_Typestring,
+    T_Typestring_Plural,
+    T_Default_Name,
+    T_Iconpath,
+    Member_Definition<T_Data_Defs,T_Names>...
+  >
   {
   public:
     using Member_Def_Typelist = flamingo::typelist<Member_Definition<T_Data_Defs,T_Names>...>;
     using Member_Name_Typelist = flamingo::typelist<T_Names...>;
     using Member_Value_Typelist = flamingo::typelist<typename T_Data_Defs::Value_Type...>;
 
-    using Typestring_Type = T_Type;
-    using Typestring_Plural_Type = T_Type_Plural;
+    using Typestring_Type = T_Typestring;
+    using Typestring_Plural_Type = T_Typestring_Plural;
+
+    using Default_Name_Type = T_Default_Name;
 
     using Iconpath_Type = T_Iconpath;
 
@@ -104,14 +121,16 @@ namespace sak
   namespace internal
   {
     using Literal_String_S = FLAMINGO_LITYPE_STRING(u8"s");
+    using Literal_String_New = FLAMINGO_LITYPE_STRING(u8"New ");
   }
 
-  template <typename T_Type, typename T_Iconpath, typename...T_Member_Defs>
+  template <typename T_Typestring, typename T_Iconpath, typename...T_Member_Defs>
   using Default_Class_Definition =
   Class_Definition
   <
-    T_Type,
-    flamingo::litype::string_concatenate_t<T_Type,internal::Literal_String_S>,
+    T_Typestring,
+    flamingo::litype::string_concatenate_t<T_Typestring,internal::Literal_String_S>,
+    flamingo::litype::string_concatenate_t<internal::Literal_String_New,T_Typestring>,
     T_Iconpath,
     T_Member_Defs...
   >;
@@ -235,6 +254,9 @@ namespace sak
     static_assert(flamingo::typelist_size_v<Member_Name_Typelist> == 3,  "bad size");
     static_assert(flamingo::typelist_size_v<Member_Value_Typelist> == 3,  "bad size");
   };
+
+
+  using Project_Typelist = flamingo::typelist<File_Definition,Texture_Definition,Material_Definition>;
 } // namespace sak
 
 #endif // SAK_CLASS_DEFINITIONS_HPP
