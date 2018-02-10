@@ -23,7 +23,8 @@ SOURCES += \
     test_project_data.cpp \
     test_abstract_project_interface.cpp \
     test_project_signalbox_data.cpp \
-    test_project_handle_factory.cpp
+    test_project_handle_factory.cpp \
+    test_project_handle_data.cpp
 
 HEADERS += \
     test_data.hpp \
@@ -33,7 +34,8 @@ HEADERS += \
     test_project_data.hpp \
     test_abstract_project_interface.hpp \
     test_project_signalbox_data.hpp \
-    test_project_handle_factory.hpp
+    test_project_handle_factory.hpp \
+    test_project_handle_data.hpp
 
 
 include($$PWD/../library_flamingo.pri)
