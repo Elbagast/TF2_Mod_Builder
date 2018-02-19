@@ -20,8 +20,8 @@ void sak::uniqueify_name(QString& a_name, std::vector<QString> const& a_names)
       l_fixed_name.append(QString::number(l_postfix));
       if (std::find(a_names.cbegin(), a_names.cend(), l_fixed_name) == a_names.end())
       {
-          a_name = l_fixed_name;
-          break;
+        a_name = l_fixed_name;
+        break;
       }
     }
   }

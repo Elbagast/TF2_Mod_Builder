@@ -17,6 +17,8 @@
 #include "handle_factory.hpp"
 #endif
 
+
+
 #ifndef FLAMINGO_TYPELIST_HPP
 #include <flamingo/typelist.hpp>
 #endif
@@ -401,7 +403,7 @@ namespace sak
   namespace internal
   {
     //---------------------------------------------------------------------------
-    // v2Project_Raw_Data_Part_Imp<List, Index, End>
+    // v2Project_Data_Part_Imp<List, Index, End>
     //---------------------------------------------------------------------------
     // Declaration and default arguments for the template class that builds the
     // template chain.
@@ -411,17 +413,17 @@ namespace sak
       std::size_t Index = 0,
       std::size_t End = (flamingo::typelist_size_v<T_List> - 1)
     >
-    class v2Project_Raw_Data_Part_Imp;
+    class v2Project_Data_Part_Imp;
 
     //------------------------------------------------------------------------------------------------------------------------------------------------------
 
     //---------------------------------------------------------------------------
-    // v2Project_Raw_Data_Part_Imp<List, Index, End>
+    // v2Project_Data_Part_Imp<List, Index, End>
     //---------------------------------------------------------------------------
     // For a type that isn't at the end of the list.
     template <std::size_t Index, std::size_t End, typename...Args>
-    class v2Project_Raw_Data_Part_Imp<flamingo::typelist<Args...>,Index,End> :
-        protected v2Project_Raw_Data_Part_Imp<flamingo::typelist<Args...>,Index+1,End>
+    class v2Project_Data_Part_Imp<flamingo::typelist<Args...>,Index,End> :
+        protected v2Project_Data_Part_Imp<flamingo::typelist<Args...>,Index+1,End>
     {
       // Typedefs
       //============================================================
@@ -457,7 +459,7 @@ namespace sak
     //---------------------------------------------------------------------------
     // For a type that isn't at the end of the list.
     template <std::size_t End, typename...Args>
-    class v2Project_Raw_Data_Part_Imp<flamingo::typelist<Args...>,End,End>
+    class v2Project_Data_Part_Imp<flamingo::typelist<Args...>,End,End>
     {
       // Typedefs
       //============================================================
@@ -468,8 +470,8 @@ namespace sak
     public:
       // Special 6
       //============================================================
-      v2Project_Raw_Data_Part_Imp();
-      ~v2Project_Raw_Data_Part_Imp();
+      v2Project_Data_Part_Imp();
+      ~v2Project_Data_Part_Imp();
 
       // Interface
       //============================================================

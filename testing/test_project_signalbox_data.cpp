@@ -12,7 +12,7 @@
 #include <iostream>
 #include <cassert>
 #include <type_traits>
-
+/*
 namespace sak
 {
   namespace
@@ -319,13 +319,13 @@ namespace sak
   class C{};
   class D{};
 }
-
+*/
 
 void sak::testing::test_project_signalbox_data()
 {
   std::cout << "Testing sak::Project_Signalbox_Data" << std::endl;
   std::cout << "==============================" << std::endl;
-
+/*
   using namespace sak;
 
   Project_Signalbox_Data l_psd{};
@@ -369,6 +369,6 @@ void sak::testing::test_project_signalbox_data()
   do_project_signalbox_test<File_Definition>(l_psd);
   do_project_signalbox_test<Texture_Definition>(l_psd);
   do_project_signalbox_test<Material_Definition>(l_psd);
-
+*/
   std::cout << "==============================" << std::endl;
 }

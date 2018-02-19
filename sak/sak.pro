@@ -84,7 +84,6 @@ SOURCES += \
     abstract_member_edit_widget.cpp \
     handle.cpp \
     handle_factory.cpp \
-    project_data.cpp \
     tag.cpp \
     abstract_project_signalbox.cpp \
     name_utilities.cpp \
@@ -94,7 +93,8 @@ SOURCES += \
     project_signalbox_data.cpp \
     signal_source.cpp \
     project_handle_factory.cpp \
-    project_handle_data.cpp
+    project_handle_data.cpp \
+    project_signalling_data.cpp
 
 HEADERS  += \
     class_definitions.hpp \
@@ -110,8 +110,6 @@ HEADERS  += \
     handle_factory.hpp \
     handle_factory_fwd.hpp \
     handle_fwd.hpp \
-    project_data.hpp \
-    project_data_fwd.hpp \
     tag.hpp \
     tag_fwd.hpp \
     abstract_project_signalbox.hpp \
@@ -130,7 +128,9 @@ HEADERS  += \
     project_handle_factory.hpp \
     project_handle_factory_fwd.hpp \
     project_handle_data.hpp \
-    project_handle_data_fwd.hpp
+    project_handle_data_fwd.hpp \
+    project_signalling_data.hpp \
+    project_signalling_data_fwd.hpp
 
 FORMS += \
 

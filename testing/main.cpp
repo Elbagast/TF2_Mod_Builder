@@ -5,7 +5,7 @@
 #include "test_data.hpp"
 #include "test_handle.hpp"
 #include "test_handle_factory.hpp"
-#include "test_project_data.hpp"
+//#include "test_project_data.hpp"
 #include "test_project_signalbox_data.hpp"
 #include "test_abstract_project_interface.hpp"
 #include "test_project_handle_factory.hpp"
@@ -19,7 +19,7 @@ int main(int argc, char *argv[])
   test_data();
   test_handle();
   test_handle_factory();
-  test_project_data();
+  //test_project_data();
   test_project_signalbox_data();
   test_abstract_project_interface();
   test_project_handle_factory();

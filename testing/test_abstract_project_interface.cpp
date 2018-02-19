@@ -189,9 +189,322 @@ namespace sak
     using Inh::other;
   };
   // And thus proof of concept of non-virtual inheritance. Too bad about the repeat function declarations.
+  //------------------------------------------------------------------------------------------------------------------------------------------------------
+  // alternative architecture:
+
+  namespace test
+  {
+    enum class Member_Type
+    {
+      Simple,
+      Alternative
+    };
+
+    template
+    <
+        typename T_List,
+        std::size_t LI = 0,
+        std::size_t MI = 0,
+        std::size_t LE = (flamingo::typelist_size_v<T_List> - 1),
+        std::size_t ME = (Data_Size_v<Data<flamingo::typelist_at_t<T_List,LI>>>)
+        //,Member_Type MT = [determine member type of the class member]
+    >
+    class Member;
 
 
+    // for any member that isn't at the end of a type
+    template <std::size_t LI, std::size_t MI, std::size_t LE, std::size_t ME, typename...Args>
+    class Member<flamingo::typelist<Args...>,LI,MI,LE,ME> :
+        protected Member<flamingo::typelist<Args...>,LI,MI+1,LE,ME>
+    {
+      using Inh = Member<flamingo::typelist<Args...>,LI,MI+1,LE,ME>;
 
+      using Type = flamingo::typelist_at_t<flamingo::typelist<Args...>,LI>;
+      static_assert(Data_Size_v<Data<Type>> != 0 ,"can't have no members.");
+
+      static constexpr std::size_t index = MI;
+    public:
+      Member()
+      {
+        std::cout << "(1)Member<List," << LI << "," << MI << "," << LE << "," << ME << ">::Member" << std::endl;
+      }
+      ~Member() override = default;
+
+      virtual void func(Tag<Type>&&,Index_Tag<index>&&)//Index_Tag<index>&&, Handle<Type> const&)
+      {
+        std::cout << "(1)Member<List," << LI << "," << MI << "," << LE << "," << ME << ">::func" << std::endl;
+      }
+
+    };
+
+
+    // for any member that is at the end of a type
+    template <std::size_t LI, std::size_t LE, std::size_t ME, typename...Args>
+    class Member<flamingo::typelist<Args...>,LI,ME,LE,ME> :
+        protected Member<flamingo::typelist<Args...>,LI+1>
+    {
+      using Inh = Member<flamingo::typelist<Args...>,LI+1>;
+
+      using Type = flamingo::typelist_at_t<flamingo::typelist<Args...>,LI>;
+      static_assert(Data_Size_v<Data<Type>> != 0 ,"can't have no members.");
+
+    public:
+      Member()
+      {
+        std::cout << "(2)Member<List," << LI << "," << ME << "," << LE << "," << ME << ">::Member" << std::endl;
+      }
+      ~Member() override = default;
+
+    };
+
+    // for any member that is the end of the last type
+    template <std::size_t LE, std::size_t ME, typename...Args>
+    class Member<flamingo::typelist<Args...>,LE,ME,LE,ME>
+    {
+      //static_assert(Data_Size_v<Data<Type>> != 0 ,"can't have no members.");
+
+    public:
+      Member()
+      {
+        std::cout << "(3)Member<List," << LE << "," << ME << "," << LE << "," << ME << ">::Member" << std::endl;
+      }
+      virtual ~Member() = default;
+    };
+
+
+    template
+    <
+        typename T_List,
+        std::size_t LI = 0,
+        std::size_t LE = (flamingo::typelist_size_v<T_List>)
+    >
+    class Section;
+
+    // for any type that isn't at the end of the list
+    template <std::size_t LI, std::size_t LE, typename...Args>
+    class Section<flamingo::typelist<Args...>,LI,LE> :
+        protected Section<flamingo::typelist<Args...>,LI+1,LE>
+    {
+      using Inh = Section<flamingo::typelist<Args...>,LI+1,LE>;
+
+      using Type = flamingo::typelist_at_t<flamingo::typelist<Args...>,LI>;
+      static_assert(Data_Size_v<Data<Type>> != 0 ,"can't have no members.");
+
+    public:
+      Section()
+      {
+        std::cout << "(1)Section<List," << LI << "," << LE << ">::Section" << std::endl;
+      }
+      ~Section() override = default;
+
+      virtual void other(Tag<Type>&&)
+      {
+        std::cout << "(1)Section<List," << LI << "," << LE << ">::other" << std::endl;
+      }
+
+    };
+
+    // for the type at the end of the list, just continue the inheritance chain
+    template <std::size_t LE, typename...Args>
+    class Section<flamingo::typelist<Args...>,LE,LE> :
+        protected Member<flamingo::typelist<Args...>>
+    {
+      using Inh = Member<flamingo::typelist<Args...>>;
+
+      //using Type = flamingo::typelist_at_t<flamingo::typelist<Args...>,LI>;
+      //static_assert(Data_Size_v<Data<Type>> != 0 ,"can't have no members.");
+
+    public:
+      Section()
+      {
+        std::cout << "(2)Section<List," << LE << "," << LE << ">::Section" << std::endl;
+      }
+      ~Section() override = default;
+
+    };
+
+    template <typename T, typename...Args>
+    class Top :
+        protected Section<flamingo::typelist<T,Args...>>
+    {
+      using Inh = Section<flamingo::typelist<T,Args...>>;
+
+
+      template <typename T1>
+      using Section_Type = Section<flamingo::typelist<T,Args...>,flamingo::typelist_find_v<flamingo::typelist<T,Args...>,T1>>;
+
+      template <typename T1, std::size_t I>
+      using Member_Type = Member<flamingo::typelist<T,Args...>,flamingo::typelist_find_v<flamingo::typelist<T,Args...>,T1>,I>;
+    public:
+      Top()
+      {
+        std::cout << "Top<T,Args...>::Top" << std::endl;
+      }
+      ~Top() override = default;
+
+      virtual void thing()
+      {
+        std::cout << "Top<T,Args...>::thing" << std::endl;
+      }
+
+
+      template <typename T1>
+      Section_Type<T1>* get_section() { return this; }
+
+      template <typename T1, std::size_t I>
+      Member_Type<T1,I>* get_member() { return this; }
+
+    };
+
+    template
+    <
+        typename T_List,
+        std::size_t LI = 0,
+        std::size_t MI = 0,
+        std::size_t LE = (flamingo::typelist_size_v<T_List> - 1),
+        std::size_t ME = (Data_Size_v<Data<flamingo::typelist_at_t<T_List,LI>>>)
+        //,Member_Type MT = [determine member type of the class member]
+    >
+    class Member_Imp;
+
+
+    // for any member that isn't at the end of a type
+    template <std::size_t LI, std::size_t MI, std::size_t LE, std::size_t ME, typename...Args>
+    class Member_Imp<flamingo::typelist<Args...>,LI,MI,LE,ME> :
+        public Member_Imp<flamingo::typelist<Args...>,LI,MI+1,LE,ME>
+    {
+      using Inh = Member_Imp<flamingo::typelist<Args...>,LI,MI+1,LE,ME>;
+
+      using Type = flamingo::typelist_at_t<flamingo::typelist<Args...>,LI>;
+      static_assert(Data_Size_v<Data<Type>> != 0 ,"can't have no members.");
+
+      static constexpr std::size_t index = MI;
+    public:
+      Member_Imp()
+      {
+        std::cout << "(1)Member_Imp<List," << LI << "," << MI << "," << LE << "," << ME << ">::Member_Imp" << std::endl;
+      }
+      ~Member_Imp() override = default;
+
+      void func(Tag<Type>&&,Index_Tag<index>&&) override
+      {
+        std::cout << "(1)Member_Imp<List," << LI << "," << MI << "," << LE << "," << ME << ">::func" << std::endl;
+      }
+
+    };
+
+
+    // for any member that is at the end of a type
+    template <std::size_t LI, std::size_t LE, std::size_t ME, typename...Args>
+    class Member_Imp<flamingo::typelist<Args...>,LI,ME,LE,ME> :
+        public Member_Imp<flamingo::typelist<Args...>,LI+1>
+    {
+      using Inh = Member_Imp<flamingo::typelist<Args...>,LI+1>;
+
+      using Type = flamingo::typelist_at_t<flamingo::typelist<Args...>,LI>;
+      static_assert(Data_Size_v<Data<Type>> != 0 ,"can't have no members.");
+
+    public:
+      Member_Imp()
+      {
+        std::cout << "(2)Member_Imp<List," << LI << "," << ME << "," << LE << "," << ME << ">::Member_Imp" << std::endl;
+      }
+      ~Member_Imp() override = default;
+
+    };
+
+    // for any member that is the end of the last type
+    template <std::size_t LE, std::size_t ME, typename...Args>
+    class Member_Imp<flamingo::typelist<Args...>,LE,ME,LE,ME> :
+        public Top<Args...>
+    {
+      //static_assert(Data_Size_v<Data<Type>> != 0 ,"can't have no members.");
+
+    public:
+      Member_Imp()
+      {
+        std::cout << "(3)Member_Imp<List," << LE << "," << ME << "," << LE << "," << ME << ">::Member_Imp" << std::endl;
+      }
+      ~Member_Imp() override = default;
+    };
+
+
+    template
+    <
+        typename T_List,
+        std::size_t LI = 0,
+        std::size_t LE = (flamingo::typelist_size_v<T_List>)
+    >
+    class Section_Imp;
+
+    // for any type that isn't at the end of the list
+    template <std::size_t LI, std::size_t LE, typename...Args>
+    class Section_Imp<flamingo::typelist<Args...>,LI,LE> :
+        public Section_Imp<flamingo::typelist<Args...>,LI+1,LE>
+    {
+      using Inh = Section_Imp<flamingo::typelist<Args...>,LI+1,LE>;
+
+      using Type = flamingo::typelist_at_t<flamingo::typelist<Args...>,LI>;
+      static_assert(Data_Size_v<Data<Type>> != 0 ,"can't have no members.");
+
+    public:
+      Section_Imp()
+      {
+        std::cout << "(1)Section_Imp<List," << LI << "," << LE << ">::Section_Imp" << std::endl;
+      }
+      ~Section_Imp() override = default;
+
+      void other(Tag<Type>&&) override
+      {
+        std::cout << "(1)Section_Imp<List," << LI << "," << LE << ">::other" << std::endl;
+      }
+
+    };
+
+    // for the type at the end of the list, just continue the inheritance chain
+    template <std::size_t LE, typename...Args>
+    class Section_Imp<flamingo::typelist<Args...>,LE,LE> :
+        public Member_Imp<flamingo::typelist<Args...>>
+    {
+      using Inh = Member_Imp<flamingo::typelist<Args...>>;
+
+      //using Type = flamingo::typelist_at_t<flamingo::typelist<Args...>,LI>;
+      //static_assert(Data_Size_v<Data<Type>> != 0 ,"can't have no members.");
+
+    public:
+      Section_Imp()
+      {
+        std::cout << "(2)Section_Imp<List," << LE << "," << LE << ">::Section_Imp" << std::endl;
+      }
+      ~Section_Imp() override = default;
+
+    };
+
+    template <typename T, typename...Args>
+    class Top_Imp :
+        public Section_Imp<flamingo::typelist<T,Args...>>
+    {
+      using Inh = Section_Imp<flamingo::typelist<T,Args...>>;
+
+    public:
+      Top_Imp()
+      {
+        std::cout << "Top_Imp<T,Args...>::Top" << std::endl;
+      }
+      ~Top_Imp() override = default;
+
+      void thing() override
+      {
+        std::cout << "Top_Imp<T,Args...>::thing" << std::endl;
+      }
+
+
+    };
+
+  }
+
+
+/*
 
   //------------------------------------------------------------------------------------------------------------------------------------------------------
   namespace internal
@@ -883,7 +1196,7 @@ namespace sak
       a_api->request_outliner(l_source, l_handle);
     }
   };
-
+*/
 }
 
 
@@ -922,7 +1235,7 @@ void sak::testing::test_abstract_project_interface()
   std::cout << "sizeof(APCI_F) = " << sizeof(APCI_F) <<  std::endl;
   std::cout << "sizeof(APCI_FT) = " << sizeof(APCI_FT) <<  std::endl;
   std::cout << "sizeof(APCI_FTM) = " << sizeof(APCI_FTM) <<  std::endl;
-
+/*
   using Project_Interface = Project_Interface_Imp<File_Definition, Texture_Definition, Material_Definition>;
 
   std::cout << "sizeof(Project_Interface) = " << sizeof(Project_Interface) <<  std::endl;
@@ -963,6 +1276,35 @@ void sak::testing::test_abstract_project_interface()
     Do_Project_Interface<File_Definition>()(l_api);
     Do_Project_Interface<Texture_Definition>()(l_api);
     Do_Project_Interface<Material_Definition>()(l_api);
+  }
+*/
+  {
+    test::Top<File_Definition,Texture_Definition,Material_Definition> l_top{};
+    l_top.get_section<File_Definition>()->other(Tag<File_Definition>{});
+    l_top.get_section<Texture_Definition>()->other(Tag<Texture_Definition>{});
+    l_top.get_section<Material_Definition>()->other(Tag<Material_Definition>{});
+
+    l_top.get_member<File_Definition,0>()->func(Tag<File_Definition>{}, Index_Tag<0>{});
+    l_top.get_member<File_Definition,1>()->func(Tag<File_Definition>{}, Index_Tag<1>{});
+    l_top.get_member<Texture_Definition,0>()->func(Tag<Texture_Definition>{}, Index_Tag<0>{});
+    l_top.get_member<Material_Definition,0>()->func(Tag<Material_Definition>{}, Index_Tag<0>{});
+    l_top.get_member<Material_Definition,1>()->func(Tag<Material_Definition>{}, Index_Tag<1>{});
+    l_top.get_member<Material_Definition,2>()->func(Tag<Material_Definition>{}, Index_Tag<2>{});
+
+    std::unique_ptr<test::Top<File_Definition,Texture_Definition,Material_Definition>> l_top_imp{ new test::Top_Imp<File_Definition,Texture_Definition,Material_Definition>{} };
+
+    l_top_imp->get_section<File_Definition>()->other(Tag<File_Definition>{});
+    l_top_imp->get_section<Texture_Definition>()->other(Tag<Texture_Definition>{});
+    l_top_imp->get_section<Material_Definition>()->other(Tag<Material_Definition>{});
+
+    l_top_imp->get_member<File_Definition,0>()->func(Tag<File_Definition>{}, Index_Tag<0>{});
+    l_top_imp->get_member<File_Definition,1>()->func(Tag<File_Definition>{}, Index_Tag<1>{});
+    l_top_imp->get_member<Texture_Definition,0>()->func(Tag<Texture_Definition>{}, Index_Tag<0>{});
+    l_top_imp->get_member<Material_Definition,0>()->func(Tag<Material_Definition>{}, Index_Tag<0>{});
+    l_top_imp->get_member<Material_Definition,1>()->func(Tag<Material_Definition>{}, Index_Tag<1>{});
+    l_top_imp->get_member<Material_Definition,2>()->func(Tag<Material_Definition>{}, Index_Tag<2>{});
+
+
   }
 
 

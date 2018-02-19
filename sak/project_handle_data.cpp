@@ -9,10 +9,117 @@
 
 #include <cassert>
 #include <algorithm>
+#include <limits>
 #include <iterator>
 #include <type_traits>
 
 #include <QString>
+
+namespace sak
+{
+  namespace
+  {
+    template <typename T>
+    decltype(auto) do_find_handle(std::vector<Handle<T>> const& a_handles, Handle<T> const& a_handle)
+    {
+      return std::find(a_handles.cbegin(), a_handles.cend(), a_handle);
+    }
+
+    template <typename T>
+    bool do_has_handle(std::vector<Handle<T>> const& a_handles, Handle<T> const& a_handle)
+    {
+      return do_find_handle(a_handles, a_handle) != a_handles.cend();
+    }
+
+
+    template <typename T>
+    decltype(auto) do_find_handle_named(std::vector<Handle<T>> const& a_handles, QString const& a_name)
+    {
+      return std::find_if(a_handles.cbegin(), a_handles.cend(), [&a_name](Handle<T> const& a_handle) -> bool { return a_handle->cname() == a_name; });
+    }
+
+    template <typename T>
+    bool do_has_handle_named(std::vector<Handle<T>> const& a_handles, QString const& a_name)
+    {
+      return do_find_handle_named(a_handles, a_name) != a_handles.cend();
+    }
+
+
+    //---------------------------------------------------------------------------
+    // Do_Handles<T>
+    //---------------------------------------------------------------------------
+    // Implement the functionality in one place rather than twice.
+    template <typename T>
+    class Do_Handles
+    {
+    public:
+      // Are there any objects in this Project?
+      static bool is_empty(std::vector<Handle<T>> const& a_handles)
+      {
+        return a_handles.empty();
+      }
+
+      // How many objects are in this Project?
+      static std::size_t count(std::vector<Handle<T>> const& a_handles)
+      {
+        return a_handles.size();
+      }
+
+      // Does this handle appear in the data?
+      static bool has_handle(std::vector<Handle<T>> const& a_handles, Handle<T> const& a_handle)
+      {
+        return do_has_handle(a_handles,a_handle);
+      }
+
+      // Does this name appear in the data?
+      static bool has_handle_named(std::vector<Handle<T>> const& a_handles, QString const& a_name)
+      {
+        return do_has_handle_named(a_handles,a_name);
+      }
+
+      // Get the handle at this index. If the index is invalid a null handle is returned.
+      static Handle<T> get_handle_at(std::vector<Handle<T>> const& a_handles, std::size_t a_index)
+      {
+        if (a_index < a_handles.size())
+        {
+          return a_handles.at(a_index);
+        }
+        else
+        {
+          return Handle<T>{};
+        }
+      }
+
+      // Get the handle with this name. If the name is invalid a null handle is returned.
+      static Handle<T> get_handle_named(std::vector<Handle<T>> const& a_handles, QString const& a_name)
+      {
+        auto l_found = do_find_handle_named(a_handles,a_name);
+        if (l_found != a_handles.cend())
+        {
+          return *l_found;
+        }
+        else
+        {
+          return Handle<T>{};
+        }
+      }
+
+      // Get the handles names in data order
+      static std::vector<QString> get_names(std::vector<Handle<T>> const& a_handles)
+      {
+        std::vector<QString> l_result{};
+        l_result.reserve(a_handles.size());
+        for (auto const& l_handle : a_handles)
+        {
+          l_result.push_back(l_handle->cname());
+        }
+        return l_result;
+      }
+
+    };
+  }
+}
+
 
 //---------------------------------------------------------------------------
 // Project_Handle_Data_Part_Imp<List, Index, End>
@@ -44,15 +151,64 @@ sak::internal::Project_Handle_Data_Part_Imp<flamingo::typelist<Args...>,Index,En
 
 // Interface
 //============================================================
+// Are there any objects in this Project?
+template <std::size_t Index, std::size_t End, typename...Args>
+bool sak::internal::Project_Handle_Data_Part_Imp<flamingo::typelist<Args...>,Index,End>::is_empty(Tag_Type&&) const
+{
+  return Do_Handles<Type>::is_empty(m_handles);
+}
+
+// How many objects are in this Project?
+template <std::size_t Index, std::size_t End, typename...Args>
+std::size_t sak::internal::Project_Handle_Data_Part_Imp<flamingo::typelist<Args...>,Index,End>::count(Tag_Type&&) const
+{
+  return Do_Handles<Type>::count(m_handles);
+}
+
+// Does this handle appear in the data?
+template <std::size_t Index, std::size_t End, typename...Args>
+bool sak::internal::Project_Handle_Data_Part_Imp<flamingo::typelist<Args...>,Index,End>::has_handle(Handle_Type const& a_handle) const
+{
+  return Do_Handles<Type>::has_handle(m_handles, a_handle);
+}
+
+// Does this name appear in the data?
+template <std::size_t Index, std::size_t End, typename...Args>
+bool sak::internal::Project_Handle_Data_Part_Imp<flamingo::typelist<Args...>,Index,End>::has_handle_named(Tag_Type&&, QString const& a_name) const
+{
+  return Do_Handles<Type>::has_handle_named(m_handles, a_name);
+}
+
+// Get the handle at this index. If the index is invalid a null handle is returned.
+template <std::size_t Index, std::size_t End, typename...Args>
+typename sak::internal::Project_Handle_Data_Part_Imp<flamingo::typelist<Args...>,Index,End>::Handle_Type sak::internal::Project_Handle_Data_Part_Imp<flamingo::typelist<Args...>,Index,End>::get_handle_at(Tag_Type&&, std::size_t a_index) const
+{
+  return Do_Handles<Type>::get_handle_at(m_handles, a_index);
+}
+
+// Get the handle with this name. If the name is invalid a null handle is returned.
+template <std::size_t Index, std::size_t End, typename...Args>
+typename sak::internal::Project_Handle_Data_Part_Imp<flamingo::typelist<Args...>,Index,End>::Handle_Type sak::internal::Project_Handle_Data_Part_Imp<flamingo::typelist<Args...>,Index,End>::get_handle_named(Tag_Type&&, QString const& a_name) const
+{
+  return Do_Handles<Type>::get_handle_named(m_handles, a_name);
+}
+
+// Get the handles names in data order
+template <std::size_t Index, std::size_t End, typename...Args>
+std::vector<QString> sak::internal::Project_Handle_Data_Part_Imp<flamingo::typelist<Args...>,Index,End>::get_names(Tag_Type&&) const
+{
+  return Do_Handles<Type>::get_names(m_handles);
+}
+
 // Access the handles for direct manipulation.
 template <std::size_t Index, std::size_t End, typename...Args>
-std::vector<typename sak::internal::Project_Handle_Data_Part_Imp<flamingo::typelist<Args...>,Index,End>::Handle_Type>& sak::internal::Project_Handle_Data_Part_Imp<flamingo::typelist<Args...>,Index,End>::get_raw_handles(Tag_Type&&)
+std::vector<typename sak::internal::Project_Handle_Data_Part_Imp<flamingo::typelist<Args...>,Index,End>::Handle_Type>& sak::internal::Project_Handle_Data_Part_Imp<flamingo::typelist<Args...>,Index,End>::get_handles(Tag_Type&&)
 {
   return m_handles;
 }
 
 template <std::size_t Index, std::size_t End, typename...Args>
-std::vector<typename sak::internal::Project_Handle_Data_Part_Imp<flamingo::typelist<Args...>,Index,End>::Handle_Type> const& sak::internal::Project_Handle_Data_Part_Imp<flamingo::typelist<Args...>,Index,End>::cget_raw_handles(Tag_Type&&) const
+std::vector<typename sak::internal::Project_Handle_Data_Part_Imp<flamingo::typelist<Args...>,Index,End>::Handle_Type> const& sak::internal::Project_Handle_Data_Part_Imp<flamingo::typelist<Args...>,Index,End>::cget_handles(Tag_Type&&) const
 {
   return m_handles;
 }
@@ -60,7 +216,7 @@ std::vector<typename sak::internal::Project_Handle_Data_Part_Imp<flamingo::typel
 //------------------------------------------------------------------------------------------------------------------------------------------------------
 
 //---------------------------------------------------------------------------
-// Project_Raw_Handle_Data_Part_Imp<List, End, End>
+// Project_Handle_Data_Part_Imp<List, End, End>
 //---------------------------------------------------------------------------
 // For a type that isn't at the end of the list.
 
@@ -88,15 +244,64 @@ sak::internal::Project_Handle_Data_Part_Imp<flamingo::typelist<Args...>,End,End>
 
 // Interface
 //============================================================
+// Are there any objects in this Project?
+template <std::size_t End, typename...Args>
+bool sak::internal::Project_Handle_Data_Part_Imp<flamingo::typelist<Args...>,End,End>::is_empty(Tag_Type&&) const
+{
+  return Do_Handles<Type>::is_empty(m_handles);
+}
+
+// How many objects are in this Project?
+template <std::size_t End, typename...Args>
+std::size_t sak::internal::Project_Handle_Data_Part_Imp<flamingo::typelist<Args...>,End,End>::count(Tag_Type&&) const
+{
+  return Do_Handles<Type>::count(m_handles);
+}
+
+// Does this handle appear in the data?
+template <std::size_t End, typename...Args>
+bool sak::internal::Project_Handle_Data_Part_Imp<flamingo::typelist<Args...>,End,End>::has_handle(Handle_Type const& a_handle) const
+{
+  return Do_Handles<Type>::has_handle(m_handles, a_handle);
+}
+
+// Does this name appear in the data?
+template <std::size_t End, typename...Args>
+bool sak::internal::Project_Handle_Data_Part_Imp<flamingo::typelist<Args...>,End,End>::has_handle_named(Tag_Type&&, QString const& a_name) const
+{
+  return Do_Handles<Type>::has_handle_named(m_handles, a_name);
+}
+
+// Get the handle at this index. If the index is invalid a null handle is returned.
+template <std::size_t End, typename...Args>
+typename sak::internal::Project_Handle_Data_Part_Imp<flamingo::typelist<Args...>,End,End>::Handle_Type sak::internal::Project_Handle_Data_Part_Imp<flamingo::typelist<Args...>,End,End>::get_handle_at(Tag_Type&&, std::size_t a_index) const
+{
+  return Do_Handles<Type>::get_handle_at(m_handles, a_index);
+}
+
+// Get the handle with this name. If the name is invalid a null handle is returned.
+template <std::size_t End, typename...Args>
+typename sak::internal::Project_Handle_Data_Part_Imp<flamingo::typelist<Args...>,End,End>::Handle_Type sak::internal::Project_Handle_Data_Part_Imp<flamingo::typelist<Args...>,End,End>::get_handle_named(Tag_Type&&, QString const& a_name) const
+{
+  return Do_Handles<Type>::get_handle_named(m_handles, a_name);
+}
+
+// Get the handles names in data order
+template <std::size_t End, typename...Args>
+std::vector<QString> sak::internal::Project_Handle_Data_Part_Imp<flamingo::typelist<Args...>,End,End>::get_names(Tag_Type&&) const
+{
+  return Do_Handles<Type>::get_names(m_handles);
+}
+
 // Access the handles for direct manipulation.
 template <std::size_t End, typename...Args>
-std::vector<typename sak::internal::Project_Handle_Data_Part_Imp<flamingo::typelist<Args...>,End,End>::Handle_Type>& sak::internal::Project_Handle_Data_Part_Imp<flamingo::typelist<Args...>,End,End>::get_raw_handles(Tag_Type&&)
+std::vector<typename sak::internal::Project_Handle_Data_Part_Imp<flamingo::typelist<Args...>,End,End>::Handle_Type>& sak::internal::Project_Handle_Data_Part_Imp<flamingo::typelist<Args...>,End,End>::get_handles(Tag_Type&&)
 {
   return m_handles;
 }
 
 template <std::size_t End, typename...Args>
-std::vector<typename sak::internal::Project_Handle_Data_Part_Imp<flamingo::typelist<Args...>,End,End>::Handle_Type> const& sak::internal::Project_Handle_Data_Part_Imp<flamingo::typelist<Args...>,End,End>::cget_raw_handles(Tag_Type&&) const
+std::vector<typename sak::internal::Project_Handle_Data_Part_Imp<flamingo::typelist<Args...>,End,End>::Handle_Type> const& sak::internal::Project_Handle_Data_Part_Imp<flamingo::typelist<Args...>,End,End>::cget_handles(Tag_Type&&) const
 {
   return m_handles;
 }
@@ -104,7 +309,7 @@ std::vector<typename sak::internal::Project_Handle_Data_Part_Imp<flamingo::typel
 //------------------------------------------------------------------------------------------------------------------------------------------------------
 
 //---------------------------------------------------------------------------
-// Project_Raw_Handle_Data_Imp<T,Args...>
+// Project_Handle_Data_Imp<T,Args...>
 //---------------------------------------------------------------------------
 // The bit that holds all of the Project data allowing access for layers that
 // need all of it. This object does nothing whatsoever to enure that the data
@@ -166,7 +371,7 @@ namespace
     public:
       void operator()(Project_Data_Type const* a_data, std::size_t& a_count)
       {
-        a_count += a_data->cget_raw_handles(Tag_Type()).size();
+        a_count += a_data->cget_handles(Tag_Type()).size();
         Do_Loop<Index+1,End>()(a_data,a_count);
       }
     };
@@ -205,7 +410,7 @@ namespace
     public:
       bool operator()(Project_Data_Type const* a_data, QString const& a_name) const
       {
-        if (do_has_handle_named(a_data->cget_raw_handles(Tag_Type()),a_name))
+        if (do_has_handle_named(a_data->cget_handles(Tag_Type()),a_name))
         {
           return true;
         }
@@ -251,7 +456,7 @@ namespace
       void operator()(Project_Data_Type const* a_data, std::vector<QString>& a_result) const
       {
         // Go through all the handles for this section
-        for (auto const& l_handle : a_data->cget_raw_handles(Tag_Type()))
+        for (auto const& l_handle : a_data->cget_handles(Tag_Type()))
         {
           // and add the name to the result.
           a_result.push_back(l_handle->cname());
@@ -301,6 +506,32 @@ template <typename T, typename...Args>
 std::vector<QString> sak::Project_Handle_Data_Imp<T,Args...>::get_all_names() const
 {
  return Do_Get_All_Names<T,Args...>()(this);
+}
+
+namespace
+{
+  // Take the supplied name and alter it as necessary to be unique among the names that
+  // are already in the supplied vector.
+  void uniqueify_name(QString& a_name, std::vector<QString> const& a_names)
+  {
+    auto l_name_found = std::find(a_names.cbegin(), a_names.cend(), a_name);
+
+    // if it wasn't found we can use it
+    if (l_name_found != a_names.cend())
+    {
+      // append a number to the name and test it and keep doing this until we get to one we haven't found.
+      for (int l_postfix = 1, l_end = std::numeric_limits<int>::max(); l_postfix != l_end; ++l_postfix)
+      {
+        QString l_fixed_name{a_name};
+        l_fixed_name.append(QString::number(l_postfix));
+        if (std::find(a_names.cbegin(), a_names.cend(), l_fixed_name) == a_names.end())
+        {
+          a_name = l_fixed_name;
+          break;
+        }
+      }
+    }
+  }
 }
 
 // Alter the supplied name so that it is unique among the

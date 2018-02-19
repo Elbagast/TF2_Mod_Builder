@@ -37,7 +37,7 @@ namespace
     using Data_Type = Data<T>;
     using Handle_Type = Handle<T>;
 
-    assert(a_phd.cget_raw_handles(Tag_Type()).empty());
+    assert(a_phd.cget_handles(Tag_Type()).empty());
 
     // First handle
     //--------------------------
@@ -48,8 +48,8 @@ namespace
     assert(!a_phd.has_name(l_h1->cname()));
 
     // Add it to the data
-    a_phd.get_raw_handles(Tag_Type()).push_back(l_h1);
-    assert(a_phd.cget_raw_handles(Tag_Type()).size() == 1);
+    a_phd.get_handles(Tag_Type()).push_back(l_h1);
+    assert(a_phd.cget_handles(Tag_Type()).size() == 1);
 
     // Should have this name now
     assert(a_phd.has_name(l_h1->cname()));
@@ -72,8 +72,8 @@ namespace
     assert(!a_phd.has_name(l_h2->cname()));
 
     // Add it to the data
-    a_phd.get_raw_handles(Tag_Type()).push_back(l_h2);
-    assert(a_phd.cget_raw_handles(Tag_Type()).size() == 2);
+    a_phd.get_handles(Tag_Type()).push_back(l_h2);
+    assert(a_phd.cget_handles(Tag_Type()).size() == 2);
 
     // Should have this name now
     assert(a_phd.has_name(l_h2->cname()));
@@ -94,8 +94,8 @@ namespace
     assert(!a_phd.has_name(l_h3->cname()));
 
     // Add it to the data
-    a_phd.get_raw_handles(Tag_Type()).push_back(l_h3);
-    assert(a_phd.cget_raw_handles(Tag_Type()).size() == 3);
+    a_phd.get_handles(Tag_Type()).push_back(l_h3);
+    assert(a_phd.cget_handles(Tag_Type()).size() == 3);
 
     // Should have this name now
     assert(a_phd.has_name(l_h3->cname()));
@@ -117,8 +117,8 @@ namespace
     //assert(l_h4->cname() == l_name);
 
     // Add it to the data
-    a_phd.get_raw_handles(Tag_Type()).push_back(l_h4);
-    assert(a_phd.cget_raw_handles(Tag_Type()).size() == 4);
+    a_phd.get_handles(Tag_Type()).push_back(l_h4);
+    assert(a_phd.cget_handles(Tag_Type()).size() == 4);
 
     // Should have this name now
     assert(a_phd.has_name(l_h4->cname()));
@@ -138,14 +138,14 @@ namespace
     assert(!a_phd.has_name(l_h5->cname()));
 
     // Add it to the data
-    a_phd.get_raw_handles(Tag_Type()).push_back(l_h5);
-    assert(a_phd.cget_raw_handles(Tag_Type()).size() == 5);
+    a_phd.get_handles(Tag_Type()).push_back(l_h5);
+    assert(a_phd.cget_handles(Tag_Type()).size() == 5);
 
     // Should have this name now
     assert(a_phd.has_name(l_h5->cname()));
 
 
-    for (auto const& l_handle : a_phd.cget_raw_handles(Tag_Type{}))
+    for (auto const& l_handle : a_phd.cget_handles(Tag_Type{}))
     {
       out_handle(l_handle);
     }
