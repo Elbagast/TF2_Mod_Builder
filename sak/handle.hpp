@@ -43,7 +43,7 @@ namespace sak
     Handle(std::shared_ptr<Element_Type>&& a_data, ID_Type a_id);
     ~Handle();
 
-    Handle(Handle const& Handle);
+    Handle(Handle const& a_other);
     Handle& operator=(Handle const& a_other);
 
     Handle(Handle && a_other);
@@ -163,15 +163,15 @@ void sak::swap(Handle<T>& a_lhs, Handle<T>& a_rhs) noexcept
 // Excplicit state identifiers. A Handle is null if it has a null id, which
 // means it is not being used to reference data.
 template <typename T>
-bool sak::is_null(Handle<T> const& a_Handle) noexcept
+bool sak::is_null(Handle<T> const& a_handle) noexcept
 {
-  return !static_cast<bool>(a_Handle);
+  return !static_cast<bool>(a_handle);
 }
 
 template <typename T>
-bool sak::not_null(Handle<T> const& a_Handle) noexcept
+bool sak::not_null(Handle<T> const& a_handle) noexcept
 {
-  return static_cast<bool>(a_Handle);
+  return static_cast<bool>(a_handle);
 }
 
 #endif // SAK_HANDLE_HPP
