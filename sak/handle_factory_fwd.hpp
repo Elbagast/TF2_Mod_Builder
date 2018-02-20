@@ -13,11 +13,6 @@ namespace sak
   using File_Handle_Factory = Handle_Factory<File_Data>;
   using Texture_Handle_Factory = Handle_Factory<Texture_Data>;
 
-  namespace v2
-  {
-    template <typename T_Class_Def>
-    class Handle_Factory;
-  }
 }
 
 #endif // SAK_HANDLE_FACTORY_FWD_HPP

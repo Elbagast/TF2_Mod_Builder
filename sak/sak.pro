@@ -94,7 +94,6 @@ SOURCES += \
     signal_source.cpp \
     project_handle_factory.cpp \
     project_handle_data.cpp \
-    project_signalling_data.cpp \
     id.cpp
 
 HEADERS  += \
@@ -130,8 +129,6 @@ HEADERS  += \
     project_handle_factory_fwd.hpp \
     project_handle_data.hpp \
     project_handle_data_fwd.hpp \
-    project_signalling_data.hpp \
-    project_signalling_data_fwd.hpp \
     id.hpp \
     id_fwd.hpp
 

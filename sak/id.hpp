@@ -161,7 +161,7 @@ typename sak::ID<T>::Value_Type sak::ID<T>::value() const noexcept
 template <typename T>
 sak::ID<T>::operator bool() const noexcept
 {
-  return m_value != 0
+  return m_value != 0;
 }
 
 // Compare

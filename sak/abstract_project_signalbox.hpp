@@ -5,8 +5,8 @@
 #include "abstract_project_signalbox_fwd.hpp"
 #endif
 
-#ifndef SAK_HANDLE_FWD_HPP
-#include "handle_fwd.hpp"
+#ifndef SAK_ID_FWD_HPP
+#include "id_fwd.hpp"
 #endif
 
 #ifndef SAK_SIGNAL_SOURCE_FWD_HPP
@@ -19,106 +19,80 @@
 
 namespace sak
 {
-  namespace internal
+  //---------------------------------------------------------------------------
+  // Abstract_Section_Signalbox_Imp<List, Index, End>
+  //---------------------------------------------------------------------------
+  // Declaration and default arguments for the template class that builds the
+  // template chain.
+  template
+  <
+    typename T_List,
+    std::size_t Index = 0,
+    std::size_t End = (flamingo::typelist_size_v<T_List>)
+  >
+  class Abstract_Section_Signalbox_Imp;
+
+  //------------------------------------------------------------------------------------------------------------------------------------------------------
+
+  //---------------------------------------------------------------------------
+  // Abstract_Section_Signalbox_Imp<List, Index, End>
+  //---------------------------------------------------------------------------
+  // For a type that isn't at the end of the list.
+  template <std::size_t Index, std::size_t End, typename...Args>
+  class Abstract_Section_Signalbox_Imp<flamingo::typelist<Args...>,Index,End> :
+      protected Abstract_Section_Signalbox_Imp<flamingo::typelist<Args...>,Index+1,End>
   {
-    //---------------------------------------------------------------------------
-    // Abstract_Project_Signalbox_Part_Imp<List, Index, End>
-    //---------------------------------------------------------------------------
-    // Declaration and default arguments for the template class that builds the
-    // template chain.
-    template
-    <
-      typename T_List,
-      std::size_t Index = 0,
-      std::size_t End = (flamingo::typelist_size_v<T_List> - 1)
-    >
-    class Abstract_Project_Signalbox_Part_Imp;
+    using Inh = Abstract_Section_Signalbox_Imp<flamingo::typelist<Args...>,Index+1,End>;
 
-    //------------------------------------------------------------------------------------------------------------------------------------------------------
+    using Type = flamingo::typelist_at_t<flamingo::typelist<Args...>,Index>;
+    using ID_Type = ID<Type>;
 
-    //---------------------------------------------------------------------------
-    // Abstract_Project_Signalbox_Part_Imp<List, Index, End>
-    //---------------------------------------------------------------------------
-    // For a type that isn't at the end of the list.
-    template <std::size_t Index, std::size_t End, typename...Args>
-    class Abstract_Project_Signalbox_Part_Imp<flamingo::typelist<Args...>,Index,End> :
-        protected Abstract_Project_Signalbox_Part_Imp<flamingo::typelist<Args...>,Index+1,End>
-    {
-      using Inh = Abstract_Project_Signalbox_Part_Imp<flamingo::typelist<Args...>,Index+1,End>;
+  public:
+    // Special 6
+    //============================================================
+    ~Abstract_Section_Signalbox_Imp() override = 0;
 
-      using Type = flamingo::typelist_at_t<flamingo::typelist<Args...>,Index>;
+    // Interface
+    //============================================================
+    // When data has been added at a given index.
+    virtual void added(Signal_Source a_source, ID_Type const& a_id, std::size_t a_index) = 0;
 
-    public:
-      // Special 6
-      //============================================================
-      ~Abstract_Project_Signalbox_Part_Imp() override = 0;
+    // When data has been removed from a given index.
+    virtual void removed(Signal_Source a_source, ID_Type const& a_id, std::size_t a_index) = 0;
 
-      // Interface
-      //============================================================
-      // When a handle has been added at a given index.
-      virtual void added(Signal_Source a_source, Handle<Type> const& a_handle, std::size_t a_index) = 0;
-      // When a handle has been removed from a given index.
-      virtual void removed(Signal_Source a_source, Handle<Type> const& a_handle, std::size_t a_index) = 0;
-      // When a handle at a given index has been moved to another index.
-      virtual void moved(Signal_Source a_source, Handle<Type> const& a_handle, std::size_t a_from, std::size_t a_to) = 0;
-      // When a handle at a given index has its name changed.
-      virtual void changed_name(Signal_Source a_source, Handle<Type> const& a_handle, std::size_t a_index) = 0;
-      // When a handle at a given index has all of its data changed.
-      virtual void changed_data(Signal_Source a_source, Handle<Type> const& a_handle, std::size_t a_index) = 0;
-      // When a handle at a given index has its data changed in a specific place.
-      virtual void changed_data_at(Signal_Source a_source, Handle<Type> const& a_handler, std::size_t a_index, std::size_t a_member) = 0;
-      // When a handle at a given index requests its editor be opened/brought to the top.
-      virtual void requests_editor(Signal_Source a_source, Handle<Type> const& a_handle, std::size_t a_index) = 0;
-      // When a handle at a given index requests focus in the outliner.
-      virtual void requests_outliner(Signal_Source a_source, Handle<Type> const& a_handle, std::size_t a_index) = 0;
+    // When data at a given index has been moved to another index.
+    virtual void moved(Signal_Source a_source, ID_Type const& a_id, std::size_t a_from, std::size_t a_to) = 0;
 
-      using Inh::added;
-      using Inh::removed;
-      using Inh::moved;
-      using Inh::changed_name;
-      using Inh::changed_data;
-      using Inh::changed_data_at;
-      using Inh::requests_editor;
-      using Inh::requests_outliner;
-    };
+    // When data at a given index has its name changed.
+    virtual void changed_name(Signal_Source a_source, ID_Type const& a_id, std::size_t a_index) = 0;
 
-    //------------------------------------------------------------------------------------------------------------------------------------------------------
+    // When data at a given index has all of its data changed.
+    virtual void changed_data(Signal_Source a_source, ID_Type const& a_id, std::size_t a_index) = 0;
 
-    //---------------------------------------------------------------------------
-    // Abstract_Project_Signalbox_Part_Imp<List, End, End>
-    //---------------------------------------------------------------------------
-    // For the last type in the list
-    template <std::size_t End, typename...Args>
-    class Abstract_Project_Signalbox_Part_Imp<flamingo::typelist<Args...>,End,End>
-    {
-      using Type = flamingo::typelist_at_t<flamingo::typelist<Args...>,End>;
-    public:
+    // When data at a given index has its data changed in a specific place.
+    virtual void changed_data_at(Signal_Source a_source, ID_Type const& a_id, std::size_t a_index, std::size_t a_member) = 0;
 
-      // Special 6
-      //============================================================
-      virtual ~Abstract_Project_Signalbox_Part_Imp() = 0;
+    // When data at a given index requests its editor be opened/brought to the top.
+    virtual void requests_editor(Signal_Source a_source, ID_Type const& a_id, std::size_t a_index) = 0;
 
-      // Interface
-      //============================================================
-      // When a handle has been added at a given index.
-      virtual void added(Signal_Source a_source, Handle<Type> const& a_handle, std::size_t a_index) = 0;
-      // When a handle has been removed from a given index.
-      virtual void removed(Signal_Source a_source, Handle<Type> const& a_handle, std::size_t a_index) = 0;
-      // When a handle at a given index has been moved to another index.
-      virtual void moved(Signal_Source a_source, Handle<Type> const& a_handle, std::size_t a_from, std::size_t a_to) = 0;
-      // When a handle at a given index has its name changed.
-      virtual void changed_name(Signal_Source a_source, Handle<Type> const& a_handle, std::size_t a_index) = 0;
-      // When a handle at a given index has all of its data changed.
-      virtual void changed_data(Signal_Source a_source, Handle<Type> const& a_handle, std::size_t a_index) = 0;
-      // When a handle at a given index has its data changed in a specific place.
-      virtual void changed_data_at(Signal_Source a_source, Handle<Type> const& a_handler, std::size_t a_index, std::size_t a_member) = 0;
-      // When a handle at a given index requests its editor be opened/brought to the top.
-      virtual void requests_editor(Signal_Source a_source, Handle<Type> const& a_handle, std::size_t a_index) = 0;
-      // When a handle at a given index requests focus in the outliner.
-      virtual void requests_outliner(Signal_Source a_source, Handle<Type> const& a_handle, std::size_t a_index) = 0;
-    };
+    // When data at a given index requests focus in the outliner.
+    virtual void requests_outliner(Signal_Source a_source, ID_Type const& a_id, std::size_t a_index) = 0;
+  };
 
-  } // namespace internal
+  //------------------------------------------------------------------------------------------------------------------------------------------------------
+
+  //---------------------------------------------------------------------------
+  // Abstract_Project_Signalbox_Section_Imp<List, End, End>
+  //---------------------------------------------------------------------------
+  // For the last type in the list
+  template <std::size_t End, typename...Args>
+  class Abstract_Section_Signalbox_Imp<flamingo::typelist<Args...>,End,End>
+  {
+  public:
+    // Special 6
+    //============================================================
+    virtual ~Abstract_Section_Signalbox_Imp() = 0;
+  };
 
   //------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -130,9 +104,13 @@ namespace sak
   // instantiations.
   template <typename T, typename...Args>
   class Abstract_Project_Signalbox_Imp :
-      protected internal::Abstract_Project_Signalbox_Part_Imp<flamingo::typelist<T,Args...>>
+      protected Abstract_Section_Signalbox_Imp<flamingo::typelist<T,Args...>>
   {
-    using Inh = internal::Abstract_Project_Signalbox_Part_Imp<flamingo::typelist<T,Args...>>;
+    using Inh = Abstract_Section_Signalbox_Imp<flamingo::typelist<T,Args...>>;
+    using Typelist_Type = flamingo::typelist<T,Args...>;
+
+    static_assert(flamingo::typelist_all_unique_v<Typelist_Type>,
+                  "Cannot have repeating types in the supplied template arguments.");
   public:
     // Special 6
     //============================================================
@@ -140,42 +118,30 @@ namespace sak
 
     // Interface
     //============================================================
-    using Inh::added;
-    using Inh::removed;
-    using Inh::moved;
-    using Inh::changed_name;
-    using Inh::changed_data;
-    using Inh::changed_data_at;
-    using Inh::requests_editor;
-    using Inh::requests_outliner;
 
-    // Signals are as follows, with overloads for each Type in the
-    // the arguments <T,Args...>:
-    //------------------------------------------------------------
+    template <typename U>
+    Abstract_Section_Signalbox_Imp
+    <
+      Typelist_Type,
+      flamingo::typelist_find_v<Typelist_Type, U>
+    >* get_signalbox()
+    {
+      static_assert(flamingo::typelist_find_v<Typelist_Type,U> != flamingo::typelist_size_v<Typelist_Type>,
+                    "Cannot make interface, type not present.");
+      return this;
+    }
 
-    // When a handle has been added at a given index.
-    //virtual void added(Signal_Source a_source, Handle<Type> const& a_handle, std::size_t a_index) = 0;
-
-    // When a handle has been removed from a given index.
-    //virtual void removed(Signal_Source a_source, Handle<Type> const& a_handle, std::size_t a_index) = 0;
-
-    // When a handle at a given index has been moved to another index.
-    //virtual void moved(Signal_Source a_source, Handle<Type> const& a_handle, std::size_t a_from, std::size_t a_to) = 0;
-
-    // When a handle at a given index has its name changed.
-    //virtual void changed_name(Signal_Source a_source, Handle<Type> const& a_handle, std::size_t a_index) = 0;
-
-    // When a handle at a given index has all of its data changed.
-    //virtual void changed_data(Signal_Source a_source, Handle<Type> const& a_handle, std::size_t a_index) = 0;
-
-    // When a handle at a given index has its data changed in a specific place.
-    //virtual void changed_data_at(Signal_Source a_source, Handle<Type> const& a_handler, std::size_t a_index, std::size_t a_member) = 0;
-
-    // When a handle at a given index requests its editor be opened/brought to the top.
-    //virtual void requests_editor(Signal_Source a_source, Handle<Type> const& a_handle, std::size_t a_index) = 0;
-
-    // When a handle at a given index requests focus in the outliner.
-    //virtual void requests_outliner(Signal_Source a_source, Handle<Type> const& a_handle, std::size_t a_index) = 0;
+    template <std::size_t I>
+    Abstract_Section_Signalbox_Imp
+    <
+      Typelist_Type,
+      I
+    >* get_signalbox_at()
+    {
+      static_assert(I < flamingo::typelist_size_v<Typelist_Type>,
+                    "Cannot make interface, type index is out of range.");
+      return this;
+    }
   };
 
   //------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -183,10 +149,10 @@ namespace sak
 } // namespace sak
 
 template <std::size_t Index, std::size_t End, typename...Args>
-sak::internal::Abstract_Project_Signalbox_Part_Imp<flamingo::typelist<Args...>,Index,End>::~Abstract_Project_Signalbox_Part_Imp() = default;
+sak::Abstract_Section_Signalbox_Imp<flamingo::typelist<Args...>,Index,End>::~Abstract_Section_Signalbox_Imp() = default;
 
 template <std::size_t End, typename...Args>
-sak::internal::Abstract_Project_Signalbox_Part_Imp<flamingo::typelist<Args...>,End,End>::~Abstract_Project_Signalbox_Part_Imp() = default;
+sak::Abstract_Section_Signalbox_Imp<flamingo::typelist<Args...>,End,End>::~Abstract_Section_Signalbox_Imp() = default;
 
 template <typename T, typename...Args>
 sak::Abstract_Project_Signalbox_Imp<T,Args...>::~Abstract_Project_Signalbox_Imp() = default;

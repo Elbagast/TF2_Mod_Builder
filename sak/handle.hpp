@@ -9,6 +9,10 @@
 #include "data_fwd.hpp"
 #endif
 
+#ifndef SAK_ID_HPP
+#include "id.hpp"
+#endif
+
 #ifndef INCLUDE_STD_MEMORY
 #define INCLUDE_STD_MEMORY
 #include <memory>
@@ -35,11 +39,12 @@ namespace sak
     // Typedefs
     //============================================================
     using Element_Type = Data<T_Class_Def>;
-    using ID_Type = std::size_t;
+    using ID_Type = ID<T_Class_Def>;
 
     // Special 6
     //============================================================
     Handle();
+    Handle(std::shared_ptr<Element_Type>&& a_data, std::size_t a_id_value);
     Handle(std::shared_ptr<Element_Type>&& a_data, ID_Type a_id);
     ~Handle();
 
@@ -125,6 +130,8 @@ namespace sak
   bool not_null(Handle<T> const& a_Handle) noexcept;
 
 } // namespace sak
+
+//------------------------------------------------------------------------------------------------------------------------------------------------------
 
 // Comparison Operators
 //============================================================

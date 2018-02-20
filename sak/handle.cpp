@@ -20,11 +20,15 @@ sak::Handle<T>::Handle():
 {
   // This had better be emtpy.
   assert(m_data == nullptr);
-  assert(m_id == 0);
+  assert(!m_id);
 }
 
-// Corresponding Handle for manager. This is outside manager to allow for
-// forward declaration.
+template <typename T>
+sak::Handle<T>::Handle(std::shared_ptr<Element_Type>&& a_data, std::size_t a_id_value):
+  Handle{std::move(a_data),ID_Type{a_id_value}}
+{
+}
+
 template <typename T>
 sak::Handle<T>::Handle(std::shared_ptr<Element_Type>&& a_data, ID_Type a_id):
   m_data{std::move(a_data)},
@@ -32,7 +36,7 @@ sak::Handle<T>::Handle(std::shared_ptr<Element_Type>&& a_data, ID_Type a_id):
 {
   // Shouldn't be making a handle with empty data. You bad person.
   assert(m_data != nullptr);
-  assert(m_id != 0);
+  assert(m_id);
 }
 
 template <typename T>
@@ -47,13 +51,13 @@ typename sak::Handle<T>& sak::Handle<T>::operator=(Handle const& /*a_other*/) = 
 template <typename T>
 sak::Handle<T>::Handle(Handle && a_other):
   m_data{std::move(a_other.m_data)},
-  m_id{a_other.m_id}
+  m_id{std::move(a_other.m_id)}
 {
-  a_other.m_id = 0;
+  a_other.m_id.reset();
 
   // Other had better be emtpy.
   assert(a_other.m_data == nullptr);
-  assert(a_other.m_id == 0);
+  assert(!(a_other.m_id));
 }
 
 template <typename T>
@@ -61,11 +65,11 @@ typename sak::Handle<T>& sak::Handle<T>::operator=(Handle && a_other)
 {
   this->m_data = std::move(a_other.m_data);
   this->m_id = a_other.m_id;
-  a_other.m_id = 0;
+  a_other.m_id.reset();
 
   // Other had better be emtpy.
   assert(a_other.m_data == nullptr);
-  assert(a_other.m_id == 0);
+  assert(!(a_other.m_id));
 
   return *this;
 }
@@ -78,10 +82,10 @@ template <typename T>
 void sak::Handle<T>::reset() noexcept
 {
   m_data.reset();
-  m_id = 0;
+  m_id.reset();
   // This had better be emtpy.
   assert(m_data == nullptr);
-  assert(m_id == 0);
+  assert(!m_id);
 }
 
 // Swap the Handle data.
@@ -89,7 +93,7 @@ template <typename T>
 void sak::Handle<T>::swap(Handle<T>& a_other) noexcept
 {
   std::swap(m_data, a_other.m_data);
-  std::swap(m_id, a_other.m_id);
+  sak::swap(m_id, a_other.m_id);
 }
 
 // Observe
@@ -140,7 +144,7 @@ typename sak::Handle<T>::Element_Type* sak::Handle<T>::operator->() const noexce
 template <typename T>
 sak::Handle<T>::operator bool() const noexcept
 {
-  return m_id != 0 && m_data != nullptr;
+  return m_id && m_data != nullptr;
 }
 
 // Compare

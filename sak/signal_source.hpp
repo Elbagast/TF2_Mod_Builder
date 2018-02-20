@@ -13,10 +13,10 @@ namespace sak
   // Enum for identifying the origin of a signal.
   enum class Signal_Source
   {
+    System,
     User,
     Editor,
     Outliner,
-    System,
     Redo,
     Undo
   };

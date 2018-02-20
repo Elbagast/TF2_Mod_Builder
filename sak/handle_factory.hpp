@@ -28,7 +28,6 @@ namespace sak
     // Typedefs
     //============================================================
     using Element_Type = typename Handle<T_Class_Def>::Element_Type;
-    using ID_Type = std::size_t;
 
     // Special 6
     //============================================================
@@ -52,7 +51,7 @@ namespace sak
     Handle<T_Class_Def> make_handle(std::shared_ptr<Element_Type>&& a_data);
 
   private:
-    ID_Type m_next_id;
+    std::size_t m_next_id;
   };
 }
 

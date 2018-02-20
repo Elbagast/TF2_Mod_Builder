@@ -4,6 +4,7 @@
 #include <sak/class_definitions.hpp>
 #include <sak/data.hpp>
 #include <sak/handle.hpp>
+#include <sak/id.hpp>
 
 #include <iostream>
 #include <cassert>
@@ -26,7 +27,7 @@ namespace
     // Test a null handle
     Handle_Type l_h1{};
     assert(!l_h1);
-    assert(l_h1.id() == 0);
+    assert(l_h1.id().value() == 0);
     assert(l_h1.use_count() == 0);
     assert(l_h1.get() == nullptr);
 
@@ -91,7 +92,7 @@ namespace
     // reseting
     l_h3.reset();
     assert(!l_h3);
-    assert(l_h3.id() == 0);
+    assert(l_h3.id().value() == 0);
     assert(l_h3.use_count() == 0);
     assert(l_h3.get() == nullptr);
 

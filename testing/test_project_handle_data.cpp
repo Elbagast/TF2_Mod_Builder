@@ -20,7 +20,7 @@ namespace
   {
     std::cout << "Handle type=\"" << T::Typestring_Type::data()
               << "\" ptr=\"" << a_handle.get()
-              << "\" id=\"" << a_handle.id() << "\"";
+              << "\" id=\"" << a_handle.id().value() << "\"";
     if (a_handle)
     {
       std::cout << "name=\"" << a_handle->cname().toStdString() << "\"";
@@ -37,7 +37,9 @@ namespace
     using Data_Type = Data<T>;
     using Handle_Type = Handle<T>;
 
-    assert(a_phd.cget_handles(Tag_Type()).empty());
+    auto l_section = a_phd.get_section<T>();
+
+    assert(l_section->cget_handles(Tag_Type()).empty());
 
     // First handle
     //--------------------------
@@ -48,8 +50,8 @@ namespace
     assert(!a_phd.has_name(l_h1->cname()));
 
     // Add it to the data
-    a_phd.get_handles(Tag_Type()).push_back(l_h1);
-    assert(a_phd.cget_handles(Tag_Type()).size() == 1);
+    l_section->get_handles(Tag_Type()).push_back(l_h1);
+    assert(l_section->cget_handles(Tag_Type()).size() == 1);
 
     // Should have this name now
     assert(a_phd.has_name(l_h1->cname()));
@@ -72,8 +74,8 @@ namespace
     assert(!a_phd.has_name(l_h2->cname()));
 
     // Add it to the data
-    a_phd.get_handles(Tag_Type()).push_back(l_h2);
-    assert(a_phd.cget_handles(Tag_Type()).size() == 2);
+    l_section->get_handles(Tag_Type()).push_back(l_h2);
+    assert(l_section->cget_handles(Tag_Type()).size() == 2);
 
     // Should have this name now
     assert(a_phd.has_name(l_h2->cname()));
@@ -94,8 +96,8 @@ namespace
     assert(!a_phd.has_name(l_h3->cname()));
 
     // Add it to the data
-    a_phd.get_handles(Tag_Type()).push_back(l_h3);
-    assert(a_phd.cget_handles(Tag_Type()).size() == 3);
+    l_section->get_handles(Tag_Type()).push_back(l_h3);
+    assert(l_section->cget_handles(Tag_Type()).size() == 3);
 
     // Should have this name now
     assert(a_phd.has_name(l_h3->cname()));
@@ -108,7 +110,7 @@ namespace
     auto l_h4 = a_phf.make_emplace(Data_Type{l_name});
 
     // Should not have this name THE FIRST TIME
-    //assert(!a_phd.has_name(l_h4->cname()));
+    //assert(!l_section->has_name(l_h4->cname()));
 
     // Fix the name of the handle
     a_phd.fix_name(l_h4->name());
@@ -117,8 +119,8 @@ namespace
     //assert(l_h4->cname() == l_name);
 
     // Add it to the data
-    a_phd.get_handles(Tag_Type()).push_back(l_h4);
-    assert(a_phd.cget_handles(Tag_Type()).size() == 4);
+    l_section->get_handles(Tag_Type()).push_back(l_h4);
+    assert(l_section->cget_handles(Tag_Type()).size() == 4);
 
     // Should have this name now
     assert(a_phd.has_name(l_h4->cname()));
@@ -138,14 +140,14 @@ namespace
     assert(!a_phd.has_name(l_h5->cname()));
 
     // Add it to the data
-    a_phd.get_handles(Tag_Type()).push_back(l_h5);
-    assert(a_phd.cget_handles(Tag_Type()).size() == 5);
+    l_section->get_handles(Tag_Type()).push_back(l_h5);
+    assert(l_section->cget_handles(Tag_Type()).size() == 5);
 
     // Should have this name now
     assert(a_phd.has_name(l_h5->cname()));
 
 
-    for (auto const& l_handle : a_phd.cget_handles(Tag_Type{}))
+    for (auto const& l_handle : l_section->cget_handles(Tag_Type{}))
     {
       out_handle(l_handle);
     }

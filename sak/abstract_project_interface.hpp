@@ -71,6 +71,7 @@ namespace sak
   //---------------------------------------------------------------------------
   // Declaration and default arguments for the template class that builds the
   // template chain.
+
   template
   <
     typename T_List,
@@ -87,7 +88,8 @@ namespace sak
   // Abstract_Member_Interface_Imp<List,LI,MI,LL,ML>
   //---------------------------------------------------------------------------
   // For a member that isn't the last in a type that isn't the last in the list.
-  template <std::size_t LI, std::size_t LL, std::size_t MI, std::size_t ML, typename...Args>
+
+  template <std::size_t LI, std::size_t MI, std::size_t LL, std::size_t ML, typename...Args>
   class Abstract_Member_Interface_Imp<flamingo::typelist<Args...>,LI,MI,LL,ML> :
       protected Abstract_Member_Interface_Imp<flamingo::typelist<Args...>,LI,MI+1>
   {
@@ -100,7 +102,6 @@ namespace sak
     using Member_Value_Type = Data_Member_Value_Type<index,Data_Type>;
 
     static_assert(Class_Def_Size_v<Type> != 0, "Cannot use data with no members.");
-    static_assert(Class_Def_Size_v<Type> == (ML+1), "Bad last index.");
   public:
 
     // Special 6
@@ -121,7 +122,6 @@ namespace sak
     // telling everything to update this value, and true is returned. If the id is null or
     // invalid, nothing happens and false is returned.
     virtual bool try_set(Index_Tag_Type&&, ID_Type const& a_id, Member_Value_Type const& a_value) const = 0;
-
   };
 
   //------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -130,12 +130,12 @@ namespace sak
   // Abstract_Member_Interface_Imp<List,LI,ML,LL,ML>
   //---------------------------------------------------------------------------
   // For a member that is the last in a type that isn't the last in the list.
+
   template <std::size_t LI, std::size_t LL, std::size_t ML, typename...Args>
   class Abstract_Member_Interface_Imp<flamingo::typelist<Args...>,LI,ML,LL,ML> :
       protected Abstract_Member_Interface_Imp<flamingo::typelist<Args...>,LI+1>
   {
   public:
-
     // Special 6
     //============================================================
     ~Abstract_Member_Interface_Imp() override = 0;
@@ -146,12 +146,13 @@ namespace sak
   //---------------------------------------------------------------------------
   // Abstract_Member_Interface_Imp<List,LL,ML,LL,ML>
   //---------------------------------------------------------------------------
-  // For a member that is the last in the last type in the list.
+  // For a member that is the last in the last type in the list. This is the
+  // end of the template chain.
+
   template <std::size_t LL, std::size_t ML, typename...Args>
   class Abstract_Member_Interface_Imp<flamingo::typelist<Args...>,LL,ML,LL,ML>
   {
   public:
-
     // Special 6
     //============================================================
     virtual ~Abstract_Member_Interface_Imp() = 0;
@@ -178,6 +179,7 @@ namespace sak
   // Abstract_Section_Interface_Imp<List,LI,LS>
   //---------------------------------------------------------------------------
   // For a type in the list, build its interface.
+
   template <std::size_t LI, std::size_t LS, typename...Args>
   class Abstract_Section_Interface_Imp<flamingo::typelist<Args...>,LI,LS> :
       protected Abstract_Section_Interface_Imp<flamingo::typelist<Args...>,LI+1>
@@ -186,7 +188,7 @@ namespace sak
     using Type = flamingo::typelist_at_t<flamingo::typelist<Args...>,LI>;
     using Data_Type = Data<Type>;
     using ID_Type = ID<Type>;
-    using Handle_Type = Handle<Type>;
+    //using Handle_Type = Handle<Type>;
     using Tag_Type = Tag<Type>;
 
     static_assert(Class_Def_Size_v<Type> != 0, "Cannot use data with no members.");
@@ -207,30 +209,36 @@ namespace sak
     // How many objects are in this Project?
     virtual std::size_t count(Tag_Type&&) const = 0;
 
-    // Does this handle appear in the data?
-    virtual bool has_data(ID_Type const& a_id) const = 0;
+    // Does this id appear in the data?
+    virtual bool has(ID_Type const& a_id) const = 0;
 
     // Does this name appear in the data?
-    virtual bool has_data_named(Tag_Type&&, QString const&) const = 0;
+    virtual bool has_name(Tag_Type&&, QString const&) const = 0;
 
     // Get the id at this index. If the index is invalid a null id is returned.
-    virtual ID_Type get_data_at(Tag_Type&&, std::size_t a_index) const = 0;
+    virtual ID_Type get_at(Tag_Type&&, std::size_t a_index) const = 0;
 
     // Get the id with this name. If the name is invalid a null id is returned.
-    virtual ID_Type get_data_named(Tag_Type&&, QString const&) const = 0;
+    virtual ID_Type get_named(Tag_Type&&, QString const&) const = 0;
 
     // Get all the ids in data order
-    virtual std::vector<ID_Type> get_handles(Tag_Type&&) const = 0;
+    virtual std::vector<ID_Type> get_ids(Tag_Type&&) const = 0;
 
     // Get all the handles names in data order
     virtual std::vector<QString> get_names(Tag_Type&&) const = 0;
 
     // Data Interface
     //------------------------------------------------------------
-    // Attempt to get the name vfor the data associated with the supplied id. If the id is valid,
+    // Attempt to get the index of the data associated with the supplied id. This is the current
+    // position in the project's collection of data for this type of index. If the id is valid,
+    // the returned pair consists of true and the index. If the id is null or invalid, the
+    // returned pair consists of false and zero.
+    virtual std::pair<bool,std::size_t> try_get_index(ID_Type const& a_id) const = 0;
+
+    // Attempt to get the name for the data associated with the supplied id. If the id is valid,
     // the returned pair consists of true and the name value. If the id is null or invalid, the
     // returned pair consists of false and an empty string.
-    virtual std::pair<bool,QString> try_get_name(ID_Type const& a_id) = 0;
+    virtual std::pair<bool,QString> try_get_name(ID_Type const& a_id) const = 0;
 
     // Data Editing Interface
     //------------------------------------------------------------
@@ -243,37 +251,25 @@ namespace sak
 
     // Collection Editing Interface
     //------------------------------------------------------------
-    // Make a new object using the default parameters. Project's data management system owns it
-    // but it is not part of the Project. Does not trigger any commands.
-    virtual ID_Type make_default(Tag_Type&&) const = 0;
-
-    // Make a new object using the supplied data. Project's data management system owns it but
-    // it is not part of the Project. Does not trigger any commands.
-    virtual ID_Type make_emplace(Data_Type&& a_data) const = 0;
-
-    // Undoable add a new object made using the default parameters. Return true if the operation
-    // resulted in an undoable command.
-    virtual bool add_default(Tag_Type&&, Signal_Source a_source) = 0;
-
-    // Undoable add a new object using the supplied data. This data is assigned a new handle. The name will
-    // be modified if it is currently in use by another object. Return true if the operationn resulted in an undoable command.
-    virtual bool add_emplace(Signal_Source a_source, Data_Type&& a_data) = 0;
+    // Undoable add a new object made using the default parameters. Returns the id of the new
+    // data.
+    virtual ID_Type add_default(Tag_Type&&, Signal_Source a_source) = 0;
 
     // Undoable add a new object using the supplied handle. The name will be modified if it is currently in
     // use by another object. Return true if the operation resulted in an undoable command. If this handle
     // is invalid or already in the data then nothing happens and returns false.
-    virtual bool add(Signal_Source a_source, ID_Type const& a_id) = 0;
+    virtual bool try_add(Signal_Source a_source, ID_Type const& a_id) = 0;
 
     // Undoable remove object. Return true if the operation resulted in an undoable command. If this handle
     // is invalid or already in the data then nothing happens and returns false. Handle data is not deleted
     // until the last handle for it is deleted.
-    virtual bool remove(Signal_Source a_source, ID_Type const& a_id) = 0;
+    virtual bool try_remove(Signal_Source a_source, ID_Type const& a_id) = 0;
 
     // Request that the editor for this file be opened or switched to.
-    virtual bool request_editor(Signal_Source a_source, ID_Type const& a_id) = 0;
+    virtual bool try_request_editor(Signal_Source a_source, ID_Type const& a_id) = 0;
 
     // Request that the focus change to this object.
-    virtual bool request_outliner(Signal_Source a_source, ID_Type const& a_id) = 0;
+    virtual bool try_request_outliner(Signal_Source a_source, ID_Type const& a_id) = 0;
   };
 
   //------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -311,6 +307,9 @@ namespace sak
     //============================================================
     using Typelist_Type = flamingo::typelist<T,Args...>;
     using Signalbox_Type = Abstract_Project_Signalbox_Imp<T,Args...>;
+
+    static_assert(flamingo::typelist_all_unique_v<Typelist_Type>,
+                  "Cannot have repeating types in the supplied template arguments.");
 
     // Special 6
     //============================================================
@@ -375,7 +374,7 @@ namespace sak
     <
       Typelist_Type,
       flamingo::typelist_find_v<Typelist_Type, U>
-    >* get_section_interface()
+    >* get_section()
     {
       static_assert(flamingo::typelist_find_v<Typelist_Type,U> != flamingo::typelist_size_v<Typelist_Type>,
                     "Cannot make interface, type not present.");
@@ -387,7 +386,7 @@ namespace sak
     <
       Typelist_Type,
       flamingo::typelist_find_v<Typelist_Type, U>
-    > const* cget_section_interface() const
+    > const* cget_section() const
     {
       static_assert(flamingo::typelist_find_v<Typelist_Type,U> != flamingo::typelist_size_v<Typelist_Type>,
                     "Cannot make interface, type not present.");
@@ -399,7 +398,7 @@ namespace sak
     <
       Typelist_Type,
       I
-    >* get_section_interface_at()
+    >* get_section_at()
     {
       static_assert(I < flamingo::typelist_size_v<Typelist_Type>,
                     "Cannot make interface, type index is out of range.");
@@ -411,7 +410,7 @@ namespace sak
     <
       Typelist_Type,
       I
-    > const* cget_section_interface_at() const
+    > const* cget_section_at() const
     {
       static_assert(I < flamingo::typelist_size_v<Typelist_Type>,
                     "Cannot make interface, type index is out of range.");
@@ -424,7 +423,7 @@ namespace sak
       Typelist_Type,
       flamingo::typelist_find_v<Typelist_Type, U>,
       I
-    >* get_member_interface()
+    >* get_member()
     {
       static_assert(flamingo::typelist_find_v<Typelist_Type,U> != flamingo::typelist_size_v<Typelist_Type>,
                     "Cannot make interface, type not present.");
@@ -439,7 +438,7 @@ namespace sak
       Typelist_Type,
       flamingo::typelist_find_v<Typelist_Type, U>,
       I
-    > const* cget_member_interface() const
+    > const* cget_member() const
     {
       static_assert(flamingo::typelist_find_v<Typelist_Type,U> != flamingo::typelist_size_v<Typelist_Type>,
                     "Cannot make interface, type not present.");

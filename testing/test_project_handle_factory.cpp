@@ -19,7 +19,7 @@ namespace
   {
     std::cout << "Handle type=\"" << T::Typestring_Type::data()
               << "\" ptr=\"" << a_handle.get()
-              << "\" id=\"" << a_handle.id() << "\"";
+              << "\" id=\"" << a_handle.id().value() << "\"";
     if (a_handle)
     {
       std::cout << "name=\"" << a_handle->cname().toStdString() << "\"";

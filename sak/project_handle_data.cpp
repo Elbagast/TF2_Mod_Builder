@@ -44,171 +44,188 @@ namespace sak
       return do_find_handle_named(a_handles, a_name) != a_handles.cend();
     }
 
-
-    //---------------------------------------------------------------------------
-    // Do_Handles<T>
-    //---------------------------------------------------------------------------
-    // Implement the functionality in one place rather than twice.
     template <typename T>
-    class Do_Handles
+    decltype(auto) do_find_handle_id(std::vector<Handle<T>> const& a_handles, ID<T> const& a_id)
     {
-    public:
-      // Are there any objects in this Project?
-      static bool is_empty(std::vector<Handle<T>> const& a_handles)
-      {
-        return a_handles.empty();
-      }
+      return std::find_if(a_handles.cbegin(), a_handles.cend(), [&a_id](Handle<T> const& a_handle) -> bool { return a_handle.id() == a_id; });
+    }
 
-      // How many objects are in this Project?
-      static std::size_t count(std::vector<Handle<T>> const& a_handles)
-      {
-        return a_handles.size();
-      }
+    template <typename T>
+    bool do_has_handle_id(std::vector<Handle<T>> const& a_handles, ID<T> const& a_id)
+    {
+      return do_find_handle_id(a_handles, a_id) != a_handles.cend();
+    }
 
-      // Does this handle appear in the data?
-      static bool has_handle(std::vector<Handle<T>> const& a_handles, Handle<T> const& a_handle)
-      {
-        return do_has_handle(a_handles,a_handle);
-      }
-
-      // Does this name appear in the data?
-      static bool has_handle_named(std::vector<Handle<T>> const& a_handles, QString const& a_name)
-      {
-        return do_has_handle_named(a_handles,a_name);
-      }
-
-      // Get the handle at this index. If the index is invalid a null handle is returned.
-      static Handle<T> get_handle_at(std::vector<Handle<T>> const& a_handles, std::size_t a_index)
-      {
-        if (a_index < a_handles.size())
-        {
-          return a_handles.at(a_index);
-        }
-        else
-        {
-          return Handle<T>{};
-        }
-      }
-
-      // Get the handle with this name. If the name is invalid a null handle is returned.
-      static Handle<T> get_handle_named(std::vector<Handle<T>> const& a_handles, QString const& a_name)
-      {
-        auto l_found = do_find_handle_named(a_handles,a_name);
-        if (l_found != a_handles.cend())
-        {
-          return *l_found;
-        }
-        else
-        {
-          return Handle<T>{};
-        }
-      }
-
-      // Get the handles names in data order
-      static std::vector<QString> get_names(std::vector<Handle<T>> const& a_handles)
-      {
-        std::vector<QString> l_result{};
-        l_result.reserve(a_handles.size());
-        for (auto const& l_handle : a_handles)
-        {
-          l_result.push_back(l_handle->cname());
-        }
-        return l_result;
-      }
-
-    };
   }
 }
 
 
 //---------------------------------------------------------------------------
-// Project_Handle_Data_Part_Imp<List, Index, End>
+// Section_Handle_Data_Imp<List, Index, End>
 //---------------------------------------------------------------------------
 // For a type that isn't at the end of the list.
 
 // Special 6
 //============================================================
 template <std::size_t Index, std::size_t End, typename...Args>
-sak::internal::Project_Handle_Data_Part_Imp<flamingo::typelist<Args...>,Index,End>::Project_Handle_Data_Part_Imp() :
+sak::Section_Handle_Data_Imp<flamingo::typelist<Args...>,Index,End>::Section_Handle_Data_Imp() :
   Inh(),
   m_handles{}
 {}
 
 template <std::size_t Index, std::size_t End, typename...Args>
-sak::internal::Project_Handle_Data_Part_Imp<flamingo::typelist<Args...>,Index,End>::~Project_Handle_Data_Part_Imp() = default;
+sak::Section_Handle_Data_Imp<flamingo::typelist<Args...>,Index,End>::~Section_Handle_Data_Imp() = default;
 
 template <std::size_t Index, std::size_t End, typename...Args>
-sak::internal::Project_Handle_Data_Part_Imp<flamingo::typelist<Args...>,Index,End>::Project_Handle_Data_Part_Imp(Project_Handle_Data_Part_Imp const&) = default;
+sak::Section_Handle_Data_Imp<flamingo::typelist<Args...>,Index,End>::Section_Handle_Data_Imp(Section_Handle_Data_Imp const&) = default;
 
 template <std::size_t Index, std::size_t End, typename...Args>
-sak::internal::Project_Handle_Data_Part_Imp<flamingo::typelist<Args...>,Index,End>& sak::internal::Project_Handle_Data_Part_Imp<flamingo::typelist<Args...>,Index,End>::operator=(Project_Handle_Data_Part_Imp const&) = default;
+sak::Section_Handle_Data_Imp<flamingo::typelist<Args...>,Index,End>& sak::Section_Handle_Data_Imp<flamingo::typelist<Args...>,Index,End>::operator=(Section_Handle_Data_Imp const&) = default;
 
 template <std::size_t Index, std::size_t End, typename...Args>
-sak::internal::Project_Handle_Data_Part_Imp<flamingo::typelist<Args...>,Index,End>::Project_Handle_Data_Part_Imp(Project_Handle_Data_Part_Imp &&) = default;
+sak::Section_Handle_Data_Imp<flamingo::typelist<Args...>,Index,End>::Section_Handle_Data_Imp(Section_Handle_Data_Imp &&) = default;
 
 template <std::size_t Index, std::size_t End, typename...Args>
-sak::internal::Project_Handle_Data_Part_Imp<flamingo::typelist<Args...>,Index,End>& sak::internal::Project_Handle_Data_Part_Imp<flamingo::typelist<Args...>,Index,End>::operator=(Project_Handle_Data_Part_Imp &&) = default;
+sak::Section_Handle_Data_Imp<flamingo::typelist<Args...>,Index,End>& sak::Section_Handle_Data_Imp<flamingo::typelist<Args...>,Index,End>::operator=(Section_Handle_Data_Imp &&) = default;
 
 // Interface
 //============================================================
+// User Interface
+//------------------------------------------------------------
+// This part will get used by the interface implementor.
+
 // Are there any objects in this Project?
 template <std::size_t Index, std::size_t End, typename...Args>
-bool sak::internal::Project_Handle_Data_Part_Imp<flamingo::typelist<Args...>,Index,End>::is_empty(Tag_Type&&) const
+bool sak::Section_Handle_Data_Imp<flamingo::typelist<Args...>,Index,End>::is_empty(Tag_Type&&) const
 {
-  return Do_Handles<Type>::is_empty(m_handles);
+  return m_handles.empty();
 }
 
 // How many objects are in this Project?
 template <std::size_t Index, std::size_t End, typename...Args>
-std::size_t sak::internal::Project_Handle_Data_Part_Imp<flamingo::typelist<Args...>,Index,End>::count(Tag_Type&&) const
+std::size_t sak::Section_Handle_Data_Imp<flamingo::typelist<Args...>,Index,End>::count(Tag_Type&&) const
 {
-  return Do_Handles<Type>::count(m_handles);
+  return m_handles.size();
 }
 
 // Does this handle appear in the data?
 template <std::size_t Index, std::size_t End, typename...Args>
-bool sak::internal::Project_Handle_Data_Part_Imp<flamingo::typelist<Args...>,Index,End>::has_handle(Handle_Type const& a_handle) const
+bool sak::Section_Handle_Data_Imp<flamingo::typelist<Args...>,Index,End>::has(ID_Type const& a_id) const
 {
-  return Do_Handles<Type>::has_handle(m_handles, a_handle);
+  return do_has_handle_id(m_handles,a_id);
 }
 
 // Does this name appear in the data?
 template <std::size_t Index, std::size_t End, typename...Args>
-bool sak::internal::Project_Handle_Data_Part_Imp<flamingo::typelist<Args...>,Index,End>::has_handle_named(Tag_Type&&, QString const& a_name) const
+bool sak::Section_Handle_Data_Imp<flamingo::typelist<Args...>,Index,End>::has_name(Tag_Type&&, QString const& a_name) const
 {
-  return Do_Handles<Type>::has_handle_named(m_handles, a_name);
+  return do_has_handle_named(m_handles,a_name);
 }
 
 // Get the handle at this index. If the index is invalid a null handle is returned.
 template <std::size_t Index, std::size_t End, typename...Args>
-typename sak::internal::Project_Handle_Data_Part_Imp<flamingo::typelist<Args...>,Index,End>::Handle_Type sak::internal::Project_Handle_Data_Part_Imp<flamingo::typelist<Args...>,Index,End>::get_handle_at(Tag_Type&&, std::size_t a_index) const
+typename sak::Section_Handle_Data_Imp<flamingo::typelist<Args...>,Index,End>::ID_Type sak::Section_Handle_Data_Imp<flamingo::typelist<Args...>,Index,End>::get_at(Tag_Type&&, std::size_t a_index) const
 {
-  return Do_Handles<Type>::get_handle_at(m_handles, a_index);
+  if (a_index < m_handles.size())
+  {
+    return m_handles.at(a_index).id();
+  }
+  else
+  {
+    return ID_Type{};
+  }
 }
 
 // Get the handle with this name. If the name is invalid a null handle is returned.
 template <std::size_t Index, std::size_t End, typename...Args>
-typename sak::internal::Project_Handle_Data_Part_Imp<flamingo::typelist<Args...>,Index,End>::Handle_Type sak::internal::Project_Handle_Data_Part_Imp<flamingo::typelist<Args...>,Index,End>::get_handle_named(Tag_Type&&, QString const& a_name) const
+typename sak::Section_Handle_Data_Imp<flamingo::typelist<Args...>,Index,End>::ID_Type sak::Section_Handle_Data_Imp<flamingo::typelist<Args...>,Index,End>::get_named(Tag_Type&&, QString const& a_name) const
 {
-  return Do_Handles<Type>::get_handle_named(m_handles, a_name);
+  auto l_found = do_find_handle_named(m_handles,a_name);
+  if (l_found != m_handles.cend())
+  {
+    return l_found->id();
+  }
+  else
+  {
+    return ID_Type{};
+  }
 }
 
 // Get the handles names in data order
 template <std::size_t Index, std::size_t End, typename...Args>
-std::vector<QString> sak::internal::Project_Handle_Data_Part_Imp<flamingo::typelist<Args...>,Index,End>::get_names(Tag_Type&&) const
+std::vector<typename sak::Section_Handle_Data_Imp<flamingo::typelist<Args...>,Index,End>::ID_Type> sak::Section_Handle_Data_Imp<flamingo::typelist<Args...>,Index,End>::get_ids(Tag_Type&&) const
 {
-  return Do_Handles<Type>::get_names(m_handles);
+  std::vector<ID_Type> l_result{};
+  l_result.reserve(m_handles.size());
+  for (auto const& l_handle : m_handles)
+  {
+    l_result.push_back(l_handle.id());
+  }
+  return l_result;
+}
+
+// Get the handles names in data order
+template <std::size_t Index, std::size_t End, typename...Args>
+std::vector<QString> sak::Section_Handle_Data_Imp<flamingo::typelist<Args...>,Index,End>::get_names(Tag_Type&&) const
+{
+  std::vector<QString> l_result{};
+  l_result.reserve(m_handles.size());
+  for (auto const& l_handle : m_handles)
+  {
+    l_result.push_back(l_handle->cname());
+  }
+  return l_result;
+}
+
+// Internal Interface
+//------------------------------------------------------------
+// This part will get used by the data implementor.
+
+// Does this handle appear in the data?
+template <std::size_t Index, std::size_t End, typename...Args>
+bool sak::Section_Handle_Data_Imp<flamingo::typelist<Args...>,Index,End>::has_handle(Handle_Type const& a_handle) const
+{
+  return do_has_handle(m_handles,a_handle);
+}
+
+// Get the handle at this index. If the index is invalid a null handle is returned.
+template <std::size_t Index, std::size_t End, typename...Args>
+typename sak::Section_Handle_Data_Imp<flamingo::typelist<Args...>,Index,End>::Handle_Type sak::Section_Handle_Data_Imp<flamingo::typelist<Args...>,Index,End>::get_handle_at(Tag_Type&&, std::size_t a_index) const
+{
+  if (a_index < m_handles.size())
+  {
+    return m_handles.at(a_index);
+  }
+  else
+  {
+    return Handle_Type{};
+  }
+}
+
+// Get the handle with this name. If the name is invalid a null handle is returned.
+template <std::size_t Index, std::size_t End, typename...Args>
+typename sak::Section_Handle_Data_Imp<flamingo::typelist<Args...>,Index,End>::Handle_Type sak::Section_Handle_Data_Imp<flamingo::typelist<Args...>,Index,End>::get_handle_named(Tag_Type&&, QString const& a_name) const
+{
+  auto l_found = do_find_handle_named(m_handles,a_name);
+  if (l_found != m_handles.cend())
+  {
+    return *l_found;
+  }
+  else
+  {
+    return Handle_Type{};
+  }
 }
 
 // Access the handles for direct manipulation.
 template <std::size_t Index, std::size_t End, typename...Args>
-std::vector<typename sak::internal::Project_Handle_Data_Part_Imp<flamingo::typelist<Args...>,Index,End>::Handle_Type>& sak::internal::Project_Handle_Data_Part_Imp<flamingo::typelist<Args...>,Index,End>::get_handles(Tag_Type&&)
+std::vector<typename sak::Section_Handle_Data_Imp<flamingo::typelist<Args...>,Index,End>::Handle_Type>& sak::Section_Handle_Data_Imp<flamingo::typelist<Args...>,Index,End>::get_handles(Tag_Type&&)
 {
   return m_handles;
 }
 
 template <std::size_t Index, std::size_t End, typename...Args>
-std::vector<typename sak::internal::Project_Handle_Data_Part_Imp<flamingo::typelist<Args...>,Index,End>::Handle_Type> const& sak::internal::Project_Handle_Data_Part_Imp<flamingo::typelist<Args...>,Index,End>::cget_handles(Tag_Type&&) const
+std::vector<typename sak::Section_Handle_Data_Imp<flamingo::typelist<Args...>,Index,End>::Handle_Type> const& sak::Section_Handle_Data_Imp<flamingo::typelist<Args...>,Index,End>::cget_handles(Tag_Type&&) const
 {
   return m_handles;
 }
@@ -216,95 +233,29 @@ std::vector<typename sak::internal::Project_Handle_Data_Part_Imp<flamingo::typel
 //------------------------------------------------------------------------------------------------------------------------------------------------------
 
 //---------------------------------------------------------------------------
-// Project_Handle_Data_Part_Imp<List, End, End>
+// Section_Handle_Data_Imp<List, End, End>
 //---------------------------------------------------------------------------
 // For a type that isn't at the end of the list.
 
 // Special 6
 //============================================================
 template <std::size_t End, typename...Args>
-sak::internal::Project_Handle_Data_Part_Imp<flamingo::typelist<Args...>,End,End>::Project_Handle_Data_Part_Imp() :
-  m_handles{}
-{}
+sak::Section_Handle_Data_Imp<flamingo::typelist<Args...>,End,End>::Section_Handle_Data_Imp() = default;
 
 template <std::size_t End, typename...Args>
-sak::internal::Project_Handle_Data_Part_Imp<flamingo::typelist<Args...>,End,End>::~Project_Handle_Data_Part_Imp() = default;
+sak::Section_Handle_Data_Imp<flamingo::typelist<Args...>,End,End>::~Section_Handle_Data_Imp() = default;
 
 template <std::size_t End, typename...Args>
-sak::internal::Project_Handle_Data_Part_Imp<flamingo::typelist<Args...>,End,End>::Project_Handle_Data_Part_Imp(Project_Handle_Data_Part_Imp const&) = default;
+sak::Section_Handle_Data_Imp<flamingo::typelist<Args...>,End,End>::Section_Handle_Data_Imp(Section_Handle_Data_Imp const&) = default;
 
 template <std::size_t End, typename...Args>
-sak::internal::Project_Handle_Data_Part_Imp<flamingo::typelist<Args...>,End,End>& sak::internal::Project_Handle_Data_Part_Imp<flamingo::typelist<Args...>,End,End>::operator=(Project_Handle_Data_Part_Imp const&) = default;
+sak::Section_Handle_Data_Imp<flamingo::typelist<Args...>,End,End>& sak::Section_Handle_Data_Imp<flamingo::typelist<Args...>,End,End>::operator=(Section_Handle_Data_Imp const&) = default;
 
 template <std::size_t End, typename...Args>
-sak::internal::Project_Handle_Data_Part_Imp<flamingo::typelist<Args...>,End,End>::Project_Handle_Data_Part_Imp(Project_Handle_Data_Part_Imp &&) = default;
+sak::Section_Handle_Data_Imp<flamingo::typelist<Args...>,End,End>::Section_Handle_Data_Imp(Section_Handle_Data_Imp &&) = default;
 
 template <std::size_t End, typename...Args>
-sak::internal::Project_Handle_Data_Part_Imp<flamingo::typelist<Args...>,End,End>& sak::internal::Project_Handle_Data_Part_Imp<flamingo::typelist<Args...>,End,End>::operator=(Project_Handle_Data_Part_Imp &&) = default;
-
-// Interface
-//============================================================
-// Are there any objects in this Project?
-template <std::size_t End, typename...Args>
-bool sak::internal::Project_Handle_Data_Part_Imp<flamingo::typelist<Args...>,End,End>::is_empty(Tag_Type&&) const
-{
-  return Do_Handles<Type>::is_empty(m_handles);
-}
-
-// How many objects are in this Project?
-template <std::size_t End, typename...Args>
-std::size_t sak::internal::Project_Handle_Data_Part_Imp<flamingo::typelist<Args...>,End,End>::count(Tag_Type&&) const
-{
-  return Do_Handles<Type>::count(m_handles);
-}
-
-// Does this handle appear in the data?
-template <std::size_t End, typename...Args>
-bool sak::internal::Project_Handle_Data_Part_Imp<flamingo::typelist<Args...>,End,End>::has_handle(Handle_Type const& a_handle) const
-{
-  return Do_Handles<Type>::has_handle(m_handles, a_handle);
-}
-
-// Does this name appear in the data?
-template <std::size_t End, typename...Args>
-bool sak::internal::Project_Handle_Data_Part_Imp<flamingo::typelist<Args...>,End,End>::has_handle_named(Tag_Type&&, QString const& a_name) const
-{
-  return Do_Handles<Type>::has_handle_named(m_handles, a_name);
-}
-
-// Get the handle at this index. If the index is invalid a null handle is returned.
-template <std::size_t End, typename...Args>
-typename sak::internal::Project_Handle_Data_Part_Imp<flamingo::typelist<Args...>,End,End>::Handle_Type sak::internal::Project_Handle_Data_Part_Imp<flamingo::typelist<Args...>,End,End>::get_handle_at(Tag_Type&&, std::size_t a_index) const
-{
-  return Do_Handles<Type>::get_handle_at(m_handles, a_index);
-}
-
-// Get the handle with this name. If the name is invalid a null handle is returned.
-template <std::size_t End, typename...Args>
-typename sak::internal::Project_Handle_Data_Part_Imp<flamingo::typelist<Args...>,End,End>::Handle_Type sak::internal::Project_Handle_Data_Part_Imp<flamingo::typelist<Args...>,End,End>::get_handle_named(Tag_Type&&, QString const& a_name) const
-{
-  return Do_Handles<Type>::get_handle_named(m_handles, a_name);
-}
-
-// Get the handles names in data order
-template <std::size_t End, typename...Args>
-std::vector<QString> sak::internal::Project_Handle_Data_Part_Imp<flamingo::typelist<Args...>,End,End>::get_names(Tag_Type&&) const
-{
-  return Do_Handles<Type>::get_names(m_handles);
-}
-
-// Access the handles for direct manipulation.
-template <std::size_t End, typename...Args>
-std::vector<typename sak::internal::Project_Handle_Data_Part_Imp<flamingo::typelist<Args...>,End,End>::Handle_Type>& sak::internal::Project_Handle_Data_Part_Imp<flamingo::typelist<Args...>,End,End>::get_handles(Tag_Type&&)
-{
-  return m_handles;
-}
-
-template <std::size_t End, typename...Args>
-std::vector<typename sak::internal::Project_Handle_Data_Part_Imp<flamingo::typelist<Args...>,End,End>::Handle_Type> const& sak::internal::Project_Handle_Data_Part_Imp<flamingo::typelist<Args...>,End,End>::cget_handles(Tag_Type&&) const
-{
-  return m_handles;
-}
+sak::Section_Handle_Data_Imp<flamingo::typelist<Args...>,End,End>& sak::Section_Handle_Data_Imp<flamingo::typelist<Args...>,End,End>::operator=(Section_Handle_Data_Imp &&) = default;
 
 //------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -371,7 +322,8 @@ namespace
     public:
       void operator()(Project_Data_Type const* a_data, std::size_t& a_count)
       {
-        a_count += a_data->cget_handles(Tag_Type()).size();
+        auto l_section = a_data->cget_section_at<Index>();
+        a_count += l_section->cget_handles(Tag_Type()).size();
         Do_Loop<Index+1,End>()(a_data,a_count);
       }
     };
@@ -410,7 +362,8 @@ namespace
     public:
       bool operator()(Project_Data_Type const* a_data, QString const& a_name) const
       {
-        if (do_has_handle_named(a_data->cget_handles(Tag_Type()),a_name))
+        auto l_section = a_data->cget_section_at<Index>();
+        if (do_has_handle_named(l_section->cget_handles(Tag_Type()),a_name))
         {
           return true;
         }
@@ -455,8 +408,9 @@ namespace
     public:
       void operator()(Project_Data_Type const* a_data, std::vector<QString>& a_result) const
       {
+        auto l_section = a_data->cget_section_at<Index>();
         // Go through all the handles for this section
-        for (auto const& l_handle : a_data->cget_handles(Tag_Type()))
+        for (auto const& l_handle : l_section->cget_handles(Tag_Type()))
         {
           // and add the name to the result.
           a_result.push_back(l_handle->cname());
@@ -545,8 +499,9 @@ void sak::Project_Handle_Data_Imp<T,Args...>::fix_name(QString& a_name) const
 }
 
 //------------------------------------------------------------------------------------------------------------------------------------------------------
-template class sak::internal::Project_Handle_Data_Part_Imp<sak::Project_Typelist,0,2>;
-template class sak::internal::Project_Handle_Data_Part_Imp<sak::Project_Typelist,1,2>;
-template class sak::internal::Project_Handle_Data_Part_Imp<sak::Project_Typelist,2,2>;
+template class sak::Section_Handle_Data_Imp<sak::Project_Typelist,0,3>;
+template class sak::Section_Handle_Data_Imp<sak::Project_Typelist,1,3>;
+template class sak::Section_Handle_Data_Imp<sak::Project_Typelist,2,3>;
+template class sak::Section_Handle_Data_Imp<sak::Project_Typelist,3,3>;
 
 template class sak::Project_Handle_Data;
