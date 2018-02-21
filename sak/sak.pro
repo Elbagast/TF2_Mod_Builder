@@ -94,7 +94,8 @@ SOURCES += \
     signal_source.cpp \
     project_handle_factory.cpp \
     project_handle_data.cpp \
-    id.cpp
+    id.cpp \
+    project_interface.cpp
 
 HEADERS  += \
     class_definitions.hpp \
@@ -130,7 +131,9 @@ HEADERS  += \
     project_handle_data.hpp \
     project_handle_data_fwd.hpp \
     id.hpp \
-    id_fwd.hpp
+    id_fwd.hpp \
+    project_interface.hpp \
+    project_interface_fwd.hpp
 
 FORMS += \
 

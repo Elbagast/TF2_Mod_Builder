@@ -395,15 +395,17 @@ namespace sak
     }
 
     // Undo the last command issued.
-    void undo() override
+    bool undo() override
     {
       std::cout << "sak::Project_Interface_Imp::undo" << std::endl;
+      return false;
     }
 
     // Redo the last undone command in the command history
-    void redo() override
+    bool redo() override
     {
       std::cout << "sak::Project_Interface_Imp::redo" << std::endl;
+      return false;
     }
 
     // Clear the undo/redo history.

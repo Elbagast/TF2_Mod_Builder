@@ -5,10 +5,10 @@
 #include "class_definitions_fwd.hpp"
 #endif
 
-#ifndef INCLUDE_STD_CSTDDEF
-#define INCLUDE_STD_CSTDDEF
-#include <cstddef>
-#endif
+//#ifndef INCLUDE_STD_CSTDDEF
+//#define INCLUDE_STD_CSTDDEF
+//#include <cstddef>
+//#endif
 
 namespace sak
 {

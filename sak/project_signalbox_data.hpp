@@ -182,14 +182,31 @@ namespace sak
       protected Section_Signalbox_Data_Imp<flamingo::typelist<T,Args...>>
   {
     using Inh = Section_Signalbox_Data_Imp<flamingo::typelist<T,Args...>>;
-  public:
+
     // Typedefs
     //============================================================
     using Typelist_Type = flamingo::typelist<T,Args...>;
-    using Signalbox_Type = typename Inh::Signalbox_Type;
-
     static_assert(flamingo::typelist_all_unique_v<Typelist_Type>,
                   "Cannot have repeating types in the supplied template arguments.");
+
+    template <typename U>
+    using Section_Signalbox_Data_Type =
+    Section_Signalbox_Data_Imp
+    <
+      Typelist_Type,
+      flamingo::typelist_find_v<Typelist_Type, U>
+    >;
+
+    template <std::size_t I>
+    using Section_Signalbox_Data_At =
+    Section_Signalbox_Data_Imp
+    <
+      Typelist_Type,
+      I
+    >;
+
+  public:
+    using Signalbox_Type = typename Inh::Signalbox_Type;
     // Special 6
     //============================================================
     Project_Signalbox_Data_Imp();
@@ -203,12 +220,25 @@ namespace sak
 
     // Interface
     //============================================================
+
+    // Data Interface
+    //------------------------------------------------------------
+    using Inh::add_signalbox;
+    using Inh::remove_signalbox;
+    using Inh::clear_signalboxes;
+
+    // Section Interface Access
+    //------------------------------------------------------------
     template <typename U>
-    Section_Signalbox_Data_Imp
-    <
-      Typelist_Type,
-      flamingo::typelist_find_v<Typelist_Type, U>
-    >* get_section()
+    Section_Signalbox_Data_Type<U>* get_section()
+    {
+      static_assert(flamingo::typelist_find_v<Typelist_Type,U> != flamingo::typelist_size_v<Typelist_Type>,
+                    "Cannot get data, type not present.");
+      return this;
+    }
+
+    template <typename U>
+    Section_Signalbox_Data_Type<U> const* cget_section() const
     {
       static_assert(flamingo::typelist_find_v<Typelist_Type,U> != flamingo::typelist_size_v<Typelist_Type>,
                     "Cannot get data, type not present.");
@@ -216,20 +246,21 @@ namespace sak
     }
 
     template <std::size_t I>
-    Section_Signalbox_Data_Imp
-    <
-      Typelist_Type,
-      I
-    >* get_section_at()
+    Section_Signalbox_Data_At<I>* get_section_at()
     {
       static_assert(I < flamingo::typelist_size_v<Typelist_Type>,
                     "Cannot get data, type index is out of range.");
       return this;
     }
 
-    using Inh::add_signalbox;
-    using Inh::remove_signalbox;
-    using Inh::clear_signalboxes;
+    template <std::size_t I>
+    Section_Signalbox_Data_At<I> const* cget_section_at() const
+    {
+      static_assert(I < flamingo::typelist_size_v<Typelist_Type>,
+                    "Cannot get data, type index is out of range.");
+      return this;
+    }
+
   };
 
   //------------------------------------------------------------------------------------------------------------------------------------------------------

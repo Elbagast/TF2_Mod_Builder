@@ -12,6 +12,8 @@
 #include "test_project_handle_factory.hpp"
 #include "test_project_handle_data.hpp"
 
+#include "test_project_interface.hpp"
+
 int main(int argc, char *argv[])
 {
   using namespace sak::testing;
@@ -26,6 +28,8 @@ int main(int argc, char *argv[])
   test_project_signalbox_data();
   test_project_handle_factory();
   test_project_handle_data();
+
+  test_project_interface();
 
   return 0;
 

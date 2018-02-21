@@ -36,29 +36,31 @@ namespace
     using Data_Type = Data<T>;
     using Handle_Type = Handle<T>;
 
+    auto l_section = a_phf.cget_section<T>();
+
 
     std::cout << "default_name: \""
-              << a_phf.default_name(Tag_Type()).toStdString()
+              << l_section->default_name(Tag_Type()).toStdString()
               << "\"" << std::endl;
 
     // Make a null
-    auto l_h0 = a_phf.make_null(Tag_Type());
+    auto l_h0 = l_section->make_null(Tag_Type());
     std::cout << "make_null: ";
     out_handle(l_h0);
 
     // Make with the default
-    auto l_h1 = a_phf.make_default(Tag_Type());
+    auto l_h1 = l_section->make_default(Tag_Type());
     std::cout << "make_default: ";
     out_handle(l_h1);
 
     // Make a handle with some data
     Data_Type l_d{QString("testname")};
-    auto l_h2 = a_phf.make_emplace(std::move(l_d));
+    auto l_h2 = l_section->make_emplace(std::move(l_d));
     std::cout << "make_emplace([some data]): ";
     out_handle(l_h2);
 
     // Make a handle with some data with no name set
-    auto l_h3 = a_phf.make_emplace(Data_Type{});
+    auto l_h3 = l_section->make_emplace(Data_Type{});
     std::cout << "make_emplace([data with no name]): ";
     out_handle(l_h3);
 

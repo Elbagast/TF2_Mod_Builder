@@ -158,8 +158,8 @@ namespace sak
     Section_Handle_Data_Imp(Section_Handle_Data_Imp &&);
     Section_Handle_Data_Imp& operator=(Section_Handle_Data_Imp &&);
   };
-  //------------------------------------------------------------------------------------------------------------------------------------------------------
 
+  //------------------------------------------------------------------------------------------------------------------------------------------------------
 
   //---------------------------------------------------------------------------
   // Project_Handle_Data_Imp<T,Args...>
@@ -179,6 +179,25 @@ namespace sak
     //============================================================
     using Inh = Section_Handle_Data_Imp<flamingo::typelist<T,Args...>>;
     using Typelist_Type = flamingo::typelist<T,Args...>;
+    static_assert(flamingo::typelist_all_unique_v<Typelist_Type>,
+                  "Cannot have repeating types in the supplied template arguments.");
+
+    template <typename U>
+    using Section_Handle_Data_Type =
+    Section_Handle_Data_Imp
+    <
+      Typelist_Type,
+      flamingo::typelist_find_v<Typelist_Type, U>
+    >;
+
+    template <std::size_t I>
+    using Section_Handle_Data_At =
+    Section_Handle_Data_Imp
+    <
+      Typelist_Type,
+      I
+    >;
+
   public:
     // Special 6
     //============================================================
@@ -207,12 +226,10 @@ namespace sak
     // existing data names.
     void fix_name(QString& a_name) const;
 
+    // Section Interface Access
+    //------------------------------------------------------------
     template <typename U>
-    Section_Handle_Data_Imp
-    <
-      Typelist_Type,
-      flamingo::typelist_find_v<Typelist_Type, U>
-    >* get_section()
+    Section_Handle_Data_Type<U>* get_section()
     {
       static_assert(flamingo::typelist_find_v<Typelist_Type,U> != flamingo::typelist_size_v<Typelist_Type>,
                     "Cannot get data, type not present.");
@@ -220,11 +237,7 @@ namespace sak
     }
 
     template <typename U>
-    Section_Handle_Data_Imp
-    <
-      Typelist_Type,
-      flamingo::typelist_find_v<Typelist_Type, U>
-    > const* cget_section() const
+    Section_Handle_Data_Type<U> const* cget_section() const
     {
       static_assert(flamingo::typelist_find_v<Typelist_Type,U> != flamingo::typelist_size_v<Typelist_Type>,
                     "Cannot get data, type not present.");
@@ -232,11 +245,7 @@ namespace sak
     }
 
     template <std::size_t I>
-    Section_Handle_Data_Imp
-    <
-      Typelist_Type,
-      I
-    >* get_section_at()
+    Section_Handle_Data_At<I>* get_section_at()
     {
       static_assert(I < flamingo::typelist_size_v<Typelist_Type>,
                     "Cannot get data, type index is out of range.");
@@ -244,11 +253,7 @@ namespace sak
     }
 
     template <std::size_t I>
-    Section_Handle_Data_Imp
-    <
-      Typelist_Type,
-      I
-    > const* cget_section_at() const
+    Section_Handle_Data_At<I> const* cget_section_at() const
     {
       static_assert(I < flamingo::typelist_size_v<Typelist_Type>,
                     "Cannot get data, type index is out of range.");
@@ -256,6 +261,7 @@ namespace sak
     }
 
   };
+
   //------------------------------------------------------------------------------------------------------------------------------------------------------
 
 } // namespace sak

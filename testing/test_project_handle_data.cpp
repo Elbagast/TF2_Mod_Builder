@@ -5,6 +5,7 @@
 #include <sak/data.hpp>
 #include <sak/handle.hpp>
 #include <sak/tag.hpp>
+#include <sak/id.hpp>
 #include <sak/project_handle_factory.hpp>
 #include <sak/project_handle_data.hpp>
 
@@ -34,24 +35,27 @@ namespace
   {
     using namespace sak;
     using Tag_Type = Tag<T>;
+    using ID_Type = ID<T>;
     using Data_Type = Data<T>;
     using Handle_Type = Handle<T>;
 
-    auto l_section = a_phd.get_section<T>();
+    auto l_factory_section = a_phf.cget_section<T>();
+    auto l_data_section = a_phd.get_section<T>();
 
-    assert(l_section->cget_handles(Tag_Type()).empty());
+
+    assert(l_data_section->cget_handles(Tag_Type()).empty());
 
     // First handle
     //--------------------------
     // Make a default handle
-    auto l_h1 = a_phf.make_default(Tag_Type());
+    auto l_h1 = l_factory_section->make_default(Tag_Type());
 
     // Shouldn't have this name until it's in the data
     assert(!a_phd.has_name(l_h1->cname()));
 
     // Add it to the data
-    l_section->get_handles(Tag_Type()).push_back(l_h1);
-    assert(l_section->cget_handles(Tag_Type()).size() == 1);
+    l_data_section->get_handles(Tag_Type()).push_back(l_h1);
+    assert(l_data_section->cget_handles(Tag_Type()).size() == 1);
 
     // Should have this name now
     assert(a_phd.has_name(l_h1->cname()));
@@ -61,7 +65,7 @@ namespace
     // Second handle
     //--------------------------
     // Make another default handle
-    auto l_h2 = a_phf.make_default(Tag_Type());
+    auto l_h2 = l_factory_section->make_default(Tag_Type());
     assert(l_h1->cname() == l_h2->cname());
 
     // Fix the name of the handle
@@ -74,8 +78,8 @@ namespace
     assert(!a_phd.has_name(l_h2->cname()));
 
     // Add it to the data
-    l_section->get_handles(Tag_Type()).push_back(l_h2);
-    assert(l_section->cget_handles(Tag_Type()).size() == 2);
+    l_data_section->get_handles(Tag_Type()).push_back(l_h2);
+    assert(l_data_section->cget_handles(Tag_Type()).size() == 2);
 
     // Should have this name now
     assert(a_phd.has_name(l_h2->cname()));
@@ -83,7 +87,7 @@ namespace
     // Third handle
     //--------------------------
     // Make another default handle
-    auto l_h3 = a_phf.make_default(Tag_Type());
+    auto l_h3 = l_factory_section->make_default(Tag_Type());
     assert(l_h1->cname() == l_h3->cname());
 
     // Fix the name of the handle
@@ -96,8 +100,8 @@ namespace
     assert(!a_phd.has_name(l_h3->cname()));
 
     // Add it to the data
-    l_section->get_handles(Tag_Type()).push_back(l_h3);
-    assert(l_section->cget_handles(Tag_Type()).size() == 3);
+    l_data_section->get_handles(Tag_Type()).push_back(l_h3);
+    assert(l_data_section->cget_handles(Tag_Type()).size() == 3);
 
     // Should have this name now
     assert(a_phd.has_name(l_h3->cname()));
@@ -107,7 +111,7 @@ namespace
     QString l_name{"testname"};
 
     // Make a handle with a non-default name
-    auto l_h4 = a_phf.make_emplace(Data_Type{l_name});
+    auto l_h4 = l_factory_section->make_emplace(Data_Type{l_name});
 
     // Should not have this name THE FIRST TIME
     //assert(!l_section->has_name(l_h4->cname()));
@@ -119,8 +123,8 @@ namespace
     //assert(l_h4->cname() == l_name);
 
     // Add it to the data
-    l_section->get_handles(Tag_Type()).push_back(l_h4);
-    assert(l_section->cget_handles(Tag_Type()).size() == 4);
+    l_data_section->get_handles(Tag_Type()).push_back(l_h4);
+    assert(l_data_section->cget_handles(Tag_Type()).size() == 4);
 
     // Should have this name now
     assert(a_phd.has_name(l_h4->cname()));
@@ -128,7 +132,7 @@ namespace
     // Fifth handle
     //--------------------------
     // Make another handle with a non-default name
-    auto l_h5 = a_phf.make_emplace(Data_Type{l_name});
+    auto l_h5 = l_factory_section->make_emplace(Data_Type{l_name});
 
     // Fix the name of the handle
     a_phd.fix_name(l_h5->name());
@@ -140,18 +144,30 @@ namespace
     assert(!a_phd.has_name(l_h5->cname()));
 
     // Add it to the data
-    l_section->get_handles(Tag_Type()).push_back(l_h5);
-    assert(l_section->cget_handles(Tag_Type()).size() == 5);
+    l_data_section->get_handles(Tag_Type()).push_back(l_h5);
+    assert(l_data_section->cget_handles(Tag_Type()).size() == 5);
 
     // Should have this name now
     assert(a_phd.has_name(l_h5->cname()));
 
 
-    for (auto const& l_handle : l_section->cget_handles(Tag_Type{}))
+    for (auto const& l_handle : l_data_section->cget_handles(Tag_Type{}))
     {
       out_handle(l_handle);
     }
 
+    // Call all the functions
+    l_data_section->is_empty(Tag_Type{});
+    l_data_section->count(Tag_Type{});
+    l_data_section->has(ID_Type{});
+    l_data_section->has_name(Tag_Type{}, QString{});
+    l_data_section->get_at(Tag_Type{}, 0);
+    l_data_section->get_ids(Tag_Type{});
+    l_data_section->get_names(Tag_Type{});
+
+    l_data_section->has_handle(Handle_Type{});
+    l_data_section->get_handle_at(Tag_Type{},0);
+    l_data_section->get_handle_named(Tag_Type{},QString{});
 
     std::cout << "-------------------------" << std::endl;
   }

@@ -111,20 +111,44 @@ namespace sak
 
     static_assert(flamingo::typelist_all_unique_v<Typelist_Type>,
                   "Cannot have repeating types in the supplied template arguments.");
+
+    template <typename U>
+    using Abstract_Section_Signalbox_Type =
+    Abstract_Section_Signalbox_Imp
+    <
+      Typelist_Type,
+      flamingo::typelist_find_v<Typelist_Type, U>
+    >;
+    template <std::size_t I>
+
+    using Abstract_Section_Signalbox_At =
+    Abstract_Section_Signalbox_Imp
+    <
+      Typelist_Type,
+      I
+    >;
+
   public:
     // Special 6
     //============================================================
     ~Abstract_Project_Signalbox_Imp() override = 0;
 
-    // Interface
+    // Intreface
     //============================================================
 
+    // Section Interface Access
+    //------------------------------------------------------------
+
     template <typename U>
-    Abstract_Section_Signalbox_Imp
-    <
-      Typelist_Type,
-      flamingo::typelist_find_v<Typelist_Type, U>
-    >* get_signalbox()
+    Abstract_Section_Signalbox_Type<U>* get_signalbox()
+    {
+      static_assert(flamingo::typelist_find_v<Typelist_Type,U> != flamingo::typelist_size_v<Typelist_Type>,
+                    "Cannot make interface, type not present.");
+      return this;
+    }
+
+    template <typename U>
+    Abstract_Section_Signalbox_Type<U> const* cget_signalbox() const
     {
       static_assert(flamingo::typelist_find_v<Typelist_Type,U> != flamingo::typelist_size_v<Typelist_Type>,
                     "Cannot make interface, type not present.");
@@ -132,11 +156,15 @@ namespace sak
     }
 
     template <std::size_t I>
-    Abstract_Section_Signalbox_Imp
-    <
-      Typelist_Type,
-      I
-    >* get_signalbox_at()
+    Abstract_Section_Signalbox_At<I>* get_signalbox_at()
+    {
+      static_assert(I < flamingo::typelist_size_v<Typelist_Type>,
+                    "Cannot make interface, type index is out of range.");
+      return this;
+    }
+
+    template <std::size_t I>
+    Abstract_Section_Signalbox_At<I> const* cget_signalbox_at() const
     {
       static_assert(I < flamingo::typelist_size_v<Typelist_Type>,
                     "Cannot make interface, type index is out of range.");

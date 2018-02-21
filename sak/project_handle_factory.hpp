@@ -25,130 +25,99 @@ class QString;
 
 namespace sak
 {
-  namespace internal
+  //---------------------------------------------------------------------------
+  // Section_Handle_Factory_Imp<List, Index, End>
+  //---------------------------------------------------------------------------
+  // Declaration and default arguments for the template class that builds the
+  // template chain.
+  template
+  <
+    typename T_List,
+    std::size_t Index = 0,
+    std::size_t End = (flamingo::typelist_size_v<T_List>)
+  >
+  class Section_Handle_Factory_Imp;
+
+  //------------------------------------------------------------------------------------------------------------------------------------------------------
+
+  //---------------------------------------------------------------------------
+  // Section_Handle_Factory_Imp<List, Index, End>
+  //---------------------------------------------------------------------------
+  // For a type that isn't at the end of the list.
+
+  template <std::size_t Index, std::size_t End, typename...Args>
+  class Section_Handle_Factory_Imp<flamingo::typelist<Args...>,Index,End> :
+      protected Section_Handle_Factory_Imp<flamingo::typelist<Args...>,Index+1,End>
   {
-    //---------------------------------------------------------------------------
-    // Project_Handle_Factory_Part_Imp<List, Index, End>
-    //---------------------------------------------------------------------------
-    // Declaration and default arguments for the template class that builds the
-    // template chain.
-    template
-    <
-      typename T_List,
-      std::size_t Index = 0,
-      std::size_t End = (flamingo::typelist_size_v<T_List> - 1)
-    >
-    class Project_Handle_Factory_Part_Imp;
+    // Typedefs
+    //============================================================
+    using Inh = Section_Handle_Factory_Imp<flamingo::typelist<Args...>,Index+1,End>;
 
-    //------------------------------------------------------------------------------------------------------------------------------------------------------
+    using Type = flamingo::typelist_at_t<flamingo::typelist<Args...>,Index>;
+    using Handle_Type = Handle<Type>;
+    using Data_Type = Data<Type>;
+    using Tag_Type = Tag<Type>;
 
-    //---------------------------------------------------------------------------
-    // Project_Handle_Factory_Part_Imp<List, Index, End>
-    //---------------------------------------------------------------------------
-    // For a type that isn't at the end of the list.
+  public:
+    // Special 6
+    //============================================================
+    Section_Handle_Factory_Imp();
+    ~Section_Handle_Factory_Imp();
 
-    template <std::size_t Index, std::size_t End, typename...Args>
-    class Project_Handle_Factory_Part_Imp<flamingo::typelist<Args...>,Index,End> :
-        protected Project_Handle_Factory_Part_Imp<flamingo::typelist<Args...>,Index+1,End>
-    {
-      // Typedefs
-      //============================================================
-      using Inh = Project_Handle_Factory_Part_Imp<flamingo::typelist<Args...>,Index+1,End>;
+    Section_Handle_Factory_Imp(Section_Handle_Factory_Imp const&);
+    Section_Handle_Factory_Imp& operator=(Section_Handle_Factory_Imp const&);
 
-      using Type = flamingo::typelist_at_t<flamingo::typelist<Args...>,Index>;
-      using Handle_Type = Handle<Type>;
-      using Data_Type = Data<Type>;
-      using Tag_Type = Tag<Type>;
+    Section_Handle_Factory_Imp(Section_Handle_Factory_Imp &&);
+    Section_Handle_Factory_Imp& operator=(Section_Handle_Factory_Imp &&);
 
-    public:
-      // Special 6
-      //============================================================
-      Project_Handle_Factory_Part_Imp();
-      ~Project_Handle_Factory_Part_Imp();
+    // Interface
+    //============================================================
+    // The default name of handles made by this.
+    QString default_name(Tag_Type&&) const;
 
-      Project_Handle_Factory_Part_Imp(Project_Handle_Factory_Part_Imp const&);
-      Project_Handle_Factory_Part_Imp& operator=(Project_Handle_Factory_Part_Imp const&);
+    // Make a null handle.
+    Handle_Type make_null(Tag_Type&&) const;
 
-      Project_Handle_Factory_Part_Imp(Project_Handle_Factory_Part_Imp &&);
-      Project_Handle_Factory_Part_Imp& operator=(Project_Handle_Factory_Part_Imp &&);
+    // Make a handle with data that is default initialised and has
+    // the default new name.
+    Handle_Type make_default(Tag_Type&&) const;
 
-      // Interface
-      //============================================================
-      // The default name of handles made by this.
-      QString default_name(Tag_Type&&) const;
+    // Make a handle with the supplied data. If the name is empty
+    // it will be given the default new name.
+    Handle_Type make_emplace(Data_Type&& a_data) const;
 
-      // Make a null handle.
-      Handle_Type make_null(Tag_Type&&) const;
+  protected:
+    using Inh::next_id;
+  };
 
-      // Make a handle with data that is default initialised and has
-      // the default new name.
-      Handle_Type make_default(Tag_Type&&) const;
+  //------------------------------------------------------------------------------------------------------------------------------------------------------
 
-      // Make a handle with the supplied data. If the name is empty
-      // it will be given the default new name.
-      Handle_Type make_emplace(Data_Type&& a_data) const;
+  //---------------------------------------------------------------------------
+  // Section_Handle_Factory_Imp<List, End, End>
+  //---------------------------------------------------------------------------
+  // For the type that is at the end of the list.
 
-      using Inh::default_name;
-      using Inh::make_null;
-      using Inh::make_default;
-      using Inh::make_emplace;
+  template <std::size_t End, typename...Args>
+  class Section_Handle_Factory_Imp<flamingo::typelist<Args...>,End,End>
+  {
+  public:
+    // Special 6
+    //============================================================
+    Section_Handle_Factory_Imp();
+    ~Section_Handle_Factory_Imp();
 
-    protected:
-      using Inh::next_id;
-    };
+    Section_Handle_Factory_Imp(Section_Handle_Factory_Imp const&);
+    Section_Handle_Factory_Imp& operator=(Section_Handle_Factory_Imp const&);
 
-    //------------------------------------------------------------------------------------------------------------------------------------------------------
+    Section_Handle_Factory_Imp(Section_Handle_Factory_Imp &&);
+    Section_Handle_Factory_Imp& operator=(Section_Handle_Factory_Imp &&);
 
-    //---------------------------------------------------------------------------
-    // Project_Handle_Factory_Part_Imp<List, End, End>
-    //---------------------------------------------------------------------------
-    // For the type that is at the end of the list.
-
-    template <std::size_t End, typename...Args>
-    class Project_Handle_Factory_Part_Imp<flamingo::typelist<Args...>,End,End>
-    {
-      // Typedefs
-      //============================================================
-      using Type = flamingo::typelist_at_t<flamingo::typelist<Args...>,End>;
-      using Handle_Type = Handle<Type>;
-      using Data_Type = Data<Type>;
-      using Tag_Type = Tag<Type>;
-
-    public:
-      // Special 6
-      //============================================================
-      Project_Handle_Factory_Part_Imp();
-      ~Project_Handle_Factory_Part_Imp();
-
-      Project_Handle_Factory_Part_Imp(Project_Handle_Factory_Part_Imp const&);
-      Project_Handle_Factory_Part_Imp& operator=(Project_Handle_Factory_Part_Imp const&);
-
-      Project_Handle_Factory_Part_Imp(Project_Handle_Factory_Part_Imp &&);
-      Project_Handle_Factory_Part_Imp& operator=(Project_Handle_Factory_Part_Imp &&);
-
-      // Interface
-      //============================================================
-      // The default name of handles made by this.
-      QString default_name(Tag_Type&&) const;
-
-      // Make a null handle.
-      Handle_Type make_null(Tag_Type&&) const;
-
-      // Make a handle with data that is default initialised and has
-      // the default new name.
-      Handle_Type make_default(Tag_Type&&) const;
-
-      // Make a handle with the supplied data. If the name is empty
-      // it will be given the default new name.
-      Handle_Type make_emplace(Data_Type&& a_data) const;
-
-    protected:
-      // Get the next id to use for a handle.
-      std::size_t next_id() const;
-    private:
-      mutable std::size_t m_next_id;
-    };
-  } // namespace internal
+  protected:
+    // Get the next id to use for a handle.
+    std::size_t next_id() const;
+  private:
+    mutable std::size_t m_next_id;
+  };
 
   //------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -158,11 +127,28 @@ namespace sak
 
   template <typename T, typename...Args>
   class Project_Handle_Factory_Imp :
-      protected internal::Project_Handle_Factory_Part_Imp<flamingo::typelist<T,Args...>>
+      protected Section_Handle_Factory_Imp<flamingo::typelist<T,Args...>>
   {
     // Typedefs
     //============================================================
-    using Inh = internal::Project_Handle_Factory_Part_Imp<flamingo::typelist<T,Args...>>;
+    using Inh = Section_Handle_Factory_Imp<flamingo::typelist<T,Args...>>;
+    using Typelist_Type = flamingo::typelist<T,Args...>;
+
+    template <typename U>
+    using Section_Handle_Factory_Type =
+    Section_Handle_Factory_Imp
+    <
+      Typelist_Type,
+      flamingo::typelist_find_v<Typelist_Type, U>
+    >;
+
+    template <std::size_t I>
+    using Section_Handle_Factory_At =
+    Section_Handle_Factory_Imp
+    <
+      Typelist_Type,
+      I
+    >;
   public:
     // Special 6
     //============================================================
@@ -177,27 +163,39 @@ namespace sak
 
     // Interface
     //============================================================
-    using Inh::default_name;
-    using Inh::make_null;
-    using Inh::make_default;
-    using Inh::make_emplace;
+    // Access the section interfaces.
 
-    // Functions are as follows, with overloads for each Type in the
-    // the arguments <T,Args...>:
-    //------------------------------------------------------------
-    // The default name of handles made by this.
-    //QString default_name(Tag_Type&&) const;
+    template <typename U>
+    Section_Handle_Factory_Type<U>* get_section()
+    {
+      static_assert(flamingo::typelist_find_v<Typelist_Type,U> != flamingo::typelist_size_v<Typelist_Type>,
+                    "Cannot get data, type not present.");
+      return this;
+    }
 
-    // Make a null handle.
-    //Handle_Type make_null(Tag_Type&&) const;
+    template <typename U>
+    Section_Handle_Factory_Type<U> const* cget_section() const
+    {
+      static_assert(flamingo::typelist_find_v<Typelist_Type,U> != flamingo::typelist_size_v<Typelist_Type>,
+                    "Cannot get data, type not present.");
+      return this;
+    }
 
-    // Make a handle with data that is default initialised and has
-    // the default new name.
-    //Handle_Type make_default(Tag_Type&&) const;
+    template <std::size_t I>
+    Section_Handle_Factory_At<I>* get_section_at()
+    {
+      static_assert(I < flamingo::typelist_size_v<Typelist_Type>,
+                    "Cannot get data, type index is out of range.");
+      return this;
+    }
 
-    // Make a handle with the supplied data. If the name is empty
-    // it will be given the default new name.
-    //Handle_Type make_emplace(Data_Type&& a_data) const;
+    template <std::size_t I>
+    Section_Handle_Factory_At<I> const* cget_section_at() const
+    {
+      static_assert(I < flamingo::typelist_size_v<Typelist_Type>,
+                    "Cannot get data, type index is out of range.");
+      return this;
+    }
   };
 
 } // namespace sak

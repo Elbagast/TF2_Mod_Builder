@@ -306,17 +306,45 @@ namespace sak
     // Typedefs
     //============================================================
     using Typelist_Type = flamingo::typelist<T,Args...>;
-    using Signalbox_Type = Abstract_Project_Signalbox_Imp<T,Args...>;
-
     static_assert(flamingo::typelist_all_unique_v<Typelist_Type>,
                   "Cannot have repeating types in the supplied template arguments.");
+
+    using Signalbox_Type = Abstract_Project_Signalbox_Imp<T,Args...>;
+
+    template  <typename U>
+    using Abstract_Section_Interface_Type =
+    Abstract_Section_Interface_Imp
+    <
+      Typelist_Type,
+      flamingo::typelist_find_v<Typelist_Type, U>
+    >;
+
+    template  <std::size_t I>
+    using Abstract_Section_Interface_At =
+    Abstract_Section_Interface_Imp
+    <
+      Typelist_Type,
+      I
+    >;
+
+    template <typename U, std::size_t I>
+    using Abstract_Member_Interface_Type =
+    Abstract_Member_Interface_Imp
+    <
+      Typelist_Type,
+      flamingo::typelist_find_v<Typelist_Type, U>,
+      I
+    >;
 
     // Special 6
     //============================================================
     ~Abstract_Project_Interface_Imp() override = 0;
 
-    // Virtuals
+    // Interface
     //============================================================
+
+    // Virtuals
+    //------------------------------------------------------------
     virtual void save() const = 0;
 
     virtual void load() = 0;
@@ -340,11 +368,11 @@ namespace sak
     // How many times can redo() be called?
     virtual std::size_t redo_count() const = 0;
 
-    // Undo the last command issued.
-    virtual void undo() = 0;
+    // Undo the last command issued. Return true if succeeded.
+    virtual bool undo() = 0;
 
-    // Redo the last undone command in the command history
-    virtual void redo() = 0;
+    // Redo the last undone command. Return true if succeeded.
+    virtual bool redo() = 0;
 
     // Clear the undo/redo history.
     virtual void clear_history() = 0;
@@ -369,12 +397,11 @@ namespace sak
     // Clear all the signalboxes so that nothing relies on changes to this.
     virtual void clear_signalboxes() = 0;
 
+    // Section Interface Access
+    //------------------------------------------------------------
+
     template <typename U>
-    Abstract_Section_Interface_Imp
-    <
-      Typelist_Type,
-      flamingo::typelist_find_v<Typelist_Type, U>
-    >* get_section()
+    Abstract_Section_Interface_Type<U>* get_section()
     {
       static_assert(flamingo::typelist_find_v<Typelist_Type,U> != flamingo::typelist_size_v<Typelist_Type>,
                     "Cannot make interface, type not present.");
@@ -382,11 +409,7 @@ namespace sak
     }
 
     template <typename U>
-    Abstract_Section_Interface_Imp
-    <
-      Typelist_Type,
-      flamingo::typelist_find_v<Typelist_Type, U>
-    > const* cget_section() const
+    Abstract_Section_Interface_Type<U> const* cget_section() const
     {
       static_assert(flamingo::typelist_find_v<Typelist_Type,U> != flamingo::typelist_size_v<Typelist_Type>,
                     "Cannot make interface, type not present.");
@@ -394,11 +417,7 @@ namespace sak
     }
 
     template <std::size_t I>
-    Abstract_Section_Interface_Imp
-    <
-      Typelist_Type,
-      I
-    >* get_section_at()
+    Abstract_Section_Interface_At<I>* get_section_at()
     {
       static_assert(I < flamingo::typelist_size_v<Typelist_Type>,
                     "Cannot make interface, type index is out of range.");
@@ -406,11 +425,7 @@ namespace sak
     }
 
     template <std::size_t I>
-    Abstract_Section_Interface_Imp
-    <
-      Typelist_Type,
-      I
-    > const* cget_section_at() const
+    Abstract_Section_Interface_At<I> const* cget_section_at() const
     {
       static_assert(I < flamingo::typelist_size_v<Typelist_Type>,
                     "Cannot make interface, type index is out of range.");
@@ -418,12 +433,7 @@ namespace sak
     }
 
     template <typename U, std::size_t I>
-    Abstract_Member_Interface_Imp
-    <
-      Typelist_Type,
-      flamingo::typelist_find_v<Typelist_Type, U>,
-      I
-    >* get_member()
+    Abstract_Member_Interface_Type<U,I>* get_member()
     {
       static_assert(flamingo::typelist_find_v<Typelist_Type,U> != flamingo::typelist_size_v<Typelist_Type>,
                     "Cannot make interface, type not present.");
@@ -433,12 +443,7 @@ namespace sak
     }
 
     template <typename U, std::size_t I>
-    Abstract_Member_Interface_Imp
-    <
-      Typelist_Type,
-      flamingo::typelist_find_v<Typelist_Type, U>,
-      I
-    > const* cget_member() const
+    Abstract_Member_Interface_Type<U,I> const* cget_member() const
     {
       static_assert(flamingo::typelist_find_v<Typelist_Type,U> != flamingo::typelist_size_v<Typelist_Type>,
                     "Cannot make interface, type not present.");
