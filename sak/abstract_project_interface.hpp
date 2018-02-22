@@ -229,16 +229,14 @@ namespace sak
 
     // Data Interface
     //------------------------------------------------------------
-    // Attempt to get the index of the data associated with the supplied id. This is the current
-    // position in the project's collection of data for this type of index. If the id is valid,
-    // the returned pair consists of true and the index. If the id is null or invalid, the
-    // returned pair consists of false and zero.
-    virtual std::pair<bool,std::size_t> try_get_index(ID_Type const& a_id) const = 0;
+    // Get the index of the data associated with the supplied id. This is the current position
+    // in the project's collection of data for this type of data. If the id is null or invalid,
+    // the returned index is equal to count().
+    virtual std::size_t get_index(ID_Type const& a_id) const = 0;
 
-    // Attempt to get the name for the data associated with the supplied id. If the id is valid,
-    // the returned pair consists of true and the name value. If the id is null or invalid, the
-    // returned pair consists of false and an empty string.
-    virtual std::pair<bool,QString> try_get_name(ID_Type const& a_id) const = 0;
+    // Get the name of the data associated with the supplied id. If the id is null or invalid,
+    // the returned name is empty, which names cannot be.
+    virtual QString get_name(ID_Type const& a_id) const = 0;
 
     // Data Editing Interface
     //------------------------------------------------------------
@@ -258,7 +256,7 @@ namespace sak
     // Undoable add a new object using the supplied handle. The name will be modified if it is currently in
     // use by another object. Return true if the operation resulted in an undoable command. If this handle
     // is invalid or already in the data then nothing happens and returns false.
-    virtual bool try_add(Signal_Source a_source, ID_Type const& a_id) = 0;
+    //virtual bool try_add(Signal_Source a_source, ID_Type const& a_id) = 0;
 
     // Undoable remove object. Return true if the operation resulted in an undoable command. If this handle
     // is invalid or already in the data then nothing happens and returns false. Handle data is not deleted

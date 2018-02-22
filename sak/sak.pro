@@ -95,7 +95,8 @@ SOURCES += \
     project_handle_factory.cpp \
     project_handle_data.cpp \
     id.cpp \
-    project_interface.cpp
+    project_interface.cpp \
+    project_commands.cpp
 
 HEADERS  += \
     class_definitions.hpp \
@@ -133,7 +134,9 @@ HEADERS  += \
     id.hpp \
     id_fwd.hpp \
     project_interface.hpp \
-    project_interface_fwd.hpp
+    project_interface_fwd.hpp \
+    project_commands.hpp \
+    project_commands_fwd.hpp
 
 FORMS += \
 

@@ -20,28 +20,30 @@ SOURCES += \
     test_class_definitions.cpp \
     test_handle.cpp \
     test_handle_factory.cpp \
-    test_project_data.cpp \
     test_abstract_project_interface.cpp \
     test_project_signalbox_data.cpp \
     test_project_handle_factory.cpp \
     test_project_handle_data.cpp \
     test_id.cpp \
     test_abstract_project_signalbox.cpp \
-    test_project_interface.cpp
+    test_project_interface.cpp \
+    dummy_project_signalbox.cpp \
+    dummy_project_interface.cpp
 
 HEADERS += \
     test_data.hpp \
     test_class_definitions.hpp \
     test_handle.hpp \
     test_handle_factory.hpp \
-    test_project_data.hpp \
     test_abstract_project_interface.hpp \
     test_project_signalbox_data.hpp \
     test_project_handle_factory.hpp \
     test_project_handle_data.hpp \
     test_id.hpp \
     test_abstract_project_signalbox.hpp \
-    test_project_interface.hpp
+    test_project_interface.hpp \
+    dummy_project_signalbox.hpp \
+    dummy_project_interface.hpp
 
 
 include($$PWD/../library_flamingo.pri)

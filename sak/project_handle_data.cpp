@@ -7,10 +7,10 @@
 #include "tag.hpp"
 #include "name_utilities.hpp"
 
-#include <cassert>
 #include <algorithm>
 #include <limits>
 #include <iterator>
+#include <cassert>
 #include <type_traits>
 
 #include <QString>
@@ -31,6 +31,19 @@ namespace sak
       return do_find_handle(a_handles, a_handle) != a_handles.cend();
     }
 
+    template <typename T>
+    std::size_t do_index_of_handle(std::vector<Handle<T>> const& a_handles, Handle<T> const& a_handle)
+    {
+      auto l_found = do_find_handle(a_handles,a_handle);
+      if (l_found != a_handles.cend())
+      {
+        return static_cast<std::size_t>(std::distance(a_handles.cbegin(),l_found));
+      }
+      else
+      {
+        return a_handles.size();
+      }
+    }
 
     template <typename T>
     decltype(auto) do_find_handle_named(std::vector<Handle<T>> const& a_handles, QString const& a_name)
@@ -56,6 +69,48 @@ namespace sak
       return do_find_handle_id(a_handles, a_id) != a_handles.cend();
     }
 
+    template <typename T>
+    std::size_t do_index_of_id(std::vector<Handle<T>> const& a_handles, ID<T> const& a_id)
+    {
+      auto l_found = do_find_handle_id(a_handles,a_id);
+      if (l_found != a_handles.cend())
+      {
+        return static_cast<std::size_t>(std::distance(a_handles.cbegin(),l_found));
+      }
+      else
+      {
+        return a_handles.size();
+      }
+    }
+
+    template <typename T>
+    QString do_name_of_id(std::vector<Handle<T>> const& a_handles, ID<T> const& a_id)
+    {
+      auto l_found = do_find_handle_id(a_handles,a_id);
+      if (l_found != a_handles.cend())
+      {
+        return (*l_found)->cname();
+      }
+      else
+      {
+        return QString{};
+      }
+    }
+
+    // get an iterator where handle is to be inserted in order to maintain alphabetic sorting by name.
+    template <typename T>
+    decltype(auto) do_find_name_position(std::vector<Handle<T>> const& a_handles, QString const& a_name)
+    {
+      if (!a_name.isEmpty() && !do_has_handle_named(a_handles,a_name))
+      {
+        // find the first handle with a name greater than this one
+        return std::find_if(a_handles.cbegin(), a_handles.cend(), [&a_name](Handle<T> const& a_handle) -> bool { return a_handle->cname() > a_name; });
+      }
+      else
+      {
+        return a_handles.cend();
+      }
+    }
   }
 }
 
@@ -113,6 +168,22 @@ template <std::size_t Index, std::size_t End, typename...Args>
 bool sak::Section_Handle_Data_Imp<flamingo::typelist<Args...>,Index,End>::has(ID_Type const& a_id) const
 {
   return do_has_handle_id(m_handles,a_id);
+}
+
+// Get the index of the id in the data. If the id is not present or is null,
+// the returned value is equal to count().
+template <std::size_t Index, std::size_t End, typename...Args>
+std::size_t sak::Section_Handle_Data_Imp<flamingo::typelist<Args...>,Index,End>::index(ID_Type const& a_id) const
+{
+  return do_index_of_id(m_handles,a_id);
+}
+
+// Get the name data associted with this id. If the id is not present or is null,
+// the returned value is empty.
+template <std::size_t Index, std::size_t End, typename...Args>
+QString sak::Section_Handle_Data_Imp<flamingo::typelist<Args...>,Index,End>::name(ID_Type const& a_id) const
+{
+  return do_name_of_id(m_handles,a_id);
 }
 
 // Does this name appear in the data?
@@ -188,6 +259,21 @@ bool sak::Section_Handle_Data_Imp<flamingo::typelist<Args...>,Index,End>::has_ha
   return do_has_handle(m_handles,a_handle);
 }
 
+// Get the handle for this id. If the id is invalid or null a null handle is returned.
+template <std::size_t Index, std::size_t End, typename...Args>
+typename sak::Section_Handle_Data_Imp<flamingo::typelist<Args...>,Index,End>::Handle_Type sak::Section_Handle_Data_Imp<flamingo::typelist<Args...>,Index,End>::get_handle(ID_Type const& a_id) const
+{
+  auto l_found = do_find_handle_id(m_handles,a_id);
+  if (l_found != m_handles.cend())
+  {
+    return *l_found;
+  }
+  else
+  {
+    return Handle_Type{};
+  }
+}
+
 // Get the handle at this index. If the index is invalid a null handle is returned.
 template <std::size_t Index, std::size_t End, typename...Args>
 typename sak::Section_Handle_Data_Imp<flamingo::typelist<Args...>,Index,End>::Handle_Type sak::Section_Handle_Data_Imp<flamingo::typelist<Args...>,Index,End>::get_handle_at(Tag_Type&&, std::size_t a_index) const
@@ -214,6 +300,52 @@ typename sak::Section_Handle_Data_Imp<flamingo::typelist<Args...>,Index,End>::Ha
   else
   {
     return Handle_Type{};
+  }
+}
+
+// Determine what index this handle would be at if it were added to the current data.
+// If the handle is null or already present, the result is count(). This is the same
+// as the value returned by add, but nothing is added.
+template <std::size_t Index, std::size_t End, typename...Args>
+std::size_t sak::Section_Handle_Data_Imp<flamingo::typelist<Args...>,Index,End>::future_index(QString const& a_name) const
+{
+  // Advance an iterator from the start of handles to the position that the first handle
+  // with a name greater than the supplied one is found.
+  return static_cast<std::size_t>(std::distance(m_handles.cbegin(), do_find_name_position(m_handles, a_name)));
+}
+
+// Add a handle to the collection and return its index. If the handle is null or
+// already present, nothing happens and return count().
+template <std::size_t Index, std::size_t End, typename...Args>
+std::size_t sak::Section_Handle_Data_Imp<flamingo::typelist<Args...>,Index,End>::add(Handle_Type const& a_handle)
+{
+  // If the handle is not null, not present in the data, and has a non-empty name
+  if (a_handle && !has_handle(a_handle) && !a_handle->cname().isEmpty())
+  {
+    auto l_iter = m_handles.insert(do_find_name_position(m_handles, a_handle->cname()),a_handle);
+    return static_cast<std::size_t>(std::distance(m_handles.begin(), l_iter));
+  }
+  else
+  {
+    return m_handles.size();
+  }
+}
+
+// Remove the handle at this index from the collection and return true. If the handle
+// is null or not present, nothing happens and return false.
+template <std::size_t Index, std::size_t End, typename...Args>
+bool sak::Section_Handle_Data_Imp<flamingo::typelist<Args...>,Index,End>::remove(Tag_Type&&, std::size_t a_index)
+{
+  if (a_index < m_handles.size())
+  {
+    auto l_iter = m_handles.begin();
+    std::advance(l_iter, a_index);
+    m_handles.erase(l_iter);
+    return true;
+  }
+  else
+  {
+    return false;
   }
 }
 

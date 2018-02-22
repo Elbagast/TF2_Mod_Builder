@@ -5,6 +5,10 @@
 #include "abstract_command_fwd.hpp"
 #endif
 
+#ifndef SAK_SIGNAL_SOURCE_HPP
+#include "signal_source.hpp"
+#endif
+
 #ifndef INCLUDE_STD_MEMORY
 #define INCLUDE_STD_MEMORY
 #include <memory>
@@ -24,7 +28,7 @@ namespace sak
   public:
     // Special 6
     //============================================================
-    Abstract_Command();
+    explicit Abstract_Command(Signal_Source a_source);
     virtual ~Abstract_Command() = 0;
 
     // Interface
@@ -54,12 +58,15 @@ namespace sak
     virtual void do_execute() = 0;
     virtual void do_unexecute() = 0;
 
+    Signal_Source source() const;
+
   private:
     // Data Members
     //============================================================
     enum class State;
 
     State m_state;
+    Signal_Source m_source;
   };
 } // namespace sak
 

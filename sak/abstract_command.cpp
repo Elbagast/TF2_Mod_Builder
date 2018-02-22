@@ -11,8 +11,9 @@ enum class sak::Abstract_Command::State
 
 // Special 6
 //============================================================
-sak::Abstract_Command::Abstract_Command():
-  m_state{State::Initial}
+sak::Abstract_Command::Abstract_Command(Signal_Source a_source):
+  m_state{State::Initial},
+  m_source{a_source}
 {
 }
 
@@ -27,6 +28,7 @@ bool sak::Abstract_Command::execute()
   {
     m_state = State::Executed;
     do_execute();
+    m_source = Signal_Source::Undo;
     return true;
   }
   else
@@ -42,6 +44,7 @@ bool sak::Abstract_Command::unexecute()
   {
     m_state = State::Unexecuted;
     do_unexecute();
+    m_source = Signal_Source::Redo;
     return true;
   }
   else
@@ -73,4 +76,9 @@ bool sak::Abstract_Command::can_execute() const
 bool sak::Abstract_Command::can_unexecute() const
 {
   return m_state == State::Executed;
+}
+
+sak::Signal_Source sak::Abstract_Command::source() const
+{
+  return m_source;
 }

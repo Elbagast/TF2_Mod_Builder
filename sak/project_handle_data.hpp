@@ -31,6 +31,7 @@
 #include <vector>
 #endif
 
+
 #ifndef INCLUDE_QT_QSTRING
 #define INCLUDE_QT_QSTRING
 #include <QString>
@@ -98,6 +99,14 @@ namespace sak
     // Does this id appear in the data?
     bool has(ID_Type const& a_id) const;
 
+    // Get the index of the id in the data. If the id is not present or is null,
+    // the returned value is equal to count().
+    std::size_t index(ID_Type const& a_id) const;
+
+    // Get the name data associted with this id. If the id is not present or is null,
+    // the returned value is empty.
+    QString name(ID_Type const& a_id) const;
+
     // Does this name appear in the data?
     bool has_name(Tag_Type&&, QString const&) const;
 
@@ -120,11 +129,26 @@ namespace sak
     // Does this handle appear in the data?
     bool has_handle(Handle_Type const& a_handle) const;
 
+    // Get the handle for this id. If the id is invalid or null a null handle is returned.
+    Handle_Type get_handle(ID_Type const& a_id) const;
+
     // Get the handle at this index. If the index is invalid a null handle is returned.
     Handle_Type get_handle_at(Tag_Type&&, std::size_t a_index) const;
 
     // Get the handle with this name. If the name is invalid a null handle is returned.
     Handle_Type get_handle_named(Tag_Type&&, QString const& a_name) const;
+
+    // Determine what index a handle would be at if it were added to the current data
+    // with this name. If the name is empty or already present, the result is count().
+    std::size_t future_index(QString const& a_name) const;
+
+    // Add a handle to the collection and return its index. If the handle is null or
+    // already present, nothing happens and return count().
+    std::size_t add(Handle_Type const& a_handle);
+
+    // Remove the handle at this index from the collection and return true. If the handle
+    // is null or not present, nothing happens and return false.
+    bool remove(Tag_Type&&, std::size_t a_index);
 
     // Access the handles for direct manipulation.
     std::vector<Handle_Type>& get_handles(Tag_Type&&);

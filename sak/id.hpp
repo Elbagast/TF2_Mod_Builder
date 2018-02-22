@@ -60,6 +60,8 @@ namespace sak
     bool operator<(ID const& a_other) const noexcept;
 
   private:
+    // Data Members
+    //============================================================
     Value_Type m_value;
   };
 
@@ -84,8 +86,7 @@ namespace sak
   template <typename T>
   void swap(ID<T>& a_lhs, ID<T>& a_rhs) noexcept;
 
-  // Excplicit state identifiers. A Handle is null if it has a null id, which
-  // means it is not being used to reference data.
+  // Explicit state identifiers. An id is null if its value is 0.
   template <typename T>
   bool is_null(ID<T> const& a_id) noexcept;
 
@@ -210,8 +211,7 @@ void sak::swap(ID<T>& a_lhs, ID<T>& a_rhs) noexcept
   a_lhs.swap(a_rhs);
 }
 
-// Excplicit state identifiers. A Handle is null if it has a null id, which
-// means it is not being used to reference data.
+// Explicit state identifiers. An id is null if its value is 0.
 template <typename T>
 bool sak::is_null(ID<T> const& a_id) noexcept
 {

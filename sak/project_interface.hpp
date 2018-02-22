@@ -29,6 +29,10 @@
 #include "handle.hpp"
 #endif
 
+#ifndef SAK_PROJECT_HANDLE_FACTORY_HPP
+#include "project_handle_factory.hpp"
+#endif
+
 #ifndef SAK_PROJECT_HANDLE_DATA_HPP
 #include "project_handle_data.hpp"
 #endif
@@ -41,9 +45,23 @@
 #include "command_history.hpp"
 #endif
 
+#ifndef SAK_PROJECT_COMMANDS_HPP
+#include "project_commands.hpp"
+#endif
+
 #ifndef INCLUDE_QT_QSTRING
 #define INCLUDE_QT_QSTRING
 #include <QString>
+#endif
+
+#ifndef INCLUDE_QT_QFILEINFO
+#define INCLUDE_QT_QFILEINFO
+#include <QFileInfo>
+#endif
+
+#ifndef INCLUDE_QT_QDIR
+#define INCLUDE_QT_QDIR
+#include <QDir>
 #endif
 
 namespace sak 
@@ -128,12 +146,12 @@ namespace sak
     // position in the project's collection of data for this type of index. If the id is valid,
     // the returned pair consists of true and the index. If the id is null or invalid, the
     // returned pair consists of false and zero.
-    std::pair<bool,std::size_t> try_get_index(ID_Type const& a_id) const override final;
+    std::size_t get_index(ID_Type const& a_id) const override final;
 
     // Attempt to get the name for the data associated with the supplied id. If the id is valid,
     // the returned pair consists of true and the name value. If the id is null or invalid, the
     // returned pair consists of false and an empty string.
-    std::pair<bool,QString> try_get_name(ID_Type const& a_id) const override final;
+    QString get_name(ID_Type const& a_id) const override final;
 
     // Data Editing Interface
     //------------------------------------------------------------
@@ -153,7 +171,7 @@ namespace sak
     // Undoable add a new object using the supplied handle. The name will be modified if it is currently in
     // use by another object. Return true if the operation resulted in an undoable command. If this handle
     // is invalid or already in the data then nothing happens and returns false.
-    bool try_add(Signal_Source a_source, ID_Type const& a_id) override final;
+    //bool try_add(Signal_Source a_source, ID_Type const& a_id) override final;
 
     // Undoable remove object. Return true if the operation resulted in an undoable command. If this handle
     // is invalid or already in the data then nothing happens and returns false. Handle data is not deleted
@@ -199,6 +217,9 @@ namespace sak
     // Access to the data members for all the classes that inherit
     // this.
 
+    Project_Handle_Factory_Imp<Args...>& get_handle_factory();
+    Project_Handle_Factory_Imp<Args...> const& cget_handle_factory() const;
+
     Project_Handle_Data_Imp<Args...>& get_handle_data();
     Project_Handle_Data_Imp<Args...> const& cget_handle_data() const;
 
@@ -211,6 +232,7 @@ namespace sak
   private:
     // Data Members
     //============================================================
+    Project_Handle_Factory_Imp<Args...> m_handle_factory;
     Project_Handle_Data_Imp<Args...> m_handle_data;
     Project_Signalbox_Data_Imp<Args...> m_signalbox_data;
     Command_History m_command_history;
@@ -389,7 +411,7 @@ namespace sak
 
     // Special 6
     //============================================================
-    Project_Interface_Imp();
+    explicit Project_Interface_Imp(QString const& a_filepath);
     ~Project_Interface_Imp() override;
 
     Project_Interface_Imp(Project_Interface_Imp const&) = delete;
@@ -511,6 +533,7 @@ namespace sak
     }
 
   private:
+    QFileInfo m_filepath;
   };
 }
 
@@ -607,20 +630,18 @@ std::vector<QString> sak::Section_Interface_Imp<flamingo::typelist<Args...>,LI,L
 // the returned pair consists of true and the index. If the id is null or invalid, the
 // returned pair consists of false and zero.
 template <std::size_t LI, std::size_t LS, typename...Args>
-std::pair<bool,std::size_t> sak::Section_Interface_Imp<flamingo::typelist<Args...>,LI,LS>::try_get_index(ID_Type const& a_id) const
+std::size_t sak::Section_Interface_Imp<flamingo::typelist<Args...>,LI,LS>::get_index(ID_Type const& a_id) const
 {
-  //TODO
-  return std::pair<bool,std::size_t>{};
+  return cget_handle_data().cget_section_at<LI>()->index(a_id);
 }
 
 // Attempt to get the name for the data associated with the supplied id. If the id is valid,
 // the returned pair consists of true and the name value. If the id is null or invalid, the
 // returned pair consists of false and an empty string.
 template <std::size_t LI, std::size_t LS, typename...Args>
-std::pair<bool,QString> sak::Section_Interface_Imp<flamingo::typelist<Args...>,LI,LS>::try_get_name(ID_Type const& a_id) const
+QString sak::Section_Interface_Imp<flamingo::typelist<Args...>,LI,LS>::get_name(ID_Type const& a_id) const
 {
-  //TODO
-  return std::pair<bool,QString>{};
+  return cget_handle_data().cget_section_at<LI>()->name(a_id);
 }
 
 // Data Editing Interface
@@ -633,7 +654,32 @@ std::pair<bool,QString> sak::Section_Interface_Imp<flamingo::typelist<Args...>,L
 template <std::size_t LI, std::size_t LS, typename...Args>
 bool sak::Section_Interface_Imp<flamingo::typelist<Args...>,LI,LS>::try_set_name(Signal_Source a_source, ID_Type const& a_id, QString const& a_name)
 {
-  //TODO
+  // Get the handle for the data. If the id is null or invalid, this is a null handle.
+  auto l_handle = cget_handle_data().cget_section<Type>()->get_handle(a_id);
+
+  // If the data is valid and the not equal to the current name
+  if(l_handle && l_handle->cname() != a_name)
+  {
+    // Copy the name
+    QString l_name{a_name};
+    // Fix it
+    cget_handle_data().fix_name(l_name);
+    // If the fixed name is still unequal to the current name
+    if (l_handle->cname() != l_name)
+    {
+      // Make a command to change to this name
+      get_command_history().add_execute(make_command_change_name<LI>(a_source,
+                                                                     get_handle_data(),
+                                                                     get_signalbox_data(),
+                                                                     l_handle,
+                                                                     l_name));
+
+      return true;
+    }
+
+  }
+
+  // If we failed all the conditions, do nothing and return false.
   return false;
 }
 
@@ -644,19 +690,30 @@ bool sak::Section_Interface_Imp<flamingo::typelist<Args...>,LI,LS>::try_set_name
 template <std::size_t LI, std::size_t LS, typename...Args>
 typename sak::Section_Interface_Imp<flamingo::typelist<Args...>,LI,LS>::ID_Type sak::Section_Interface_Imp<flamingo::typelist<Args...>,LI,LS>::add_default(Tag_Type&&, Signal_Source a_source)
 {
-  //TODO
-  return false;
+  // Make a default handle.
+  auto l_handle = get_handle_factory().get_section_at<LI>()->make_default(Tag_Type{});
+  // Fix the name.
+  cget_handle_data().fix_name(l_handle->name());
+
+  // Now have data that can be added via a command.
+  get_command_history().add_execute( make_command_added<LI>(a_source,
+                                                            get_handle_data(),
+                                                            get_signalbox_data(),
+                                                            l_handle) );
+
+  // Return the id
+  return l_handle.id();
 }
 
 // Undoable add a new object using the supplied handle. The name will be modified if it is currently in
 // use by another object. Return true if the operation resulted in an undoable command. If this handle
 // is invalid or already in the data then nothing happens and returns false.
-template <std::size_t LI, std::size_t LS, typename...Args>
-bool sak::Section_Interface_Imp<flamingo::typelist<Args...>,LI,LS>::try_add(Signal_Source a_source, ID_Type const& a_id)
-{
+//template <std::size_t LI, std::size_t LS, typename...Args>
+//bool sak::Section_Interface_Imp<flamingo::typelist<Args...>,LI,LS>::try_add(Signal_Source a_source, ID_Type const& a_id)
+//{
   //TODO
-  return false;
-}
+  //return false;
+//}
 
 // Undoable remove object. Return true if the operation resulted in an undoable command. If this handle
 // is invalid or already in the data then nothing happens and returns false. Handle data is not deleted
@@ -664,6 +721,7 @@ bool sak::Section_Interface_Imp<flamingo::typelist<Args...>,LI,LS>::try_add(Sign
 template <std::size_t LI, std::size_t LS, typename...Args>
 bool sak::Section_Interface_Imp<flamingo::typelist<Args...>,LI,LS>::try_remove(Signal_Source a_source, ID_Type const& a_id)
 {
+  // ASSUMING NOTHING HOLDS HANDLES AS MEMBERS
   //TODO
   return false;
 }
@@ -672,16 +730,32 @@ bool sak::Section_Interface_Imp<flamingo::typelist<Args...>,LI,LS>::try_remove(S
 template <std::size_t LI, std::size_t LS, typename...Args>
 bool sak::Section_Interface_Imp<flamingo::typelist<Args...>,LI,LS>::try_request_editor(Signal_Source a_source, ID_Type const& a_id)
 {
-  //TODO
-  return false;
+  // If the data is valid and the not equal to the current name
+  if(a_id && cget_handle_data().cget_section_at<LI>()->has(a_id))
+  {
+    get_signalbox_data().get_section_at<LI>()->requests_editor(a_source, a_id, cget_handle_data().cget_section_at<LI>()->index(a_id));
+    return true;
+  }
+  else
+  {
+    return false;
+  }
 }
 
 // Request that the focus change to this object.
 template <std::size_t LI, std::size_t LS, typename...Args>
 bool sak::Section_Interface_Imp<flamingo::typelist<Args...>,LI,LS>::try_request_outliner(Signal_Source a_source, ID_Type const& a_id)
 {
-  //TODO
-  return false;
+  // If the data is valid and the not equal to the current name
+  if(a_id && cget_handle_data().cget_section_at<LI>()->has(a_id))
+  {
+    get_signalbox_data().get_section_at<LI>()->requests_outliner(a_source, a_id, cget_handle_data().cget_section_at<LI>()->index(a_id));
+    return true;
+  }
+  else
+  {
+    return false;
+  }
 }
 
 //------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -696,6 +770,7 @@ bool sak::Section_Interface_Imp<flamingo::typelist<Args...>,LI,LS>::try_request_
 //============================================================
 template <std::size_t LS, typename...Args>
 sak::Section_Interface_Imp<flamingo::typelist<Args...>,LS,LS>::Section_Interface_Imp() :
+  m_handle_factory{},
   m_handle_data{},
   m_signalbox_data{},
   m_command_history{}
@@ -714,6 +789,18 @@ sak::Section_Interface_Imp<flamingo::typelist<Args...>,LS,LS>& sak::Section_Inte
 //============================================================
 // Access to the data members for all the classes that inherit
 // this.
+
+template <std::size_t LS, typename...Args>
+sak::Project_Handle_Factory_Imp<Args...>& sak::Section_Interface_Imp<flamingo::typelist<Args...>,LS,LS>::get_handle_factory()
+{
+  return m_handle_factory;
+}
+
+template <std::size_t LS, typename...Args>
+sak::Project_Handle_Factory_Imp<Args...> const& sak::Section_Interface_Imp<flamingo::typelist<Args...>,LS,LS>::cget_handle_factory() const
+{
+  return m_handle_factory;
+}
 
 template <std::size_t LS, typename...Args>
 sak::Project_Handle_Data_Imp<Args...>& sak::Section_Interface_Imp<flamingo::typelist<Args...>,LS,LS>::get_handle_data()
@@ -781,8 +868,20 @@ sak::Member_Interface_Imp<flamingo::typelist<Args...>,LI,MI,LL,ML>& sak::Member_
 template <std::size_t LI, std::size_t MI, std::size_t LL, std::size_t ML, typename...Args>
 std::pair<bool,typename sak::Member_Interface_Imp<flamingo::typelist<Args...>,LI,MI,LL,ML>::Member_Value_Type> sak::Member_Interface_Imp<flamingo::typelist<Args...>,LI,MI,LL,ML>::try_get(Index_Tag_Type&&, ID_Type const& a_id) const
 {
-  //TODO
-  return std::pair<bool,Member_Value_Type>{};
+  // Get the handle for the data. If the id is null or invalid, this is a null handle.
+  auto l_handle = cget_handle_data().cget_section<Type>()->get_handle(a_id);
+
+  // If the data is valid...
+  if(l_handle)
+  {
+    // Return a pair with the value.
+    return std::make_pair(true, l_handle->cmember_at<index>());
+  }
+  else
+  {
+    // Else return a fail pair.
+    return std::make_pair(false, Member_Value_Type{});
+  }
 }
 
 // Attempt an undoable change to the data value for the member at this index in the data
@@ -793,8 +892,23 @@ std::pair<bool,typename sak::Member_Interface_Imp<flamingo::typelist<Args...>,LI
 template <std::size_t LI, std::size_t MI, std::size_t LL, std::size_t ML, typename...Args>
 bool sak::Member_Interface_Imp<flamingo::typelist<Args...>,LI,MI,LL,ML>::try_set(Index_Tag_Type&&, ID_Type const& a_id, Member_Value_Type const& a_value) const
 {
-  //TODO
-  return false;
+  // Get the handle for the data. If the id is null or invalid, this is a null handle.
+  auto l_handle = cget_handle_data().cget_section<Type>()->get_handle(a_id);
+
+  // If the data is valid, and the new value does not compare equal to the current value...
+  if(l_handle && l_handle->cmember_at<index>() != a_value)
+  {
+    // Make and execute the appropriate command.
+
+    //TODO
+
+    return true;
+  }
+  else
+  {
+    // Else return false
+    return false;
+  }
 }
 
 //------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -855,7 +969,11 @@ sak::Member_Interface_Imp<flamingo::typelist<Args...>,LL,ML,LL,ML>& sak::Member_
 // Special 6
 //============================================================
 template <typename T, typename...Args>
-sak::Project_Interface_Imp<T,Args...>::Project_Interface_Imp() = default;
+sak::Project_Interface_Imp<T,Args...>::Project_Interface_Imp(QString const& a_filepath) :
+  m_filepath{a_filepath}
+{
+  // If we want to make sure it exists, do it here.
+}
 
 template <typename T, typename...Args>
 sak::Project_Interface_Imp<T,Args...>::~Project_Interface_Imp() = default;
@@ -887,22 +1005,19 @@ void sak::Project_Interface_Imp<T,Args...>::load()
 template <typename T, typename...Args>
 QString sak::Project_Interface_Imp<T,Args...>::name() const
 {
-  //TODO
-  return QString{};
+  return m_filepath.baseName();
 }
 
 template <typename T, typename...Args>
 QString sak::Project_Interface_Imp<T,Args...>::location() const
 {
-  //TODO
-  return QString{};
+  return m_filepath.absoluteDir().absolutePath();
 }
 
 template <typename T, typename...Args>
 QString sak::Project_Interface_Imp<T,Args...>::filepath() const
 {
-  //TODO
-  return QString{};
+  return m_filepath.absoluteFilePath();
 }
 
 // Can we currently call undo?

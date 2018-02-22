@@ -27,11 +27,6 @@ namespace sak
   // We just want to associate a single object with a single ID value that gets
   // reference counted. This means a Handle is just a shared_ptr with an ID.
 
-  // Could do all sorts of buggery with an id type as a template varaible but
-  // we don't need to so don't bother.
-
-  // Need to include section_data.hpp to actually use the data...
-
   template <typename T_Class_Def>
   class Handle
   {
@@ -86,7 +81,7 @@ namespace sak
 
     // Member Operators
     //============================================================
-    // Return true if the Handle is valid.
+    // Return true if the Handle is not a null handle.
     explicit operator bool() const noexcept;
 
     // Compare
@@ -121,7 +116,7 @@ namespace sak
   template <typename T>
   void swap(Handle<T>& a_lhs, Handle<T>& a_rhs) noexcept;
 
-  // Excplicit state identifiers. A Handle is null if it has a null id, which
+  // Explicit state identifiers. A Handle is null if it has a null id, which
   // means it is not being used to reference data.
   template <typename T>
   bool is_null(Handle<T> const& a_Handle) noexcept;
