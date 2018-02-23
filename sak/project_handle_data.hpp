@@ -108,13 +108,13 @@ namespace sak
     QString name(ID_Type const& a_id) const;
 
     // Does this name appear in the data?
-    bool has_name(Tag_Type&&, QString const&) const;
+    bool has_name(Tag_Type&&, QString const& a_name) const;
 
     // Get the id at this index. If the index is invalid a null id is returned.
     ID_Type get_at(Tag_Type&&, std::size_t a_index) const;
 
     // Get the id with this name. If the name is invalid a null id is returned.
-    ID_Type get_named(Tag_Type&&, QString const&) const;
+    ID_Type get_named(Tag_Type&&, QString const& a_name) const;
 
     // Get all the ids in data order
     std::vector<ID_Type> get_ids(Tag_Type&&) const;
@@ -214,13 +214,23 @@ namespace sak
       flamingo::typelist_find_v<Typelist_Type, U>
     >;
 
-    template <std::size_t I>
-    using Section_Handle_Data_At =
-    Section_Handle_Data_Imp
-    <
-      Typelist_Type,
-      I
-    >;
+    // Section Interface Access
+    //------------------------------------------------------------
+    template <typename U>
+    Section_Handle_Data_Type<U>* section()
+    {
+      static_assert(flamingo::typelist_find_v<Typelist_Type,U> != flamingo::typelist_size_v<Typelist_Type>,
+                    "Cannot get data, type not present.");
+      return this;
+    }
+
+    template <typename U>
+    Section_Handle_Data_Type<U> const* csection() const
+    {
+      static_assert(flamingo::typelist_find_v<Typelist_Type,U> != flamingo::typelist_size_v<Typelist_Type>,
+                    "Cannot get data, type not present.");
+      return this;
+    }
 
   public:
     // Special 6
@@ -250,38 +260,150 @@ namespace sak
     // existing data names.
     void fix_name(QString& a_name) const;
 
-    // Section Interface Access
+    // User Interface
     //------------------------------------------------------------
+    // This part will get used by the interface implementor.
+
+    // Are there any objects in this Project?
     template <typename U>
-    Section_Handle_Data_Type<U>* get_section()
+    bool is_empty(Tag<U>&&) const
     {
-      static_assert(flamingo::typelist_find_v<Typelist_Type,U> != flamingo::typelist_size_v<Typelist_Type>,
-                    "Cannot get data, type not present.");
-      return this;
+      return csection<U>()->is_empty(Tag<U>{});
     }
 
+    // How many objects are in this Project?
     template <typename U>
-    Section_Handle_Data_Type<U> const* cget_section() const
+    std::size_t count(Tag<U>&&) const
     {
-      static_assert(flamingo::typelist_find_v<Typelist_Type,U> != flamingo::typelist_size_v<Typelist_Type>,
-                    "Cannot get data, type not present.");
-      return this;
+      return csection<U>()->count(Tag<U>{});
     }
 
-    template <std::size_t I>
-    Section_Handle_Data_At<I>* get_section_at()
+    // Does this id appear in the data?
+    template <typename U>
+    bool has(ID<U> const& a_id) const
     {
-      static_assert(I < flamingo::typelist_size_v<Typelist_Type>,
-                    "Cannot get data, type index is out of range.");
-      return this;
+      return csection<U>()->has(a_id);
     }
 
-    template <std::size_t I>
-    Section_Handle_Data_At<I> const* cget_section_at() const
+    // Get the index of the id in the data. If the id is not present or is null,
+    // the returned value is equal to count().
+    template <typename U>
+    std::size_t index(ID<U> const& a_id) const
     {
-      static_assert(I < flamingo::typelist_size_v<Typelist_Type>,
-                    "Cannot get data, type index is out of range.");
-      return this;
+      return csection<U>()->index(a_id);
+    }
+
+    // Get the name data associted with this id. If the id is not present or is null,
+    // the returned value is empty.
+    template <typename U>
+    QString name(ID<U> const& a_id) const
+    {
+      return csection<U>()->name(a_id);
+    }
+
+    // Does this name appear in the data?
+    template <typename U>
+    bool has_name(Tag<U>&&, QString const& a_name) const
+    {
+      return csection<U>()->has_name(Tag<U>{},a_name);
+    }
+
+    // Get the id at this index. If the index is invalid a null id is returned.
+    template <typename U>
+    ID<U> get_at(Tag<U>&&, std::size_t a_index) const
+    {
+      return csection<U>()->get_at(Tag<U>{}, a_index);
+    }
+
+    // Get the id with this name. If the name is invalid a null id is returned.
+    template <typename U>
+    ID<U> get_named(Tag<U>&&, QString const& a_name) const
+    {
+      return csection<U>()->get_named(Tag<U>{}, a_name);
+    }
+
+    // Get all the ids in data order
+    template <typename U>
+    std::vector<ID<U>> get_ids(Tag<U>&&) const
+    {
+      return csection<U>()->get_ids(Tag<U>{});
+    }
+
+    // Get all the handles names in data order
+    template <typename U>
+    std::vector<QString> get_names(Tag<U>&&) const
+    {
+      return csection<U>()->get_names(Tag<U>{});
+    }
+
+    // Internal Interface
+    //------------------------------------------------------------
+    // This part will get used by the data implementor.
+
+    // Does this handle appear in the data?
+    template <typename U>
+    bool has_handle(Handle<U> const& a_handle) const
+    {
+      return csection<U>()->has_handle(a_handle);
+    }
+
+    // Get the handle for this id. If the id is invalid or null a null handle is returned.
+    template <typename U>
+    Handle<U> get_handle(ID<U> const& a_id) const
+    {
+      return csection<U>()->get_handle(a_id);
+    }
+
+    // Get the handle at this index. If the index is invalid a null handle is returned.
+    template <typename U>
+    Handle<U> get_handle_at(Tag<U>&&, std::size_t a_index) const
+    {
+      return csection<U>()->get_handle_at(Tag<U>{},a_index);
+    }
+
+    // Get the handle with this name. If the name is invalid a null handle is returned.
+    template <typename U>
+    Handle<U> get_handle_named(Tag<U>&&, QString const& a_name) const
+    {
+      return csection<U>()->get_handle_named(Tag<U>{},a_name);
+    }
+
+    // Determine what index a handle would be at if it were added to the current data
+    // with this name. If the name is empty or already present, the result is count().
+    template <typename U>
+    std::size_t future_index(Tag<U>&&, QString const& a_name) const
+    {
+      return csection<U>()->future_index(a_name);
+    }
+
+    // Add a handle to the collection and return its index. If the handle is null or
+    // already present, nothing happens and return count().
+    template <typename U>
+    std::size_t add(Handle<U> const& a_handle)
+    {
+      return section<U>()->add(a_handle);
+    }
+
+    // Remove the handle at this index from the collection and return true. If the handle
+    // is null or not present, nothing happens and return false.
+    template <typename U>
+    bool remove(Tag<U>&&, std::size_t a_index)
+    {
+      return section<U>()->remove(Tag<U>{}, a_index);
+    }
+
+    // Access the handles for direct manipulation.
+    template <typename U>
+    std::vector<Handle<U>>& get_handles(Tag<U>&&)
+    {
+      return section<U>()->get_handles(Tag<U>{});
+    }
+
+    // Also const access.
+    template <typename U>
+    std::vector<Handle<U>> const& cget_handles(Tag<U>&&) const
+    {
+      return csection<U>()->cget_handles(Tag<U>{});
     }
 
   };

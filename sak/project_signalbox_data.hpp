@@ -79,7 +79,7 @@ namespace sak
 
     // Interface
     //============================================================
-    // calls each of these on all the stored signalboxes.
+    // Calls each of these on all the stored signalboxes.
 
     // When data has been added at a given index.
     void added(Signal_Source a_source, ID_Type const& a_id, std::size_t a_index);
@@ -197,16 +197,27 @@ namespace sak
       flamingo::typelist_find_v<Typelist_Type, U>
     >;
 
-    template <std::size_t I>
-    using Section_Signalbox_Data_At =
-    Section_Signalbox_Data_Imp
-    <
-      Typelist_Type,
-      I
-    >;
+    // Section Interface Access
+    //------------------------------------------------------------
+    template <typename U>
+    Section_Signalbox_Data_Type<U>* section()
+    {
+      static_assert(flamingo::typelist_find_v<Typelist_Type,U> != flamingo::typelist_size_v<Typelist_Type>,
+                    "Cannot get data, type not present.");
+      return this;
+    }
+
+    template <typename U>
+    Section_Signalbox_Data_Type<U> const* csection() const
+    {
+      static_assert(flamingo::typelist_find_v<Typelist_Type,U> != flamingo::typelist_size_v<Typelist_Type>,
+                    "Cannot get data, type not present.");
+      return this;
+    }
 
   public:
     using Signalbox_Type = typename Inh::Signalbox_Type;
+
     // Special 6
     //============================================================
     Project_Signalbox_Data_Imp();
@@ -227,40 +238,65 @@ namespace sak
     using Inh::remove_signalbox;
     using Inh::clear_signalboxes;
 
-    // Section Interface Access
+    // Section Interface
     //------------------------------------------------------------
+    // Calls each of these on all the stored signalboxes.
+
+    // When data has been added at a given index.
     template <typename U>
-    Section_Signalbox_Data_Type<U>* get_section()
+    void added(Signal_Source a_source, ID<U> const& a_id, std::size_t a_index)
     {
-      static_assert(flamingo::typelist_find_v<Typelist_Type,U> != flamingo::typelist_size_v<Typelist_Type>,
-                    "Cannot get data, type not present.");
-      return this;
+      section<U>()->added(a_source, a_id, a_index);
     }
 
+    // When data has been removed from a given index.
     template <typename U>
-    Section_Signalbox_Data_Type<U> const* cget_section() const
+    void removed(Signal_Source a_source, ID<U> const& a_id, std::size_t a_index)
     {
-      static_assert(flamingo::typelist_find_v<Typelist_Type,U> != flamingo::typelist_size_v<Typelist_Type>,
-                    "Cannot get data, type not present.");
-      return this;
+      section<U>()->removed(a_source, a_id, a_index);
     }
 
-    template <std::size_t I>
-    Section_Signalbox_Data_At<I>* get_section_at()
+    // When data at a given index has been moved to another index.
+    template <typename U>
+    void moved(Signal_Source a_source, ID<U> const& a_id, std::size_t a_from, std::size_t a_to)
     {
-      static_assert(I < flamingo::typelist_size_v<Typelist_Type>,
-                    "Cannot get data, type index is out of range.");
-      return this;
+      section<U>()->moved(a_source, a_id, a_from, a_to);
     }
 
-    template <std::size_t I>
-    Section_Signalbox_Data_At<I> const* cget_section_at() const
+    // When data at a given index has its name changed.
+    template <typename U>
+    void changed_name(Signal_Source a_source, ID<U> const& a_id, std::size_t a_index)
     {
-      static_assert(I < flamingo::typelist_size_v<Typelist_Type>,
-                    "Cannot get data, type index is out of range.");
-      return this;
+      section<U>()->changed_name(a_source, a_id, a_index);
     }
 
+    // When data at a given index has all of its data changed.
+    template <typename U>
+    void changed_data(Signal_Source a_source, ID<U> const& a_id, std::size_t a_index)
+    {
+      section<U>()->changed_data(a_source, a_id, a_index);
+    }
+
+    // When data at a given index has its data changed in a specific place.
+    template <typename U>
+    void changed_data_at(Signal_Source a_source, ID<U> const& a_id, std::size_t a_index, std::size_t a_member)
+    {
+      section<U>()->changed_data_at(a_source, a_id, a_index, a_member);
+    }
+
+    // When data at a given index requests its editor be opened/brought to the top.
+    template <typename U>
+    void requests_editor(Signal_Source a_source, ID<U> const& a_id, std::size_t a_index)
+    {
+      section<U>()->requests_editor(a_source, a_id, a_index);
+    }
+
+    // When data at a given index requests focus in the outliner.
+    template <typename U>
+    void requests_outliner(Signal_Source a_source, ID<U> const& a_id, std::size_t a_index)
+    {
+      section<U>()->requests_outliner(a_source, a_id, a_index);
+    }
   };
 
   //------------------------------------------------------------------------------------------------------------------------------------------------------

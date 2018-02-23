@@ -384,20 +384,13 @@ namespace sak
 
     using Signalbox_Type = typename Base_Type::Signalbox_Type;
 
+  private:
     template  <typename U>
     using Section_Interface_Type =
     Section_Interface_Imp
     <
       Typelist_Type,
       flamingo::typelist_find_v<Typelist_Type, U>
-    >;
-
-    template  <std::size_t I>
-    using Section_Interface_At =
-    Section_Interface_Imp
-    <
-      Typelist_Type,
-      I
     >;
 
     template <typename U, std::size_t I>
@@ -409,6 +402,47 @@ namespace sak
       I
     >;
 
+    // Section Interface Access
+    //------------------------------------------------------------
+
+    template <typename U>
+    Section_Interface_Type<U>* get_section()
+    {
+      static_assert(flamingo::typelist_find_v<Typelist_Type,U> != flamingo::typelist_size_v<Typelist_Type>,
+                    "Cannot make interface, type not present.");
+      return this;
+    }
+
+    template <typename U>
+    Section_Interface_Type<U> const* cget_section() const
+    {
+      static_assert(flamingo::typelist_find_v<Typelist_Type,U> != flamingo::typelist_size_v<Typelist_Type>,
+                    "Cannot make interface, type not present.");
+      return this;
+    }
+
+
+    template <typename U, std::size_t I>
+    Member_Interface_Type<U,I>* get_member()
+    {
+      static_assert(flamingo::typelist_find_v<Typelist_Type,U> != flamingo::typelist_size_v<Typelist_Type>,
+                    "Cannot make interface, type not present.");
+      static_assert(I < Class_Def_Size_v<U>,
+                    "Cannot make interface, member index is out of range.");
+      return this;
+    }
+
+    template <typename U, std::size_t I>
+    Member_Interface_Type<U,I> const* cget_member() const
+    {
+      static_assert(flamingo::typelist_find_v<Typelist_Type,U> != flamingo::typelist_size_v<Typelist_Type>,
+                    "Cannot make interface, type not present.");
+      static_assert(I < Class_Def_Size_v<U>,
+                    "Cannot make interface, member index is out of range.");
+      return this;
+    }
+
+  public:
     // Special 6
     //============================================================
     explicit Project_Interface_Imp(QString const& a_filepath);
@@ -477,61 +511,6 @@ namespace sak
     // Clear all the signalboxes so that nothing relies on changes to this.
     void clear_signalboxes() override final;
 
-    // Section Interface Access
-    //------------------------------------------------------------
-
-    template <typename U>
-    Section_Interface_Type<U>* get_section()
-    {
-      static_assert(flamingo::typelist_find_v<Typelist_Type,U> != flamingo::typelist_size_v<Typelist_Type>,
-                    "Cannot make interface, type not present.");
-      return this;
-    }
-
-    template <typename U>
-    Section_Interface_Type<U> const* cget_section() const
-    {
-      static_assert(flamingo::typelist_find_v<Typelist_Type,U> != flamingo::typelist_size_v<Typelist_Type>,
-                    "Cannot make interface, type not present.");
-      return this;
-    }
-
-    template <std::size_t I>
-    Section_Interface_At<I>* get_section_at()
-    {
-      static_assert(I < flamingo::typelist_size_v<Typelist_Type>,
-                    "Cannot make interface, type index is out of range.");
-      return this;
-    }
-
-    template <std::size_t I>
-    Section_Interface_At<I> const* cget_section_at() const
-    {
-      static_assert(I < flamingo::typelist_size_v<Typelist_Type>,
-                    "Cannot make interface, type index is out of range.");
-      return this;
-    }
-
-    template <typename U, std::size_t I>
-    Member_Interface_Type<U,I>* get_member()
-    {
-      static_assert(flamingo::typelist_find_v<Typelist_Type,U> != flamingo::typelist_size_v<Typelist_Type>,
-                    "Cannot make interface, type not present.");
-      static_assert(I < Class_Def_Size_v<U>,
-                    "Cannot make interface, member index is out of range.");
-      return this;
-    }
-
-    template <typename U, std::size_t I>
-    Member_Interface_Type<U,I> const* cget_member() const
-    {
-      static_assert(flamingo::typelist_find_v<Typelist_Type,U> != flamingo::typelist_size_v<Typelist_Type>,
-                    "Cannot make interface, type not present.");
-      static_assert(I < Class_Def_Size_v<U>,
-                    "Cannot make interface, member index is out of range.");
-      return this;
-    }
-
   private:
     QFileInfo m_filepath;
   };
@@ -571,56 +550,56 @@ sak::Section_Interface_Imp<flamingo::typelist<Args...>,LI,LS>& sak::Section_Inte
 template <std::size_t LI, std::size_t LS, typename...Args>
 bool sak::Section_Interface_Imp<flamingo::typelist<Args...>,LI,LS>::is_empty(Tag_Type&&) const
 {
-  return cget_handle_data().cget_section_at<LI>()->is_empty(Tag_Type{});
+  return cget_handle_data().is_empty(Tag_Type{});
 }
 
 // How many objects are in this Project?
 template <std::size_t LI, std::size_t LS, typename...Args>
 std::size_t sak::Section_Interface_Imp<flamingo::typelist<Args...>,LI,LS>::count(Tag_Type&&) const
 {
-  return cget_handle_data().cget_section_at<LI>()->count(Tag_Type{});
+  return cget_handle_data().count(Tag_Type{});
 }
 
 // Does this id appear in the data?
 template <std::size_t LI, std::size_t LS, typename...Args>
 bool sak::Section_Interface_Imp<flamingo::typelist<Args...>,LI,LS>::has(ID_Type const& a_id) const
 {
-  return cget_handle_data().cget_section_at<LI>()->has(a_id);
+  return cget_handle_data().has(a_id);
 }
 
 // Does this name appear in the data?
 template <std::size_t LI, std::size_t LS, typename...Args>
 bool sak::Section_Interface_Imp<flamingo::typelist<Args...>,LI,LS>::has_name(Tag_Type&&, QString const& a_name) const
 {
-  return cget_handle_data().cget_section_at<LI>()->has_name(Tag_Type{}, a_name);
+  return cget_handle_data().has_name(Tag_Type{}, a_name);
 }
 
 // Get the id at this index. If the index is invalid a null id is returned.
 template <std::size_t LI, std::size_t LS, typename...Args>
 typename sak::Section_Interface_Imp<flamingo::typelist<Args...>,LI,LS>::ID_Type sak::Section_Interface_Imp<flamingo::typelist<Args...>,LI,LS>::get_at(Tag_Type&&, std::size_t a_index) const
 {
-  return cget_handle_data().cget_section_at<LI>()->get_at(Tag_Type{}, a_index);
+  return cget_handle_data().get_at(Tag_Type{}, a_index);
 }
 
 // Get the id with this name. If the name is invalid a null id is returned.
 template <std::size_t LI, std::size_t LS, typename...Args>
 typename sak::Section_Interface_Imp<flamingo::typelist<Args...>,LI,LS>::ID_Type sak::Section_Interface_Imp<flamingo::typelist<Args...>,LI,LS>::get_named(Tag_Type&&, QString const& a_name) const
 {
-  return cget_handle_data().cget_section_at<LI>()->get_named(Tag_Type{}, a_name);
+  return cget_handle_data().get_named(Tag_Type{}, a_name);
 }
 
 // Get all the ids in data order
 template <std::size_t LI, std::size_t LS, typename...Args>
 std::vector<typename sak::Section_Interface_Imp<flamingo::typelist<Args...>,LI,LS>::ID_Type> sak::Section_Interface_Imp<flamingo::typelist<Args...>,LI,LS>::get_ids(Tag_Type&&) const
 {
-  return cget_handle_data().cget_section_at<LI>()->get_ids(Tag_Type{});
+  return cget_handle_data().get_ids(Tag_Type{});
 }
 
 // Get all the handles names in data order
 template <std::size_t LI, std::size_t LS, typename...Args>
 std::vector<QString> sak::Section_Interface_Imp<flamingo::typelist<Args...>,LI,LS>::get_names(Tag_Type&&) const
 {
-  return cget_handle_data().cget_section_at<LI>()->get_names(Tag_Type{});
+  return cget_handle_data().get_names(Tag_Type{});
 }
 
 // Data Interface
@@ -632,7 +611,7 @@ std::vector<QString> sak::Section_Interface_Imp<flamingo::typelist<Args...>,LI,L
 template <std::size_t LI, std::size_t LS, typename...Args>
 std::size_t sak::Section_Interface_Imp<flamingo::typelist<Args...>,LI,LS>::get_index(ID_Type const& a_id) const
 {
-  return cget_handle_data().cget_section_at<LI>()->index(a_id);
+  return cget_handle_data().index(a_id);
 }
 
 // Attempt to get the name for the data associated with the supplied id. If the id is valid,
@@ -641,7 +620,7 @@ std::size_t sak::Section_Interface_Imp<flamingo::typelist<Args...>,LI,LS>::get_i
 template <std::size_t LI, std::size_t LS, typename...Args>
 QString sak::Section_Interface_Imp<flamingo::typelist<Args...>,LI,LS>::get_name(ID_Type const& a_id) const
 {
-  return cget_handle_data().cget_section_at<LI>()->name(a_id);
+  return cget_handle_data().name(a_id);
 }
 
 // Data Editing Interface
@@ -655,7 +634,7 @@ template <std::size_t LI, std::size_t LS, typename...Args>
 bool sak::Section_Interface_Imp<flamingo::typelist<Args...>,LI,LS>::try_set_name(Signal_Source a_source, ID_Type const& a_id, QString const& a_name)
 {
   // Get the handle for the data. If the id is null or invalid, this is a null handle.
-  auto l_handle = cget_handle_data().cget_section<Type>()->get_handle(a_id);
+  auto l_handle = cget_handle_data().get_handle(a_id);
 
   // If the data is valid and the not equal to the current name
   if(l_handle && l_handle->cname() != a_name)
@@ -691,7 +670,7 @@ template <std::size_t LI, std::size_t LS, typename...Args>
 typename sak::Section_Interface_Imp<flamingo::typelist<Args...>,LI,LS>::ID_Type sak::Section_Interface_Imp<flamingo::typelist<Args...>,LI,LS>::add_default(Tag_Type&&, Signal_Source a_source)
 {
   // Make a default handle.
-  auto l_handle = get_handle_factory().get_section_at<LI>()->make_default(Tag_Type{});
+  auto l_handle = get_handle_factory().make_default(Tag_Type{});
   // Fix the name.
   cget_handle_data().fix_name(l_handle->name());
 
@@ -731,9 +710,9 @@ template <std::size_t LI, std::size_t LS, typename...Args>
 bool sak::Section_Interface_Imp<flamingo::typelist<Args...>,LI,LS>::try_request_editor(Signal_Source a_source, ID_Type const& a_id)
 {
   // If the data is valid and the not equal to the current name
-  if(a_id && cget_handle_data().cget_section_at<LI>()->has(a_id))
+  if(a_id && cget_handle_data().has(a_id))
   {
-    get_signalbox_data().get_section_at<LI>()->requests_editor(a_source, a_id, cget_handle_data().cget_section_at<LI>()->index(a_id));
+    get_signalbox_data().requests_editor(a_source, a_id, cget_handle_data().index(a_id));
     return true;
   }
   else
@@ -747,9 +726,9 @@ template <std::size_t LI, std::size_t LS, typename...Args>
 bool sak::Section_Interface_Imp<flamingo::typelist<Args...>,LI,LS>::try_request_outliner(Signal_Source a_source, ID_Type const& a_id)
 {
   // If the data is valid and the not equal to the current name
-  if(a_id && cget_handle_data().cget_section_at<LI>()->has(a_id))
+  if(a_id && cget_handle_data().has(a_id))
   {
-    get_signalbox_data().get_section_at<LI>()->requests_outliner(a_source, a_id, cget_handle_data().cget_section_at<LI>()->index(a_id));
+    get_signalbox_data().requests_outliner(a_source, a_id, cget_handle_data().index(a_id));
     return true;
   }
   else
@@ -869,7 +848,7 @@ template <std::size_t LI, std::size_t MI, std::size_t LL, std::size_t ML, typena
 std::pair<bool,typename sak::Member_Interface_Imp<flamingo::typelist<Args...>,LI,MI,LL,ML>::Member_Value_Type> sak::Member_Interface_Imp<flamingo::typelist<Args...>,LI,MI,LL,ML>::try_get(Index_Tag_Type&&, ID_Type const& a_id) const
 {
   // Get the handle for the data. If the id is null or invalid, this is a null handle.
-  auto l_handle = cget_handle_data().cget_section<Type>()->get_handle(a_id);
+  auto l_handle = cget_handle_data().get_handle(a_id);
 
   // If the data is valid...
   if(l_handle)
@@ -893,7 +872,7 @@ template <std::size_t LI, std::size_t MI, std::size_t LL, std::size_t ML, typena
 bool sak::Member_Interface_Imp<flamingo::typelist<Args...>,LI,MI,LL,ML>::try_set(Index_Tag_Type&&, ID_Type const& a_id, Member_Value_Type const& a_value) const
 {
   // Get the handle for the data. If the id is null or invalid, this is a null handle.
-  auto l_handle = cget_handle_data().cget_section<Type>()->get_handle(a_id);
+  auto l_handle = cget_handle_data().get_handle(a_id);
 
   // If the data is valid, and the new value does not compare equal to the current value...
   if(l_handle && l_handle->cmember_at<index>() != a_value)

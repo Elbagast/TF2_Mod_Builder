@@ -17,19 +17,18 @@ namespace sak
     {
       std::cout << "-------------------------" << std::endl;
       std::cout << "Typestring = \"" << T::Typestring_Type::data() << "\"" << std::endl;
-      auto l_ssd = a_psd.get_section<T>();
 
       auto a_ss = Signal_Source::System;
       auto a_id = ID<T>{};
 
-      l_ssd->added(a_ss,a_id,0);
-      l_ssd->removed(a_ss,a_id,0);
-      l_ssd->moved(a_ss,a_id,0,1);
-      l_ssd->changed_name(a_ss,a_id,0);
-      l_ssd->changed_data(a_ss,a_id,0);
-      l_ssd->changed_data_at(a_ss,a_id,0,0);
-      l_ssd->requests_editor(a_ss,a_id,0);
-      l_ssd->requests_outliner(a_ss,a_id,0);
+      a_psd.added(a_ss,a_id,0);
+      a_psd.removed(a_ss,a_id,0);
+      a_psd.moved(a_ss,a_id,0,1);
+      a_psd.changed_name(a_ss,a_id,0);
+      a_psd.changed_data(a_ss,a_id,0);
+      a_psd.changed_data_at(a_ss,a_id,0,0);
+      a_psd.requests_editor(a_ss,a_id,0);
+      a_psd.requests_outliner(a_ss,a_id,0);
       std::cout << "-------------------------" << std::endl;
     }
   }

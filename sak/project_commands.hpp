@@ -194,7 +194,7 @@ namespace sak
     void do_execute() override final
     {
       // The handle had better still be valid.
-      assert(cget_handle_data().cget_section_at<LI>()->has_handle(cget_handle()));
+      assert(cget_handle_data().has_handle(cget_handle()));
 
       // old name is in the data
       assert(cget_handle_data().has_name(m_old_name));
@@ -213,7 +213,7 @@ namespace sak
     void do_unexecute() override final
     {
       // The handle had better still be valid.
-      assert(cget_handle_data().cget_section_at<LI>()->has_handle(cget_handle()));
+      assert(cget_handle_data().has_handle(cget_handle()));
 
       // old name is not in the data
       assert(!cget_handle_data().has_name(m_old_name));
@@ -233,9 +233,9 @@ namespace sak
   private:
     void do_signal()
     {
-      get_signalbox_data().get_section_at<LI>()->changed_name(this->source(),
-                                                           cget_handle().id(),
-                                                           cget_handle_data().cget_section_at<LI>()->index(cget_handle().id()));
+      get_signalbox_data().changed_name(this->source(),
+                                        cget_handle().id(),
+                                        cget_handle_data().index(cget_handle().id()));
     }
 
     // Data Members
@@ -295,7 +295,7 @@ namespace sak
                                 Project_Signalbox_Data_Imp<Args...>& a_signalbox_data,
                                 Handle_Type const& a_handle) :
       Inh{a_source, a_handle_data, a_signalbox_data, a_handle},
-      m_index{a_handle_data.cget_section_at<LI>()->future_index(a_handle->cname())} // The postition the handle will be inserted at and removed from
+      m_index{a_handle_data.future_index(Tag_Type{},a_handle->cname())} // The postition the handle will be inserted at and removed from
     {
     }
 
@@ -315,36 +315,36 @@ namespace sak
       // The handle must be valid.
       assert(cget_handle());
       // It must not be present in the data.
-      assert(cget_handle_data().cget_section_at<LI>()->has_handle(cget_handle()) == false);
+      assert(cget_handle_data().has_handle(cget_handle()) == false);
 
-      auto l_index = get_handle_data().get_section_at<LI>()->add(cget_handle());
+      auto l_index = get_handle_data().add(cget_handle());
       assert(m_index == l_index);
 
       // It must be present in the data.
-      assert(cget_handle_data().cget_section_at<LI>()->has_handle(cget_handle()) == true);
+      assert(cget_handle_data().has_handle(cget_handle()) == true);
       // It must be at the index.
-      assert(cget_handle_data().cget_section_at<LI>()->get_at(Tag_Type{}, m_index) == cget_handle().id());
+      assert(cget_handle_data().get_at(Tag_Type{}, m_index) == cget_handle().id());
 
       // Signal the change
-      get_signalbox_data().get_section_at<LI>()->added(this->source(),cget_handle().id(),m_index);
+      get_signalbox_data().added(this->source(),cget_handle().id(),m_index);
     }
     void do_unexecute() override final
     {
       // The handle must be valid.
       assert(cget_handle());
       // It must be present in the data.
-      assert(cget_handle_data().cget_section_at<LI>()->has_handle(cget_handle()) == true);
+      assert(cget_handle_data().has_handle(cget_handle()) == true);
       // It must be at the index.
-      assert(cget_handle_data().cget_section_at<LI>()->get_at(Tag_Type{}, m_index) == cget_handle().id());
+      assert(cget_handle_data().get_at(Tag_Type{}, m_index) == cget_handle().id());
 
-      auto l_result = get_handle_data().get_section_at<LI>()->remove(Tag_Type{}, m_index);
+      auto l_result = get_handle_data().remove(Tag_Type{}, m_index);
       assert(l_result);
 
       // It must not be present in the data.
-      assert(cget_handle_data().cget_section_at<LI>()->has_handle(cget_handle()) == false);
+      assert(cget_handle_data().has_handle(cget_handle()) == false);
 
       // Signal the change
-      get_signalbox_data().get_section_at<LI>()->removed(this->source(),cget_handle().id(),m_index);
+      get_signalbox_data().removed(this->source(),cget_handle().id(),m_index);
     }
 
   private:

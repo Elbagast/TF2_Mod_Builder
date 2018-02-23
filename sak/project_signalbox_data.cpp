@@ -56,7 +56,7 @@ void sak::Section_Signalbox_Data_Imp<flamingo::typelist<Args...>,Index,End>::add
 {
   for (auto l_item : this->get_signalboxes())
   {
-    l_item->get_signalbox<Type>()->added(a_source, a_id, a_index);
+    l_item->added(a_source, a_id, a_index);
   }
 }
 
@@ -66,7 +66,7 @@ void sak::Section_Signalbox_Data_Imp<flamingo::typelist<Args...>,Index,End>::rem
 {
   for (auto l_item : this->get_signalboxes())
   {
-    l_item->get_signalbox<Type>()->removed(a_source, a_id, a_index);
+    l_item->removed(a_source, a_id, a_index);
   }
 }
 
@@ -76,7 +76,7 @@ void sak::Section_Signalbox_Data_Imp<flamingo::typelist<Args...>,Index,End>::mov
 {
   for (auto l_item : this->get_signalboxes())
   {
-    l_item->get_signalbox<Type>()->moved(a_source, a_id, a_from, a_to);
+    l_item->moved(a_source, a_id, a_from, a_to);
   }
 }
 
@@ -86,7 +86,7 @@ void sak::Section_Signalbox_Data_Imp<flamingo::typelist<Args...>,Index,End>::cha
 {
   for (auto l_item : this->get_signalboxes())
   {
-    l_item->get_signalbox<Type>()->changed_name(a_source, a_id, a_index);
+    l_item->changed_name(a_source, a_id, a_index);
   }
 }
 
@@ -96,7 +96,7 @@ void sak::Section_Signalbox_Data_Imp<flamingo::typelist<Args...>,Index,End>::cha
 {
   for (auto l_item : this->get_signalboxes())
   {
-    l_item->get_signalbox<Type>()->changed_data(a_source, a_id, a_index);
+    l_item->changed_data(a_source, a_id, a_index);
   }
 }
 
@@ -106,7 +106,7 @@ void sak::Section_Signalbox_Data_Imp<flamingo::typelist<Args...>,Index,End>::cha
 {
   for (auto l_item : this->get_signalboxes())
   {
-    l_item->get_signalbox<Type>()->changed_data_at(a_source, a_id, a_index, a_member);
+    l_item->changed_data_at(a_source, a_id, a_index, a_member);
   }
 }
 
@@ -116,7 +116,7 @@ void sak::Section_Signalbox_Data_Imp<flamingo::typelist<Args...>,Index,End>::req
 {
   for (auto l_item : this->get_signalboxes())
   {
-    l_item->get_signalbox<Type>()->requests_editor(a_source, a_id, a_index);
+    l_item->requests_editor(a_source, a_id, a_index);
   }
 }
 
@@ -126,7 +126,7 @@ void sak::Section_Signalbox_Data_Imp<flamingo::typelist<Args...>,Index,End>::req
 {
   for (auto l_item : this->get_signalboxes())
   {
-    l_item->get_signalbox<Type>()->requests_outliner(a_source, a_id, a_index);
+    l_item->requests_outliner(a_source, a_id, a_index);
   }
 }
 

@@ -142,13 +142,25 @@ namespace sak
       flamingo::typelist_find_v<Typelist_Type, U>
     >;
 
-    template <std::size_t I>
-    using Section_Handle_Factory_At =
-    Section_Handle_Factory_Imp
-    <
-      Typelist_Type,
-      I
-    >;
+    // Section Interface Access
+    //------------------------------------------------------------
+
+    template <typename U>
+    Section_Handle_Factory_Type<U>* section()
+    {
+      static_assert(flamingo::typelist_find_v<Typelist_Type,U> != flamingo::typelist_size_v<Typelist_Type>,
+                    "Cannot get data, type not present.");
+      return this;
+    }
+
+    template <typename U>
+    Section_Handle_Factory_Type<U> const* csection() const
+    {
+      static_assert(flamingo::typelist_find_v<Typelist_Type,U> != flamingo::typelist_size_v<Typelist_Type>,
+                    "Cannot get data, type not present.");
+      return this;
+    }
+
   public:
     // Special 6
     //============================================================
@@ -163,38 +175,35 @@ namespace sak
 
     // Interface
     //============================================================
-    // Access the section interfaces.
 
+    // The default name of handles made by this.
     template <typename U>
-    Section_Handle_Factory_Type<U>* get_section()
+    QString default_name(Tag<U>&&) const
     {
-      static_assert(flamingo::typelist_find_v<Typelist_Type,U> != flamingo::typelist_size_v<Typelist_Type>,
-                    "Cannot get data, type not present.");
-      return this;
+      return csection<U>()->default_name(Tag<U>{});
     }
 
+    // Make a null handle.
     template <typename U>
-    Section_Handle_Factory_Type<U> const* cget_section() const
+    Handle<U> make_null(Tag<U>&&) const
     {
-      static_assert(flamingo::typelist_find_v<Typelist_Type,U> != flamingo::typelist_size_v<Typelist_Type>,
-                    "Cannot get data, type not present.");
-      return this;
+      return csection<U>()->make_null(Tag<U>{});
     }
 
-    template <std::size_t I>
-    Section_Handle_Factory_At<I>* get_section_at()
+    // Make a handle with data that is default initialised and has
+    // the default new name.
+    template <typename U>
+    Handle<U> make_default(Tag<U>&&) const
     {
-      static_assert(I < flamingo::typelist_size_v<Typelist_Type>,
-                    "Cannot get data, type index is out of range.");
-      return this;
+      return csection<U>()->make_default(Tag<U>{});
     }
 
-    template <std::size_t I>
-    Section_Handle_Factory_At<I> const* cget_section_at() const
+    // Make a handle with the supplied data. If the name is empty
+    // it will be given the default new name.
+    template <typename U>
+    Handle<U> make_emplace(Data<U>&& a_data) const
     {
-      static_assert(I < flamingo::typelist_size_v<Typelist_Type>,
-                    "Cannot get data, type index is out of range.");
-      return this;
+      return csection<U>()->make_emplace(std::move(a_data));
     }
   };
 

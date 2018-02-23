@@ -18,7 +18,7 @@ namespace sak
     {
       std::cout << "-------------------------" << std::endl;
       std::cout << "Typestring = \"" << T::Typestring_Type::data() << "\"" << std::endl;
-
+/*
       auto l_si = a_api->get_section<T>();
       l_si->is_empty(Tag<T>{});
       l_si->count(Tag<T>{});
@@ -27,7 +27,16 @@ namespace sak
       l_si->get_at(Tag<T>{}, std::size_t{});
       l_si->get_named(Tag<T>{}, QString{});
       l_si->get_ids(Tag<T>{});
-      l_si->get_names(Tag<T>{});
+      l_si->get_names(Tag<T>{});*/
+
+      a_api->is_empty(Tag<T>{});
+      a_api->count(Tag<T>{});
+      a_api->has(ID<T>{});
+      a_api->has_name(Tag<T>{}, QString{});
+      a_api->get_at(Tag<T>{}, std::size_t{});
+      a_api->get_named(Tag<T>{}, QString{});
+      a_api->get_ids(Tag<T>{});
+      a_api->get_names(Tag<T>{});
       std::cout << "-------------------------" << std::endl;
     }
   }

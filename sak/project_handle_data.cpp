@@ -454,8 +454,7 @@ namespace
     public:
       void operator()(Project_Data_Type const* a_data, std::size_t& a_count)
       {
-        auto l_section = a_data->cget_section_at<Index>();
-        a_count += l_section->cget_handles(Tag_Type()).size();
+        a_count += a_data->cget_handles(Tag_Type()).size();
         Do_Loop<Index+1,End>()(a_data,a_count);
       }
     };
@@ -494,8 +493,7 @@ namespace
     public:
       bool operator()(Project_Data_Type const* a_data, QString const& a_name) const
       {
-        auto l_section = a_data->cget_section_at<Index>();
-        if (do_has_handle_named(l_section->cget_handles(Tag_Type()),a_name))
+        if (do_has_handle_named(a_data->cget_handles(Tag_Type()),a_name))
         {
           return true;
         }
@@ -540,9 +538,8 @@ namespace
     public:
       void operator()(Project_Data_Type const* a_data, std::vector<QString>& a_result) const
       {
-        auto l_section = a_data->cget_section_at<Index>();
         // Go through all the handles for this section
-        for (auto const& l_handle : l_section->cget_handles(Tag_Type()))
+        for (auto const& l_handle : a_data->cget_handles(Tag_Type()))
         {
           // and add the name to the result.
           a_result.push_back(l_handle->cname());

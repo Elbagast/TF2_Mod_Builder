@@ -9,6 +9,8 @@
 #include <memory>
 #include <cassert>
 
+class A;
+
 void sak::testing::test_project_interface()
 {
   std::cout << "Testing sak::Project_Interface" << std::endl;
@@ -27,10 +29,10 @@ void sak::testing::test_project_interface()
 
   l_api->add_signalbox(l_dsb.get());
 
-  auto l_result = l_api->get_section_at<0>()->try_set_name(Signal_Source::User, ID<File_Definition>{5}, QString{"somename"});
+  auto l_result = l_api->try_set_name(Signal_Source::User, ID<File_Definition>{5}, QString{"somename"});
   assert(!l_result);
 
-  auto l_id = l_api->get_section<File_Definition>()->add_default(Tag<File_Definition>(), Signal_Source::User);
+  auto l_id = l_api->add_default(Tag<File_Definition>(), Signal_Source::User);
   assert(l_api->undo_count() == 1);
   assert(l_api->can_undo());
 
@@ -42,14 +44,19 @@ void sak::testing::test_project_interface()
 
   l_api->redo();
 
-  std::cout << l_api->cget_section<File_Definition>()->get_name(l_id).toStdString() << std::endl;
+  std::cout << l_api->get_name(l_id).toStdString() << std::endl;
 
-  l_api->get_section<File_Definition>()->try_set_name(Signal_Source::User, l_id, QString{"somename"});
+  l_api->try_set_name(Signal_Source::User, l_id, QString{"somename"});
 
-  std::cout << l_api->cget_section<File_Definition>()->get_name(l_id).toStdString() << std::endl;
+  std::cout << l_api->get_name(l_id).toStdString() << std::endl;
 
   l_api->undo();
-  std::cout << l_api->cget_section<File_Definition>()->get_name(l_id).toStdString() << std::endl;
+  std::cout << l_api->get_name(l_id).toStdString() << std::endl;
+
+  // Fails to compile with a message that tells us why, and leads
+  // back to here :)
+  //l_api->has(ID<A>{});
+
 
   std::cout << "==============================" << std::endl;
 }

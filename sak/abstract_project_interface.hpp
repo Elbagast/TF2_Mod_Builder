@@ -99,10 +99,10 @@ namespace sak
     using ID_Type = ID<Type>;
     static constexpr std::size_t const index = MI;
     using Index_Tag_Type = Index_Tag<index>;
-    using Member_Value_Type = Data_Member_Value_Type<index,Data_Type>;
 
     static_assert(Class_Def_Size_v<Type> != 0, "Cannot use data with no members.");
   public:
+    using Member_Value_Type = Data_Member_Value_Type<index,Data_Type>;
 
     // Special 6
     //============================================================
@@ -309,20 +309,15 @@ namespace sak
 
     using Signalbox_Type = Abstract_Project_Signalbox_Imp<T,Args...>;
 
+  private:
+    // Internal Interface
+    //============================================================
     template  <typename U>
     using Abstract_Section_Interface_Type =
     Abstract_Section_Interface_Imp
     <
       Typelist_Type,
       flamingo::typelist_find_v<Typelist_Type, U>
-    >;
-
-    template  <std::size_t I>
-    using Abstract_Section_Interface_At =
-    Abstract_Section_Interface_Imp
-    <
-      Typelist_Type,
-      I
     >;
 
     template <typename U, std::size_t I>
@@ -334,6 +329,53 @@ namespace sak
       I
     >;
 
+    template <typename U, std::size_t I>
+    using Member_Value_Type = typename Abstract_Member_Interface_Type<U,I>::Member_Value_Type;
+
+    // static_assert Helpers
+    //------------------------------------------------------------
+
+    template <typename U>
+    static constexpr bool const has_type = flamingo::typelist_find_v<Typelist_Type,U> != flamingo::typelist_size_v<Typelist_Type>;
+
+    template <typename U, std::size_t I>
+    static constexpr bool const has_member = has_type<U> && (I < Class_Def_Size_v<U>);
+
+    // Section Interface Access
+    //------------------------------------------------------------
+
+    template <typename U>
+    Abstract_Section_Interface_Type<U>* section()
+    {
+      static_assert(has_type<U>, "Bad type for Abstract_Project_Interface_Imp<...>::section");
+      return this;
+    }
+
+    template <typename U>
+    Abstract_Section_Interface_Type<U> const* csection() const
+    {
+      static_assert(has_type<U>, "Bad type for Abstract_Project_Interface_Imp<...>::csection");
+      return this;
+    }
+
+    template <typename U, std::size_t I>
+    Abstract_Member_Interface_Type<U,I>* member()
+    {
+      static_assert(has_type<U>, "Bad type for Abstract_Project_Interface_Imp<...>::member");
+      static_assert(has_member<U,I>, "Bad member index for Abstract_Project_Interface_Imp<...>::member");
+      return this;
+    }
+
+    template <typename U, std::size_t I>
+    Abstract_Member_Interface_Type<U,I> const* cmember() const
+    {
+      static_assert(has_type<U>, "Bad type for Abstract_Project_Interface_Imp<...>::cmember");
+      static_assert(has_member<U,I>, "Bad member index for Abstract_Project_Interface_Imp<...>::cmember");
+      return this;
+    }
+
+
+  public:
     // Special 6
     //============================================================
     ~Abstract_Project_Interface_Imp() override = 0;
@@ -395,59 +437,175 @@ namespace sak
     // Clear all the signalboxes so that nothing relies on changes to this.
     virtual void clear_signalboxes() = 0;
 
-    // Section Interface Access
+
+    // Collection Interface
     //------------------------------------------------------------
-
+    // Are there any objects in this Project?
     template <typename U>
-    Abstract_Section_Interface_Type<U>* get_section()
+    bool is_empty(Tag<U>&&) const
     {
-      static_assert(flamingo::typelist_find_v<Typelist_Type,U> != flamingo::typelist_size_v<Typelist_Type>,
-                    "Cannot make interface, type not present.");
-      return this;
+      static_assert(has_type<U>, "Bad type for Abstract_Project_Interface_Imp<...>::is_empty");
+      return csection<U>()->is_empty(Tag<U>{});
     }
 
+    // How many objects are in this Project?
     template <typename U>
-    Abstract_Section_Interface_Type<U> const* cget_section() const
+    std::size_t count(Tag<U>&&) const
     {
-      static_assert(flamingo::typelist_find_v<Typelist_Type,U> != flamingo::typelist_size_v<Typelist_Type>,
-                    "Cannot make interface, type not present.");
-      return this;
+      static_assert(has_type<U>, "Bad type for Abstract_Project_Interface_Imp<...>::count");
+      return csection<U>()->count(Tag<U>{});
     }
 
-    template <std::size_t I>
-    Abstract_Section_Interface_At<I>* get_section_at()
+    // Does this id appear in the data?
+    template <typename U>
+    bool has(ID<U> const& a_id) const
     {
-      static_assert(I < flamingo::typelist_size_v<Typelist_Type>,
-                    "Cannot make interface, type index is out of range.");
-      return this;
+      static_assert(has_type<U>, "Bad type for Abstract_Project_Interface_Imp<...>::has");
+      return csection<U>()->has(a_id);
     }
 
-    template <std::size_t I>
-    Abstract_Section_Interface_At<I> const* cget_section_at() const
+    // Does this name appear in the data?
+    template <typename U>
+    bool has_name(Tag<U>&&, QString const& a_name) const
     {
-      static_assert(I < flamingo::typelist_size_v<Typelist_Type>,
-                    "Cannot make interface, type index is out of range.");
-      return this;
+      static_assert(has_type<U>, "Bad type for Abstract_Project_Interface_Imp<...>::has_name");
+      return csection<U>()->has_name(Tag<U>{}, a_name);
     }
 
-    template <typename U, std::size_t I>
-    Abstract_Member_Interface_Type<U,I>* get_member()
+    // Get the id at this index. If the index is invalid a null id is returned.
+    template <typename U>
+    ID<U> get_at(Tag<U>&&, std::size_t a_index) const
     {
-      static_assert(flamingo::typelist_find_v<Typelist_Type,U> != flamingo::typelist_size_v<Typelist_Type>,
-                    "Cannot make interface, type not present.");
-      static_assert(I < Class_Def_Size_v<U>,
-                    "Cannot make interface, member index is out of range.");
-      return this;
+      static_assert(has_type<U>, "Bad type for Abstract_Project_Interface_Imp<...>::get_at");
+      return csection<U>()->get_at(Tag<U>{}, a_index);
     }
 
-    template <typename U, std::size_t I>
-    Abstract_Member_Interface_Type<U,I> const* cget_member() const
+    // Get the id with this name. If the name is invalid a null id is returned.
+    template <typename U>
+    ID<U> get_named(Tag<U>&&, QString const& a_name) const
     {
-      static_assert(flamingo::typelist_find_v<Typelist_Type,U> != flamingo::typelist_size_v<Typelist_Type>,
-                    "Cannot make interface, type not present.");
-      static_assert(I < Class_Def_Size_v<U>,
-                    "Cannot make interface, member index is out of range.");
-      return this;
+      static_assert(has_type<U>, "Bad type for Abstract_Project_Interface_Imp<...>::get_named");
+      return csection<U>()->get_named(Tag<U>{}, a_name);
+    }
+
+    // Get all the ids in data order
+    template <typename U>
+    std::vector<ID<U>> get_ids(Tag<U>&&) const
+    {
+      static_assert(has_type<U>, "Bad type for Abstract_Project_Interface_Imp<...>::get_ids");
+      return csection<U>()->get_ids(Tag<U>{});
+    }
+
+    // Get all the handles names in data order
+    template <typename U>
+    std::vector<QString> get_names(Tag<U>&&) const
+    {
+      static_assert(has_type<U>, "Bad type for Abstract_Project_Interface_Imp<...>::get_names");
+      return csection<U>()->get_names(Tag<U>{});
+    }
+
+    // Data Interface
+    //------------------------------------------------------------
+    // Get the index of the data associated with the supplied id. This is the current position
+    // in the project's collection of data for this type of data. If the id is null or invalid,
+    // the returned index is equal to count().
+    template <typename U>
+    std::size_t get_index(ID<U> const& a_id) const
+    {
+      static_assert(has_type<U>, "Bad type for Abstract_Project_Interface_Imp<...>::get_index");
+      return csection<U>()->get_index(a_id);
+    }
+
+    // Get the name of the data associated with the supplied id. If the id is null or invalid,
+    // the returned name is empty, which names cannot be.
+    template <typename U>
+    QString get_name(ID<U> const& a_id) const
+    {
+      static_assert(has_type<U>, "Bad type for Abstract_Project_Interface_Imp<...>::get_name");
+      return csection<U>()->get_name(a_id);
+    }
+
+    // Data Editing Interface
+    //------------------------------------------------------------
+    // Attempt an undoable change to the name of the data associated with the supplied id. If
+    // the id is valid and the supplied value results in a change to the data, signals are emitted
+    // telling everything to update this name, and true is returned. If the id is null or
+    // invalid, nothing happens and false is returned. Success does not indicate that the name
+    // is set to what has been supplied, but that the name has changed.
+    template <typename U>
+    bool try_set_name(Signal_Source a_source, ID<U> const& a_id, QString const& a_name)
+    {
+      static_assert(has_type<U>, "Bad type for Abstract_Project_Interface_Imp<...>::try_set_name");
+      return section<U>()->try_set_name(a_source, a_id, a_name);
+    }
+
+    // Collection Editing Interface
+    //------------------------------------------------------------
+    // Undoable add a new object made using the default parameters. Returns the id of the new
+    // data.
+    template <typename U>
+    ID<U> add_default(Tag<U>&&, Signal_Source a_source)
+    {
+      static_assert(has_type<U>, "Bad type for Abstract_Project_Interface_Imp<...>::add_default");
+      return section<U>()->add_default(Tag<U>{}, a_source);
+    }
+
+    // Undoable add a new object using the supplied handle. The name will be modified if it is currently in
+    // use by another object. Return true if the operation resulted in an undoable command. If this handle
+    // is invalid or already in the data then nothing happens and returns false.
+    //virtual bool try_add(Signal_Source a_source, ID_Type const& a_id) = 0;
+
+    // Undoable remove object. Return true if the operation resulted in an undoable command. If this handle
+    // is invalid or already in the data then nothing happens and returns false. Handle data is not deleted
+    // until the last handle for it is deleted.
+    template <typename U>
+    bool try_remove(Signal_Source a_source, ID<U> const& a_id)
+    {
+      static_assert(has_type<U>, "Bad type for Abstract_Project_Interface_Imp<...>::try_remove");
+      return section<U>()->try_remove(a_source, a_id);
+    }
+
+    // Request that the editor for this file be opened or switched to.
+    template <typename U>
+    bool try_request_editor(Signal_Source a_source, ID<U> const& a_id)
+    {
+      static_assert(has_type<U>, "Bad type for Abstract_Project_Interface_Imp<...>::try_request_editor");
+      return csection<U>()->try_request_editor(a_source, a_id);
+    }
+
+    // Request that the focus change to this object.
+    template <typename U>
+    bool try_request_outliner(Signal_Source a_source, ID<U> const& a_id)
+    {
+      static_assert(has_type<U>, "Bad type for Abstract_Project_Interface_Imp<...>::try_request_outliner");
+      return csection<U>()->try_request_outliner(a_source, a_id);
+    }
+
+    // Member Interface
+    //------------------------------------------------------------
+    // Attempt to get the data value for the member at this index in the data associated with the
+    // supplied id. If the id is valid, the returned pair consists of true and the data value. If
+    // the id is null or invalid, the returned pair consists of false and a default constructed
+    // value.
+    template <std::size_t I, typename U>
+    std::pair<bool,Member_Value_Type<U,I>> try_get(Index_Tag<I>&&, ID<U> const& a_id) const
+    {
+      static_assert(has_type<U>, "Bad type for Abstract_Project_Interface_Imp<...>::try_get");
+      static_assert(has_member<U,I>, "Bad member index for Abstract_Project_Interface_Imp<...>::try_get");
+      return cmember<U,I>()->try_get(Index_Tag<I>{}, a_id);
+    }
+
+    // Attempt an undoable change to the data value for the member at this index in the data
+    // associated with the supplied id. If the id is valid and the supplied value results in a
+    // change to the data (e.g. does not compare the same as the current), signals are emitted
+    // telling everything to update this value, and true is returned. If the id is null or
+    // invalid, nothing happens and false is returned.
+    template <std::size_t I, typename U>
+    bool try_set(Index_Tag<I>&&, ID<U> const& a_id, Member_Value_Type<U,I> const& a_value) const
+    {
+      static_assert(has_type<U>, "Bad type for Abstract_Project_Interface_Imp<...>::try_set");
+      static_assert(has_member<U,I>, "Bad member index for Abstract_Project_Interface_Imp<...>::try_set");
+      return member<U,I>()->try_set(Index_Tag<I>{}, a_id, a_value);
     }
   };
 

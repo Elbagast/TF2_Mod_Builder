@@ -18,19 +18,17 @@ namespace sak
       std::cout << "-------------------------" << std::endl;
       std::cout << "Typestring = \"" << T::Typestring_Type::data() << "\"" << std::endl;
 
-      auto l_assb = a_apsb->get_signalbox<T>();
-
       auto a_ss = Signal_Source::System;
       auto a_id = ID<T>{};
 
-      l_assb->added(a_ss,a_id,0);
-      l_assb->removed(a_ss,a_id,0);
-      l_assb->moved(a_ss,a_id,0,1);
-      l_assb->changed_name(a_ss,a_id,0);
-      l_assb->changed_data(a_ss,a_id,0);
-      l_assb->changed_data_at(a_ss,a_id,0,0);
-      l_assb->requests_editor(a_ss,a_id,0);
-      l_assb->requests_editor(a_ss,a_id,0);
+      a_apsb->added(a_ss,a_id,0);
+      a_apsb->removed(a_ss,a_id,0);
+      a_apsb->moved(a_ss,a_id,0,1);
+      a_apsb->changed_name(a_ss,a_id,0);
+      a_apsb->changed_data(a_ss,a_id,0);
+      a_apsb->changed_data_at(a_ss,a_id,0,0);
+      a_apsb->requests_editor(a_ss,a_id,0);
+      a_apsb->requests_editor(a_ss,a_id,0);
 
       std::cout << "-------------------------" << std::endl;
     }
