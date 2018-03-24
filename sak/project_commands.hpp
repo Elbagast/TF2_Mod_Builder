@@ -371,6 +371,112 @@ namespace sak
     };
   }
 
+  //------------------------------------------------------------------------------------------------------------------------------------------------------
+
+  //---------------------------------------------------------------------------
+  // Project_Command_Removed<List, Index>
+  //---------------------------------------------------------------------------
+  // The supplied handle is to be removed from the data. This implementation
+  // assumes only the project collection references object of this type,
+  // meaning they can be removed without checking for other references to them.
+
+  template <std::size_t LI, typename...Args>
+  class Project_Command_Removed<flamingo::typelist<Args...>,LI> :
+      public Project_Command_Base<flamingo::typelist<Args...>,LI>
+  {
+    // Typedefs
+    //============================================================
+    using Inh = Project_Command_Base<flamingo::typelist<Args...>,LI>;
+    using Typelist_Type = flamingo::typelist<Args...>;
+    using Type = flamingo::typelist_at_t<Typelist_Type,LI>;
+    using Data_Type = Data<Type>;
+    using ID_Type = ID<Type>;
+    using Handle_Type = Handle<Type>;
+    using Tag_Type = Tag<Type>;
+
+  public:
+    // Special 6
+    //============================================================
+    Project_Command_Removed(Signal_Source a_source,
+                                Project_Handle_Data_Imp<Args...>& a_handle_data,
+                                Project_Signalbox_Data_Imp<Args...>& a_signalbox_data,
+                                Handle_Type const& a_handle) :
+      Inh{a_source, a_handle_data, a_signalbox_data, a_handle},
+      m_index{a_handle_data.index(a_handle.id())}
+    {
+    }
+
+    ~Project_Command_Removed() override = default;
+
+    Project_Command_Removed(Project_Command_Removed const&) = delete;
+    Project_Command_Removed& operator=(Project_Command_Removed const&) = delete;
+
+    Project_Command_Removed(Project_Command_Removed &&) = default;
+    Project_Command_Removed& operator=(Project_Command_Removed &&) = default;
+
+  protected:
+    // Virtuals
+    //============================================================
+    void do_execute() override
+    {
+      // The handle must be valid.
+      assert(cget_handle());
+      // It must be present in the data.
+      assert(cget_handle_data().has_handle(cget_handle()) == true);
+      // It must be at the index.
+      assert(cget_handle_data().get_at(Tag_Type{}, m_index) == cget_handle().id());
+
+      auto l_result = get_handle_data().remove(Tag_Type{}, m_index);
+      assert(l_result);
+
+      // It must not be present in the data.
+      assert(cget_handle_data().has_handle(cget_handle()) == false);
+
+      // Signal the change
+      get_signalbox_data().removed(this->source(),cget_handle().id(),m_index);
+    }
+    void do_unexecute() override
+    {
+      // The handle must be valid.
+      assert(cget_handle());
+      // It must not be present in the data.
+      assert(cget_handle_data().has_handle(cget_handle()) == false);
+
+      auto l_index = get_handle_data().add(cget_handle());
+      assert(m_index == l_index);
+
+      // It must be present in the data.
+      assert(cget_handle_data().has_handle(cget_handle()) == true);
+      // It must be at the index.
+      assert(cget_handle_data().get_at(Tag_Type{}, m_index) == cget_handle().id());
+
+      // Signal the change
+      get_signalbox_data().added(this->source(),cget_handle().id(),m_index);
+    }
+
+  private:
+
+    // Data Members
+    //============================================================
+    std::size_t m_index;
+  };
+
+  //------------------------------------------------------------------------------------------------------------------------------------------------------
+
+  template <std::size_t I, typename...Args>
+  std::unique_ptr<Abstract_Command> make_command_removed(Signal_Source a_source,
+                                                         Project_Handle_Data_Imp<Args...>& a_handle_data,
+                                                         Project_Signalbox_Data_Imp<Args...>& a_signalbox_data,
+                                                         Handle<flamingo::typelist_at_t<flamingo::typelist<Args...>,I>> const& a_handle)
+  {
+    return std::unique_ptr<Abstract_Command>
+    {
+      std::make_unique<Project_Command_Removed<flamingo::typelist<Args...>,I>>(a_source,
+                                                                               a_handle_data,
+                                                                               a_signalbox_data,
+                                                                               a_handle).release()
+    };
+  }
 } // namespace sak
 
 #endif // SAK_PROJECT_COMMANDS_HPP

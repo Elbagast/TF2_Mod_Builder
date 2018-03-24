@@ -57,6 +57,16 @@ void sak::testing::test_project_interface()
   // back to here :)
   //l_api->has(ID<A>{});
 
+  auto l_id2 = l_api->add_default(Tag<File_Definition>(), Signal_Source::User);
+  assert(l_api->count(Tag<File_Definition>{}) == 2);
+
+  l_api->try_remove(Signal_Source::User, l_id2);
+  assert(l_api->count(Tag<File_Definition>{}) == 1);
+  l_api->undo();
+  assert(l_api->count(Tag<File_Definition>{}) == 2);
+  l_api->redo();
+  assert(l_api->count(Tag<File_Definition>{}) == 1);
+
 
   std::cout << "==============================" << std::endl;
 }

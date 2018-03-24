@@ -701,15 +701,28 @@ template <std::size_t LI, std::size_t LS, typename...Args>
 bool sak::Section_Interface_Imp<flamingo::typelist<Args...>,LI,LS>::try_remove(Signal_Source a_source, ID_Type const& a_id)
 {
   // ASSUMING NOTHING HOLDS HANDLES AS MEMBERS
-  //TODO
-  return false;
+
+  // If the data is valid and currently in the data
+  if(a_id && cget_handle_data().has(a_id))
+  {
+    // Make a command using this data
+    get_command_history().add_execute( make_command_removed<LI>(a_source,
+                                                                get_handle_data(),
+                                                                get_signalbox_data(),
+                                                                cget_handle_data().get_handle(a_id)) );
+    return true;
+  }
+  else
+  {
+    return false;
+  }
 }
 
 // Request that the editor for this file be opened or switched to.
 template <std::size_t LI, std::size_t LS, typename...Args>
 bool sak::Section_Interface_Imp<flamingo::typelist<Args...>,LI,LS>::try_request_editor(Signal_Source a_source, ID_Type const& a_id)
 {
-  // If the data is valid and the not equal to the current name
+  // If the data is valid and currently in the data
   if(a_id && cget_handle_data().has(a_id))
   {
     get_signalbox_data().requests_editor(a_source, a_id, cget_handle_data().index(a_id));
