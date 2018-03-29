@@ -1,482 +1,276 @@
 ﻿#ifndef SAK_PROJECT_COMMANDS_HPP
 #define SAK_PROJECT_COMMANDS_HPP
 
+// This Header's Forward Header
+//============================================================
 #ifndef SAK_PROJECT_COMMANDS_FWD_HPP
 #include "project_commands_fwd.hpp"
 #endif
 
+// Other Forwarding Headers
+//============================================================
+#ifndef SAK_ABSTRACT_SIGNAL_FWD_HPP
+#include "abstract_signal_fwd.hpp"
+#endif
+
+#ifndef SAK_OBSERVER_MANAGER_FWD_HPP
+#include "observer_manager_fwd.hpp"
+#endif
+
+#ifndef SAK_ENTITY_MANAGER_FWD_HPP
+#include "entity_manager_fwd.hpp"
+#endif
+
+// Headers
+//============================================================
 #ifndef SAK_ABSTRACT_COMMAND_HPP
 #include "abstract_command.hpp"
 #endif
 
-#ifndef SAK_CLASS_DEFINITIONS_HPP
-#include "class_definitions.hpp"
+#ifndef SAK_ENTITY_HANDLE_HPP
+#include "entity_handle.hpp"
 #endif
 
-#ifndef SAK_TAG_HPP
-#include "tag.hpp"
-#endif
+// Standard Headers
+//============================================================
+//#ifndef INCLUDE_STD_VECTOR
+//#define INCLUDE_STD_VECTOR
+//#include <vector>
+//#endif
 
-#ifndef SAK_ID_HPP
-#include "id.hpp"
-#endif
-
-#ifndef SAK_DATA_HPP
-#include "data.hpp"
-#endif
-
-#ifndef SAK_HANDLE_HPP
-#include "handle.hpp"
-#endif
-
-#ifndef SAK_SIGNAL_SOURCE_HPP
-#include "signal_source.hpp"
-#endif
-
-#ifndef SAK_PROJECT_HANDLE_DATA_HPP
-#include "project_handle_data.hpp"
-#endif
-
-#ifndef SAK_PROJECT_SIGNALBOX_DATA_HPP
-#include "project_signalbox_data.hpp"
-#endif
-
-#ifndef FLAMINGO_TYPELIST_HPP
-#include <flamingo/typelist.hpp>
-#endif
-
-#ifndef INCLUDE_STD_CASSERT
-#define INCLUDE_STD_CASSERT
-#include <cassert>
+// Qt Headers
+//============================================================
+#ifndef INCLUDE_STD_QSTRING
+#define INCLUDE_STD_QSTRING
+#include <QString>
 #endif
 
 namespace sak
 {
   //---------------------------------------------------------------------------
-  // Project_Command_Base<List, Index>
+  // Abstract_Signalling_Command
   //---------------------------------------------------------------------------
-  // Base class for implementing commands relating to a given handle type. It
-  // implements the common data that each command will need.
+  // Abstract base class for commands that will hold some observers to notify
+  // with signals. It's an implementation aid.
 
-  template <std::size_t LI, typename...Args>
-  class Project_Command_Base<flamingo::typelist<Args...>,LI> :
+  class Abstract_Signalling_Command :
       public Abstract_Command
   {
-    // Typedefs
+  private:
+    // Data Members
     //============================================================
-    using Inh = Abstract_Command;
-    using Typelist_Type = flamingo::typelist<Args...>;
-    using Type = flamingo::typelist_at_t<Typelist_Type,LI>;
-    using Data_Type = Data<Type>;
-    using ID_Type = ID<Type>;
-    using Handle_Type = Handle<Type>;
-    using Tag_Type = Tag<Type>;
+    Observer_Manager& m_observers;
 
   public:
     // Special 6
     //============================================================
-    Project_Command_Base(Signal_Source a_source, Project_Handle_Data_Imp<Args...>& a_handle_data, Project_Signalbox_Data_Imp<Args...>& a_signalbox_data, Handle_Type const& a_handle) :
-      Inh{a_source},
-      m_handle_data{a_handle_data},
-      m_signalbox_data{a_signalbox_data},
-      m_handle{a_handle}
-    {
-      // the supplied handle had better be valid.
-      assert(m_handle);
-    }
+    Abstract_Signalling_Command(Signal_Source a_source, Observer_Manager& a_observers);
+    ~Abstract_Signalling_Command() override = 0;
 
-    ~Project_Command_Base() override = default;
+    // NO COPYING
+    Abstract_Signalling_Command(Abstract_Signalling_Command const& a_other) = delete;
+    Abstract_Signalling_Command& operator=(Abstract_Signalling_Command const& a_other) = delete;
 
-    Project_Command_Base(Project_Command_Base const&) = delete;
-    Project_Command_Base& operator=(Project_Command_Base const&) = delete;
-
-    Project_Command_Base(Project_Command_Base &&) = default;
-    Project_Command_Base& operator=(Project_Command_Base &&) = default;
+    // NO MOVING
+    Abstract_Signalling_Command(Abstract_Signalling_Command && a_other) = delete;
+    Abstract_Signalling_Command& operator=(Abstract_Signalling_Command && a_other) = delete;
 
   protected:
+    // Interface
+    //============================================================
+    using Abstract_Command::source;
+
+    // Send a signal to the held observers.
+    void send(Abstract_Signal const& a_signal);
+
     // Virtuals
     //============================================================
     void do_execute() override = 0;
     void do_unexecute() override = 0;
-
-    // Internal Interface
-    //============================================================
-    Project_Handle_Data_Imp<Args...>& get_handle_data()
-    {
-      return m_handle_data;
-    }
-
-    Project_Handle_Data_Imp<Args...> const & cget_handle_data() const
-    {
-      return m_handle_data;
-    }
-
-    Project_Signalbox_Data_Imp<Args...>& get_signalbox_data()
-    {
-      return m_signalbox_data;
-    }
-
-    Project_Signalbox_Data_Imp<Args...> const & cget_signalbox_data() const
-    {
-      return m_signalbox_data;
-    }
-
-    Handle_Type& get_handle()
-    {
-      return m_handle;
-    }
-
-    Handle_Type const & cget_handle() const
-    {
-      return m_handle;
-    }
-
-  private:
-    // Data Members
-    //============================================================
-    Project_Handle_Data_Imp<Args...>& m_handle_data;
-    Project_Signalbox_Data_Imp<Args...>& m_signalbox_data;
-    Handle_Type m_handle;
   };
 
   //------------------------------------------------------------------------------------------------------------------------------------------------------
 
   //---------------------------------------------------------------------------
-  // Project_Command_Change_Name<List, Index>
+  // Abstract_Entity_Signalling_Command
   //---------------------------------------------------------------------------
-  // Base class for implementing commands relating to a given handle type. It
-  // implements the common data that each command will need.
-  template <std::size_t LI, typename...Args>
-  class Project_Command_Change_Name<flamingo::typelist<Args...>,LI> :
-      public Project_Command_Base<flamingo::typelist<Args...>,LI>
-  {
-    // Typedefs
-    //============================================================
-    using Inh = Project_Command_Base<flamingo::typelist<Args...>,LI>;
-    using Typelist_Type = flamingo::typelist<Args...>;
-    using Type = flamingo::typelist_at_t<Typelist_Type,LI>;
-    using Data_Type = Data<Type>;
-    using ID_Type = ID<Type>;
-    using Handle_Type = Handle<Type>;
-    using Tag_Type = Tag<Type>;
+  // Abstract base class for commands that will hold some observers to notify
+  // with signals. It's an implementation aid.
 
+  class Abstract_Entity_Signalling_Command :
+      public Abstract_Signalling_Command
+  {
+  private:
+    // Data Members
+    //============================================================
+    Entity_Handle m_handle;
   public:
     // Special 6
     //============================================================
-    Project_Command_Change_Name(Signal_Source a_source,
-                                Project_Handle_Data_Imp<Args...>& a_handle_data,
-                                Project_Signalbox_Data_Imp<Args...>& a_signalbox_data,
-                                Handle_Type const& a_handle,
-                                QString const& a_name) :
-      Inh{a_source, a_handle_data, a_signalbox_data, a_handle},
-      m_old_name{cget_handle()->cname()},
-      m_new_name{a_name}
-    {
-      // The supplied names had better have been vetted already.
-      assert(m_old_name != m_new_name);
-      // old name is in the data
-      assert(cget_handle_data().has_name(m_old_name));
-      // new name is not in the data
-      assert(!cget_handle_data().has_name(m_new_name));
-    }
+    Abstract_Entity_Signalling_Command(Signal_Source a_source,
+                                       Observer_Manager& a_observers,
+                                       Entity_Handle const& a_handle);
+    ~Abstract_Entity_Signalling_Command() override = 0;
 
-    ~Project_Command_Change_Name() override = default;
+    // NO COPYING
+    Abstract_Entity_Signalling_Command(Abstract_Entity_Signalling_Command const& a_other) = delete;
+    Abstract_Entity_Signalling_Command& operator=(Abstract_Entity_Signalling_Command const& a_other) = delete;
 
-    Project_Command_Change_Name(Project_Command_Change_Name const&) = delete;
-    Project_Command_Change_Name& operator=(Project_Command_Change_Name const&) = delete;
+    // NO MOVING
+    Abstract_Entity_Signalling_Command(Abstract_Entity_Signalling_Command && a_other) = delete;
+    Abstract_Entity_Signalling_Command& operator=(Abstract_Entity_Signalling_Command && a_other) = delete;
 
-    Project_Command_Change_Name(Project_Command_Change_Name &&) = default;
-    Project_Command_Change_Name& operator=(Project_Command_Change_Name &&) = default;
+  protected:
+    // Interface
+    //============================================================
+    using Abstract_Signalling_Command::source;
+    using Abstract_Signalling_Command::send;
+
+    // Access the held handle.
+    Entity_Handle& handle();
+    Entity_Handle const& chandle() const;
+
+    Entity_ID id() const;
+
+    // Virtuals
+    //============================================================
+    void do_execute() override = 0;
+    void do_unexecute() override = 0;
+  };
+
+  //------------------------------------------------------------------------------------------------------------------------------------------------------
+
+  //---------------------------------------------------------------------------
+  // Command_Entity_Add
+  //---------------------------------------------------------------------------
+
+  class Command_Entity_Add :
+      public Abstract_Entity_Signalling_Command
+  {
+  private:
+    // Data Members
+    //============================================================
+    Entity_Manager& m_entity_manager;
+
+  public:
+    // Interface
+    //============================================================
+    // Determine whether a command can be issued with these arguments. Returns
+    // true if the given handle is not found in the given entity vector.
+    static bool valid_arguments(Entity_Handle const& a_handle, Entity_Manager const& a_entity_manager);
+
+    // Special 6
+    //============================================================
+    Command_Entity_Add(Signal_Source a_source,
+                       Observer_Manager& a_observers,
+                       Entity_Handle const& a_handle,
+                       Entity_Manager& a_entity_manager);
+    ~Command_Entity_Add() override final;
+
+    // NO COPYING
+    Command_Entity_Add(Command_Entity_Add const& a_other) = delete;
+    Command_Entity_Add& operator=(Command_Entity_Add const& a_other) = delete;
+
+    // NO MOVING
+    Command_Entity_Add(Command_Entity_Add && a_other) = delete;
+    Command_Entity_Add& operator=(Command_Entity_Add && a_other) = delete;
 
   protected:
     // Virtuals
     //============================================================
-    void do_execute() override final
-    {
-      // The handle had better still be valid.
-      assert(cget_handle_data().has_handle(cget_handle()));
+    void do_execute() override final;
+    void do_unexecute() override final;
+  };
 
-      // old name is in the data
-      assert(cget_handle_data().has_name(m_old_name));
-      // new name is not in the data
-      assert(!cget_handle_data().has_name(m_new_name));
+  //------------------------------------------------------------------------------------------------------------------------------------------------------
 
-      get_handle()->name() = m_new_name;
+  //---------------------------------------------------------------------------
+  // Command_Entity_Remove
+  //---------------------------------------------------------------------------
 
-      do_signal();
-
-      // old name is not in the data
-      assert(!cget_handle_data().has_name(m_old_name));
-      // new name is in the data
-      assert(cget_handle_data().has_name(m_new_name));
-    }
-    void do_unexecute() override final
-    {
-      // The handle had better still be valid.
-      assert(cget_handle_data().has_handle(cget_handle()));
-
-      // old name is not in the data
-      assert(!cget_handle_data().has_name(m_old_name));
-      // new name is in the data
-      assert(cget_handle_data().has_name(m_new_name));
-
-      get_handle()->name() = m_old_name;
-
-      do_signal();
-
-      // old name is in the data
-      assert(cget_handle_data().has_name(m_old_name));
-      // new name is not in the data
-      assert(!cget_handle_data().has_name(m_new_name));
-    }
-
+  class Command_Entity_Remove :
+      public Abstract_Entity_Signalling_Command
+  {
   private:
-    void do_signal()
-    {
-      get_signalbox_data().changed_name(this->source(),
-                                        cget_handle().id(),
-                                        cget_handle_data().index(cget_handle().id()));
-    }
+    // Data Members
+    //============================================================
+    Entity_Manager& m_entity_manager;
+  public:
+    // Interface
+    //============================================================
+    // Determine whether a command can be issued with these arguments. Returns
+    // true if the given handle is found in the given entity vector.
+    static bool valid_arguments(Entity_Handle const& a_handle, Entity_Manager const& a_entity_manager);
 
+    // Special 6
+    //============================================================
+    Command_Entity_Remove(Signal_Source a_source,
+                          Observer_Manager& a_observers,
+                          Entity_Handle const& a_handle,
+                          Entity_Manager& a_entity_manager);
+    ~Command_Entity_Remove() override final;
+
+    // NO COPYING
+    Command_Entity_Remove(Command_Entity_Remove const& a_other) = delete;
+    Command_Entity_Remove& operator=(Command_Entity_Remove const& a_other) = delete;
+
+    // NO MOVING
+    Command_Entity_Remove(Command_Entity_Remove && a_other) = delete;
+    Command_Entity_Remove& operator=(Command_Entity_Remove && a_other) = delete;
+
+  protected:
+    // Virtuals
+    //============================================================
+    void do_execute() override final;
+    void do_unexecute() override final;
+  };
+
+  //------------------------------------------------------------------------------------------------------------------------------------------------------
+
+  //---------------------------------------------------------------------------
+  // Command_Entity_Name_Change
+  //---------------------------------------------------------------------------
+
+  class Command_Entity_Name_Change :
+      public Abstract_Entity_Signalling_Command
+  {
+  private:
     // Data Members
     //============================================================
     QString m_old_name;
     QString m_new_name;
-  };
-
-  //------------------------------------------------------------------------------------------------------------------------------------------------------
-
-  template <std::size_t I, typename...Args>
-  std::unique_ptr<Abstract_Command> make_command_change_name(Signal_Source a_source,
-                                                             Project_Handle_Data_Imp<Args...>& a_handle_data,
-                                                             Project_Signalbox_Data_Imp<Args...>& a_signalbox_data,
-                                                             Handle<flamingo::typelist_at_t<flamingo::typelist<Args...>,I>> const& a_handle,
-                                                             QString const& a_name)
-  {
-    return std::unique_ptr<Abstract_Command>
-    {
-      std::make_unique<Project_Command_Change_Name<flamingo::typelist<Args...>,I>>(a_source,
-                                                                                   a_handle_data,
-                                                                                   a_signalbox_data,
-                                                                                   a_handle,
-                                                                                   a_name).release()
-    };
-  }
-
-  //------------------------------------------------------------------------------------------------------------------------------------------------------
-
-  //---------------------------------------------------------------------------
-  // Project_Command_Added<List, Index>
-  //---------------------------------------------------------------------------
-  // The supplied handle is to be added to the data. It should not be referenced
-  // by anything at the point of this command's construction, and if the command
-  // is undone it is assumed that all changes to the data that resulted in
-  // references to this handle have also been undone.
-
-  template <std::size_t LI, typename...Args>
-  class Project_Command_Added<flamingo::typelist<Args...>,LI> :
-      public Project_Command_Base<flamingo::typelist<Args...>,LI>
-  {
-    // Typedefs
-    //============================================================
-    using Inh = Project_Command_Base<flamingo::typelist<Args...>,LI>;
-    using Typelist_Type = flamingo::typelist<Args...>;
-    using Type = flamingo::typelist_at_t<Typelist_Type,LI>;
-    using Data_Type = Data<Type>;
-    using ID_Type = ID<Type>;
-    using Handle_Type = Handle<Type>;
-    using Tag_Type = Tag<Type>;
-
   public:
+    // Interface
+    //============================================================
+    // Determine whether a command can be issued with these arguments. Returns
+    // true if the name is not the same as that in the handle
+    static bool valid_arguments(Entity_Handle const& a_handle, QString const& a_name);
+
     // Special 6
     //============================================================
-    Project_Command_Added(Signal_Source a_source,
-                                Project_Handle_Data_Imp<Args...>& a_handle_data,
-                                Project_Signalbox_Data_Imp<Args...>& a_signalbox_data,
-                                Handle_Type const& a_handle) :
-      Inh{a_source, a_handle_data, a_signalbox_data, a_handle},
-      m_index{a_handle_data.future_index(Tag_Type{},a_handle->cname())} // The postition the handle will be inserted at and removed from
-    {
-    }
+    Command_Entity_Name_Change(Signal_Source a_source,
+                               Observer_Manager& a_observers,
+                               Entity_Handle const& a_handle,
+                               QString const& a_name);
+    ~Command_Entity_Name_Change() override final;
 
-    ~Project_Command_Added() override = default;
+    // NO COPYING
+    Command_Entity_Name_Change(Command_Entity_Name_Change const& a_other) = delete;
+    Command_Entity_Name_Change& operator=(Command_Entity_Name_Change const& a_other) = delete;
 
-    Project_Command_Added(Project_Command_Added const&) = delete;
-    Project_Command_Added& operator=(Project_Command_Added const&) = delete;
-
-    Project_Command_Added(Project_Command_Added &&) = default;
-    Project_Command_Added& operator=(Project_Command_Added &&) = default;
+    // NO MOVING
+    Command_Entity_Name_Change(Command_Entity_Name_Change && a_other) = delete;
+    Command_Entity_Name_Change& operator=(Command_Entity_Name_Change && a_other) = delete;
 
   protected:
     // Virtuals
     //============================================================
-    void do_execute() override final
-    {
-      // The handle must be valid.
-      assert(cget_handle());
-      // It must not be present in the data.
-      assert(cget_handle_data().has_handle(cget_handle()) == false);
-
-      auto l_index = get_handle_data().add(cget_handle());
-      assert(m_index == l_index);
-
-      // It must be present in the data.
-      assert(cget_handle_data().has_handle(cget_handle()) == true);
-      // It must be at the index.
-      assert(cget_handle_data().get_at(Tag_Type{}, m_index) == cget_handle().id());
-
-      // Signal the change
-      get_signalbox_data().added(this->source(),cget_handle().id(),m_index);
-    }
-    void do_unexecute() override final
-    {
-      // The handle must be valid.
-      assert(cget_handle());
-      // It must be present in the data.
-      assert(cget_handle_data().has_handle(cget_handle()) == true);
-      // It must be at the index.
-      assert(cget_handle_data().get_at(Tag_Type{}, m_index) == cget_handle().id());
-
-      auto l_result = get_handle_data().remove(Tag_Type{}, m_index);
-      assert(l_result);
-
-      // It must not be present in the data.
-      assert(cget_handle_data().has_handle(cget_handle()) == false);
-
-      // Signal the change
-      get_signalbox_data().removed(this->source(),cget_handle().id(),m_index);
-    }
-
-  private:
-
-    // Data Members
-    //============================================================
-    std::size_t m_index;
+    void do_execute() override final;
+    void do_unexecute() override final;
   };
 
   //------------------------------------------------------------------------------------------------------------------------------------------------------
 
-  template <std::size_t I, typename...Args>
-  std::unique_ptr<Abstract_Command> make_command_added(Signal_Source a_source,
-                                                       Project_Handle_Data_Imp<Args...>& a_handle_data,
-                                                       Project_Signalbox_Data_Imp<Args...>& a_signalbox_data,
-                                                       Handle<flamingo::typelist_at_t<flamingo::typelist<Args...>,I>> const& a_handle)
-  {
-    return std::unique_ptr<Abstract_Command>
-    {
-      std::make_unique<Project_Command_Added<flamingo::typelist<Args...>,I>>(a_source,
-                                                                             a_handle_data,
-                                                                             a_signalbox_data,
-                                                                             a_handle).release()
-    };
-  }
-
-  //------------------------------------------------------------------------------------------------------------------------------------------------------
-
-  //---------------------------------------------------------------------------
-  // Project_Command_Removed<List, Index>
-  //---------------------------------------------------------------------------
-  // The supplied handle is to be removed from the data. This implementation
-  // assumes only the project collection references object of this type,
-  // meaning they can be removed without checking for other references to them.
-
-  template <std::size_t LI, typename...Args>
-  class Project_Command_Removed<flamingo::typelist<Args...>,LI> :
-      public Project_Command_Base<flamingo::typelist<Args...>,LI>
-  {
-    // Typedefs
-    //============================================================
-    using Inh = Project_Command_Base<flamingo::typelist<Args...>,LI>;
-    using Typelist_Type = flamingo::typelist<Args...>;
-    using Type = flamingo::typelist_at_t<Typelist_Type,LI>;
-    using Data_Type = Data<Type>;
-    using ID_Type = ID<Type>;
-    using Handle_Type = Handle<Type>;
-    using Tag_Type = Tag<Type>;
-
-  public:
-    // Special 6
-    //============================================================
-    Project_Command_Removed(Signal_Source a_source,
-                                Project_Handle_Data_Imp<Args...>& a_handle_data,
-                                Project_Signalbox_Data_Imp<Args...>& a_signalbox_data,
-                                Handle_Type const& a_handle) :
-      Inh{a_source, a_handle_data, a_signalbox_data, a_handle},
-      m_index{a_handle_data.index(a_handle.id())}
-    {
-    }
-
-    ~Project_Command_Removed() override = default;
-
-    Project_Command_Removed(Project_Command_Removed const&) = delete;
-    Project_Command_Removed& operator=(Project_Command_Removed const&) = delete;
-
-    Project_Command_Removed(Project_Command_Removed &&) = default;
-    Project_Command_Removed& operator=(Project_Command_Removed &&) = default;
-
-  protected:
-    // Virtuals
-    //============================================================
-    void do_execute() override
-    {
-      // The handle must be valid.
-      assert(cget_handle());
-      // It must be present in the data.
-      assert(cget_handle_data().has_handle(cget_handle()) == true);
-      // It must be at the index.
-      assert(cget_handle_data().get_at(Tag_Type{}, m_index) == cget_handle().id());
-
-      auto l_result = get_handle_data().remove(Tag_Type{}, m_index);
-      assert(l_result);
-
-      // It must not be present in the data.
-      assert(cget_handle_data().has_handle(cget_handle()) == false);
-
-      // Signal the change
-      get_signalbox_data().removed(this->source(),cget_handle().id(),m_index);
-    }
-    void do_unexecute() override
-    {
-      // The handle must be valid.
-      assert(cget_handle());
-      // It must not be present in the data.
-      assert(cget_handle_data().has_handle(cget_handle()) == false);
-
-      auto l_index = get_handle_data().add(cget_handle());
-      assert(m_index == l_index);
-
-      // It must be present in the data.
-      assert(cget_handle_data().has_handle(cget_handle()) == true);
-      // It must be at the index.
-      assert(cget_handle_data().get_at(Tag_Type{}, m_index) == cget_handle().id());
-
-      // Signal the change
-      get_signalbox_data().added(this->source(),cget_handle().id(),m_index);
-    }
-
-  private:
-
-    // Data Members
-    //============================================================
-    std::size_t m_index;
-  };
-
-  //------------------------------------------------------------------------------------------------------------------------------------------------------
-
-  template <std::size_t I, typename...Args>
-  std::unique_ptr<Abstract_Command> make_command_removed(Signal_Source a_source,
-                                                         Project_Handle_Data_Imp<Args...>& a_handle_data,
-                                                         Project_Signalbox_Data_Imp<Args...>& a_signalbox_data,
-                                                         Handle<flamingo::typelist_at_t<flamingo::typelist<Args...>,I>> const& a_handle)
-  {
-    return std::unique_ptr<Abstract_Command>
-    {
-      std::make_unique<Project_Command_Removed<flamingo::typelist<Args...>,I>>(a_source,
-                                                                               a_handle_data,
-                                                                               a_signalbox_data,
-                                                                               a_handle).release()
-    };
-  }
-} // namespace sak
+}
 
 #endif // SAK_PROJECT_COMMANDS_HPP

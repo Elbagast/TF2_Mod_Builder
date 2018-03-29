@@ -76,12 +76,12 @@ bool sak::Command_History::has_commands() const
 // How many times can undo() be called?
 std::size_t sak::Command_History::undo_count() const
 {
-  return std::distance(m_container.cbegin(), const_iterator(m_position));
+  return std::distance(m_container.cbegin(), Const_Iterator(m_position));
 }
 // How many times can redo() be called?
 std::size_t sak::Command_History::redo_count() const
 {
-  return std::distance(const_iterator(m_position), m_container.cend());
+  return std::distance(Const_Iterator(m_position), m_container.cend());
 }
 
 // Call unexecute() in the current command and step back one in the history.

@@ -1,7 +1,7 @@
 ﻿#ifndef SAK_TESTING_DUMMY_PROJECT_SIGNALBOX_HPP
 #define SAK_TESTING_DUMMY_PROJECT_SIGNALBOX_HPP
 
-#include <sak/abstract_project_signalbox.hpp>
+#include <sak/abstract_signalbox.hpp>
 #include <sak/id.hpp>
 #include <sak/signal_source.hpp>
 
@@ -142,7 +142,7 @@ namespace sak
   // For the last type in the list
   template <std::size_t End, typename...Args>
   class Dummy_Section_Signalbox_Imp<flamingo::typelist<Args...>,End,End> :
-      public Abstract_Project_Signalbox_Imp<Args...>
+      public abstract_Signalbox_Imp<Args...>
   {
   public:
     // Special 6
@@ -176,9 +176,9 @@ namespace sak
   //------------------------------------------------------------------------------------------------------------------------------------------------------
 
   template <typename...Args>
-  std::unique_ptr<Abstract_Project_Signalbox_Imp<Args...>> make_dummy_project_signalbox()
+  std::unique_ptr<Abstract_Signalbox_Imp<Args...>> make_dummy_project_signalbox()
   {
-    return std::unique_ptr<Abstract_Project_Signalbox_Imp<Args...>>{ std::make_unique<Dummy_Project_Signalbox_Imp<Args...>>().release() };
+    return std::unique_ptr<Abstract_Signalbox_Imp<Args...>>{ std::make_unique<Dummy_Project_Signalbox_Imp<Args...>>().release() };
   }
 }
 

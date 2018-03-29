@@ -77,66 +77,70 @@ include($$PWD/../library_flamingo.pri)
 #==============================
 
 SOURCES += \
-    class_definitions.cpp \
-    data.cpp \
-    data_definitions.cpp \
     gui/line_edit.cpp \
     abstract_member_edit_widget.cpp \
-    handle.cpp \
-    handle_factory.cpp \
-    tag.cpp \
-    abstract_project_signalbox.cpp \
     name_utilities.cpp \
-    abstract_project_interface.cpp \
     command_history.cpp \
     abstract_command.cpp \
-    project_signalbox_data.cpp \
-    signal_source.cpp \
-    project_handle_factory.cpp \
-    project_handle_data.cpp \
-    id.cpp \
-    project_interface.cpp \
-    project_commands.cpp
+    entity_id.cpp \
+    project.cpp \
+    variant.cpp \
+    entity_manager.cpp \
+    entity_handle.cpp \
+    entity.cpp \
+    entity_factory.cpp \
+    abstract_signal.cpp \
+    abstract_entity_maker.cpp \
+    observer_manager.cpp \
+    abstract_observer.cpp \
+    project_commands.cpp \
+    entity_added_signal.cpp \
+    abstract_entity_signal.cpp \
+    entity_removed_signal.cpp \
+    entity_outliner_request_signal.cpp \
+    entity_editor_request_signal.cpp \
+    entity_name_changed_signal.cpp
 
 HEADERS  += \
-    class_definitions.hpp \
-    class_definitions_fwd.hpp \
-    data.hpp \
-    data_definitions.hpp \
-    data_definitions_fwd.hpp \
-    data_fwd.hpp \
     gui/line_edit.hpp \
     abstract_member_edit_widget.hpp \
     abstract_member_edit_widget_fwd.hpp \
-    handle.hpp \
-    handle_factory.hpp \
-    handle_factory_fwd.hpp \
-    handle_fwd.hpp \
-    tag.hpp \
-    tag_fwd.hpp \
-    abstract_project_signalbox.hpp \
-    abstract_project_signalbox_fwd.hpp \
     name_utilities.hpp \
-    abstract_project_interface.hpp \
-    abstract_project_interface_fwd.hpp \
     command_history.hpp \
     command_history_fwd.hpp \
     abstract_command.hpp \
     abstract_command_fwd.hpp \
-    project_signalbox_data.hpp \
-    project_signalbox_data_fwd.hpp \
-    signal_source.hpp \
-    signal_source_fwd.hpp \
-    project_handle_factory.hpp \
-    project_handle_factory_fwd.hpp \
-    project_handle_data.hpp \
-    project_handle_data_fwd.hpp \
-    id.hpp \
-    id_fwd.hpp \
-    project_interface.hpp \
-    project_interface_fwd.hpp \
+    entity_id.hpp \
+    entity_id_fwd.hpp \
+    project.hpp \
+    project_fwd.hpp \
+    variant.hpp \
+    variant_fwd.hpp \
+    entity_manager.hpp \
+    entity_handle.hpp \
+    entity_handle_fwd.hpp \
+    entity.hpp \
+    entity_fwd.hpp \
+    entity_manager_fwd.hpp \
+    entity_factory.hpp \
+    abstract_signal.hpp \
+    abstract_signal_fwd.hpp \
+    entity_factory_fwd.hpp \
+    abstract_entity_maker.hpp \
+    abstract_entity_maker_fwd.hpp \
+    abstract_observer.hpp \
+    abstract_observer_fwd.hpp \
+    observer_manager.hpp \
+    observer_manager_fwd.hpp \
     project_commands.hpp \
-    project_commands_fwd.hpp
+    project_commands_fwd.hpp \
+    entity_added_signal.hpp \
+    abstract_entity_signal.hpp \
+    abstract_entity_signal_fwd.hpp \
+    entity_removed_signal.hpp \
+    entity_outliner_request_signal.hpp \
+    entity_editor_request_signal.hpp \
+    entity_name_changed_signal.hpp
 
 FORMS += \
 

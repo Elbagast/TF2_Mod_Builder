@@ -5,8 +5,8 @@
 #include "abstract_command_fwd.hpp"
 #endif
 
-#ifndef SAK_SIGNAL_SOURCE_HPP
-#include "signal_source.hpp"
+#ifndef SAK_ABSTRACT_SIGNAL_FWD_HPP
+#include "abstract_signal_fwd.hpp"
 #endif
 
 #ifndef INCLUDE_STD_MEMORY
@@ -25,11 +25,27 @@ namespace sak
 
   class Abstract_Command
   {
+  private:
+    // Data Members
+    //============================================================
+    enum class State;
+
+    State m_state;
+    Signal_Source m_source;
+
   public:
     // Special 6
     //============================================================
     explicit Abstract_Command(Signal_Source a_source);
     virtual ~Abstract_Command() = 0;
+
+    // NO COPYING
+    Abstract_Command(Abstract_Command const& a_other) = delete;
+    Abstract_Command& operator=(Abstract_Command const& a_other) = delete;
+
+    // NO MOVING
+    Abstract_Command(Abstract_Command && a_other) = delete;
+    Abstract_Command& operator=(Abstract_Command && a_other) = delete;
 
     // Interface
     //============================================================
@@ -60,13 +76,6 @@ namespace sak
 
     Signal_Source source() const;
 
-  private:
-    // Data Members
-    //============================================================
-    enum class State;
-
-    State m_state;
-    Signal_Source m_source;
   };
 } // namespace sak
 

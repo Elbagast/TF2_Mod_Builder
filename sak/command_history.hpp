@@ -45,6 +45,16 @@ namespace sak
 
   class Command_History
   {
+  private:
+    using Container_Type = std::list < std::unique_ptr<Abstract_Command> >;
+    using Iterator = Container_Type::iterator;
+    using Const_Iterator = Container_Type::const_iterator;
+
+    // Data Members
+    //============================================================
+    Container_Type m_container;
+    Iterator m_position;
+
   public:
     // Special 6
     //============================================================
@@ -106,17 +116,6 @@ namespace sak
 
     // Clear all stored commands.
     void clear();
-
-  private:
-    using container_type = std::list < std::unique_ptr<Abstract_Command> >;
-    using iterator = container_type::iterator;
-    using const_iterator = container_type::const_iterator;
-    using difference_type = container_type::difference_type;
-
-    // Data Members
-    //============================================================
-    container_type m_container;
-    iterator m_position;
   };
 }
 

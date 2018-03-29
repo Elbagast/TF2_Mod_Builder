@@ -618,6 +618,177 @@ namespace sak
 
   //std::unique_ptr<Abstract_Project_Interface> make_project_interface(Project_Data&& a_data);
 
+  //------------------------------------------------------------------------------------------------------------------------------------------------------
+  namespace v2
+  {
+    class Entity_ID;
+    class Variant;
+
+    class Abstract_Project_Signalbox;
+
+    //---------------------------------------------------------------------------
+    // Abstract_Project_Interface
+    //---------------------------------------------------------------------------
+    // Planning a redo with a different oobject layout.
+    class Abstract_Project_Interface
+    {
+      // Special 6
+      //============================================================
+      //~Abstract_Project_Interface() override = 0;
+
+      // Interface
+      //============================================================
+
+      // Virtuals
+      //------------------------------------------------------------
+      virtual void save() const = 0;
+
+      virtual void load() = 0;
+
+      // Data that is fixed on contruction.
+      virtual QString name() const = 0;
+
+      virtual QString location() const = 0;
+
+      virtual QString filepath() const = 0;
+
+      // Can we currently call undo?
+      virtual bool can_undo() const = 0;
+
+      // Can we currently call redo?
+      virtual bool can_redo() const = 0;
+
+      // How many times can undo() be called?
+      virtual std::size_t undo_count() const = 0;
+
+      // How many times can redo() be called?
+      virtual std::size_t redo_count() const = 0;
+
+      // Undo the last command issued. Return true if succeeded.
+      virtual bool undo() = 0;
+
+      // Redo the last undone command. Return true if succeeded.
+      virtual bool redo() = 0;
+
+      // Clear the undo/redo history.
+      virtual void clear_history() = 0;
+
+      // Add an object that will rely on the Project's signals. If
+      // nulltpr or already present, nothing happens.
+      virtual void add_signalbox(Abstract_Project_Signalbox* a_signalbox) = 0;
+
+      // Remove an object that will rely on the Project's signals. If
+      // nulltpr or not present, nothing happens.
+      virtual void remove_signalbox(Abstract_Project_Signalbox* a_signalbox) = 0;
+
+      // Clear all the signalboxes so that nothing relies on changes to this.
+      virtual void clear_signalboxes() = 0;
+
+
+      // Entity Collection Data
+      //------------------------------------------------------------
+      // Are there any entities in this Project?
+      virtual bool is_empty() const = 0;
+
+      // How many entities are in this Project?
+      virtual std::size_t count() const = 0;
+
+      // Does this id appear in the data?
+      virtual bool has(Entity_ID const& a_id) const = 0;
+
+      // Get the index of the data associated with the supplied id. This is the current position
+      // in the project's collection of data for this type of data. If the id is null or invalid,
+      // the returned index is equal to count().
+      virtual std::size_t index(Entity_ID const& a_id) const = 0;
+
+      // Get the id at this index. If the index is invalid a null id is returned.
+      virtual Entity_ID get_at(std::size_t a_index) const = 0;
+
+      // Get the id with this name. If the name is invalid a null id is returned.
+      virtual Entity_ID get_named(QString const& a_name) const = 0;
+
+      // Get all the ids in data order
+      virtual std::vector<Entity_ID> get_all() const = 0;
+
+      // Does this name appear in the data?
+      virtual bool has_name(QString const&) const = 0;
+
+      // Get all the objects names in data order
+      virtual std::vector<QString> get_all_names() const = 0;
+
+      // Alter the supplied name so that it is unique among the existing data names
+      virtual void fix_name(QString&) const = 0;
+
+
+      // Buildables
+      //------------------------------------------------------------
+      // Is this entity buildable?
+      virtual bool is_buildable(Entity_ID const& a_id) const = 0;
+
+      // Get all the buildable entities.
+      virtual std::vector<Entity_ID> get_all_buildable() const = 0;
+
+
+      // Entity Collection Editing
+      //------------------------------------------------------------
+      // Undoable make a new entity using the supplied typestring. If the typestring is invalid the returned
+      // id is null, otherwise it is the id of the new entity.
+      virtual Entity_ID try_make(Signal_Source a_source, QString const& a_type) = 0;
+
+      // Undoable add a new object using the supplied handle. The name will be modified if it is currently in
+      // use by another object. Return true if the operation resulted in an undoable command. If this handle
+      // is invalid or already in the data then nothing happens and returns false.
+      //virtual bool try_add(Signal_Source a_source, ID_Type const& a_id) = 0;
+
+      // Undoable remove entity. Return true if the operation resulted in an undoable command.
+      virtual bool try_remove(Signal_Source a_source, Entity_ID const& a_id) = 0;
+
+      // Request that the editor for this entity be opened or switched to.
+      virtual bool try_request_editor(Signal_Source a_source, Entity_ID const& a_id) = 0;
+
+      // Request that the focus change to this entity.
+      virtual bool try_request_outliner(Signal_Source a_source, Entity_ID const& a_id) = 0;
+
+
+      // Entity Data
+      //------------------------------------------------------------
+      // Get the name of the data associated with the supplied id. If the id is null or invalid,
+      // the returned name is empty, which names cannot be.
+      virtual QString name(Entity_ID const& a_id) const = 0;
+
+      // Attempt an undoable change to the name of the data associated with the supplied id. If
+      // the id is valid and the supplied value results in a change to the data, signals are emitted
+      // telling everything to update this name, and true is returned. If the id is null or
+      // invalid, nothing happens and false is returned. Success does not indicate that the name
+      // is set to what has been supplied, but that the name has changed.
+      virtual bool try_set_name(Signal_Source a_source, Entity_ID const& a_id, QString const& a_name) = 0;
+
+
+      // Member Interface
+      //------------------------------------------------------------
+      // Attempt to get the data value for the member at this index in the data associated with the
+      // supplied id. If the id is valid and index is valid for that entity, the returned variant
+      // contains the data value in the proper type. If id is null or invalid, or the index is invalid
+      // for a valid id, the variant is invalid.
+      virtual Variant try_get(Entity_ID const& a_id, std::size_t a_index) const = 0;
+
+      // As try_get except the member is found by matching to the name and not its index. If the name
+      // is empty or not present, the returned variant is invalid.
+      virtual Variant try_get_named(Entity_ID const& a_id, QString const& a_name) const = 0;
+
+      // Attempt an undoable change to the data value for the member at this index in the data
+      // associated with the supplied id. If the id is valid, the index is valid for that entity, and
+      // the variant is the right data type, then the change is made and true is returned. If the id
+      // is null or invalid, or the variant is the wrong type, nothing happens and false is returned.
+      virtual bool try_set(Signal_Source a_source, Entity_ID const& a_id, std::size_t a_index, Variant const& a_value) = 0;
+
+      // As try_set except the member is found by matching to the name and not its index. If the name
+      // is empty or not present, the operation fails and returns false.
+      virtual bool try_set_named(Signal_Source a_source, Entity_ID const& a_id, QString const& a_name, Variant const& a_value) = 0;
+    };
+  }
+  //------------------------------------------------------------------------------------------------------------------------------------------------------
+
 } // namespace sak
 
 //------------------------------------------------------------------------------------------------------------------------------------------------------

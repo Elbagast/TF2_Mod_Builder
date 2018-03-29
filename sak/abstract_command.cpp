@@ -1,5 +1,7 @@
 ﻿#include "abstract_command.hpp"
 
+#include "abstract_signal.hpp"
+
 // Private Data
 //============================================================
 enum class sak::Abstract_Command::State

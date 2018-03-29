@@ -16,34 +16,24 @@ CONFIG += threads
 
 SOURCES += \
     main.cpp \
-    test_data.cpp \
-    test_class_definitions.cpp \
-    test_handle.cpp \
-    test_handle_factory.cpp \
-    test_abstract_project_interface.cpp \
-    test_project_signalbox_data.cpp \
-    test_project_handle_factory.cpp \
-    test_project_handle_data.cpp \
-    test_id.cpp \
-    test_abstract_project_signalbox.cpp \
-    test_project_interface.cpp \
-    dummy_project_signalbox.cpp \
-    dummy_project_interface.cpp
+    test_entity_id.cpp \
+    dummy_signal.cpp \
+    dummy_observer.cpp \
+    test_observer_manager.cpp \
+    test_project.cpp \
+    dummy_entity_maker.cpp \
+    test_entity_maker.cpp \
+    dummy_entity.cpp
 
 HEADERS += \
-    test_data.hpp \
-    test_class_definitions.hpp \
-    test_handle.hpp \
-    test_handle_factory.hpp \
-    test_abstract_project_interface.hpp \
-    test_project_signalbox_data.hpp \
-    test_project_handle_factory.hpp \
-    test_project_handle_data.hpp \
-    test_id.hpp \
-    test_abstract_project_signalbox.hpp \
-    test_project_interface.hpp \
-    dummy_project_signalbox.hpp \
-    dummy_project_interface.hpp
+    test_entity_id.hpp \
+    dummy_signal.hpp \
+    dummy_observer.hpp \
+    test_observer_manager.hpp \
+    test_project.hpp \
+    dummy_entity_maker.hpp \
+    test_entity_maker.hpp \
+    dummy_entity.hpp
 
 
 include($$PWD/../library_flamingo.pri)
