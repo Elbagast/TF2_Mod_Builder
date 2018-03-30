@@ -5,12 +5,29 @@
 #include "entity_manager_fwd.hpp"
 #endif
 
-#ifndef SAK_ENTITY_ID_HPP
-#include "entity_id.hpp"
+#ifndef SAK_ABSTRACT_OBSERVER_FWD_HPP
+#include "abstract_observer_fwd.hpp"
 #endif
 
-#ifndef SAK_ENTITY_HANDLE_HPP
-#include "entity_handle.hpp"
+#ifndef SAK_ABSTRACT_SIGNAL_FWD_HPP
+#include "abstract_signal_fwd.hpp"
+#endif
+
+#ifndef SAK_ENTITY_ID_FWD_HPP
+#include "entity_id_fwd.hpp"
+#endif
+
+#ifndef SAK_ENTITY_FACTORY_FWD_HPP
+#include "entity_factory_fwd.hpp"
+#endif
+
+#ifndef SAK_VARIANT_FWD_HPP
+#include "variant_fwd.hpp"
+#endif
+
+#ifndef INCLUDE_STD_MEMORY
+#define INCLUDE_STD_MEMORY
+#include <memory>
 #endif
 
 #ifndef INCLUDE_STD_VECTOR
@@ -18,127 +35,183 @@
 #include <vector>
 #endif
 
-class QString;
+#ifndef INCLUDE_STD_STRING
+#define INCLUDE_STD_STRING
+#include <string>
+#endif
 
 namespace sak
 {
   //---------------------------------------------------------------------------
   // Entity_Manager
   //---------------------------------------------------------------------------
-  // Manage a collection of unique Entities. All will have unique ids and data,
-  // and Entity_Handle ensures the data persists even when it is removed from
-  // here so that the data can be used elsewhere or added back in.
+  // Hold a collection of entities and manage everything required to manipulate
+  // it in a manner that allows undoing changes and informing observers that
+  // rely on the data. Must be initialised with a factory that will make the
+  // required Entity types. Uses the pimpl idiom to insulate users from changes
+  // to what is a complicated object.
 
   class Entity_Manager
   {
   private:
     // Data Members
     //============================================================
-    std::vector<Entity_Handle> m_data;
+    class Implementation;
+    std::unique_ptr<Implementation> m_imp;
+
+    Implementation& imp()               { return *m_imp; }
+    Implementation const& cimp() const  { return *m_imp; }
 
   public:
     // Special 6
     //============================================================
-    Entity_Manager();
+    // Intialise by passing in a factory that has already been setup to have
+    // all the Entity types we want. We won't be able to change them later.
+    explicit Entity_Manager(Entity_Factory&& a_factory);
     ~Entity_Manager();
 
-    // Block copying because we hold lots of unique_ptrs.
-    Entity_Manager(Entity_Manager const& a_other) = delete;
-    Entity_Manager& operator=(Entity_Manager const& a_other) = delete;
+    // No copying.
+    Entity_Manager(Entity_Manager const&) = delete;
+    Entity_Manager& operator=(Entity_Manager const&) = delete;
 
-    // Block moving because things will hold a pointer to this.
-    Entity_Manager(Entity_Manager && a_other) = delete;
-    Entity_Manager& operator=(Entity_Manager && a_other) = delete;
+    // Can move since data is a pointer.
+    Entity_Manager(Entity_Manager &&);
+    Entity_Manager& operator=(Entity_Manager &&);
 
     // Interface
     //============================================================
-    // Is this currently empty?
+
+    // Observers
+    //------------------------------------------------------------
+    // Add an object that will rely on the Project's signals. If
+    // nulltpr or already present, nothing happens.
+    void add_observer(Abstract_Observer* a_observer);
+
+    // Remove an object that will rely on the Project's signals. If
+    // nulltpr or not present, nothing happens.
+    void remove_observer(Abstract_Observer* a_observer);
+
+    // Clear all the observers so that nothing relies on changes to this.
+    void clear_observers();
+
+
+    // Command History
+    //------------------------------------------------------------
+    // Can we currently call undo?
+    bool can_undo() const;
+
+    // Can we currently call redo?
+    bool can_redo() const;
+
+    // How many times can undo() be called?
+    std::size_t undo_count() const;
+
+    // How many times can redo() be called?
+    std::size_t redo_count() const;
+
+    // Undo the last command issued. Return true if succeeded.
+    bool undo();
+
+    // Redo the last undone command. Return true if succeeded.
+    bool redo();
+
+    // Clear the undo/redo history.
+    void clear_history();
+
+
+    // Entity Collection
+    //------------------------------------------------------------
+
+    // Are there any entities in this Project?
     bool is_empty() const;
 
-    // How many active Entities are there?
+    // How many entities are in this Project?
     std::size_t count() const;
 
-    // Does this id correspond to a currently active Entity?
+    // Does this id appear in the data?
     bool has(Entity_ID a_id) const;
 
-    // Does this handle correspond to a currently active Entity?
-    bool has_handle(Entity_Handle const& a_handle) const;
-
-    // Get the index for the Entity with this id. If the id is null or not
-    // present the result is equal to count().
+    // Get the index of the data associated with the supplied id. This is the current position
+    // in the project's collection of data for this type of data. If the id is null or invalid,
+    // the returned index is equal to count().
     std::size_t index(Entity_ID a_id) const;
 
-    // Get the index for the Entity with this handle. If the handle is null or not
-    // present the result is equal to count().
-    std::size_t index_handle(Entity_Handle const& a_handle) const;
-
-    // Get all the ids for the data.
-    std::vector<Entity_ID> all_ids() const;
-
-    // Get all of the handles.
-    std::vector<Entity_Handle> all_handles() const;
-
-    // Get data for a given id. If the id is not present then the handle
-    // is a null handle.
-    Entity_Handle get_handle(Entity_ID a_id) const;
-
-    // Get the id for the Entity at this index. If the index is invalid the
-    // returned id is a null id.
+    // Get the id at this index. If the index is invalid a null id is returned.
     Entity_ID get_at(std::size_t a_index) const;
 
-    // Get the handle for the Entity at this index. If the index is invalid the
-    // returned handle is a null handle.
-    Entity_Handle get_handle_at(std::size_t a_index) const;
-
-    // Is there an entity with this name?
-    bool has_name(QString const& a_name) const;
-
-    // Alter this name so that it is not equal to any present in the data.
-    void fix_name(QString& a_name) const;
-
-    // Get all of the Entity names in alphabetical order.
-    std::vector<QString> get_all_names() const;
-
-    // Get the id for the Entity that has this name. If the name is not found the
-    // returned id is null.
-    Entity_ID get_named(QString const& a_name) const;
-
-    // Get the handle for the Entity that has this name. If the name is not found the
-    // returned handle is null.
-    Entity_Handle get_handle_named(QString const& a_name) const;
-
-    // Get all of the ids for the Entities in sorted order.
+    // Get all the ids in data order
     std::vector<Entity_ID> get_all() const;
 
-    // Get all of the handles for the Entities in sorted order.
-    std::vector<Entity_Handle> get_all_handles() const;
 
-    // Can this handle be added? Return true if it is not present.
-    bool can_add(Entity_Handle const& a_handle) const;
-
-    // Attempt to add this handle. If it cannot be added nothing happens and
-    // count() is returned. If it can it is added and the index it ends up
-    // at is returned.
-    std::size_t add(Entity_Handle const& a_handle);
-
-    // Can this handle be added? Return true if it is present.
-    bool can_remove(Entity_Handle const& a_handle) const;
-
-    // Attempt to remove this handle. If it can be removed it is and the index
-    // it was at is returned. If it can't npthing happens and count() is returned.
-    std::size_t remove(Entity_Handle const& a_handle);
+    // Entity Types
+    //------------------------------------------------------------
 
     // Does the project contain any entities of this type?
-    bool has_type(QString const& a_type) const;
+    bool has_type(std::string const& a_type) const;
 
-    // Get the number of Entities that have this type.
-    std::size_t count_of(QString const& a_type) const;
+    // How many entities of a given type are in this Project?
+    std::size_t count_of(std::string const& a_type) const;
 
-    // Get all the ids of Entities of a given type.
-    std::vector<Entity_ID> get_all_of(QString const& a_type) const;
+    // Get all the Entities of a given type. If the type is invalid then the result is empty.
+    std::vector<Entity_ID> get_all_of(std::string const& a_type) const;
 
-    // Get all the handles of Entities of a given type.
-    std::vector<Entity_Handle> get_all_of_handles(QString const& a_type) const;
+    // Is this a valid Entity Type?
+    bool can_make(std::string const& a_type) const;
+
+    // Get all of the valid Entity types.
+    std::vector<std::string> get_all_types() const;
+
+
+    // Entity Collection Editing
+    //------------------------------------------------------------
+
+    // Undoable make a new entity using the supplied typestring. If the typestring is invalid the returned
+    // id is null, otherwise it is the id of the new entity.
+    Entity_ID try_add(Signal_Source a_source, std::string const& a_type);
+
+    // Undoable remove entity. Return true if the operation resulted in an undoable command.
+    bool try_remove(Signal_Source a_source, Entity_ID a_id);
+
+    // Request that the editor for this entity be opened or switched to.
+    bool try_request_editor(Signal_Source a_source, Entity_ID a_id);
+
+    // Request that the focus change to this entity.
+    bool try_request_outliner(Signal_Source a_source, Entity_ID a_id);
+
+
+    // Entity Names
+    //------------------------------------------------------------
+
+    // Does this name appear in the data?
+    bool has_name(std::string const&) const;
+
+    // Get the name of the data associated with the supplied id. If the id is null or invalid,
+    // the returned name is empty, which names cannot be.
+    std::string name(Entity_ID a_id) const;
+
+    // Get the id with this name. If the name is invalid a null id is returned.
+    Entity_ID get_named(std::string const& a_name) const;
+
+    // Get all the objects names in data order
+    std::vector<std::string> get_all_names() const;
+
+    // Attempt an undoable change to the name of the data associated with the supplied id. If
+    // the id is valid and the supplied value results in a change to the data, signals are emitted
+    // telling everything to update this name, and true is returned. If the id is null or
+    // invalid, nothing happens and false is returned. Success does not indicate that the name
+    // is set to what has been supplied, but that the name has changed.
+    bool try_set_name(Signal_Source a_source, Entity_ID a_id, std::string const& a_name);
+
+
+
+    // Entity System Data
+    //------------------------------------------------------------
+
+    // Get the type of a given entity. If the id is null or invalid the string is empty.
+    std::string type(Entity_ID a_id) const;
+
+    // Get the iconpath for a given entity. If the id is null or invalid the string is empty.
+    std::string iconpath(Entity_ID a_id) const;
   };
 }
 

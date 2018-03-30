@@ -25,18 +25,21 @@ sak::Entity_Factory::Entity_Factory() :
 
 sak::Entity_Factory::~Entity_Factory() = default;
 
+sak::Entity_Factory::Entity_Factory(Entity_Factory &&) = default;
+sak::Entity_Factory& sak::Entity_Factory::operator=(Entity_Factory &&) = default;
+
 // Interface
 //============================================================
 // Is this a type of Entity we can make?
-bool sak::Entity_Factory::has_type(QString const& a_type) const
+bool sak::Entity_Factory::has_type(std::string const& a_type) const
 {
   return m_makers.find(a_type) != m_makers.cend();
 }
 
 // Get all of the available Entity types.
-std::vector<QString> sak::Entity_Factory::all_types() const
+std::vector<std::string> sak::Entity_Factory::all_types() const
 {
-  std::vector<QString> l_result{};
+  std::vector<std::string> l_result{};
   l_result.reserve(m_makers.size());
   for (auto const& l_pair : m_makers)
   {
@@ -50,10 +53,10 @@ std::vector<QString> sak::Entity_Factory::all_types() const
 // before being copied or moved, the Entity data is also destroyed. If the
 // type supplied is not one that can be made, then the handle is a null
 // handle.
-sak::Entity_Handle sak::Entity_Factory::make_entity(QString const& a_type) const
+sak::Entity_Handle sak::Entity_Factory::make_entity(std::string const& a_type) const
 {
   // Stop if empty.
-  if (a_type.isEmpty())
+  if (a_type.empty())
   {
     return Entity_Handle{};
   }
@@ -94,4 +97,27 @@ bool sak::Entity_Factory::add_maker(std::unique_ptr<Abstract_Entity_Maker>&& a_m
   {
     return false;
   }
+}
+
+// Attempt to remove the maker with this type. If one is found, it is removed
+// from the data and returned. If it is not found, a nullptr is returned.
+std::unique_ptr<sak::Abstract_Entity_Maker> sak::Entity_Factory::remove_maker(std::string const& a_type)
+{
+  // Initialise the result to nullptr.
+  std::unique_ptr<Abstract_Entity_Maker> l_result{};
+
+  // Find the type.
+  auto l_found = m_makers.find(a_type);
+
+  // If found, swap the data
+  if (l_found != m_makers.cend())
+  {
+    // Swap the data into the result variable.
+    std::swap(l_result, l_found->second);
+
+    // Remove the key:value pair from the data.
+    m_makers.erase(l_found);
+  }
+  // Return the result, which may be data or nullptr.
+  return l_result;
 }

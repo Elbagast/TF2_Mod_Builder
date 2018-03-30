@@ -5,26 +5,29 @@
 #include "abstract_entity_signal.hpp"
 #endif
 
-class QString;
+#ifndef INCLUDE_STD_STRING
+#define INCLUDE_STD_STRING
+#include <string>
+#endif
 
 namespace sak
 {
   //---------------------------------------------------------------------------
-  // Entity_Name_Changed_Signal
+  // Signal_Entity_Name_Changed
   //---------------------------------------------------------------------------
   // Signal that indicates an Entity with a given id has had its name changed.
 
-  class Entity_Name_Changed_Signal :
+  class Signal_Entity_Name_Changed :
       public Abstract_Entity_Signal
   {
   private:
-    QString const& m_old_name;
-    QString const& m_new_name;
+    std::string const& m_old_name;
+    std::string const& m_new_name;
   public:
     // Special 6
     //============================================================
-    Entity_Name_Changed_Signal(Signal_Source a_source, Entity_ID a_id, QString const& a_old_name, QString const& a_new_name);
-    ~Entity_Name_Changed_Signal() override final;
+    Signal_Entity_Name_Changed(Signal_Source a_source, Entity_ID a_id, std::string const& a_old_name, std::string const& a_new_name);
+    ~Signal_Entity_Name_Changed() override final;
 
     // Interface
     //============================================================
@@ -32,8 +35,8 @@ namespace sak
     using Abstract_Entity_Signal::type;
     using Abstract_Entity_Signal::id;
 
-    QString const& old_name() const;
-    QString const& new_name() const;
+    std::string const& old_name() const;
+    std::string const& new_name() const;
   };
 }
 

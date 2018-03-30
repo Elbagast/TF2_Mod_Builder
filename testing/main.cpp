@@ -5,7 +5,7 @@
 #include "test_observer_manager.hpp"
 #include "test_entity_maker.hpp"
 
-int main(int argc, char *argv[])
+int main()//int argc, char *argv[])
 {
   using namespace sak::testing;
 

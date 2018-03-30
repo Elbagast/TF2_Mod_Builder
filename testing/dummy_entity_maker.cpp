@@ -8,7 +8,6 @@
 
 #include <memory>
 #include <cassert>
-#include <QString>
 
 //---------------------------------------------------------------------------
 // Dummy_Entity_Maker
@@ -23,9 +22,9 @@ sak::Dummy_Entity_Maker::~Dummy_Entity_Maker() = default;
 // Interface
 //============================================================
 // Get the typestring for this Entity type.
-QString sak::Dummy_Entity_Maker::type() const
+std::string sak::Dummy_Entity_Maker::type() const
 {
-  return QString{"Dummy Entity"};
+  return std::string{"Dummy Entity"};
 }
 
 // Make a new Entity of this type with the supplied id. If the supplied id
@@ -40,8 +39,8 @@ sak::Entity_Handle sak::Dummy_Entity_Maker::make_entity(Entity_ID a_id) const
             a_id,
             std::unique_ptr<Abstract_Entity_Name>(std::make_unique<Dummy_Entity_Name>(this->type()).release()),
             std::unique_ptr<Abstract_Entity_Type>(std::make_unique<Dummy_Entity_Type>(this->type()).release()),
-            std::unique_ptr<Abstract_Entity_Tooltip>(std::make_unique<Dummy_Entity_Tooltip>(QString{"dummy tooltip"}).release()),
-            std::unique_ptr<Abstract_Entity_Icon>(std::make_unique<Dummy_Entity_Icon>(QString{"dummy iconpath"}).release())
+            std::unique_ptr<Abstract_Entity_Tooltip>(std::make_unique<Dummy_Entity_Tooltip>(std::string{"dummy tooltip"}).release()),
+            std::unique_ptr<Abstract_Entity_Icon>(std::make_unique<Dummy_Entity_Icon>(std::string{"dummy iconpath"}).release())
           ) };
 }
 

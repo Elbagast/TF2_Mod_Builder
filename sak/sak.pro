@@ -93,13 +93,14 @@ SOURCES += \
     abstract_entity_maker.cpp \
     observer_manager.cpp \
     abstract_observer.cpp \
-    project_commands.cpp \
-    entity_added_signal.cpp \
     abstract_entity_signal.cpp \
-    entity_removed_signal.cpp \
     entity_outliner_request_signal.cpp \
     entity_editor_request_signal.cpp \
-    entity_name_changed_signal.cpp
+    entity_collection.cpp \
+    entity_commands.cpp \
+    signal_entity_added.cpp \
+    signal_entity_removed.cpp \
+    signal_entity_name_changed.cpp
 
 HEADERS  += \
     gui/line_edit.hpp \
@@ -132,15 +133,17 @@ HEADERS  += \
     abstract_observer_fwd.hpp \
     observer_manager.hpp \
     observer_manager_fwd.hpp \
-    project_commands.hpp \
-    project_commands_fwd.hpp \
-    entity_added_signal.hpp \
     abstract_entity_signal.hpp \
     abstract_entity_signal_fwd.hpp \
-    entity_removed_signal.hpp \
     entity_outliner_request_signal.hpp \
     entity_editor_request_signal.hpp \
-    entity_name_changed_signal.hpp
+    entity_collection.hpp \
+    entity_collection_fwd.hpp \
+    entity_commands.hpp \
+    entity_commands_fwd.hpp \
+    signal_entity_added.hpp \
+    signal_entity_removed.hpp \
+    signal_entity_name_changed.hpp
 
 FORMS += \
 

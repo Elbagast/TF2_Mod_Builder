@@ -1,14 +1,14 @@
-﻿#include "project_commands.hpp"
+﻿#include "entity_commands.hpp"
 
 #include "entity.hpp"
 #include "entity_handle.hpp"
-#include "entity_manager.hpp"
+#include "entity_collection.hpp"
 
 #include "observer_manager.hpp"
 
-#include "entity_added_signal.hpp"
-#include "entity_removed_signal.hpp"
-#include "entity_name_changed_signal.hpp"
+#include "signal_entity_added.hpp"
+#include "signal_entity_removed.hpp"
+#include "signal_entity_name_changed.hpp"
 
 #include <cassert>
 
@@ -83,9 +83,9 @@ sak::Entity_ID sak::Abstract_Entity_Signalling_Command::id() const
 //============================================================
 // Determine whether a command can be issued with these arguments. Returns
 // true if the given handle is not found in the given entity vector.
-bool sak::Command_Entity_Add::valid_arguments(Entity_Handle const& a_handle, Entity_Manager const& a_entity_manager)
+bool sak::Command_Entity_Add::valid_arguments(Entity_Handle const& a_handle, Entity_Collection const& a_collection)
 {
-  return not_null(a_handle) && a_entity_manager.has_handle(a_handle);
+  return not_null(a_handle) && a_collection.has_handle(a_handle);
 }
 
 // Special 6
@@ -93,11 +93,11 @@ bool sak::Command_Entity_Add::valid_arguments(Entity_Handle const& a_handle, Ent
 sak::Command_Entity_Add::Command_Entity_Add(Signal_Source a_source,
                                             Observer_Manager& a_observers,
                                             Entity_Handle const& a_handle,
-                                            Entity_Manager& a_entity_manager) :
+                                            Entity_Collection& a_collection) :
   Abstract_Entity_Signalling_Command(a_source, a_observers, a_handle),
-  m_entity_manager{a_entity_manager}
+  m_collection{a_collection}
 {
-  assert(valid_arguments(this->chandle(), m_entity_manager));
+  assert(valid_arguments(this->chandle(), m_collection));
 }
 
 sak::Command_Entity_Add::~Command_Entity_Add() = default;
@@ -107,36 +107,36 @@ sak::Command_Entity_Add::~Command_Entity_Add() = default;
 void sak::Command_Entity_Add::do_execute()
 {
   // Better not have this handle.
-  assert(!m_entity_manager.has_handle(this->chandle()));
-  assert(m_entity_manager.can_add(this->chandle()));
+  assert(!m_collection.has_handle(this->chandle()));
+  assert(m_collection.can_add(this->chandle()));
 
   // Do the change.
-  m_entity_manager.add(this->chandle());
+  m_collection.add(this->chandle());
 
   // Better have this handle.
-  assert(m_entity_manager.has_handle(this->chandle()));
-  assert(m_entity_manager.can_remove(this->chandle()));
+  assert(m_collection.has_handle(this->chandle()));
+  assert(m_collection.can_remove(this->chandle()));
 
   // Make and send the signal.
-  Entity_Added_Signal l_signal{this->source(), this->chandle().id()};
+  Signal_Entity_Added l_signal{this->source(), this->chandle().id()};
   this->send(l_signal);
 }
 
 void sak::Command_Entity_Add::do_unexecute()
 {
   // Better have this handle.
-  assert(m_entity_manager.has_handle(this->chandle()));
-  assert(m_entity_manager.can_remove(this->chandle()));
+  assert(m_collection.has_handle(this->chandle()));
+  assert(m_collection.can_remove(this->chandle()));
 
   // Do the change.
-  m_entity_manager.remove(this->chandle());
+  m_collection.remove(this->chandle());
 
   // Better not have this handle.
-  assert(!m_entity_manager.has_handle(this->chandle()));
-  assert(m_entity_manager.can_add(this->chandle()));
+  assert(!m_collection.has_handle(this->chandle()));
+  assert(m_collection.can_add(this->chandle()));
 
   // Make and send the signal.
-  Entity_Removed_Signal l_signal{this->source(), this->chandle().id()};
+  Signal_Entity_Removed l_signal{this->source(), this->chandle().id()};
   this->send(l_signal);
 }
 
@@ -151,9 +151,9 @@ void sak::Command_Entity_Add::do_unexecute()
 //============================================================
 // Determine whether a command can be issued with these arguments. Returns
 // true if the given handle is found in the given entity vector.
-bool sak::Command_Entity_Remove::valid_arguments(Entity_Handle const& a_handle, Entity_Manager const& a_entity_manager)
+bool sak::Command_Entity_Remove::valid_arguments(Entity_Handle const& a_handle, Entity_Collection const& a_collection)
 {
-  return not_null(a_handle) && !a_entity_manager.has_handle(a_handle);
+  return not_null(a_handle) && !a_collection.has_handle(a_handle);
 }
 
 // Special 6
@@ -161,11 +161,11 @@ bool sak::Command_Entity_Remove::valid_arguments(Entity_Handle const& a_handle, 
 sak::Command_Entity_Remove::Command_Entity_Remove(Signal_Source a_source,
                                                   Observer_Manager& a_observers,
                                                   Entity_Handle const& a_handle,
-                                                  Entity_Manager& a_entity_manager) :
+                                                  Entity_Collection& a_collection) :
   Abstract_Entity_Signalling_Command(a_source, a_observers, a_handle),
-  m_entity_manager{a_entity_manager}
+  m_collection{a_collection}
 {
-  assert(valid_arguments(this->chandle(), m_entity_manager));
+  assert(valid_arguments(this->chandle(), m_collection));
 }
 
 sak::Command_Entity_Remove::~Command_Entity_Remove() = default;
@@ -175,18 +175,18 @@ sak::Command_Entity_Remove::~Command_Entity_Remove() = default;
 void sak::Command_Entity_Remove::do_execute()
 {
   // Better have this handle.
-  assert(m_entity_manager.has_handle(this->chandle()));
-  assert(m_entity_manager.can_remove(this->chandle()));
+  assert(m_collection.has_handle(this->chandle()));
+  assert(m_collection.can_remove(this->chandle()));
 
   // Do the change.
-  m_entity_manager.remove(this->chandle());
+  m_collection.remove(this->chandle());
 
   // Better not have this handle.
-  assert(!m_entity_manager.has_handle(this->chandle()));
-  assert(m_entity_manager.can_add(this->chandle()));
+  assert(!m_collection.has_handle(this->chandle()));
+  assert(m_collection.can_add(this->chandle()));
 
   // Make and send the signal.
-  Entity_Removed_Signal l_signal{this->source(), this->chandle().id()};
+  Signal_Entity_Removed l_signal{this->source(), this->chandle().id()};
   this->send(l_signal);
 
   // NO DEALING WITH CONNECTIONS RIGHT NOW
@@ -195,18 +195,18 @@ void sak::Command_Entity_Remove::do_execute()
 void sak::Command_Entity_Remove::do_unexecute()
 {
   // Better not have this handle.
-  assert(!m_entity_manager.has_handle(this->chandle()));
-  assert(m_entity_manager.can_add(this->chandle()));
+  assert(!m_collection.has_handle(this->chandle()));
+  assert(m_collection.can_add(this->chandle()));
 
   // Do the change.
-  m_entity_manager.add(this->chandle());
+  m_collection.add(this->chandle());
 
   // Better have this handle.
-  assert(m_entity_manager.has_handle(this->chandle()));
-  assert(m_entity_manager.can_remove(this->chandle()));
+  assert(m_collection.has_handle(this->chandle()));
+  assert(m_collection.can_remove(this->chandle()));
 
   // Make and send the signal.
-  Entity_Added_Signal l_signal{this->source(), this->chandle().id()};
+  Signal_Entity_Added l_signal{this->source(), this->chandle().id()};
   this->send(l_signal);
 
   // NO DEALING WITH CONNECTIONS RIGHT NOW
@@ -221,7 +221,7 @@ void sak::Command_Entity_Remove::do_unexecute()
 //============================================================
 // Determine whether a command can be issued with these arguments. Returns
 // true if the name is not the same as that in the handle
-bool sak::Command_Entity_Name_Change::valid_arguments(Entity_Handle const& a_handle, QString const& a_name)
+bool sak::Command_Entity_Name_Change::valid_arguments(Entity_Handle const& a_handle, std::string const& a_name)
 {
   return not_null(a_handle) && a_handle->cname_component()->get_name() != a_name;
 }
@@ -231,7 +231,7 @@ bool sak::Command_Entity_Name_Change::valid_arguments(Entity_Handle const& a_han
 sak::Command_Entity_Name_Change::Command_Entity_Name_Change(Signal_Source a_source,
                                                             Observer_Manager& a_observers,
                                                             Entity_Handle const& a_handle,
-                                                            QString const& a_name) :
+                                                            std::string const& a_name) :
   Abstract_Entity_Signalling_Command(a_source, a_observers, a_handle),
   m_old_name{a_handle->cname_component()->get_name()},
   m_new_name{a_name}
@@ -254,7 +254,7 @@ void sak::Command_Entity_Name_Change::do_execute()
   assert(this->chandle()->cname_component()->get_name() == m_new_name);
 
   // Make and send the signal.
-  Entity_Name_Changed_Signal l_signal{this->source(), this->id(), m_old_name, m_new_name};
+  Signal_Entity_Name_Changed l_signal{this->source(), this->id(), m_old_name, m_new_name};
   this->send(l_signal);
 }
 
@@ -270,7 +270,7 @@ void sak::Command_Entity_Name_Change::do_unexecute()
   assert(this->chandle()->cname_component()->get_name() == m_old_name);
 
   // Make and send the signal.
-  Entity_Name_Changed_Signal l_signal{this->source(), this->id(), m_new_name, m_old_name};
+  Signal_Entity_Name_Changed l_signal{this->source(), this->id(), m_new_name, m_old_name};
   this->send(l_signal);
 }
 

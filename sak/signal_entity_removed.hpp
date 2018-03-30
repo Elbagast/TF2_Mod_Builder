@@ -8,18 +8,18 @@
 namespace sak
 {
   //---------------------------------------------------------------------------
-  // Entity_Removed_Signal
+  // Signal_Entity_Removed
   //---------------------------------------------------------------------------
   // Signal that indicates an Entity with a given id was removed from the project.
 
-  class Entity_Removed_Signal :
+  class Signal_Entity_Removed :
       public Abstract_Entity_Signal
   {
   public:
     // Special 6
     //============================================================
-    Entity_Removed_Signal(Signal_Source a_source, Entity_ID a_id);
-    ~Entity_Removed_Signal() override final;
+    Signal_Entity_Removed(Signal_Source a_source, Entity_ID a_id);
+    ~Signal_Entity_Removed() override final;
 
     // Interface
     //============================================================

@@ -1,338 +1,790 @@
 ﻿#include "entity_manager.hpp"
 
+#include "entity_id.hpp"
 #include "entity.hpp"
-#include "name_utilities.hpp"
+#include "entity_handle.hpp"
+
+#include "command_history.hpp"
+#include "observer_manager.hpp"
+#include "entity_factory.hpp"
+#include "entity_collection.hpp"
+
+#include "entity_commands.hpp"
+
+#include "entity_editor_request_signal.hpp"
+#include "entity_outliner_request_signal.hpp"
 
 #include <algorithm>
+#include <cassert>
 
-#include <QString>
-//---------------------------------------------------------------------------
-// Entity_Manager
-//---------------------------------------------------------------------------
-// Manage a collection of unique Entities. All will have unique ids and data,
-// and Entity_Handle ensures the data persists even when it is removed from
-// here so that the data can be used elsewhere or added back in.
+namespace sak
+{
+  //---------------------------------------------------------------------------
+  // Entity_Manager::Implementation
+  //---------------------------------------------------------------------------
+  //
+
+  class Entity_Manager::Implementation
+  {
+  private:
+    // Data Members
+    //============================================================
+    Command_History m_command_history;
+    Observer_Manager m_observers;
+    Entity_Factory m_factory;
+    Entity_Collection m_entity_collection;
+
+  public:
+    // Special 6
+    //============================================================
+    // Intialise by passing in a factory that has already been setup to have
+    // all the Entity types we want. We won't be able to change them later.
+    explicit Implementation(Entity_Factory&& a_factory);
+    ~Implementation();
+
+    Implementation(Implementation const&) = delete;
+    Implementation& operator=(Implementation const&) = delete;
+
+    Implementation(Implementation &&) = delete;
+    Implementation& operator=(Implementation &&) = delete;
+
+    // Interface
+    //============================================================
+
+    // Observers
+    //------------------------------------------------------------
+    // Add an object that will rely on the Project's signals. If
+    // nulltpr or already present, nothing happens.
+    void add_observer(Abstract_Observer* a_observer);
+
+    // Remove an object that will rely on the Project's signals. If
+    // nulltpr or not present, nothing happens.
+    void remove_observer(Abstract_Observer* a_observer);
+
+    // Clear all the observers so that nothing relies on changes to this.
+    void clear_observers();
+
+
+    // Command History
+    //------------------------------------------------------------
+    // Can we currently call undo?
+    bool can_undo() const;
+
+    // Can we currently call redo?
+    bool can_redo() const;
+
+    // How many times can undo() be called?
+    std::size_t undo_count() const;
+
+    // How many times can redo() be called?
+    std::size_t redo_count() const;
+
+    // Undo the last command issued. Return true if succeeded.
+    bool undo();
+
+    // Redo the last undone command. Return true if succeeded.
+    bool redo();
+
+    // Clear the undo/redo history.
+    void clear_history();
+
+
+    // Entity Collection
+    //------------------------------------------------------------
+
+    // Are there any entities in this Project?
+    bool is_empty() const;
+
+    // How many entities are in this Project?
+    std::size_t count() const;
+
+    // Does this id appear in the data?
+    bool has(Entity_ID a_id) const;
+
+    // Get the index of the data associated with the supplied id. This is the current position
+    // in the project's collection of data for this type of data. If the id is null or invalid,
+    // the returned index is equal to count().
+    std::size_t index(Entity_ID a_id) const;
+
+    // Get the id at this index. If the index is invalid a null id is returned.
+    Entity_ID get_at(std::size_t a_index) const;
+
+    // Get all the ids in data order
+    std::vector<Entity_ID> get_all() const;
+
+
+    // Entity Types
+    //------------------------------------------------------------
+
+    // Does the project contain any entities of this type?
+    bool has_type(std::string const& a_type) const;
+
+    // How many entities of a given type are in this Project?
+    std::size_t count_of(std::string const& a_type) const;
+
+    // Get all the Entities of a given type. If the type is invalid then the result is empty.
+    std::vector<Entity_ID> get_all_of(std::string const& a_type) const;
+
+    // Is this a valid Entity Type?
+    bool can_make(std::string const& a_type) const;
+
+    // Get all of the valid Entity types.
+    std::vector<std::string> get_all_types() const;
+
+
+    // Entity Collection Editing
+    //------------------------------------------------------------
+
+    // Undoable make a new entity using the supplied typestring. If the typestring is invalid the returned
+    // id is null, otherwise it is the id of the new entity.
+    Entity_ID try_add(Signal_Source a_source, std::string const& a_type);
+
+    // Undoable remove entity. Return true if the operation resulted in an undoable command.
+    bool try_remove(Signal_Source a_source, Entity_ID a_id);
+
+    // Request that the editor for this entity be opened or switched to.
+    bool try_request_editor(Signal_Source a_source, Entity_ID a_id);
+
+    // Request that the focus change to this entity.
+    bool try_request_outliner(Signal_Source a_source, Entity_ID a_id);
+
+
+    // Entity Names
+    //------------------------------------------------------------
+
+    // Does this name appear in the data?
+    bool has_name(std::string const&) const;
+
+    // Get the name of the data associated with the supplied id. If the id is null or invalid,
+    // the returned name is empty, which names cannot be.
+    std::string name(Entity_ID a_id) const;
+
+    // Get the id with this name. If the name is invalid a null id is returned.
+    Entity_ID get_named(std::string const& a_name) const;
+
+    // Get all the objects names in data order
+    std::vector<std::string> get_all_names() const;
+
+    // Attempt an undoable change to the name of the data associated with the supplied id. If
+    // the id is valid and the supplied value results in a change to the data, signals are emitted
+    // telling everything to update this name, and true is returned. If the id is null or
+    // invalid, nothing happens and false is returned. Success does not indicate that the name
+    // is set to what has been supplied, but that the name has changed.
+    bool try_set_name(Signal_Source a_source, Entity_ID a_id, std::string const& a_name);
+
+
+
+    // Entity System Data
+    //------------------------------------------------------------
+
+    // Get the type of a given entity. If the id is null or invalid the string is empty.
+    std::string type(Entity_ID a_id) const;
+
+    // Get the iconpath for a given entity. If the id is null or invalid the string is empty.
+    std::string iconpath(Entity_ID a_id) const;
+  };
+}
 
 // Special 6
 //============================================================
-sak::Entity_Manager::Entity_Manager() = default;
+// Intialise by passing in a factory that has already been setup to have
+// all the Entity types we want. We won't be able to change them later.
+sak::Entity_Manager::Implementation::Implementation(Entity_Factory&& a_factory) :
+  m_command_history{},
+  m_observers{},
+  m_factory{std::move(a_factory)},
+  m_entity_collection{}
+{}
 
-sak::Entity_Manager::~Entity_Manager() = default;
+sak::Entity_Manager::Implementation::~Implementation() = default;
+
 
 // Interface
 //============================================================
-// Is this currently empty?
-bool sak::Entity_Manager::is_empty() const
+
+// Observers
+//------------------------------------------------------------
+// Add an object that will rely on the Project's signals. If
+// nulltpr or already present, nothing happens.
+void sak::Entity_Manager::Implementation::add_observer(Abstract_Observer* a_observer)
 {
-  return m_data.empty();
+  m_observers.add(a_observer);
 }
 
-// How many active Entities are there?
-std::size_t sak::Entity_Manager::count() const
+// Remove an object that will rely on the Project's signals. If
+// nulltpr or not present, nothing happens.
+void sak::Entity_Manager::Implementation::remove_observer(Abstract_Observer* a_observer)
 {
-  return m_data.size();
+  m_observers.remove(a_observer);
 }
 
-namespace
+// Clear all the observers so that nothing relies on changes to this.
+void sak::Entity_Manager::Implementation::clear_observers()
 {
-  decltype(auto) do_find_id(std::vector<sak::Entity_Handle> const& a_handles, sak::Entity_ID a_id)
-  {
-    return std::find_if(a_handles.cbegin(),
-                        a_handles.cend(),
-                        [a_id](sak::Entity_Handle const& a_handle){ return a_handle.id() == a_id; });
-  }
-
-  bool do_has_id(std::vector<sak::Entity_Handle> const& a_handles, sak::Entity_ID a_id)
-  {
-    return do_find_id(a_handles, a_id) != a_handles.cend();
-  }
-
-
-  decltype(auto) do_find_handle(std::vector<sak::Entity_Handle> const& a_handles, sak::Entity_Handle const& a_handle)
-  {
-    return std::find(a_handles.cbegin(), a_handles.cend(), a_handle);
-  }
-
-  bool do_has_handle(std::vector<sak::Entity_Handle> const& a_handles, sak::Entity_Handle const& a_handle)
-  {
-    return do_find_handle(a_handles, a_handle) != a_handles.cend();
-  }
-
-  decltype(auto) do_find_name(std::vector<sak::Entity_Handle> const& a_handles, QString const& a_name)
-  {
-    return std::find_if(a_handles.cbegin(),
-                        a_handles.cend(),
-                        [&a_name](sak::Entity_Handle const& a_handle){ return a_handle->cname_component()->get_name() == a_name; });
-  }
-
-  bool do_has_name(std::vector<sak::Entity_Handle> const& a_handles, QString const& a_name)
-  {
-    return do_find_name(a_handles, a_name) != a_handles.cend();
-  }
+  m_observers.clear();
 }
 
-// Does this id correspond to a currently active Entity?
-bool sak::Entity_Manager::has(Entity_ID a_id) const
+// Command History
+//------------------------------------------------------------
+// Can we currently call undo?
+bool sak::Entity_Manager::Implementation::can_undo() const
 {
-  return do_has_id(m_data, a_id);
+  return m_command_history.can_undo();
 }
 
-// Does this handle correspond to a currently active Entity?
-bool sak::Entity_Manager::has_handle(Entity_Handle const& a_handle) const
+// Can we currently call redo?
+bool sak::Entity_Manager::Implementation::can_redo() const
 {
-  return do_has_handle(m_data, a_handle);
+  return m_command_history.can_redo();
 }
 
-// Get the index for the Entity with this id. If the id is null or not
-// present the result is equal to count().
-std::size_t sak::Entity_Manager::index(Entity_ID a_id) const
+// How many times can undo() be called?
+std::size_t sak::Entity_Manager::Implementation::undo_count() const
 {
-  return static_cast<std::size_t>(std::distance(m_data.cbegin(), do_find_id(m_data, a_id)));
+  return m_command_history.undo_count();
 }
 
-// Get the index for the Entity with this handle. If the handle is null or not
-// present the result is equal to count().
-std::size_t sak::Entity_Manager::index_handle(Entity_Handle const& a_handle) const
+// How many times can redo() be called?
+std::size_t sak::Entity_Manager::Implementation::redo_count() const
 {
-  return static_cast<std::size_t>(std::distance(m_data.cbegin(), do_find_handle(m_data, a_handle)));
+  return m_command_history.redo_count();
 }
 
-// Get all the ids for the data.
-std::vector<sak::Entity_ID> sak::Entity_Manager::all_ids() const
+// Undo the last command issued. Return true if succeeded.
+bool sak::Entity_Manager::Implementation::undo()
 {
-  std::vector<Entity_ID> l_result{};
-  l_result.reserve(m_data.size());
-  for (auto const& l_handle : m_data)
-  {
-    l_result.push_back(l_handle.id());
-  }
-  return l_result;
+  return m_command_history.undo();
 }
 
-// Get all of the handles.
-std::vector<sak::Entity_Handle> sak::Entity_Manager::all_handles() const
+// Redo the last undone command. Return true if succeeded.
+bool sak::Entity_Manager::Implementation::redo()
 {
-  return m_data;
+  return m_command_history.redo();
 }
 
-// Get data for a given id. If the id is not present then the handle
-// is a null handle.
-sak::Entity_Handle sak::Entity_Manager::get_handle(Entity_ID a_id) const
+// Clear the undo/redo history.
+void sak::Entity_Manager::Implementation::clear_history()
 {
-  auto l_found = do_find_id(m_data, a_id);
-  if (l_found != m_data.cend())
-  {
-    return *l_found;
-  }
-  else
-  {
-    return Entity_Handle{};
-  }
+  m_command_history.clear();
 }
 
-// Get the id for the Entity at this index. If the index is invalid the
-// returned id is a null id.
-sak::Entity_ID sak::Entity_Manager::get_at(std::size_t a_index) const
+// Entity Collection
+//------------------------------------------------------------
+
+// Are there any entities in this Project?
+bool sak::Entity_Manager::Implementation::is_empty() const
 {
-  if (a_index < m_data.size())
-  {
-    return m_data.at(a_index).id();
-  }
-  else
-  {
-    return make_null_entity_id();
-  }
+  return m_entity_collection.is_empty();
 }
 
-// Get the handle for the Entity at this index. If the index is invalid the
-// returned handle is a null handle.
-sak::Entity_Handle sak::Entity_Manager::get_handle_at(std::size_t a_index) const
+// How many entities are in this Project?
+std::size_t sak::Entity_Manager::Implementation::count() const
 {
-  if (a_index < m_data.size())
-  {
-    return m_data.at(a_index);
-  }
-  else
-  {
-    return Entity_Handle{};
-  }
+  return m_entity_collection.count();
 }
 
-// Is there an entity with this name?
-bool sak::Entity_Manager::has_name(QString const& a_name) const
+// Does this id appear in the data?
+bool sak::Entity_Manager::Implementation::has(Entity_ID a_id) const
 {
-  return do_has_name(m_data, a_name);
+  return m_entity_collection.has(a_id);
 }
 
-// Alter this name so that it is not equal to any present in the data.
-void sak::Entity_Manager::fix_name(QString& a_name) const
+// Get the index of the data associated with the supplied id. This is the current position
+// in the project's collection of data for this type of data. If the id is null or invalid,
+// the returned index is equal to count().
+std::size_t sak::Entity_Manager::Implementation::index(Entity_ID a_id) const
 {
-  auto l_names = this->get_all_names();
-
-  uniqueify_name(a_name, l_names);
+  return m_entity_collection.index(a_id);
 }
 
-// Get all of the Entity names in alphabetical order.
-std::vector<QString> sak::Entity_Manager::get_all_names() const
+// Get the id at this index. If the index is invalid a null id is returned.
+sak::Entity_ID sak::Entity_Manager::Implementation::get_at(std::size_t a_index) const
 {
-  std::vector<QString> l_result{};
-  l_result.reserve(m_data.size());
-  for (auto const& l_handle : m_data)
-  {
-    l_result.push_back(l_handle->cname_component()->get_name());
-  }
-  // Sort the names into alphabetical order.
-  std::sort(l_result.begin(), l_result.end());
-  return l_result;
+  return m_entity_collection.get_at(a_index);
 }
 
-// Get the id for the Entity that has this name. If the name is not found the
-// returned id is null.
-sak::Entity_ID sak::Entity_Manager::get_named(QString const& a_name) const
+// Get all the ids in data order
+std::vector<sak::Entity_ID> sak::Entity_Manager::Implementation::get_all() const
 {
-  auto l_found = do_find_name(m_data, a_name);
-  if (l_found != m_data.cend())
-  {
-    return l_found->id();
-  }
-  else
-  {
-    return make_null_entity_id();
-  }
+  return m_entity_collection.get_all();
 }
 
-// Get the handle for the Entity that has this name. If the name is not found the
-// returned handle is null.
-sak::Entity_Handle sak::Entity_Manager::get_handle_named(QString const& a_name) const
-{
-  auto l_found = do_find_name(m_data, a_name);
-  if (l_found != m_data.cend())
-  {
-    return *l_found;
-  }
-  else
-  {
-    return Entity_Handle{};
-  }
-}
 
-// Get all of the ids for the Entities in sorted order.
-std::vector<sak::Entity_ID> sak::Entity_Manager::get_all() const
-{
-  std::vector<Entity_ID> l_result{};
-  l_result.reserve(m_data.size());
-  for (auto const& l_handle : m_data)
-  {
-    l_result.push_back(l_handle.id());
-  }
-  return l_result;
-}
-
-// Get all of the handles for the Entities in sorted order.
-std::vector<sak::Entity_Handle> sak::Entity_Manager::get_all_handles() const
-{
-  std::vector<Entity_Handle> l_result{};
-  l_result.reserve(m_data.size());
-  for (auto const& l_handle : m_data)
-  {
-    l_result.push_back(l_handle);
-  }
-  return l_result;
-}
-
-// Can this handle be added? Return true if it is not present.
-bool sak::Entity_Manager::can_add(Entity_Handle const& a_handle) const
-{
-  return not_null(a_handle) && !do_has_handle(m_data, a_handle);
-}
-
-// Attempt to add this handle. If it cannot be added nothing happens and
-// count() is returned. If it can it is added and the index it ends up
-// at is returned.
-std::size_t sak::Entity_Manager::add(Entity_Handle const& a_handle)
-{
-  if (this->can_add(a_handle))
-  {
-    m_data.push_back(a_handle);
-    std::sort(m_data.begin(), m_data.end());
-    return this->index_handle(a_handle);
-  }
-  else
-  {
-    return this->count();
-  }
-}
-
-// Can this handle be added? Return true if it is present.
-bool sak::Entity_Manager::can_remove(Entity_Handle const& a_handle) const
-{
-  return not_null(a_handle) && do_has_handle(m_data, a_handle);
-}
-
-// Attempt to remove this handle. If it can be removed it is and the index
-// it was at is returned. If it can't npthing happens and count() is returned.
-std::size_t sak::Entity_Manager::remove(Entity_Handle const& a_handle)
-{
-  if (this->can_remove(a_handle))
-  {
-    auto l_result = this->index_handle(a_handle);
-
-    m_data.erase(std::remove(m_data.begin(), m_data.end(), a_handle));
-
-    return l_result;
-  }
-  else
-  {
-    return this->count();
-  }
-}
+// Entity Types
+//------------------------------------------------------------
 
 // Does the project contain any entities of this type?
-bool sak::Entity_Manager::has_type(QString const& a_type) const
+bool sak::Entity_Manager::Implementation::has_type(std::string const& a_type) const
 {
-  return std::find_if(m_data.cbegin(), m_data.cend(),
-                      [&a_type](Entity_Handle const& a_handle) { return a_handle->ctype_component()->get_type() == a_type; }) != m_data.cend();
-
+  return m_entity_collection.has_type(a_type);
 }
 
-// Get the number of Entities that have this type.
-std::size_t sak::Entity_Manager::count_of(QString const& a_type) const
+// How many entities of a given type are in this Project?
+std::size_t sak::Entity_Manager::Implementation::count_of(std::string const& a_type) const
 {
-  std::size_t l_result{0u};
-  for (auto const& l_handle : m_data)
-  {
-    if (l_handle->ctype_component()->get_type() == a_type)
-    {
-      ++l_result;
-    }
-  }
-  return l_result;
+  return m_entity_collection.count_of(a_type);
 }
 
-// Get all the ids of Entities of a given type.
-std::vector<sak::Entity_ID> sak::Entity_Manager::get_all_of(QString const& a_type) const
+// Get all the Entities of a given type. If the type is invalid then the result is empty.
+std::vector<sak::Entity_ID> sak::Entity_Manager::Implementation::get_all_of(std::string const& a_type) const
 {
-  std::vector<Entity_ID> l_result{};
-  for (auto const& l_handle : m_data)
-  {
-    if (l_handle->ctype_component()->get_type() == a_type)
-    {
-      l_result.push_back(l_handle.id());
-    }
-  }
-  return l_result;
+  return m_entity_collection.get_all_of(a_type);
 }
 
-// Get all the handles of Entities of a given type.
-std::vector<sak::Entity_Handle> sak::Entity_Manager::get_all_of_handles(QString const& a_type) const
+// Is this a valid Entity Type?
+bool sak::Entity_Manager::Implementation::can_make(std::string const& a_type) const
 {
-  std::vector<Entity_Handle> l_result{};
-  for (auto const& l_handle : m_data)
+  return m_factory.has_type(a_type);
+}
+
+// Get all of the valid Entity types.
+std::vector<std::string> sak::Entity_Manager::Implementation::get_all_types() const
+{
+  return m_factory.all_types();
+}
+
+
+// Entity Collection Editing
+//------------------------------------------------------------
+
+// Undoable make a new entity using the supplied typestring. If the typestring is invalid the returned
+// id is null, otherwise it is the id of the new entity.
+sak::Entity_ID sak::Entity_Manager::Implementation::try_add(Signal_Source a_source, std::string const& a_type)
+{
+  // If the factory doesn't have this type, we fail.
+  if (m_factory.has_type(a_type) == false)
   {
-    if (l_handle->ctype_component()->get_type() == a_type)
-    {
-      l_result.push_back(l_handle);
-    }
+    return make_null_entity_id();
   }
-  return l_result;
+
+  // We have the type so make one of it.
+  auto l_handle = m_factory.make_entity(a_type);
+
+  // Some buggery has happened if this fires.
+  assert(not_null(l_handle));
+
+  // The handle made had better not already be in the collection.
+  assert(Command_Entity_Add::valid_arguments(l_handle, m_entity_collection));
+
+  // Make and execute the command.
+  m_command_history.emplace_execute<Command_Entity_Add>(a_source, m_observers, l_handle, m_entity_collection);
+
+  // Return the id of the handle we just added.
+  return l_handle.id();
+}
+
+// Undoable remove entity. Return true if the operation resulted in an undoable command.
+bool sak::Entity_Manager::Implementation::try_remove(Signal_Source a_source, Entity_ID a_id)
+{
+  // Get the handle for this id.
+  auto l_handle = m_entity_collection.get_handle(a_id);
+
+  // If this id doesn't exist, we fail
+  if (is_null(l_handle))
+  {
+    return false;
+  }
+
+  // The handle made had better not already be in the collection.
+  assert(Command_Entity_Remove::valid_arguments(l_handle, m_entity_collection));
+
+  // Make and execute the command.
+  m_command_history.emplace_execute<Command_Entity_Remove>(a_source, m_observers, l_handle, m_entity_collection);
+
+  // Return success.
+  return true;
+}
+
+// Request that the editor for this entity be opened or switched to.
+bool sak::Entity_Manager::Implementation::try_request_editor(Signal_Source a_source, Entity_ID a_id)
+{
+  // If this id doesn't exist, we fail
+  if (this->has(a_id) == false)
+  {
+    return false;
+  }
+
+  // Make a signal to request outliner focus.
+  Entity_Outliner_Request_Signal l_outliner_signal{a_source, a_id};
+
+  // Send the signal out.
+  m_observers.send(l_outliner_signal);
+
+  // Make a signal to request the editor
+  Entity_Editor_Request_Signal l_editor_signal{a_source, a_id};
+
+  // Send the signal out.
+  m_observers.send(l_editor_signal);
+
+  return true;
+}
+
+// Request that the focus change to this entity.
+bool sak::Entity_Manager::Implementation::try_request_outliner(Signal_Source a_source, Entity_ID a_id)
+{
+  // If this id doesn't exist, we fail
+  if (this->has(a_id) == false)
+  {
+    return false;
+  }
+  // Make a signal to request outliner focus.
+  Entity_Outliner_Request_Signal l_outliner_signal{a_source, a_id};
+
+  // Send the signal out.
+  m_observers.send(l_outliner_signal);
+
+  return true;
+}
+
+
+// Entity Names
+//------------------------------------------------------------
+
+// Does this name appear in the data?
+bool sak::Entity_Manager::Implementation::has_name(std::string const& a_name) const
+{
+  return m_entity_collection.has_name(a_name);
+}
+
+// Get all the objects names in data order
+std::vector<std::string> sak::Entity_Manager::Implementation::get_all_names() const
+{
+  return m_entity_collection.get_all_names();
+}
+
+// Get the name of the data associated with the supplied id. If the id is null or invalid,
+// the returned name is empty, which names cannot be.
+std::string sak::Entity_Manager::Implementation::name(Entity_ID a_id) const
+{
+  auto l_handle = m_entity_collection.get_handle(a_id);
+
+  if (not_null(l_handle))
+  {
+    return l_handle->cname_component()->get_name();
+  }
+  else
+  {
+    return std::string{};
+  }
+}
+
+// Attempt an undoable change to the name of the data associated with the supplied id. If
+// the id is valid and the supplied value results in a change to the data, signals are emitted
+// telling everything to update this name, and true is returned. If the id is null or
+// invalid, nothing happens and false is returned. Success does not indicate that the name
+// is set to what has been supplied, but that the name has changed.
+bool sak::Entity_Manager::Implementation::try_set_name(Signal_Source a_source, Entity_ID a_id, std::string const& a_name)
+{
+  // Get the handle for this id.
+  auto l_handle = m_entity_collection.get_handle(a_id);
+
+  // If this id doesn't exist, fail
+  if (is_null(l_handle))
+  {
+    return false;
+  }
+
+  // If the name is the same as it already is, fail
+  if (!Command_Entity_Name_Change::valid_arguments(l_handle, a_name))
+  {
+    return false;
+  }
+
+  // Copy the name
+  std::string l_name{a_name};
+
+  // Fix it if necessary
+  if (m_entity_collection.has_name(l_name))
+  {
+    m_entity_collection.fix_name(l_name);
+  }
+
+  // Better not have this name
+  assert(!m_entity_collection.has_name(l_name));
+
+  // Better be valid arguments now.
+  assert(Command_Entity_Name_Change::valid_arguments(l_handle, a_name));
+
+  // Make and execute the command using the fixed name.
+  m_command_history.emplace_execute<Command_Entity_Name_Change>(a_source, m_observers, l_handle, l_name);
+
+  // Return success.
+  return true;
+}
+
+
+// Entity System Data
+//------------------------------------------------------------
+
+// Get the type of a given entity. If the id is null or invalid the string is empty.
+std::string sak::Entity_Manager::Implementation::type(Entity_ID a_id) const
+{
+  auto l_handle = m_entity_collection.get_handle(a_id);
+
+  if (not_null(l_handle))
+  {
+    return l_handle->ctype_component()->get_type();
+  }
+  else
+  {
+    return std::string{};
+  }
+}
+
+// Get the iconpath for a given entity. If the id is null or invalid the string is empty.
+std::string sak::Entity_Manager::Implementation::iconpath(Entity_ID a_id) const
+{
+  auto l_handle = m_entity_collection.get_handle(a_id);
+
+  if (not_null(l_handle))
+  {
+    return l_handle->cicon_component()->get_iconpath();
+  }
+  else
+  {
+    return std::string{};
+  }
+}
+
+//------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+//---------------------------------------------------------------------------
+// sak::Project
+//---------------------------------------------------------------------------
+// A Project contains a number of entities.
+
+// Special 6
+//============================================================
+sak::Entity_Manager::Entity_Manager(Entity_Factory&& a_factory) :
+  m_imp{std::make_unique<Implementation>(std::move(a_factory))}
+{
+}
+
+sak::Entity_Manager::~Entity_Manager() = default;
+
+// Can move since data is a pointer.
+sak::Entity_Manager::Entity_Manager(Entity_Manager &&) = default;
+sak::Entity_Manager& sak::Entity_Manager::operator=(Entity_Manager &&) = default;
+
+// Interface
+//============================================================
+
+// Observers
+//------------------------------------------------------------
+// Add an object that will rely on the Project's signals. If
+// nulltpr or already present, nothing happens.
+void sak::Entity_Manager::add_observer(Abstract_Observer* a_observer)
+{
+  imp().add_observer(a_observer);
+}
+
+// Remove an object that will rely on the Project's signals. If
+// nulltpr or not present, nothing happens.
+void sak::Entity_Manager::remove_observer(Abstract_Observer* a_observer)
+{
+  imp().remove_observer(a_observer);
+}
+
+// Clear all the observers so that nothing relies on changes to this.
+void sak::Entity_Manager::clear_observers()
+{
+  imp().clear_observers();
+}
+
+
+// Command History
+//------------------------------------------------------------
+// Can we currently call undo?
+bool sak::Entity_Manager::can_undo() const
+{
+  return cimp().can_undo();
+}
+
+// Can we currently call redo?
+bool sak::Entity_Manager::can_redo() const
+{
+  return cimp().can_redo();
+}
+
+// How many times can undo() be called?
+std::size_t sak::Entity_Manager::undo_count() const
+{
+  return cimp().undo_count();
+}
+
+// How many times can redo() be called?
+std::size_t sak::Entity_Manager::redo_count() const
+{
+  return cimp().redo_count();
+}
+
+// Undo the last command issued. Return true if succeeded.
+bool sak::Entity_Manager::undo()
+{
+  return imp().undo();
+}
+
+// Redo the last undone command. Return true if succeeded.
+bool sak::Entity_Manager::redo()
+{
+  return imp().redo();
+}
+
+// Clear the undo/redo history.
+void sak::Entity_Manager::clear_history()
+{
+  imp().clear_history();
+}
+
+// Entity Collection
+//------------------------------------------------------------
+
+// Are there any entities in this Project?
+bool sak::Entity_Manager::is_empty() const
+{
+  return cimp().is_empty();
+}
+
+// How many entities are in this Project?
+std::size_t sak::Entity_Manager::count() const
+{
+  return cimp().count();
+}
+
+// Does this id appear in the data?
+bool sak::Entity_Manager::has(Entity_ID a_id) const
+{
+  return cimp().has(a_id);
+}
+
+// Get the index of the data associated with the supplied id. This is the current position
+// in the project's collection of data for this type of data. If the id is null or invalid,
+// the returned index is equal to count().
+std::size_t sak::Entity_Manager::index(Entity_ID a_id) const
+{
+  return cimp().index(a_id);
+}
+
+// Get the id at this index. If the index is invalid a null id is returned.
+sak::Entity_ID sak::Entity_Manager::get_at(std::size_t a_index) const
+{
+  return cimp().get_at(a_index);
+}
+
+// Get all the ids in data order
+std::vector<sak::Entity_ID> sak::Entity_Manager::get_all() const
+{
+  return cimp().get_all();
+}
+
+
+// Entity Types
+//------------------------------------------------------------
+
+// Does the project contain any entities of this type?
+bool sak::Entity_Manager::has_type(std::string const& a_type) const
+{
+  return cimp().has_type(a_type);
+}
+
+// How many entities of a given type are in this Project?
+std::size_t sak::Entity_Manager::count_of(std::string const& a_type) const
+{
+  return cimp().count_of(a_type);
+}
+
+// Get all the Entities of a given type. If the type is invalid then the result is empty.
+std::vector<sak::Entity_ID> sak::Entity_Manager::get_all_of(std::string const& a_type) const
+{
+  return cimp().get_all_of(a_type);
+}
+
+// Is this a valid Entity Type?
+bool sak::Entity_Manager::can_make(std::string const& a_type) const
+{
+  return cimp().can_make(a_type);
+}
+
+// Get all of the valid Entity types.
+std::vector<std::string> sak::Entity_Manager::get_all_types() const
+{
+  return cimp().get_all_types();
+}
+
+// Entity Collection Editing
+//------------------------------------------------------------
+
+// Undoable make a new entity using the supplied typestring. If the typestring is invalid the returned
+// id is null, otherwise it is the id of the new entity.
+sak::Entity_ID sak::Entity_Manager::try_add(Signal_Source a_source, std::string const& a_type)
+{
+  return imp().try_add(a_source, a_type);
+}
+
+// Undoable remove entity. Return true if the operation resulted in an undoable command.
+bool sak::Entity_Manager::try_remove(Signal_Source a_source, Entity_ID a_id)
+{
+  return imp().try_remove(a_source, a_id);
+}
+
+// Request that the editor for this entity be opened or switched to.
+bool sak::Entity_Manager::try_request_editor(Signal_Source a_source, Entity_ID a_id)
+{
+  return imp().try_request_editor(a_source, a_id);
+}
+
+// Request that the focus change to this entity.
+bool sak::Entity_Manager::try_request_outliner(Signal_Source a_source, Entity_ID a_id)
+{
+  return imp().try_request_outliner(a_source, a_id);
+}
+
+// Entity Names
+//------------------------------------------------------------
+
+// Does this name appear in the data?
+bool sak::Entity_Manager::has_name(std::string const& a_name) const
+{
+  return cimp().has_name(a_name);
+}
+
+// Get all the objects names in data order
+std::vector<std::string> sak::Entity_Manager::get_all_names() const
+{
+  return cimp().get_all_names();
+}
+
+
+// Get the name of the data associated with the supplied id. If the id is null or invalid,
+// the returned name is empty, which names cannot be.
+std::string sak::Entity_Manager::name(Entity_ID a_id) const
+{
+  return cimp().name(a_id);
+}
+
+// Attempt an undoable change to the name of the data associated with the supplied id. If
+// the id is valid and the supplied value results in a change to the data, signals are emitted
+// telling everything to update this name, and true is returned. If the id is null or
+// invalid, nothing happens and false is returned. Success does not indicate that the name
+// is set to what has been supplied, but that the name has changed.
+bool sak::Entity_Manager::try_set_name(Signal_Source a_source, Entity_ID a_id, std::string const& a_name)
+{
+  return imp().try_set_name(a_source, a_id, a_name);
+}
+
+
+// Entity System Data
+//------------------------------------------------------------
+
+// Get the type of a given entity. If the id is null or invalid the string is empty.
+std::string sak::Entity_Manager::type(Entity_ID a_id) const
+{
+  return cimp().type(a_id);
+}
+
+// Get the iconpath for a given entity. If the id is null or invalid the string is empty.
+std::string sak::Entity_Manager::iconpath(Entity_ID a_id) const
+{
+  return cimp().iconpath(a_id);
 }

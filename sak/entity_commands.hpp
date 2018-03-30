@@ -1,10 +1,10 @@
-﻿#ifndef SAK_PROJECT_COMMANDS_HPP
-#define SAK_PROJECT_COMMANDS_HPP
+﻿#ifndef SAK_ENTITY_COMMANDS_HPP
+#define SAK_ENTITY_COMMANDS_HPP
 
 // This Header's Forward Header
 //============================================================
-#ifndef SAK_PROJECT_COMMANDS_FWD_HPP
-#include "project_commands_fwd.hpp"
+#ifndef SAK_ENTITY_COMMANDS_FWD_HPP
+#include "entity_commands_fwd.hpp"
 #endif
 
 // Other Forwarding Headers
@@ -17,8 +17,8 @@
 #include "observer_manager_fwd.hpp"
 #endif
 
-#ifndef SAK_ENTITY_MANAGER_FWD_HPP
-#include "entity_manager_fwd.hpp"
+#ifndef SAK_ENTITY_COLLECTION_FWD_HPP
+#include "entity_collection_fwd.hpp"
 #endif
 
 // Headers
@@ -33,17 +33,11 @@
 
 // Standard Headers
 //============================================================
-//#ifndef INCLUDE_STD_VECTOR
-//#define INCLUDE_STD_VECTOR
-//#include <vector>
-//#endif
-
-// Qt Headers
-//============================================================
-#ifndef INCLUDE_STD_QSTRING
-#define INCLUDE_STD_QSTRING
-#include <QString>
+#ifndef INCLUDE_STD_STRING
+#define INCLUDE_STD_STRING
+#include <string>
 #endif
+
 
 namespace sak
 {
@@ -150,21 +144,21 @@ namespace sak
   private:
     // Data Members
     //============================================================
-    Entity_Manager& m_entity_manager;
+    Entity_Collection& m_collection;
 
   public:
     // Interface
     //============================================================
     // Determine whether a command can be issued with these arguments. Returns
     // true if the given handle is not found in the given entity vector.
-    static bool valid_arguments(Entity_Handle const& a_handle, Entity_Manager const& a_entity_manager);
+    static bool valid_arguments(Entity_Handle const& a_handle, Entity_Collection const& a_collection);
 
     // Special 6
     //============================================================
     Command_Entity_Add(Signal_Source a_source,
                        Observer_Manager& a_observers,
                        Entity_Handle const& a_handle,
-                       Entity_Manager& a_entity_manager);
+                       Entity_Collection& a_collection);
     ~Command_Entity_Add() override final;
 
     // NO COPYING
@@ -194,20 +188,20 @@ namespace sak
   private:
     // Data Members
     //============================================================
-    Entity_Manager& m_entity_manager;
+    Entity_Collection& m_collection;
   public:
     // Interface
     //============================================================
     // Determine whether a command can be issued with these arguments. Returns
     // true if the given handle is found in the given entity vector.
-    static bool valid_arguments(Entity_Handle const& a_handle, Entity_Manager const& a_entity_manager);
+    static bool valid_arguments(Entity_Handle const& a_handle, Entity_Collection const& a_collection);
 
     // Special 6
     //============================================================
     Command_Entity_Remove(Signal_Source a_source,
                           Observer_Manager& a_observers,
                           Entity_Handle const& a_handle,
-                          Entity_Manager& a_entity_manager);
+                          Entity_Collection& a_collection);
     ~Command_Entity_Remove() override final;
 
     // NO COPYING
@@ -237,21 +231,21 @@ namespace sak
   private:
     // Data Members
     //============================================================
-    QString m_old_name;
-    QString m_new_name;
+    std::string m_old_name;
+    std::string m_new_name;
   public:
     // Interface
     //============================================================
     // Determine whether a command can be issued with these arguments. Returns
     // true if the name is not the same as that in the handle
-    static bool valid_arguments(Entity_Handle const& a_handle, QString const& a_name);
+    static bool valid_arguments(Entity_Handle const& a_handle, std::string const& a_name);
 
     // Special 6
     //============================================================
     Command_Entity_Name_Change(Signal_Source a_source,
                                Observer_Manager& a_observers,
                                Entity_Handle const& a_handle,
-                               QString const& a_name);
+                               std::string const& a_name);
     ~Command_Entity_Name_Change() override final;
 
     // NO COPYING
@@ -273,4 +267,4 @@ namespace sak
 
 }
 
-#endif // SAK_PROJECT_COMMANDS_HPP
+#endif // SAK_ENTITY_COMMANDS_HPP

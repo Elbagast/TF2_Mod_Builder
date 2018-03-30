@@ -8,8 +8,7 @@
 
 #include <iostream>
 #include <cassert>
-
-#include <QString>
+#include <string>
 
 void sak::testing::test_entity_maker()
 {
@@ -22,7 +21,7 @@ void sak::testing::test_entity_maker()
 
   Abstract_Entity_Maker* l_maker{l_true_maker.get()};
 
-  std::cout << "Abstract_Entity_Maker::type = " << l_maker->type().toStdString() << std::endl;
+  std::cout << "Abstract_Entity_Maker::type = " << l_maker->type() << std::endl;
 
   auto l_id = make_entity_id(123u);
   std::cout << "id value = " << entity_id_value(l_id) << std::endl;

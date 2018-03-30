@@ -2,7 +2,6 @@
 #define SAK_DUMMY_ENTITY_HPP
 
 #include <sak/entity.hpp>
-#include <QString>
 
 namespace sak
 {
@@ -10,20 +9,20 @@ namespace sak
       public Abstract_Entity_Name
   {
   private:
-    QString m_name;
+    std::string m_name;
   public:
-    explicit Dummy_Entity_Name(QString const& a_name):
+    explicit Dummy_Entity_Name(std::string const& a_name):
       Abstract_Entity_Name(),
       m_name{a_name}
     {
     }
     ~Dummy_Entity_Name() override final = default;
 
-    QString const& get_name() const override final
+    std::string const& get_name() const override final
     {
       return m_name;
     }
-    bool set_name(QString const& a_name) override final
+    bool set_name(std::string const& a_name) override final
     {
       if (a_name != m_name)
       {
@@ -41,16 +40,16 @@ namespace sak
       public Abstract_Entity_Type
   {
   private:
-    QString m_data;
+    std::string m_data;
   public:
-    explicit Dummy_Entity_Type(QString const& a_data):
+    explicit Dummy_Entity_Type(std::string const& a_data):
       Abstract_Entity_Type(),
       m_data{a_data}
     {
     }
     ~Dummy_Entity_Type() override final = default;
 
-    QString const& get_type() const override final
+    std::string const& get_type() const override final
     {
       return m_data;
     }
@@ -60,16 +59,16 @@ namespace sak
       public Abstract_Entity_Tooltip
   {
   private:
-    QString m_data;
+    std::string m_data;
   public:
-    explicit Dummy_Entity_Tooltip(QString const& a_data):
+    explicit Dummy_Entity_Tooltip(std::string const& a_data):
       Abstract_Entity_Tooltip(),
       m_data{a_data}
     {
     }
     ~Dummy_Entity_Tooltip() override final = default;
 
-    QString const& get_tooltip() const override final
+    std::string const& get_tooltip() const override final
     {
       return m_data;
     }
@@ -79,16 +78,16 @@ namespace sak
       public Abstract_Entity_Icon
   {
   private:
-    QString m_data;
+    std::string m_data;
   public:
-    explicit Dummy_Entity_Icon(QString const& a_data):
+    explicit Dummy_Entity_Icon(std::string const& a_data):
       Abstract_Entity_Icon(),
       m_data{a_data}
     {
     }
     ~Dummy_Entity_Icon() override final = default;
 
-    QString const& get_iconpath() const override final
+    std::string const& get_iconpath() const override final
     {
       return m_data;
     }

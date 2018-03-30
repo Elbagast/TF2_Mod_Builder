@@ -6,13 +6,16 @@
 #include <vector>
 #endif
 
-class QString;
+#ifndef INCLUDE_STD_STRING
+#define INCLUDE_STD_STRING
+#include <string>
+#endif
 
 namespace sak
 {
   // Take the supplied name and alter it as necessary to be unique among the names that
   // are already in the supplied vector.
-  void uniqueify_name(QString& a_name, std::vector<QString> const& a_names);
+  void uniqueify_name(std::string& a_name, std::vector<std::string> const& a_names);
 }
 
 #endif // SAK_NAME_UTILITIES_HPP

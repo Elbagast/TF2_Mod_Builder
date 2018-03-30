@@ -38,7 +38,7 @@ namespace sak
     // Interface
     //============================================================
     // Get the typestring for this Entity type.
-    QString type() const override final;
+    std::string type() const override final;
 
     // Make a new Entity of this type with the supplied id. If the supplied id
     // is invalid then the handle is a null handle and no entity data was

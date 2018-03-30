@@ -2,6 +2,7 @@
 
 #include <sak/entity_id.hpp>
 #include <sak/project.hpp>
+#include <sak/entity_manager.hpp>
 
 #include "dummy_observer.hpp"
 
@@ -21,7 +22,7 @@ void sak::testing::test_project()
 
   Dummy_Observer l_do{};
 
-  l_project.add_observer(std::addressof(l_do));
+  l_project.entity_manager().add_observer(std::addressof(l_do));
 
   std::cout << "==============================" << std::endl;
 }

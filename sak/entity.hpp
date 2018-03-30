@@ -14,7 +14,10 @@
 #include <memory>
 #endif
 
-class QString;
+#ifndef INCLUDE_STD_STRING
+#define INCLUDE_STD_STRING
+#include <string>
+#endif
 
 namespace sak
 {
@@ -23,8 +26,8 @@ namespace sak
   {
   public:
     virtual ~Abstract_Entity_Name() = default;
-    virtual QString const& get_name() const = 0;
-    virtual bool set_name(QString const&) = 0;
+    virtual std::string const& get_name() const = 0;
+    virtual bool set_name(std::string const&) = 0;
 
     // Do we just put the command and widget bit in here...?
   };
@@ -33,7 +36,7 @@ namespace sak
   {
   public:
     virtual ~Abstract_Entity_Type() = default;
-    virtual QString const& get_type() const = 0;
+    virtual std::string const& get_type() const = 0;
 
     // Do we just put the command and widget bit in here...?
   };
@@ -42,14 +45,14 @@ namespace sak
   {
   public:
     virtual ~Abstract_Entity_Tooltip() = default;
-    virtual QString const& get_tooltip() const = 0;
+    virtual std::string const& get_tooltip() const = 0;
   };
 
   class Abstract_Entity_Icon
   {
   public:
     virtual ~Abstract_Entity_Icon() = default;
-    virtual QString const& get_iconpath() const = 0;
+    virtual std::string const& get_iconpath() const = 0;
   };
 
 

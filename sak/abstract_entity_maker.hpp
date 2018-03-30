@@ -13,7 +13,10 @@
 #include "entity_id_fwd.hpp"
 #endif
 
-class QString;
+#ifndef INCLUDE_STD_STRING
+#define INCLUDE_STD_STRING
+#include <string>
+#endif
 
 namespace sak
 {
@@ -33,7 +36,7 @@ namespace sak
     // Interface
     //============================================================
     // Get the typestring for this Entity type.
-    virtual QString type() const = 0;
+    virtual std::string type() const = 0;
 
     // Make a new Entity of this type with the supplied id. If the supplied id
     // is invalid then the handle is a null handle and no entity data was

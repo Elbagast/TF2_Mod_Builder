@@ -9,8 +9,7 @@
 #include <memory>
 #include <iostream>
 #include <cassert>
-
-#include <QString>
+#include <string>
 
 namespace
 {
