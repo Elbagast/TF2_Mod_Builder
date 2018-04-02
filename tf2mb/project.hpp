@@ -1,12 +1,16 @@
-﻿#ifndef SAK_PROJECT_HPP
-#define SAK_PROJECT_HPP
+﻿#ifndef SAK_TF2MB_PROJECT_HPP
+#define SAK_TF2MB_PROJECT_HPP
 
-#ifndef SAK_PROJECT_FWD_HPP
+#ifndef SAK_TF2MB_PROJECT_FWD_HPP
 #include "project_fwd.hpp"
 #endif
 
 #ifndef SAK_ENTITY_MANAGER_FWD_HPP
-#include "entity_manager_fwd.hpp"
+#include <sak/entity_manager_fwd.hpp>
+#endif
+
+#ifndef SAK_ENTITY_ID_FWD_HPP
+#include <sak/entity_id_fwd.hpp>
 #endif
 
 #ifndef INCLUDE_STD_MEMORY
@@ -15,9 +19,12 @@
 #endif
 
 class QString;
+class QWidget;
 
 namespace sak
 {
+  class Entity_Editor_Wdiget;
+
   //---------------------------------------------------------------------------
   // Project
   //---------------------------------------------------------------------------
@@ -72,7 +79,14 @@ namespace sak
     Entity_Manager const& centity_manager() const;
 
 
+    // Widget Interface
+    //------------------------------------------------------------
+    // Attempt to make an editor for this Entity. If the id is null or
+    // invalid a nullptr is returned. If it is valid a widget is made
+    // that matches the current Entity state.
+    std::unique_ptr<Entity_Editor_Wdiget> make_editor(Entity_ID a_id);
   };
 }
 
-#endif // SAK_PROJECT_HPP
+
+#endif // SAK_TF2MB_PROJECT_HPP

@@ -5,6 +5,22 @@
 #include "entity_fwd.hpp"
 #endif
 
+#ifndef SAK_ABSTRACT_ENTITY_NAME_FWD_HPP
+#include "abstract_entity_name_fwd.hpp"
+#endif
+
+#ifndef SAK_ABSTRACT_ENTITY_TYPE_FWD_HPP
+#include "abstract_entity_type_fwd.hpp"
+#endif
+
+#ifndef SAK_ABSTRACT_ENTITY_TOOLTIP_FWD_HPP
+#include "abstract_entity_tooltip_fwd.hpp"
+#endif
+
+#ifndef SAK_ABSTRACT_ENTITY_ICON_FWD_HPP
+#include "abstract_entity_icon_fwd.hpp"
+#endif
+
 #ifndef SAK_ENTITY_ID_HPP
 #include "entity_id.hpp"
 #endif
@@ -21,41 +37,6 @@
 
 namespace sak
 {
-
-  class Abstract_Entity_Name
-  {
-  public:
-    virtual ~Abstract_Entity_Name() = default;
-    virtual std::string const& get_name() const = 0;
-    virtual bool set_name(std::string const&) = 0;
-
-    // Do we just put the command and widget bit in here...?
-  };
-
-  class Abstract_Entity_Type
-  {
-  public:
-    virtual ~Abstract_Entity_Type() = default;
-    virtual std::string const& get_type() const = 0;
-
-    // Do we just put the command and widget bit in here...?
-  };
-
-  class Abstract_Entity_Tooltip
-  {
-  public:
-    virtual ~Abstract_Entity_Tooltip() = default;
-    virtual std::string const& get_tooltip() const = 0;
-  };
-
-  class Abstract_Entity_Icon
-  {
-  public:
-    virtual ~Abstract_Entity_Icon() = default;
-    virtual std::string const& get_iconpath() const = 0;
-  };
-
-
   //---------------------------------------------------------------------------
   // Entity
   //---------------------------------------------------------------------------
@@ -82,11 +63,11 @@ namespace sak
            std::unique_ptr<Abstract_Entity_Icon>&& a_icon_component);
     ~Entity();
 
-    // Block copying and moving so we don't end up duplicating the destruction
-    // calls later.
+    // Block copying so we don't break components.
     Entity(Entity const& a_other) = delete;
     Entity& operator=(Entity const& a_other) = delete;
 
+    // Block moving so we don't break components.
     Entity(Entity && a_other) = delete;
     Entity& operator=(Entity && a_other) = delete;
 

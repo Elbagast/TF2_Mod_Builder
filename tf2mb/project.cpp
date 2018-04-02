@@ -1,7 +1,7 @@
 ﻿#include "project.hpp"
 
-#include "entity_manager.hpp"
-#include "entity_factory.hpp"
+#include <sak/entity_manager.hpp>
+#include <sak/entity_factory.hpp>
 
 #include <QFileInfo>
 #include <QDir>
@@ -194,4 +194,3 @@ sak::Entity_Manager const& sak::Project::centity_manager() const
 {
   return cimp().centity_manager();
 }
-

@@ -1,6 +1,8 @@
 ﻿#include "entity_collection.hpp"
 
 #include "entity.hpp"
+#include "abstract_entity_name.hpp"
+#include "abstract_entity_type.hpp"
 #include "name_utilities.hpp"
 
 #include <algorithm>
@@ -290,7 +292,7 @@ std::size_t sak::Entity_Collection::remove(Entity_Handle const& a_handle)
 bool sak::Entity_Collection::has_type(std::string const& a_type) const
 {
   return std::find_if(m_data.cbegin(), m_data.cend(),
-                      [&a_type](Entity_Handle const& a_handle) { return a_handle->ctype_component()->get_type() == a_type; }) != m_data.cend();
+                      [&a_type](Entity_Handle const& a_handle) { return a_handle->ctype_component()->type() == a_type; }) != m_data.cend();
 
 }
 
@@ -300,7 +302,7 @@ std::size_t sak::Entity_Collection::count_of(std::string const& a_type) const
   std::size_t l_result{0u};
   for (auto const& l_handle : m_data)
   {
-    if (l_handle->ctype_component()->get_type() == a_type)
+    if (l_handle->ctype_component()->type() == a_type)
     {
       ++l_result;
     }
@@ -314,7 +316,7 @@ std::vector<sak::Entity_ID> sak::Entity_Collection::get_all_of(std::string const
   std::vector<Entity_ID> l_result{};
   for (auto const& l_handle : m_data)
   {
-    if (l_handle->ctype_component()->get_type() == a_type)
+    if (l_handle->ctype_component()->type() == a_type)
     {
       l_result.push_back(l_handle.id());
     }
@@ -328,7 +330,7 @@ std::vector<sak::Entity_Handle> sak::Entity_Collection::get_all_of_handles(std::
   std::vector<Entity_Handle> l_result{};
   for (auto const& l_handle : m_data)
   {
-    if (l_handle->ctype_component()->get_type() == a_type)
+    if (l_handle->ctype_component()->type() == a_type)
     {
       l_result.push_back(l_handle);
     }

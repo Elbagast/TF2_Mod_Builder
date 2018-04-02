@@ -1,5 +1,10 @@
 ﻿#include "entity.hpp"
 
+#include "abstract_entity_name.hpp"
+#include "abstract_entity_type.hpp"
+#include "abstract_entity_tooltip.hpp"
+#include "abstract_entity_icon.hpp"
+
 #include <cassert>
 
 //---------------------------------------------------------------------------

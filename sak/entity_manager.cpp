@@ -2,6 +2,10 @@
 
 #include "entity_id.hpp"
 #include "entity.hpp"
+#include "abstract_entity_name.hpp"
+#include "abstract_entity_type.hpp"
+#include "abstract_entity_icon.hpp"
+
 #include "entity_handle.hpp"
 
 #include "command_history.hpp"
@@ -523,7 +527,7 @@ std::string sak::Entity_Manager::Implementation::type(Entity_ID a_id) const
 
   if (not_null(l_handle))
   {
-    return l_handle->ctype_component()->get_type();
+    return l_handle->ctype_component()->type();
   }
   else
   {
@@ -538,7 +542,7 @@ std::string sak::Entity_Manager::Implementation::iconpath(Entity_ID a_id) const
 
   if (not_null(l_handle))
   {
-    return l_handle->cicon_component()->get_iconpath();
+    return l_handle->cicon_component()->iconpath();
   }
   else
   {

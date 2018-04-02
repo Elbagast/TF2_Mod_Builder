@@ -4,7 +4,10 @@
 #include <sak/entity.hpp>
 #include <sak/entity_handle.hpp>
 
-#include "dummy_entity.hpp"
+#include <sak/entity_name.hpp>
+#include <sak/entity_type.hpp>
+#include <sak/entity_icon.hpp>
+#include <sak/entity_tooltip.hpp>
 
 #include <memory>
 #include <cassert>
@@ -37,10 +40,10 @@ sak::Entity_Handle sak::Dummy_Entity_Maker::make_entity(Entity_ID a_id) const
   return Entity_Handle{std::make_shared<Entity>
           (
             a_id,
-            std::unique_ptr<Abstract_Entity_Name>(std::make_unique<Dummy_Entity_Name>(this->type()).release()),
-            std::unique_ptr<Abstract_Entity_Type>(std::make_unique<Dummy_Entity_Type>(this->type()).release()),
-            std::unique_ptr<Abstract_Entity_Tooltip>(std::make_unique<Dummy_Entity_Tooltip>(std::string{"dummy tooltip"}).release()),
-            std::unique_ptr<Abstract_Entity_Icon>(std::make_unique<Dummy_Entity_Icon>(std::string{"dummy iconpath"}).release())
+            std::unique_ptr<Abstract_Entity_Name>(std::make_unique<Entity_Name>(this->type()).release()),
+            std::unique_ptr<Abstract_Entity_Type>(std::make_unique<Local_Entity_Type>(this->type()).release()),
+            std::unique_ptr<Abstract_Entity_Tooltip>(std::make_unique<Local_Entity_Tooltip>(std::string{"dummy tooltip"}).release()),
+            std::unique_ptr<Abstract_Entity_Icon>(std::make_unique<Local_Entity_Icon>(std::string{"dummy iconpath"}).release())
           ) };
 }
 

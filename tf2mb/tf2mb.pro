@@ -110,9 +110,12 @@ DEPENDPATH += $${FLAMINGO_LIBRARY_DIR}
 
 SOURCES += \
   main.cpp \
+    project.cpp
     
 
 HEADERS  += \
+    project.hpp \
+    project_fwd.hpp
     
 
 FORMS

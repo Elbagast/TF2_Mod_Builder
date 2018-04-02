@@ -1,6 +1,8 @@
 ﻿#include "entity_commands.hpp"
 
 #include "entity.hpp"
+#include "abstract_entity_name.hpp"
+
 #include "entity_handle.hpp"
 #include "entity_collection.hpp"
 

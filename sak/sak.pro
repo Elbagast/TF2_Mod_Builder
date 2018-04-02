@@ -83,7 +83,6 @@ SOURCES += \
     command_history.cpp \
     abstract_command.cpp \
     entity_id.cpp \
-    project.cpp \
     variant.cpp \
     entity_manager.cpp \
     entity_handle.cpp \
@@ -100,7 +99,15 @@ SOURCES += \
     entity_commands.cpp \
     signal_entity_added.cpp \
     signal_entity_removed.cpp \
-    signal_entity_name_changed.cpp
+    signal_entity_name_changed.cpp \
+    entity_name.cpp \
+    abstract_entity_name.cpp \
+    abstract_entity_type.cpp \
+    entity_type.cpp \
+    abstract_entity_tooltip.cpp \
+    entity_tooltip.cpp \
+    abstract_entity_icon.cpp \
+    entity_icon.cpp
 
 HEADERS  += \
     gui/line_edit.hpp \
@@ -113,8 +120,6 @@ HEADERS  += \
     abstract_command_fwd.hpp \
     entity_id.hpp \
     entity_id_fwd.hpp \
-    project.hpp \
-    project_fwd.hpp \
     variant.hpp \
     variant_fwd.hpp \
     entity_manager.hpp \
@@ -143,7 +148,23 @@ HEADERS  += \
     entity_commands_fwd.hpp \
     signal_entity_added.hpp \
     signal_entity_removed.hpp \
-    signal_entity_name_changed.hpp
+    signal_entity_name_changed.hpp \
+    entity_name.hpp \
+    abstract_entity_name.hpp \
+    abstract_entity_name_fwd.hpp \
+    entity_name_fwd.hpp \
+    abstract_entity_type.hpp \
+    abstract_entity_type_fwd.hpp \
+    entity_type.hpp \
+    entity_type_fwd.hpp \
+    abstract_entity_tooltip.hpp \
+    entity_tooltip.hpp \
+    entity_tooltip_fwd.hpp \
+    abstract_entity_tooltip_fwd.hpp \
+    abstract_entity_icon.hpp \
+    abstract_entity_icon_fwd.hpp \
+    entity_icon.hpp \
+    entity_icon_fwd.hpp
 
 FORMS += \
 
