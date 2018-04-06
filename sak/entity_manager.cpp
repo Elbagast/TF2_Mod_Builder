@@ -1,22 +1,21 @@
 ﻿#include "entity_manager.hpp"
 
 #include "entity_id.hpp"
-#include "entity.hpp"
-#include "abstract_entity_name.hpp"
-#include "abstract_entity_type.hpp"
-#include "abstract_entity_icon.hpp"
 
-#include "entity_handle.hpp"
+#include "signal_entity.hpp"
 
-#include "command_history.hpp"
-#include "observer_manager.hpp"
-#include "entity_factory.hpp"
-#include "entity_collection.hpp"
+#include "internal/entity.hpp"
+#include "internal/abstract_entity_name.hpp"
+#include "internal/abstract_entity_type.hpp"
+#include "internal/abstract_entity_icon.hpp"
 
-#include "entity_commands.hpp"
-
-#include "entity_editor_request_signal.hpp"
-#include "entity_outliner_request_signal.hpp"
+#include "internal/abstract_entity_maker.hpp"
+#include "internal/entity_handle.hpp"
+#include "internal/command_history.hpp"
+#include "internal/observer_manager.hpp"
+#include "internal/entity_factory.hpp"
+#include "internal/entity_collection.hpp"
+#include "internal/entity_commands.hpp"
 
 #include <algorithm>
 #include <cassert>
@@ -41,9 +40,9 @@ namespace sak
   public:
     // Special 6
     //============================================================
-    // Intialise by passing in a factory that has already been setup to have
-    // all the Entity types we want. We won't be able to change them later.
-    explicit Implementation(Entity_Factory&& a_factory);
+    // Intialise by passing in a collection of Entity makers to install. We
+    // won't be able to add to this list or remove from it later.
+    explicit Implementation(std::vector<Entity_Definition> const& a_defs);
     ~Implementation();
 
     Implementation(Implementation const&) = delete;
@@ -191,14 +190,20 @@ namespace sak
 
 // Special 6
 //============================================================
-// Intialise by passing in a factory that has already been setup to have
-// all the Entity types we want. We won't be able to change them later.
-sak::Entity_Manager::Implementation::Implementation(Entity_Factory&& a_factory) :
+// Intialise by passing in a collection of Entity makers to install. We
+// won't be able to add to this list or remove from it later.
+sak::Entity_Manager::Implementation::Implementation(std::vector<Entity_Definition> const& a_defs) :
   m_command_history{},
   m_observers{},
-  m_factory{std::move(a_factory)},
+  m_factory{},
   m_entity_collection{}
-{}
+{
+  // add each maker the the factory
+  for (auto const& l_def : a_defs)
+  {
+    m_factory.add_maker(Abstract_Entity_Maker::from_definition(l_def));
+  }
+}
 
 sak::Entity_Manager::Implementation::~Implementation() = default;
 
@@ -409,13 +414,13 @@ bool sak::Entity_Manager::Implementation::try_request_editor(Signal_Source a_sou
   }
 
   // Make a signal to request outliner focus.
-  Entity_Outliner_Request_Signal l_outliner_signal{a_source, a_id};
+  auto l_outliner_signal = make_signal_entity_outliner_request(a_source, a_id);
 
   // Send the signal out.
   m_observers.send(l_outliner_signal);
 
   // Make a signal to request the editor
-  Entity_Editor_Request_Signal l_editor_signal{a_source, a_id};
+  auto l_editor_signal = make_signal_entity_editor_request(a_source, a_id);
 
   // Send the signal out.
   m_observers.send(l_editor_signal);
@@ -432,7 +437,7 @@ bool sak::Entity_Manager::Implementation::try_request_outliner(Signal_Source a_s
     return false;
   }
   // Make a signal to request outliner focus.
-  Entity_Outliner_Request_Signal l_outliner_signal{a_source, a_id};
+  auto l_outliner_signal = make_signal_entity_outliner_request(a_source, a_id);
 
   // Send the signal out.
   m_observers.send(l_outliner_signal);
@@ -554,14 +559,16 @@ std::string sak::Entity_Manager::Implementation::iconpath(Entity_ID a_id) const
 
 
 //---------------------------------------------------------------------------
-// sak::Project
+// sak::Entity_Manager
 //---------------------------------------------------------------------------
 // A Project contains a number of entities.
 
 // Special 6
 //============================================================
-sak::Entity_Manager::Entity_Manager(Entity_Factory&& a_factory) :
-  m_imp{std::make_unique<Implementation>(std::move(a_factory))}
+// Intialise by passing in a collection of Entity makers to install. We
+// won't be able to add to this list or remove from it later.
+sak::Entity_Manager::Entity_Manager(std::vector<Entity_Definition> const& a_defs) :
+  m_imp{std::make_unique<Implementation>(a_defs)}
 {
 }
 

@@ -1,9 +1,9 @@
-﻿#ifndef SAK_TF2MB_PROJECT_FWD_HPP
-#define SAK_TF2MB_PROJECT_FWD_HPP
+﻿#ifndef SAK_PROJECT_FWD_HPP
+#define SAK_PROJECT_FWD_HPP
 
 namespace sak
 {
   class Project;
 }
 
-#endif // SAK_TF2MB_PROJECT_FWD_HPP
+#endif // SAK_PROJECT_FWD_HPP

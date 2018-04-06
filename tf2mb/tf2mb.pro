@@ -110,12 +110,80 @@ DEPENDPATH += $${FLAMINGO_LIBRARY_DIR}
 
 SOURCES += \
   main.cpp \
-    project.cpp
+    project.cpp \
+    project_main_widget.cpp \
+    project_main_window.cpp \
+    project_editor_widget.cpp \
+    project_holder.cpp \
+    exception.cpp \
+    fixed_settings.cpp \
+    dialog/new_project_dialog.cpp \
+    gui/directory_name_validator.cpp \
+    gui/existing_directory_validator.cpp \
+    gui/line_edit.cpp \
+    gui/text_colour_state_changer.cpp \
+    gui/validating_line_edit.cpp \
+    project_outliner_widget.cpp \
+    abstract_outliner_item.cpp \
+    outliner_delegate.cpp \
+    outliner_model.cpp \
+    outliner_view_widget.cpp \
+    abstract_outliner_branch_item.cpp \
+    abstract_outliner_item.cpp \
+    abstract_outliner_leaf_item.cpp \
+    abstract_outliner_multitrunk_item.cpp \
+    abstract_outliner_parented_item.cpp \
+    abstract_outliner_trunk_item.cpp \
+    project_outliner_items.cpp \
+    abstract_project_outliner_root_item.cpp
     
 
 HEADERS  += \
     project.hpp \
-    project_fwd.hpp
+    project_fwd.hpp \
+    project_main_widget.hpp \
+    project_main_widget_fwd.hpp \
+    project_main_window.hpp \
+    project_main_window_fwd.hpp \
+    project_editor_widget.hpp \
+    project_editor_widget_fwd.hpp \
+    project_holder.hpp \
+    exception.hpp \
+    exception_fwd.hpp \
+    fixed_settings.hpp \
+    dialog/new_project_dialog.hpp \
+    gui/abstract_state_changer.hpp \
+    gui/directory_name_validator.hpp \
+    gui/existing_directory_validator.hpp \
+    gui/line_edit.hpp \
+    gui/text_colour_state_changer.hpp \
+    gui/validating_line_edit.hpp \
+    project_outliner_widget.hpp \
+    project_outliner_widget_fwd.hpp \
+    abstract_outliner_item.hpp \
+    abstract_outliner_item_fwd.hpp \
+    outliner_delegate.hpp \
+    outliner_delegate_fwd.hpp \
+    outliner_model.hpp \
+    outliner_model_fwd.hpp \
+    outliner_view_widget.hpp \
+    outliner_view_widget_fwd.hpp \
+    abstract_outliner_branch_item.hpp \
+    abstract_outliner_branch_item_fwd.hpp \
+    abstract_outliner_item.hpp \
+    abstract_outliner_item_fwd.hpp \
+    abstract_outliner_leaf_item.hpp \
+    abstract_outliner_leaf_item_fwd.hpp \
+    abstract_outliner_multitrunk_item.hpp \
+    abstract_outliner_multitrunk_item_fwd.hpp \
+    abstract_outliner_parented_item.hpp \
+    abstract_outliner_parented_item_fwd.hpp \
+    abstract_outliner_trunk_item.hpp \
+    abstract_outliner_trunk_item_fwd.hpp \
+    project_outliner_items.hpp \
+    project_outliner_items_fwd.hpp \
+    abstract_project_outliner_root_item.hpp \
+    outliner_project_root_item_fwd.hpp
     
 
 FORMS
@@ -124,4 +192,5 @@ OTHER_FILES +=
 
 DISTFILES +=
 
-FORMS +=
+FORMS += \
+    dialog/new_project_dialog.ui

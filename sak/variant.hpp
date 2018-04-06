@@ -1,6 +1,8 @@
 ﻿#ifndef SAK_VARIANT_HPP
 #define SAK_VARIANT_HPP
 
+// This Header's Forward Header
+//============================================================
 #ifndef SAK_VARIANT_FWD_HPP
 #include "variant_fwd.hpp"
 #endif

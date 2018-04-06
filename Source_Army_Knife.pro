@@ -4,10 +4,12 @@ CONFIG += ordered
 SUBDIRS += \
   sak \
   tf2mb \
-  testing
+  sak_test \
+  tf2mb_test
 
 tf2mb.depends = sak
-testing.depends = sak
+sak_test.depends = sak
+tf2mb_test.depends = tf2mb
 
 DISTFILES += \
     README.md \

@@ -77,98 +77,98 @@ include($$PWD/../library_flamingo.pri)
 #==============================
 
 SOURCES += \
-    gui/line_edit.cpp \
-    abstract_member_edit_widget.cpp \
-    name_utilities.cpp \
-    command_history.cpp \
-    abstract_command.cpp \
-    entity_id.cpp \
-    variant.cpp \
-    entity_manager.cpp \
-    entity_handle.cpp \
-    entity.cpp \
-    entity_factory.cpp \
-    abstract_signal.cpp \
-    abstract_entity_maker.cpp \
-    observer_manager.cpp \
     abstract_observer.cpp \
-    abstract_entity_signal.cpp \
-    entity_outliner_request_signal.cpp \
-    entity_editor_request_signal.cpp \
-    entity_collection.cpp \
-    entity_commands.cpp \
-    signal_entity_added.cpp \
-    signal_entity_removed.cpp \
+    entity_definition.cpp \
+    entity_id.cpp \
+    entity_manager.cpp \
+    signal.cpp \
+    signal_entity.cpp \
     signal_entity_name_changed.cpp \
-    entity_name.cpp \
-    abstract_entity_name.cpp \
-    abstract_entity_type.cpp \
-    entity_type.cpp \
-    abstract_entity_tooltip.cpp \
-    entity_tooltip.cpp \
-    abstract_entity_icon.cpp \
-    entity_icon.cpp
+    signal_source.cpp \
+    variant.cpp \
+    internal/abstract_command.cpp \
+    internal/abstract_entity_icon.cpp \
+    internal/abstract_entity_maker.cpp \
+    internal/abstract_entity_name.cpp \
+    internal/abstract_entity_tooltip.cpp \
+    internal/abstract_entity_type.cpp \
+    internal/command_history.cpp \
+    internal/entity.cpp \
+    internal/entity_collection.cpp \
+    internal/entity_commands.cpp \
+    internal/entity_definition_maker.cpp \
+    internal/entity_factory.cpp \
+    internal/entity_handle.cpp \
+    internal/entity_icon.cpp \
+    internal/entity_name.cpp \
+    internal/entity_tooltip.cpp \
+    internal/observer_manager.cpp \
+    internal/entity_type.cpp \
+    internal/name_utilities.cpp
 
 HEADERS  += \
-    gui/line_edit.hpp \
-    abstract_member_edit_widget.hpp \
-    abstract_member_edit_widget_fwd.hpp \
-    name_utilities.hpp \
-    command_history.hpp \
-    command_history_fwd.hpp \
-    abstract_command.hpp \
-    abstract_command_fwd.hpp \
-    entity_id.hpp \
-    entity_id_fwd.hpp \
-    variant.hpp \
-    variant_fwd.hpp \
-    entity_manager.hpp \
-    entity_handle.hpp \
-    entity_handle_fwd.hpp \
-    entity.hpp \
-    entity_fwd.hpp \
-    entity_manager_fwd.hpp \
-    entity_factory.hpp \
-    abstract_signal.hpp \
-    abstract_signal_fwd.hpp \
-    entity_factory_fwd.hpp \
-    abstract_entity_maker.hpp \
-    abstract_entity_maker_fwd.hpp \
     abstract_observer.hpp \
     abstract_observer_fwd.hpp \
-    observer_manager.hpp \
-    observer_manager_fwd.hpp \
-    abstract_entity_signal.hpp \
-    abstract_entity_signal_fwd.hpp \
-    entity_outliner_request_signal.hpp \
-    entity_editor_request_signal.hpp \
-    entity_collection.hpp \
-    entity_collection_fwd.hpp \
-    entity_commands.hpp \
-    entity_commands_fwd.hpp \
-    signal_entity_added.hpp \
-    signal_entity_removed.hpp \
+    entity_definition.hpp \
+    entity_definition_fwd.hpp \
+    entity_id.hpp \
+    entity_id_fwd.hpp \
+    entity_manager.hpp \
+    entity_manager_fwd.hpp \
+    signal.hpp \
+    signal_entity.hpp \
+    signal_entity_fwd.hpp \
     signal_entity_name_changed.hpp \
-    entity_name.hpp \
-    abstract_entity_name.hpp \
-    abstract_entity_name_fwd.hpp \
-    entity_name_fwd.hpp \
-    abstract_entity_type.hpp \
-    abstract_entity_type_fwd.hpp \
-    entity_type.hpp \
-    entity_type_fwd.hpp \
-    abstract_entity_tooltip.hpp \
-    entity_tooltip.hpp \
-    entity_tooltip_fwd.hpp \
-    abstract_entity_tooltip_fwd.hpp \
-    abstract_entity_icon.hpp \
-    abstract_entity_icon_fwd.hpp \
-    entity_icon.hpp \
-    entity_icon_fwd.hpp
+    signal_entity_name_changed_fwd.hpp \
+    signal_fwd.hpp \
+    signal_source.hpp \
+    signal_source_fwd.hpp \
+    variant.hpp \
+    variant_fwd.hpp \
+    internal/abstract_command.hpp \
+    internal/abstract_command_fwd.hpp \
+    internal/abstract_entity_icon.hpp \
+    internal/abstract_entity_icon_fwd.hpp \
+    internal/abstract_entity_maker.hpp \
+    internal/abstract_entity_maker_fwd.hpp \
+    internal/abstract_entity_name.hpp \
+    internal/abstract_entity_name_fwd.hpp \
+    internal/abstract_entity_tooltip.hpp \
+    internal/abstract_entity_tooltip_fwd.hpp \
+    internal/abstract_entity_type.hpp \
+    internal/abstract_entity_type_fwd.hpp \
+    internal/command_history.hpp \
+    internal/command_history_fwd.hpp \
+    internal/entity.hpp \
+    internal/entity_collection.hpp \
+    internal/entity_collection_fwd.hpp \
+    internal/entity_commands.hpp \
+    internal/entity_commands_fwd.hpp \
+    internal/entity_definition_maker.hpp \
+    internal/entity_factory.hpp \
+    internal/entity_factory_fwd.hpp \
+    internal/entity_fwd.hpp \
+    internal/entity_handle.hpp \
+    internal/entity_handle_fwd.hpp \
+    internal/entity_icon.hpp \
+    internal/entity_icon_fwd.hpp \
+    internal/entity_name.hpp \
+    internal/entity_name_fwd.hpp \
+    internal/observer_manager.hpp \
+    internal/observer_manager_fwd.hpp \
+    internal/entity_type.hpp \
+    internal/entity_type_fwd.hpp \
+    internal/name_utilities.hpp \
+    internal/entity_definition_maker_fwd.hpp
 
 FORMS += \
 
 OTHER_FILES +=
 
-DISTFILES += 
+DISTFILES += \ 
+    readme.md \
+    readme.md
+
+SUBDIRS += \
+    sak.pro
 

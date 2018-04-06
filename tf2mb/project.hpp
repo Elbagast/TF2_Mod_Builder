@@ -1,7 +1,7 @@
-﻿#ifndef SAK_TF2MB_PROJECT_HPP
-#define SAK_TF2MB_PROJECT_HPP
+﻿#ifndef SAK_PROJECT_HPP
+#define SAK_PROJECT_HPP
 
-#ifndef SAK_TF2MB_PROJECT_FWD_HPP
+#ifndef SAK_PROJECT_FWD_HPP
 #include "project_fwd.hpp"
 #endif
 
@@ -60,10 +60,6 @@ namespace sak
 
     // Project Data
     //------------------------------------------------------------
-    void save() const;
-
-    void load();
-
     // Data that is fixed on contruction.
     QString name() const;
 
@@ -74,19 +70,10 @@ namespace sak
 
     // Entity Interface
     //------------------------------------------------------------
-    Entity_Manager& entity_manager();
-
-    Entity_Manager const& centity_manager() const;
-
-
-    // Widget Interface
-    //------------------------------------------------------------
-    // Attempt to make an editor for this Entity. If the id is null or
-    // invalid a nullptr is returned. If it is valid a widget is made
-    // that matches the current Entity state.
-    std::unique_ptr<Entity_Editor_Wdiget> make_editor(Entity_ID a_id);
+    Entity_Manager* entity_manager();
+    Entity_Manager const* centity_manager() const;
   };
 }
 
 
-#endif // SAK_TF2MB_PROJECT_HPP
+#endif // SAK_PROJECT_HPP

@@ -1,30 +1,38 @@
 ﻿#ifndef SAK_ENTITY_MANAGER_HPP
 #define SAK_ENTITY_MANAGER_HPP
 
+// This Header's Forward Header
+//============================================================
 #ifndef SAK_ENTITY_MANAGER_FWD_HPP
 #include "entity_manager_fwd.hpp"
 #endif
 
+// SAK Forwarding Headers
+//============================================================
 #ifndef SAK_ABSTRACT_OBSERVER_FWD_HPP
 #include "abstract_observer_fwd.hpp"
 #endif
 
-#ifndef SAK_ABSTRACT_SIGNAL_FWD_HPP
-#include "abstract_signal_fwd.hpp"
+#ifndef SAK_SIGNAL_SOURCE_FWD_HPP
+#include "signal_source_fwd.hpp"
 #endif
 
 #ifndef SAK_ENTITY_ID_FWD_HPP
 #include "entity_id_fwd.hpp"
 #endif
 
-#ifndef SAK_ENTITY_FACTORY_FWD_HPP
-#include "entity_factory_fwd.hpp"
-#endif
-
 #ifndef SAK_VARIANT_FWD_HPP
 #include "variant_fwd.hpp"
 #endif
 
+// SAK Headers
+//============================================================
+#ifndef SAK_ENTITY_DEFINITION_HPP
+#include "entity_definition.hpp"
+#endif
+
+// Standard Headers
+//============================================================
 #ifndef INCLUDE_STD_MEMORY
 #define INCLUDE_STD_MEMORY
 #include <memory>
@@ -65,9 +73,9 @@ namespace sak
   public:
     // Special 6
     //============================================================
-    // Intialise by passing in a factory that has already been setup to have
-    // all the Entity types we want. We won't be able to change them later.
-    explicit Entity_Manager(Entity_Factory&& a_factory);
+    // Intialise by passing in a collection of Entity makers to install. We
+    // won't be able to add to this list or remove from it later.
+    explicit Entity_Manager(std::vector<Entity_Definition> const& a_defs);
     ~Entity_Manager();
 
     // No copying.
@@ -183,7 +191,7 @@ namespace sak
     //------------------------------------------------------------
 
     // Does this name appear in the data?
-    bool has_name(std::string const&) const;
+    bool has_name(std::string const& a_name) const;
 
     // Get the name of the data associated with the supplied id. If the id is null or invalid,
     // the returned name is empty, which names cannot be.
