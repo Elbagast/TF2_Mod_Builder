@@ -21,7 +21,8 @@ SOURCES += \
     test_observer_manager.cpp \
     dummy_entity_maker.cpp \
     test_entity_maker.cpp \
-    test_io.cpp
+    test_io.cpp \
+    test_entity_manager.cpp
 
 HEADERS += \
     test_entity_id.hpp \
@@ -29,7 +30,8 @@ HEADERS += \
     test_observer_manager.hpp \
     dummy_entity_maker.hpp \
     test_entity_maker.hpp \
-    test_io.hpp
+    test_io.hpp \
+    test_entity_manager.hpp
 
 
 include($$PWD/../library_flamingo.pri)

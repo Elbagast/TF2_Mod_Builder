@@ -1,5 +1,5 @@
-﻿#ifndef SAK_TESTING_TEST_ENTITY_ID_HPP
-#define SAK_TESTING_TEST_ENTITY_ID_HPP
+﻿#ifndef SAK_TEST_TEST_ENTITY_ID_HPP
+#define SAK_TEST_TEST_ENTITY_ID_HPP
 
 namespace sak
 {
@@ -9,4 +9,4 @@ namespace sak
   }
 }
 
-#endif // SAK_TESTING_TEST_ENTITY_ID_HPP
+#endif // SAK_TEST_TEST_ENTITY_ID_HPP

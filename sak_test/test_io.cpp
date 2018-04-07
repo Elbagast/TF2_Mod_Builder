@@ -18,6 +18,19 @@
 
 #include <iostream>
 
+namespace
+{
+  std::ostream& indent(std::ostream& a_ostream, std::size_t a_level = 0, char a_char = u8' ')
+  {
+    for (std::size_t l_level = 0; l_level != a_level; ++l_level)
+    {
+      a_ostream << a_char;
+    }
+    return a_ostream;
+  }
+}
+
+
 std::ostream& sak::operator<<(std::ostream& a_ostream, Entity_ID a_id)
 {
   a_ostream << "Entity_ID[ " << entity_id_value(a_id) << " ]";
@@ -73,19 +86,79 @@ std::ostream& sak::operator<<(std::ostream& a_ostream, Signal_Source a_source)
 
 std::ostream& sak::operator<<(std::ostream& a_ostream, Entity_Manager const& a_manager)
 {
-  a_ostream << "Entity_Manager \n[";
+  std::size_t l_depth{0};
+  a_ostream << "Entity_Manager" << std::endl;
+  a_ostream << "[" << std::endl;
+  ++l_depth;
 
+  //-----------------------------------------------------------------------
+
+  indent(a_ostream, l_depth);
+  a_ostream << "Observers" << std::endl;
+  indent(a_ostream, l_depth);
+  a_ostream << "[" << std::endl;
+  ++l_depth;
+  for (auto l_observer : a_manager.observers() )
+  {
+    indent(a_ostream, l_depth);
+    a_ostream << l_observer << std::endl;
+  }
+  --l_depth;
+  indent(a_ostream, l_depth);
+  a_ostream << "]" << std::endl;
+
+  //-----------------------------------------------------------------------
+
+  indent(a_ostream, l_depth);
+  a_ostream << "History ["
+            << " undo_count=" << a_manager.undo_count()
+            << " redo_count=" << a_manager.redo_count()
+            << " ]" << std::endl;
+
+  //-----------------------------------------------------------------------
+
+  indent(a_ostream, l_depth);
+  a_ostream << "Entity Types" << std::endl;
+  indent(a_ostream, l_depth);
+  a_ostream << "[" << std::endl;
+  ++l_depth;
+
+  for (auto const& l_type : a_manager.get_all_types())
+  {
+    indent(a_ostream, l_depth);
+    a_ostream << "\"" << l_type << "\"" << std::endl;
+  }
+  --l_depth;
+  indent(a_ostream, l_depth);
+  a_ostream << "]" << std::endl;
+
+  //-----------------------------------------------------------------------
+
+  indent(a_ostream, l_depth);
+  a_ostream << "Entities" << std::endl;
+  indent(a_ostream, l_depth);
+  a_ostream << "[" << std::endl;
+  ++l_depth;
   for (std::size_t l_index = 0, l_end = a_manager.count(); l_index != l_end; ++l_index)
   {
+    indent(a_ostream, l_depth);
     auto l_id = a_manager.get_at(l_index);
     a_ostream << l_id
               << " type=\"" << a_manager.type(l_id) << "\" "
               << " name=\"" << a_manager.name(l_id) << "\" "
-              << " name=\"" << a_manager.iconpath(l_id) << "\" "
+              << " tooltip=\"" << a_manager.tooltip(l_id) << "\" "
+              << " iconpath=\"" << a_manager.iconpath(l_id) << "\" "
               << std::endl;
   }
+  --l_depth;
+  indent(a_ostream, l_depth);
+  a_ostream << "]" << std::endl;
+  --l_depth;
 
-  a_ostream << "\n]";
+  //-----------------------------------------------------------------------
+
+  indent(a_ostream, l_depth);
+  a_ostream << "]" << std::endl;
 
   return a_ostream;
 }

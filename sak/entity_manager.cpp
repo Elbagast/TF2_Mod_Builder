@@ -7,6 +7,7 @@
 #include "internal/entity.hpp"
 #include "internal/abstract_entity_name.hpp"
 #include "internal/abstract_entity_type.hpp"
+#include "internal/abstract_entity_tooltip.hpp"
 #include "internal/abstract_entity_icon.hpp"
 
 #include "internal/abstract_entity_maker.hpp"
@@ -56,6 +57,15 @@ namespace sak
 
     // Observers
     //------------------------------------------------------------
+    // Is this observer in the collection?
+    bool has_observer(Abstract_Observer* a_observer) const;
+
+    // How many observers are currently held?
+    std::size_t observer_count() const;
+
+    // Get all the currently held observers.
+    std::vector<Abstract_Observer*> observers() const;
+
     // Add an object that will rely on the Project's signals. If
     // nulltpr or already present, nothing happens.
     void add_observer(Abstract_Observer* a_observer);
@@ -183,6 +193,9 @@ namespace sak
     // Get the type of a given entity. If the id is null or invalid the string is empty.
     std::string type(Entity_ID a_id) const;
 
+    // Get the tooltip for a given entity. If the id is null or invalid the string is empty.
+    std::string tooltip(Entity_ID a_id) const;
+
     // Get the iconpath for a given entity. If the id is null or invalid the string is empty.
     std::string iconpath(Entity_ID a_id) const;
   };
@@ -213,6 +226,24 @@ sak::Entity_Manager::Implementation::~Implementation() = default;
 
 // Observers
 //------------------------------------------------------------
+// Is this observer in the collection?
+bool sak::Entity_Manager::Implementation::has_observer(Abstract_Observer* a_observer) const
+{
+  return m_observers.has(a_observer);
+}
+
+// How many observers are currently held?
+std::size_t sak::Entity_Manager::Implementation::observer_count() const
+{
+  return m_observers.count();
+}
+
+// Get all the currently held observers.
+std::vector<sak::Abstract_Observer*> sak::Entity_Manager::Implementation::observers() const
+{
+  return m_observers.observers();
+}
+
 // Add an object that will rely on the Project's signals. If
 // nulltpr or already present, nothing happens.
 void sak::Entity_Manager::Implementation::add_observer(Abstract_Observer* a_observer)
@@ -369,11 +400,26 @@ sak::Entity_ID sak::Entity_Manager::Implementation::try_add(Signal_Source a_sour
   // We have the type so make one of it.
   auto l_handle = m_factory.make_entity(a_type);
 
-  // Some buggery has happened if this fires.
+  // Factory fail test.
   assert(not_null(l_handle));
 
-  // The handle made had better not already be in the collection.
-  assert(Command_Entity_Add::valid_arguments(l_handle, m_entity_collection));
+  // Handle is not somehow already present.
+  assert(!m_entity_collection.has_handle(l_handle));
+
+  // Copy the name
+  std::string l_name{l_handle->cname_component()->get_name()};
+
+  // Fix it if necessary
+  if (m_entity_collection.has_name(l_name))
+  {
+    m_entity_collection.fix_name(l_name);
+  }
+
+  // Better not have this name
+  assert(!m_entity_collection.has_name(l_name));
+
+  // Set the new name
+  l_handle->name_component()->set_name(l_name);
 
   // Make and execute the command.
   m_command_history.emplace_execute<Command_Entity_Add>(a_source, m_observers, l_handle, m_entity_collection);
@@ -394,8 +440,11 @@ bool sak::Entity_Manager::Implementation::try_remove(Signal_Source a_source, Ent
     return false;
   }
 
-  // The handle made had better not already be in the collection.
-  assert(Command_Entity_Remove::valid_arguments(l_handle, m_entity_collection));
+  // Handle is not null.
+  assert(not_null(l_handle));
+
+  // Handle is already present.
+  assert(m_entity_collection.has_handle(l_handle));
 
   // Make and execute the command.
   m_command_history.emplace_execute<Command_Entity_Remove>(a_source, m_observers, l_handle, m_entity_collection);
@@ -494,7 +543,7 @@ bool sak::Entity_Manager::Implementation::try_set_name(Signal_Source a_source, E
   }
 
   // If the name is the same as it already is, fail
-  if (!Command_Entity_Name_Change::valid_arguments(l_handle, a_name))
+  if (a_name == l_handle->cname_component()->get_name())
   {
     return false;
   }
@@ -508,11 +557,12 @@ bool sak::Entity_Manager::Implementation::try_set_name(Signal_Source a_source, E
     m_entity_collection.fix_name(l_name);
   }
 
-  // Better not have this name
+  // Better not have this now altered name.
+  // Failing here means fix_name didn't do its job.
   assert(!m_entity_collection.has_name(l_name));
 
-  // Better be valid arguments now.
-  assert(Command_Entity_Name_Change::valid_arguments(l_handle, a_name));
+  // Better not match this altered name.
+  assert(l_name != l_handle->cname_component()->get_name());
 
   // Make and execute the command using the fixed name.
   m_command_history.emplace_execute<Command_Entity_Name_Change>(a_source, m_observers, l_handle, l_name);
@@ -533,6 +583,21 @@ std::string sak::Entity_Manager::Implementation::type(Entity_ID a_id) const
   if (not_null(l_handle))
   {
     return l_handle->ctype_component()->type();
+  }
+  else
+  {
+    return std::string{};
+  }
+}
+
+// Get the tooltip for a given entity. If the id is null or invalid the string is empty.
+std::string sak::Entity_Manager::Implementation::tooltip(Entity_ID a_id) const
+{
+  auto l_handle = m_entity_collection.get_handle(a_id);
+
+  if (not_null(l_handle))
+  {
+    return l_handle->ctooltip_component()->tooltip();
   }
   else
   {
@@ -582,7 +647,24 @@ sak::Entity_Manager& sak::Entity_Manager::operator=(Entity_Manager &&) = default
 //============================================================
 
 // Observers
-//------------------------------------------------------------
+//------------------------------------------------------------// Is this observer in the collection?
+bool sak::Entity_Manager::has_observer(Abstract_Observer* a_observer) const
+{
+  return cimp().has_observer(a_observer);
+}
+
+// How many observers are currently held?
+std::size_t sak::Entity_Manager::observer_count() const
+{
+  return cimp().observer_count();
+}
+
+// Get all the currently held observers.
+std::vector<sak::Abstract_Observer*> sak::Entity_Manager::observers() const
+{
+  return cimp().observers();
+}
+
 // Add an object that will rely on the Project's signals. If
 // nulltpr or already present, nothing happens.
 void sak::Entity_Manager::add_observer(Abstract_Observer* a_observer)
@@ -792,6 +874,12 @@ bool sak::Entity_Manager::try_set_name(Signal_Source a_source, Entity_ID a_id, s
 std::string sak::Entity_Manager::type(Entity_ID a_id) const
 {
   return cimp().type(a_id);
+}
+
+// Get the tooltip for a given entity. If the id is null or invalid the string is empty.
+std::string sak::Entity_Manager::tooltip(Entity_ID a_id) const
+{
+  return cimp().tooltip(a_id);
 }
 
 // Get the iconpath for a given entity. If the id is null or invalid the string is empty.

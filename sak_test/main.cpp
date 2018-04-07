@@ -4,6 +4,7 @@
 #include "test_entity_id.hpp"
 #include "test_observer_manager.hpp"
 #include "test_entity_maker.hpp"
+#include "test_entity_manager.hpp"
 
 int main()//int argc, char *argv[])
 {
@@ -12,6 +13,7 @@ int main()//int argc, char *argv[])
   test_entity_id();
   test_observer_manager();
   test_entity_maker();
+  test_entity_manager();
 
   return 0;
 

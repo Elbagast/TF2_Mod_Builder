@@ -91,6 +91,16 @@ namespace sak
 
     // Observers
     //------------------------------------------------------------
+
+    // Is this observer in the collection?
+    bool has_observer(Abstract_Observer* a_observer) const;
+
+    // How many observers are currently held?
+    std::size_t observer_count() const;
+
+    // Get all the currently held observers.
+    std::vector<Abstract_Observer*> observers() const;
+
     // Add an object that will rely on the Project's signals. If
     // nulltpr or already present, nothing happens.
     void add_observer(Abstract_Observer* a_observer);
@@ -217,6 +227,9 @@ namespace sak
 
     // Get the type of a given entity. If the id is null or invalid the string is empty.
     std::string type(Entity_ID a_id) const;
+
+    // Get the tooltip for a given entity. If the id is null or invalid the string is empty.
+    std::string tooltip(Entity_ID a_id) const;
 
     // Get the iconpath for a given entity. If the id is null or invalid the string is empty.
     std::string iconpath(Entity_ID a_id) const;

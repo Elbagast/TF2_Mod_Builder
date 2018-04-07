@@ -81,15 +81,6 @@ sak::Entity_ID sak::Abstract_Entity_Signalling_Command::id() const
 // Command_Entity_Add
 //---------------------------------------------------------------------------
 
-// Interface
-//============================================================
-// Determine whether a command can be issued with these arguments. Returns
-// true if the given handle is not found in the given entity vector.
-bool sak::Command_Entity_Add::valid_arguments(Entity_Handle const& a_handle, Entity_Collection const& a_collection)
-{
-  return not_null(a_handle) && a_collection.has_handle(a_handle);
-}
-
 // Special 6
 //============================================================
 sak::Command_Entity_Add::Command_Entity_Add(Signal_Source a_source,
@@ -99,7 +90,6 @@ sak::Command_Entity_Add::Command_Entity_Add(Signal_Source a_source,
   Abstract_Entity_Signalling_Command(a_source, a_observers, a_handle),
   m_collection{a_collection}
 {
-  assert(valid_arguments(this->chandle(), m_collection));
 }
 
 sak::Command_Entity_Add::~Command_Entity_Add() = default;
@@ -149,15 +139,6 @@ void sak::Command_Entity_Add::do_unexecute()
 // Command_Entity_Remove
 //---------------------------------------------------------------------------
 
-// Interface
-//============================================================
-// Determine whether a command can be issued with these arguments. Returns
-// true if the given handle is found in the given entity vector.
-bool sak::Command_Entity_Remove::valid_arguments(Entity_Handle const& a_handle, Entity_Collection const& a_collection)
-{
-  return not_null(a_handle) && !a_collection.has_handle(a_handle);
-}
-
 // Special 6
 //============================================================
 sak::Command_Entity_Remove::Command_Entity_Remove(Signal_Source a_source,
@@ -167,7 +148,6 @@ sak::Command_Entity_Remove::Command_Entity_Remove(Signal_Source a_source,
   Abstract_Entity_Signalling_Command(a_source, a_observers, a_handle),
   m_collection{a_collection}
 {
-  assert(valid_arguments(this->chandle(), m_collection));
 }
 
 sak::Command_Entity_Remove::~Command_Entity_Remove() = default;
@@ -219,14 +199,6 @@ void sak::Command_Entity_Remove::do_unexecute()
 // Command_Entity_Name_Change
 //---------------------------------------------------------------------------
 
-// Interface
-//============================================================
-// Determine whether a command can be issued with these arguments. Returns
-// true if the name is not the same as that in the handle
-bool sak::Command_Entity_Name_Change::valid_arguments(Entity_Handle const& a_handle, std::string const& a_name)
-{
-  return not_null(a_handle) && a_handle->cname_component()->get_name() != a_name;
-}
 
 // Special 6
 //============================================================

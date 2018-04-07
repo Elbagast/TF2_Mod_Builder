@@ -146,12 +146,6 @@ namespace sak
     Entity_Collection& m_collection;
 
   public:
-    // Interface
-    //============================================================
-    // Determine whether a command can be issued with these arguments. Returns
-    // true if the given handle is not found in the given entity vector.
-    static bool valid_arguments(Entity_Handle const& a_handle, Entity_Collection const& a_collection);
-
     // Special 6
     //============================================================
     Command_Entity_Add(Signal_Source a_source,
@@ -188,13 +182,8 @@ namespace sak
     // Data Members
     //============================================================
     Entity_Collection& m_collection;
-  public:
-    // Interface
-    //============================================================
-    // Determine whether a command can be issued with these arguments. Returns
-    // true if the given handle is found in the given entity vector.
-    static bool valid_arguments(Entity_Handle const& a_handle, Entity_Collection const& a_collection);
 
+  public:
     // Special 6
     //============================================================
     Command_Entity_Remove(Signal_Source a_source,
@@ -233,12 +222,6 @@ namespace sak
     std::string m_old_name;
     std::string m_new_name;
   public:
-    // Interface
-    //============================================================
-    // Determine whether a command can be issued with these arguments. Returns
-    // true if the name is not the same as that in the handle
-    static bool valid_arguments(Entity_Handle const& a_handle, std::string const& a_name);
-
     // Special 6
     //============================================================
     Command_Entity_Name_Change(Signal_Source a_source,
