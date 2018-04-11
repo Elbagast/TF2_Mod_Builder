@@ -4,6 +4,7 @@
 #include <sak/entity_definition.hpp>
 #include <sak/entity_manager.hpp>
 #include <sak/signal_source.hpp>
+#include <sak/string.hpp>
 
 #include "test_io.hpp"
 #include "dummy_observer.hpp"
@@ -19,8 +20,8 @@ void sak::testing::test_entity_manager()
   Dummy_Observer l_do{};
 
   std::vector<Entity_Definition> l_defs{};
-  l_defs.push_back(Entity_Definition{u8"Foo",u8"This is a Foo Entity.",u8""});
-  l_defs.push_back(Entity_Definition{u8"Bar",u8"This is a Bar Entity.",u8""});
+  l_defs.push_back(Entity_Definition{String{u8"Foo"},String{u8"This is a Foo Entity."},String{u8""}});
+  l_defs.push_back(Entity_Definition{String{u8"Bar"},String{u8"This is a Bar Entity."},String{u8""}});
 
   Entity_Manager l_em{ l_defs };
   std::cout << "Starting condtions:" << std::endl;
@@ -36,11 +37,11 @@ void sak::testing::test_entity_manager()
 
   std::cout << "Adding some Entities:" << std::endl;
   std::cout << "--------------------------" << std::endl;
-  auto l_id1 = l_em.try_add(Signal_Source::User, u8"Foo");
-  auto l_id2 = l_em.try_add(Signal_Source::User, u8"Foo");
-  auto l_id3 = l_em.try_add(Signal_Source::User, u8"Foo");
-  auto l_id4 = l_em.try_add(Signal_Source::User, u8"Bar");
-  auto l_id5 = l_em.try_add(Signal_Source::User, u8"Bar");
+  auto l_id1 = l_em.add(Signal_Source::User, String{u8"Foo"});
+  auto l_id2 = l_em.add(Signal_Source::User, String{u8"Foo"});
+  auto l_id3 = l_em.add(Signal_Source::User, String{u8"Foo"});
+  auto l_id4 = l_em.add(Signal_Source::User, String{u8"Bar"});
+  auto l_id5 = l_em.add(Signal_Source::User, String{u8"Bar"});
   std::cout << l_em << std::endl;
 
   std::cout << "Undoing all the adds:" << std::endl;
@@ -63,10 +64,10 @@ void sak::testing::test_entity_manager()
 
   std::cout << "Editing some names:" << std::endl;
   std::cout << "--------------------------" << std::endl;
-  l_em.try_set_name(Signal_Source::User, l_id1, u8"nametest"); // should work
-  l_em.try_set_name(Signal_Source::User, l_id2, u8"nametest"); // should result in name of 'nametest1'
-  l_em.try_set_name(Signal_Source::User, l_id1, u8"nametest"); // should do nothing
-  l_em.try_set_name(Signal_Source::User, l_id2, u8"nametest"); // should result in name of 'nametest2'
+  l_em.set_name(Signal_Source::User, l_id1, String{u8"nametest"}); // should work
+  l_em.set_name(Signal_Source::User, l_id2, String{u8"nametest"}); // should result in name of 'nametest1'
+  l_em.set_name(Signal_Source::User, l_id1, String{u8"nametest"}); // should do nothing
+  l_em.set_name(Signal_Source::User, l_id2, String{u8"nametest"}); // should result in name of 'nametest2'
   std::cout << l_em << std::endl;
 
   std::cout << "Undoing all the name changes:" << std::endl;
@@ -85,13 +86,13 @@ void sak::testing::test_entity_manager()
 
   std::cout << "Remove some Entities:" << std::endl;
   std::cout << "--------------------------" << std::endl;
-  l_em.try_remove(Signal_Source::User, l_id2);
-  l_em.try_remove(Signal_Source::User, l_id3);
+  l_em.remove(Signal_Source::User, l_id2);
+  l_em.remove(Signal_Source::User, l_id3);
   std::cout << l_em << std::endl;
 
   std::cout << "Set a name to that of one of the removed:" << std::endl;
   std::cout << "--------------------------" << std::endl;
-  l_em.try_set_name(Signal_Source::User, l_id1, u8"nametest2");
+  l_em.set_name(Signal_Source::User, l_id1, String{u8"nametest2"});
   std::cout << l_em << std::endl;
 
   std::cout << "==============================" << std::endl;

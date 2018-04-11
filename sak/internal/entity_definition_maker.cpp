@@ -1,5 +1,7 @@
 ﻿#include "entity_definition_maker.hpp"
 
+#include "../string.hpp"
+
 #include "entity.hpp"
 #include "entity_name.hpp"
 #include "entity_type.hpp"
@@ -23,7 +25,7 @@ sak::Entity_Definition_Maker::~Entity_Definition_Maker() = default;
 // Interface
 //============================================================
 // Get the typestring for this Entity type.
-std::string sak::Entity_Definition_Maker::type() const
+sak::String sak::Entity_Definition_Maker::type() const
 {
   return m_def.type();
 }
@@ -37,8 +39,8 @@ sak::Entity sak::Entity_Definition_Maker::make_entity(Entity_ID a_id) const
   {
     a_id,
     std::make_unique<Remote_Entity_Type>(m_def.type()),
-    std::make_unique<Entity_Name>(m_def.type()),
     std::make_unique<Remote_Entity_Tooltip>(m_def.tooltip()),
-    std::make_unique<Remote_Entity_Icon>(m_def.iconpath())
+    std::make_unique<Remote_Entity_Icon>(m_def.iconpath()),
+    std::make_unique<Entity_Name>(m_def.type())
   };
 }

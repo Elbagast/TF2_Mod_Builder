@@ -13,6 +13,10 @@
 #include "abstract_entity_type.hpp"
 #endif
 
+#ifndef SAK_STRING_HPP
+#include "../string.hpp"
+#endif
+
 namespace sak
 {
   //---------------------------------------------------------------------------
@@ -27,13 +31,13 @@ namespace sak
   private:
     // Data Members
     //============================================================
-    std::string m_type;
+    String m_type;
 
   public:
     // Special 6
     //============================================================
     // Construct with this type as the intial.
-    explicit Local_Entity_Type(std::string const& a_type);
+    explicit Local_Entity_Type(String const& a_type);
     ~Local_Entity_Type() override final;
 
     // Block copying components.
@@ -46,7 +50,7 @@ namespace sak
 
     // Interface
     //============================================================
-    std::string const& type() const override final;
+    String const& type() const override final;
   };
 
   //------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -63,13 +67,13 @@ namespace sak
   private:
     // Data Members
     //============================================================
-    std::string const& m_type;
+    String const& m_type;
 
   public:
     // Special 6
     //============================================================
     // Construct with this type as the intial.
-    explicit Remote_Entity_Type(std::string const& a_type);
+    explicit Remote_Entity_Type(String const& a_type);
     ~Remote_Entity_Type() override final;
 
     // Block copying components.
@@ -82,7 +86,7 @@ namespace sak
 
     // Interface
     //============================================================
-    std::string const& type() const override final;
+    String const& type() const override final;
   };
 }
 

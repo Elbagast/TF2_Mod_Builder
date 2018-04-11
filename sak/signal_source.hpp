@@ -9,11 +9,11 @@
 
 namespace sak
 {
-
   //---------------------------------------------------------------------------
   // Signal_Source
   //---------------------------------------------------------------------------
   // Enum for identifying the origin of a signal.
+
   enum class Signal_Source
   {
     Unknown,

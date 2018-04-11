@@ -1,4 +1,7 @@
 ﻿#include "entity_definition.hpp"
+
+#include "string.hpp"
+
 //---------------------------------------------------------------------------
 // Entity_Definition
 //---------------------------------------------------------------------------
@@ -10,7 +13,7 @@
 
 // Special 6
 //============================================================
-sak::Entity_Definition::Entity_Definition(std::string const& a_type, std::string const& a_tooltip, std::string const& a_iconpath):
+sak::Entity_Definition::Entity_Definition(String const& a_type, String const& a_tooltip, String const& a_iconpath):
   m_type{a_type},
   m_tooltip{a_tooltip},
   m_iconpath{a_iconpath}
@@ -31,7 +34,7 @@ sak::Entity_Definition& sak::Entity_Definition::operator=(Entity_Definition &&) 
 //------------------------------------------------------------
 
 // Get the type.
-std::string const& sak::Entity_Definition::type() const
+sak::String const& sak::Entity_Definition::type() const
 {
   return m_type;
 }
@@ -39,7 +42,7 @@ std::string const& sak::Entity_Definition::type() const
 // Set the type. If the type is empty or the same as that in antoher
 // definition that is used at the same time, Entity_Manager will have to
 // deal with that somehow.
-void sak::Entity_Definition::set_type(std::string const& a_value)
+void sak::Entity_Definition::set_type(String const& a_value)
 {
   m_type = a_value;
 }
@@ -50,17 +53,17 @@ void sak::Entity_Definition::set_type(std::string const& a_value)
 // Is the tooltip set? Returns true if the tooltip is not empty.
 bool sak::Entity_Definition::has_tooltip() const
 {
-  return !m_tooltip.empty();
+  return !m_tooltip.is_empty();
 }
 
 // Get the tooltip.
-std::string const& sak::Entity_Definition::tooltip() const
+sak::String const& sak::Entity_Definition::tooltip() const
 {
   return m_tooltip;
 }
 
 // Set the tooltip.
-void sak::Entity_Definition::set_tooltip(std::string const& a_value)
+void sak::Entity_Definition::set_tooltip(String const& a_value)
 {
   m_tooltip = a_value;
 }
@@ -72,17 +75,17 @@ void sak::Entity_Definition::set_tooltip(std::string const& a_value)
 // Does not check if the iconpath exists.
 bool sak::Entity_Definition::has_iconpath() const
 {
-  return !m_iconpath.empty();
+  return !m_iconpath.is_empty();
 }
 
 // Get the iconpath.
-std::string const& sak::Entity_Definition::iconpath() const
+sak::String const& sak::Entity_Definition::iconpath() const
 {
   return m_iconpath;
 }
 
 // Set the iconpath.
-void sak::Entity_Definition::set_iconpath(std::string const& a_value)
+void sak::Entity_Definition::set_iconpath(String const& a_value)
 {
   m_iconpath = a_value;
 }

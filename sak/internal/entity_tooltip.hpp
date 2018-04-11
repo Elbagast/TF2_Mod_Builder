@@ -9,6 +9,10 @@
 #include "abstract_entity_tooltip.hpp"
 #endif
 
+#ifndef SAK_STRING_HPP
+#include "../string.hpp"
+#endif
+
 namespace sak
 {
   //---------------------------------------------------------------------------
@@ -23,12 +27,12 @@ namespace sak
   private:
     // Data Members
     //============================================================
-    std::string m_tooltip;
+    String m_tooltip;
 
   public:
     // Special 6
     //============================================================
-    explicit Local_Entity_Tooltip(std::string const& a_tooltip);
+    explicit Local_Entity_Tooltip(String const& a_tooltip);
     ~Local_Entity_Tooltip() override final;
 
     // Block copying components.
@@ -41,7 +45,7 @@ namespace sak
 
     // Interface
     //============================================================
-    std::string const& tooltip() const override final;
+    String const& tooltip() const override final;
   };
 
   //------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -58,12 +62,12 @@ namespace sak
   private:
     // Data Members
     //============================================================
-    std::string const& m_tooltip;
+    String const& m_tooltip;
 
   public:
     // Special 6
     //============================================================
-    explicit Remote_Entity_Tooltip(std::string const& a_tooltip);
+    explicit Remote_Entity_Tooltip(String const& a_tooltip);
     ~Remote_Entity_Tooltip() override final;
 
     // Block copying components.
@@ -76,7 +80,7 @@ namespace sak
 
     // Interface
     //============================================================
-    std::string const& tooltip() const override final;
+    String const& tooltip() const override final;
   };
 }
 

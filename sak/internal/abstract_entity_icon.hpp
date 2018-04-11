@@ -7,11 +7,8 @@
 #include "abstract_entity_icon_fwd.hpp"
 #endif
 
-// Standard Headers
-//============================================================
-#ifndef INCLUDE_STD_STRING
-#define INCLUDE_STD_STRING
-#include <string>
+#ifndef SAK_STRING_FWD_HPP
+#include "../string_fwd.hpp"
 #endif
 
 namespace sak
@@ -30,7 +27,7 @@ namespace sak
 
     // Interface
     //============================================================
-    virtual std::string const& iconpath() const = 0;
+    virtual String const& iconpath() const = 0;
   };
 }
 

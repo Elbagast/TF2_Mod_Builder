@@ -1,5 +1,7 @@
 ﻿#include "entity_collection.hpp"
 
+#include "../entity_id.hpp"
+#include "../string.hpp"
 #include "entity.hpp"
 #include "abstract_entity_name.hpp"
 #include "abstract_entity_type.hpp"
@@ -59,14 +61,14 @@ namespace
     return do_find_handle(a_handles, a_handle) != a_handles.cend();
   }
 
-  decltype(auto) do_find_name(std::vector<sak::Entity_Handle> const& a_handles, std::string const& a_name)
+  decltype(auto) do_find_name(std::vector<sak::Entity_Handle> const& a_handles, sak::String const& a_name)
   {
     return std::find_if(a_handles.cbegin(),
                         a_handles.cend(),
                         [&a_name](sak::Entity_Handle const& a_handle){ return a_handle->cname_component()->get_name() == a_name; });
   }
 
-  bool do_has_name(std::vector<sak::Entity_Handle> const& a_handles, std::string const& a_name)
+  bool do_has_name(std::vector<sak::Entity_Handle> const& a_handles, sak::String const& a_name)
   {
     return do_find_name(a_handles, a_name) != a_handles.cend();
   }
@@ -160,13 +162,13 @@ sak::Entity_Handle sak::Entity_Collection::get_handle_at(std::size_t a_index) co
 }
 
 // Is there an entity with this name?
-bool sak::Entity_Collection::has_name(std::string const& a_name) const
+bool sak::Entity_Collection::has_name(String const& a_name) const
 {
   return do_has_name(m_data, a_name);
 }
 
 // Alter this name so that it is not equal to any present in the data.
-void sak::Entity_Collection::fix_name(std::string& a_name) const
+void sak::Entity_Collection::fix_name(String& a_name) const
 {
   auto l_names = this->get_all_names();
 
@@ -174,9 +176,9 @@ void sak::Entity_Collection::fix_name(std::string& a_name) const
 }
 
 // Get all of the Entity names in alphabetical order.
-std::vector<std::string> sak::Entity_Collection::get_all_names() const
+std::vector<sak::String> sak::Entity_Collection::get_all_names() const
 {
-  std::vector<std::string> l_result{};
+  std::vector<String> l_result{};
   l_result.reserve(m_data.size());
   for (auto const& l_handle : m_data)
   {
@@ -189,7 +191,7 @@ std::vector<std::string> sak::Entity_Collection::get_all_names() const
 
 // Get the id for the Entity that has this name. If the name is not found the
 // returned id is null.
-sak::Entity_ID sak::Entity_Collection::get_named(std::string const& a_name) const
+sak::Entity_ID sak::Entity_Collection::get_named(String const& a_name) const
 {
   auto l_found = do_find_name(m_data, a_name);
   if (l_found != m_data.cend())
@@ -204,7 +206,7 @@ sak::Entity_ID sak::Entity_Collection::get_named(std::string const& a_name) cons
 
 // Get the handle for the Entity that has this name. If the name is not found the
 // returned handle is null.
-sak::Entity_Handle sak::Entity_Collection::get_handle_named(std::string const& a_name) const
+sak::Entity_Handle sak::Entity_Collection::get_handle_named(String const& a_name) const
 {
   auto l_found = do_find_name(m_data, a_name);
   if (l_found != m_data.cend())
@@ -289,7 +291,7 @@ std::size_t sak::Entity_Collection::remove(Entity_Handle const& a_handle)
 }
 
 // Does the project contain any entities of this type?
-bool sak::Entity_Collection::has_type(std::string const& a_type) const
+bool sak::Entity_Collection::has_type(String const& a_type) const
 {
   return std::find_if(m_data.cbegin(), m_data.cend(),
                       [&a_type](Entity_Handle const& a_handle) { return a_handle->ctype_component()->type() == a_type; }) != m_data.cend();
@@ -297,7 +299,7 @@ bool sak::Entity_Collection::has_type(std::string const& a_type) const
 }
 
 // Get the number of Entities that have this type.
-std::size_t sak::Entity_Collection::count_of(std::string const& a_type) const
+std::size_t sak::Entity_Collection::count_of(String const& a_type) const
 {
   std::size_t l_result{0u};
   for (auto const& l_handle : m_data)
@@ -311,7 +313,7 @@ std::size_t sak::Entity_Collection::count_of(std::string const& a_type) const
 }
 
 // Get all the ids of Entities of a given type.
-std::vector<sak::Entity_ID> sak::Entity_Collection::get_all_of(std::string const& a_type) const
+std::vector<sak::Entity_ID> sak::Entity_Collection::get_all_of(String const& a_type) const
 {
   std::vector<Entity_ID> l_result{};
   for (auto const& l_handle : m_data)
@@ -325,7 +327,7 @@ std::vector<sak::Entity_ID> sak::Entity_Collection::get_all_of(std::string const
 }
 
 // Get all the handles of Entities of a given type.
-std::vector<sak::Entity_Handle> sak::Entity_Collection::get_all_of_handles(std::string const& a_type) const
+std::vector<sak::Entity_Handle> sak::Entity_Collection::get_all_of_handles(String const& a_type) const
 {
   std::vector<Entity_Handle> l_result{};
   for (auto const& l_handle : m_data)

@@ -9,11 +9,6 @@
 #include <sak/internal/abstract_entity_maker.hpp>
 #endif
 
-#ifndef INCLUDE_STD_MEMORY
-#define INCLUDE_STD_MEMORY
-#include <memory>
-#endif
-
 
 namespace sak
 {
@@ -34,7 +29,7 @@ namespace sak
     // Interface
     //============================================================
     // Get the typestring for this Entity type.
-    std::string type() const override final;
+    String type() const override final;
 
     // Make a new Entity of this type with the supplied id. If the supplied id
     // is invalid then the handle is a null handle and no entity data was

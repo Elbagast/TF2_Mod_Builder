@@ -41,7 +41,7 @@ namespace sak
     // Interface
     //============================================================
     // Get the typestring for this Entity type.
-    std::string type() const override final;
+    String type() const override final;
 
     // Make a new Entity of this type with the supplied id. It is not the
     // responsibility of this to determine whether the id is null or invalid,

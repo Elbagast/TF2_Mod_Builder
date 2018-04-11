@@ -4,15 +4,12 @@
 QT       += core gui
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
-mingw {
-    QMAKE_CXXFLAGS += -std=gnu++14
-}
-
 TARGET = tf2mb_test
 TEMPLATE = app
 CONFIG += static
 CONFIG += threads
 #CONFIG += object_parallel_to_source
+CONFIG += c++17
 
 # Link to sak subproject
 #==========================================

@@ -8,7 +8,7 @@
 
 // Special 6
 //============================================================
-sak::Local_Entity_Icon::Local_Entity_Icon(std::string const& a_iconpath):
+sak::Local_Entity_Icon::Local_Entity_Icon(String const& a_iconpath):
   Abstract_Entity_Icon(),
   m_iconpath{a_iconpath}
 {}
@@ -17,7 +17,7 @@ sak::Local_Entity_Icon::~Local_Entity_Icon() = default;
 
 // Interface
 //============================================================
-std::string const& sak::Local_Entity_Icon::iconpath() const
+sak::String const& sak::Local_Entity_Icon::iconpath() const
 {
   return m_iconpath;
 }
@@ -32,7 +32,7 @@ std::string const& sak::Local_Entity_Icon::iconpath() const
 
 // Special 6
 //============================================================
-sak::Remote_Entity_Icon::Remote_Entity_Icon(std::string const& a_iconpath):
+sak::Remote_Entity_Icon::Remote_Entity_Icon(String const& a_iconpath):
   Abstract_Entity_Icon(),
   m_iconpath{a_iconpath}
 {}
@@ -41,7 +41,7 @@ sak::Remote_Entity_Icon::~Remote_Entity_Icon() = default;
 
 // Interface
 //============================================================
-std::string const& sak::Remote_Entity_Icon::iconpath() const
+sak::String const& sak::Remote_Entity_Icon::iconpath() const
 {
   return m_iconpath;
 }

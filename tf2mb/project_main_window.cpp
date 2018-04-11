@@ -814,7 +814,7 @@ bool sak::Project_Main_Window::Implementation::close_project()
       // user has not cancelled, do the close
 
       // disconnect everything
-      m_project_holder->project()->entity_manager()->clear_observers();
+      m_project_holder->project()->entity_manager()->remove_all_observer();
 
       // Unhook the project widget.
       m_central_stack->removeWidget(m_project_holder->widget());

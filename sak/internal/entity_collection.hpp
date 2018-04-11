@@ -7,12 +7,16 @@
 #include "entity_collection_fwd.hpp"
 #endif
 
-// SAK Headers
-//============================================================
-#ifndef SAK_ENTITY_ID_HPP
-#include "../entity_id.hpp"
+#ifndef SAK_STRING_FWD_HPP
+#include "../string_fwd.hpp"
 #endif
 
+#ifndef SAK_ENTITY_ID_FWD_HPP
+#include "../entity_id_fwd.hpp"
+#endif
+
+// SAK Headers
+//============================================================
 #ifndef SAK_ENTITY_HANDLE_HPP
 #include "entity_handle.hpp"
 #endif
@@ -24,10 +28,6 @@
 #include <vector>
 #endif
 
-#ifndef INCLUDE_STD_STRING
-#define INCLUDE_STD_STRING
-#include <string>
-#endif
 
 namespace sak
 {
@@ -100,21 +100,21 @@ namespace sak
     Entity_Handle get_handle_at(std::size_t a_index) const;
 
     // Is there an entity with this name?
-    bool has_name(std::string const& a_name) const;
+    bool has_name(String const& a_name) const;
 
     // Alter this name so that it is not equal to any present in the data.
-    void fix_name(std::string& a_name) const;
+    void fix_name(String& a_name) const;
 
     // Get all of the Entity names in alphabetical order.
-    std::vector<std::string> get_all_names() const;
+    std::vector<String> get_all_names() const;
 
     // Get the id for the Entity that has this name. If the name is not found the
     // returned id is null.
-    Entity_ID get_named(std::string const& a_name) const;
+    Entity_ID get_named(String const& a_name) const;
 
     // Get the handle for the Entity that has this name. If the name is not found the
     // returned handle is null.
-    Entity_Handle get_handle_named(std::string const& a_name) const;
+    Entity_Handle get_handle_named(String const& a_name) const;
 
     // Get all of the ids for the Entities in sorted order.
     std::vector<Entity_ID> get_all() const;
@@ -138,16 +138,16 @@ namespace sak
     std::size_t remove(Entity_Handle const& a_handle);
 
     // Does the project contain any entities of this type?
-    bool has_type(std::string const& a_type) const;
+    bool has_type(String const& a_type) const;
 
     // Get the number of Entities that have this type.
-    std::size_t count_of(std::string const& a_type) const;
+    std::size_t count_of(String const& a_type) const;
 
     // Get all the ids of Entities of a given type.
-    std::vector<Entity_ID> get_all_of(std::string const& a_type) const;
+    std::vector<Entity_ID> get_all_of(String const& a_type) const;
 
     // Get all the handles of Entities of a given type.
-    std::vector<Entity_Handle> get_all_of_handles(std::string const& a_type) const;
+    std::vector<Entity_Handle> get_all_of_handles(String const& a_type) const;
   };
 }
 

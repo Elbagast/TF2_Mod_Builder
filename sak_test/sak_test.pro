@@ -13,6 +13,7 @@ TARGET = sak_test
 CONFIG += static
 CONFIG += threads
 #CONFIG += object_parallel_to_source
+CONFIG += c++17
 
 SOURCES += \
     main.cpp \
@@ -34,6 +35,7 @@ HEADERS += \
     test_entity_manager.hpp
 
 
+include($$PWD/../library_boost.pri)
 include($$PWD/../library_flamingo.pri)
 
 INCLUDE_DIR = $${PWD}/..

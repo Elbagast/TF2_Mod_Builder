@@ -3,17 +3,8 @@
 #include <sak/entity_manager.hpp>
 #include <sak/entity_id.hpp>
 #include <sak/entity_definition.hpp>
-/*
-#include <sak/internal/abstract_entity_maker.hpp>
-#include <sak/internal/entity.hpp>
-#include <sak/internal/entity_name.hpp>
-#include <sak/internal/entity_type.hpp>
-#include <sak/internal/entity_tooltip.hpp>
-#include <sak/internal/entity_icon.hpp>
 
-*/
 #include <cassert>
-#include <iostream>
 
 #include <QFileInfo>
 #include <QDir>
@@ -165,8 +156,8 @@ namespace
 
     std::vector<sak::Entity_Definition> l_result{};
 
-    l_result.push_back(Entity_Definition{u8"Texture",u8"This is a Texture.",u8""});
-    l_result.push_back(Entity_Definition{u8"Material",u8"This is a Material.",u8""});
+    l_result.push_back(Entity_Definition{String{u8"Texture"},String{u8"This is a Texture."},String{u8""}});
+    l_result.push_back(Entity_Definition{String{u8"Material"},String{u8"This is a Material."},String{u8""}});
 
     return l_result;
   }
@@ -185,12 +176,6 @@ sak::Project::Implementation::Implementation(QString const& a_filepath) :
   m_filepath{a_filepath},
   m_entity_manager{do_make_entity_defs()}
 {
-  std::cout << "Entity Types:" << std::endl;
-  for (auto const& l_type : this->centity_manager()->get_all_types())
-  {
-    std::cout << l_type << std::endl;
-  }
-
 }
 
 sak::Project::Implementation::~Implementation() = default;

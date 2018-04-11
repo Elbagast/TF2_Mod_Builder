@@ -13,6 +13,10 @@
 #include "abstract_entity_icon.hpp"
 #endif
 
+#ifndef SAK_STRING_HPP
+#include "../string.hpp"
+#endif
+
 namespace sak
 {
   //---------------------------------------------------------------------------
@@ -27,12 +31,12 @@ namespace sak
   private:
     // Data Members
     //============================================================
-    std::string m_iconpath;
+    String m_iconpath;
 
   public:
     // Special 6
     //============================================================
-    explicit Local_Entity_Icon(std::string const& a_iconpath);
+    explicit Local_Entity_Icon(String const& a_iconpath);
     ~Local_Entity_Icon() override final;
 
     // Block copying components.
@@ -45,7 +49,7 @@ namespace sak
 
     // Interface
     //============================================================
-    std::string const& iconpath() const override final;
+    String const& iconpath() const override final;
   };
 
   //------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -62,12 +66,12 @@ namespace sak
   private:
     // Data Members
     //============================================================
-    std::string const& m_iconpath;
+    String const& m_iconpath;
 
   public:
     // Special 6
     //============================================================
-    explicit Remote_Entity_Icon(std::string const& a_iconpath);
+    explicit Remote_Entity_Icon(String const& a_iconpath);
     ~Remote_Entity_Icon() override final;
 
     // Block copying components.
@@ -80,7 +84,7 @@ namespace sak
 
     // Interface
     //============================================================
-    std::string const& iconpath() const override final;
+    String const& iconpath() const override final;
   };
 }
 

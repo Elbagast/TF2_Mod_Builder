@@ -60,32 +60,32 @@ namespace sak
     //============================================================
     Entity_ID m_id;
     std::unique_ptr<Abstract_Entity_Type> m_type_component;
-    std::unique_ptr<Abstract_Entity_Name> m_name_component;
     std::unique_ptr<Abstract_Entity_Tooltip> m_tooltip_component;
     std::unique_ptr<Abstract_Entity_Icon> m_icon_component;
+    std::unique_ptr<Abstract_Entity_Name> m_name_component;
 
   public:
     // Special 6
     //============================================================
     // Auto convert component pointer types to the abstract pointer types.
-    template <typename T_Name, typename T_Type, typename T_Tooltip, typename T_Icon>
+    template <typename T_Type, typename T_Tooltip, typename T_Icon, typename T_Name>
     Entity(Entity_ID a_id,
            std::unique_ptr<T_Type>&& a_type_component,
-           std::unique_ptr<T_Name>&& a_name_component,
            std::unique_ptr<T_Tooltip>&& a_tooltip_component,
-           std::unique_ptr<T_Icon>&& a_icon_component):
+           std::unique_ptr<T_Icon>&& a_icon_component,
+           std::unique_ptr<T_Name>&& a_name_component):
       Entity(a_id,
              std::unique_ptr<Abstract_Entity_Type>{a_type_component.release()},
-             std::unique_ptr<Abstract_Entity_Name>{a_name_component.release()},
              std::unique_ptr<Abstract_Entity_Tooltip>{a_tooltip_component.release()},
-             std::unique_ptr<Abstract_Entity_Icon>{a_icon_component.release()})
+             std::unique_ptr<Abstract_Entity_Icon>{a_icon_component.release()},
+             std::unique_ptr<Abstract_Entity_Name>{a_name_component.release()})
     {}
 
     Entity(Entity_ID a_id,
            std::unique_ptr<Abstract_Entity_Type>&& a_type_component,
-           std::unique_ptr<Abstract_Entity_Name>&& a_name_component,
            std::unique_ptr<Abstract_Entity_Tooltip>&& a_tooltip_component,
-           std::unique_ptr<Abstract_Entity_Icon>&& a_icon_component);
+           std::unique_ptr<Abstract_Entity_Icon>&& a_icon_component,
+           std::unique_ptr<Abstract_Entity_Name>&& a_name_component);
     ~Entity();
 
     // Block copying so we don't break components.
@@ -101,14 +101,14 @@ namespace sak
     Entity_ID id() const;
 
     Abstract_Entity_Type* type_component();
-    Abstract_Entity_Name* name_component();
     Abstract_Entity_Tooltip* tooltip_component();
     Abstract_Entity_Icon* icon_component();
+    Abstract_Entity_Name* name_component();
 
     Abstract_Entity_Type const* ctype_component() const;
-    Abstract_Entity_Name const* cname_component() const;
     Abstract_Entity_Tooltip const* ctooltip_component() const;
     Abstract_Entity_Icon const* cicon_component() const;
+    Abstract_Entity_Name const* cname_component() const;
   };
 }
 

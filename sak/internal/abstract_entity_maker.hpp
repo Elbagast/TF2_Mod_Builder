@@ -21,6 +21,10 @@
 #include "../entity_definition_fwd.hpp"
 #endif
 
+#ifndef SAK_STRING_FWD_HPP
+#include "../string_fwd.hpp"
+#endif
+
 // Standard Headers
 //============================================================
 #ifndef INCLUDE_STD_MEMORY
@@ -28,10 +32,6 @@
 #include <memory>
 #endif
 
-#ifndef INCLUDE_STD_STRING
-#define INCLUDE_STD_STRING
-#include <string>
-#endif
 
 namespace sak
 {
@@ -51,7 +51,7 @@ namespace sak
     // Interface
     //============================================================
     // Get the typestring for this Entity type.
-    virtual std::string type() const = 0;
+    virtual String type() const = 0;
 
     // Make a new Entity of this type with the supplied id. It is not the
     // responsibility of this to determine whether the id is null or invalid,

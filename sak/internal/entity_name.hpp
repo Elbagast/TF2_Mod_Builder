@@ -13,6 +13,10 @@
 #include "abstract_entity_name.hpp"
 #endif
 
+#ifndef SAK_STRING_HPP
+#include "../string.hpp"
+#endif
+
 namespace sak
 {
   //---------------------------------------------------------------------------
@@ -26,13 +30,13 @@ namespace sak
   private:
     // Data Members
     //============================================================
-    std::string m_name;
+    String m_name;
 
   public:
     // Special 6
     //============================================================
     // Construct with this name as the initial name.
-    explicit Entity_Name(std::string const& a_name);
+    explicit Entity_Name(String const& a_name);
     ~Entity_Name() override final;
 
     // Block copying components.
@@ -45,8 +49,8 @@ namespace sak
 
     // Interface
     //============================================================
-    std::string const& get_name() const override final;
-    bool set_name(std::string const& a_name) override final;
+    String const& get_name() const override final;
+    bool set_name(String const& a_name) override final;
   };
 }
 

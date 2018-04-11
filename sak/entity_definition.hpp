@@ -7,16 +7,10 @@
 #include "entity_definition_fwd.hpp"
 #endif
 
-// Standard Headers
+// SAK Headers
 //============================================================
-//#ifndef INCLUDE_STD_MEMORY
-//#define INCLUDE_STD_MEMORY
-//#include <memory>
-//#endif
-
-#ifndef INCLUDE_STD_STRING
-#define INCLUDE_STD_STRING
-#include <string>
+#ifndef SAK_STRING_HPP
+#include "string.hpp"
 #endif
 
 namespace sak
@@ -38,16 +32,16 @@ namespace sak
   private:
     // Data Members
     //============================================================
-    std::string m_type;
-    std::string m_tooltip;
-    std::string m_iconpath;
+    String m_type;
+    String m_tooltip;
+    String m_iconpath;
 
   public:
     // Special 6
     //============================================================
-    explicit Entity_Definition(std::string const& a_type,
-                               std::string const& a_tooltip = std::string{},
-                               std::string const& a_iconpath = std::string{});
+    explicit Entity_Definition(String const& a_type,
+                               String const& a_tooltip = String{},
+                               String const& a_iconpath = String{});
     ~Entity_Definition();
 
     Entity_Definition(Entity_Definition const&);
@@ -63,12 +57,12 @@ namespace sak
     //------------------------------------------------------------
 
     // Get the type.
-    std::string const& type() const;
+    String const& type() const;
 
     // Set the type. If the type is empty or the same as that in antoher
     // definition that is used at the same time, Entity_Manager will have to
     // deal with that somehow.
-    void set_type(std::string const& a_value);
+    void set_type(String const& a_value);
 
     // Tooltip
     //------------------------------------------------------------
@@ -77,10 +71,10 @@ namespace sak
     bool has_tooltip() const;
 
     // Get the tooltip.
-    std::string const& tooltip() const;
+    String const& tooltip() const;
 
     // Set the tooltip.
-    void set_tooltip(std::string const& a_value);
+    void set_tooltip(String const& a_value);
 
     // Icon
     //------------------------------------------------------------
@@ -90,10 +84,10 @@ namespace sak
     bool has_iconpath() const;
 
     // Get the iconpath.
-    std::string const& iconpath() const;
+    String const& iconpath() const;
 
     // Set the iconpath.
-    void set_iconpath(std::string const& a_value);
+    void set_iconpath(String const& a_value);
   };
 }
 

@@ -30,15 +30,15 @@ sak::Entity_Factory& sak::Entity_Factory::operator=(Entity_Factory &&) = default
 // Interface
 //============================================================
 // Is this a type of Entity we can make?
-bool sak::Entity_Factory::has_type(std::string const& a_type) const
+bool sak::Entity_Factory::has_type(String const& a_type) const
 {
   return m_makers.find(a_type) != m_makers.cend();
 }
 
 // Get all of the available Entity types.
-std::vector<std::string> sak::Entity_Factory::all_types() const
+std::vector<sak::String> sak::Entity_Factory::all_types() const
 {
-  std::vector<std::string> l_result{};
+  std::vector<String> l_result{};
   l_result.reserve(m_makers.size());
   for (auto const& l_pair : m_makers)
   {
@@ -52,10 +52,10 @@ std::vector<std::string> sak::Entity_Factory::all_types() const
 // before being copied or moved, the Entity data is also destroyed. If the
 // type supplied is not one that can be made, then the handle is a null
 // handle.
-sak::Entity_Handle sak::Entity_Factory::make_entity(std::string const& a_type) const
+sak::Entity_Handle sak::Entity_Factory::make_entity(String const& a_type) const
 {
   // Stop if empty.
-  if (a_type.empty())
+  if (a_type.is_empty())
   {
     return Entity_Handle{};
   }
@@ -100,7 +100,7 @@ bool sak::Entity_Factory::add_maker(std::unique_ptr<Abstract_Entity_Maker>&& a_m
 
 // Attempt to remove the maker with this type. If one is found, it is removed
 // from the data and returned. If it is not found, a nullptr is returned.
-std::unique_ptr<sak::Abstract_Entity_Maker> sak::Entity_Factory::remove_maker(std::string const& a_type)
+std::unique_ptr<sak::Abstract_Entity_Maker> sak::Entity_Factory::remove_maker(String const& a_type)
 {
   // Initialise the result to nullptr.
   std::unique_ptr<Abstract_Entity_Maker> l_result{};

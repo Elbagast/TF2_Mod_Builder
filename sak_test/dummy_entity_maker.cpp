@@ -21,17 +21,14 @@
 sak::Dummy_Entity_Maker::Dummy_Entity_Maker() = default;
 sak::Dummy_Entity_Maker::~Dummy_Entity_Maker() = default;
 
-namespace
-{
-  std::string const c_type{"Dummy Entity"};
-}
 
 // Interface
 //============================================================
 // Get the typestring for this Entity type.
-std::string sak::Dummy_Entity_Maker::type() const
+sak::String sak::Dummy_Entity_Maker::type() const
 {
-  return c_type;
+  static String const s_type{u8"Dummy Entity"};
+  return s_type;
 }
 
 // Make a new Entity of this type with the supplied id. If the supplied id
@@ -39,12 +36,15 @@ std::string sak::Dummy_Entity_Maker::type() const
 // created.
 sak::Entity sak::Dummy_Entity_Maker::make_entity(Entity_ID a_id) const
 {
+  static String const s_tooltip{u8"dummy tooltip"};
+  static String const s_icon{u8"dummy iconpath"};
+
   return Entity
   {
     a_id,
-    std::make_unique<Local_Entity_Type>(c_type),
-    std::make_unique<Entity_Name>(c_type),
-    std::make_unique<Local_Entity_Tooltip>(std::string{"dummy tooltip"}),
-    std::make_unique<Local_Entity_Icon>(std::string{"dummy iconpath"})
+    std::make_unique<Local_Entity_Type>(this->Dummy_Entity_Maker::type()),
+    std::make_unique<Local_Entity_Tooltip>(s_tooltip),
+    std::make_unique<Local_Entity_Icon>(s_icon),
+    std::make_unique<Entity_Name>(this->Dummy_Entity_Maker::type())
   };
 }

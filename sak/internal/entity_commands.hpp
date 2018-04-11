@@ -31,12 +31,12 @@
 #include "entity_handle.hpp"
 #endif
 
+#ifndef SAK_STRING_HPP
+#include "../string.hpp"
+#endif
+
 // Standard Headers
 //============================================================
-#ifndef INCLUDE_STD_STRING
-#define INCLUDE_STD_STRING
-#include <string>
-#endif
 
 namespace sak
 {
@@ -219,15 +219,15 @@ namespace sak
   private:
     // Data Members
     //============================================================
-    std::string m_old_name;
-    std::string m_new_name;
+    String m_old_name;
+    String m_new_name;
   public:
     // Special 6
     //============================================================
     Command_Entity_Name_Change(Signal_Source a_source,
                                Observer_Manager& a_observers,
                                Entity_Handle const& a_handle,
-                               std::string const& a_name);
+                               String const& a_name);
     ~Command_Entity_Name_Change() override final;
 
     // NO COPYING

@@ -205,7 +205,7 @@ void sak::Command_Entity_Remove::do_unexecute()
 sak::Command_Entity_Name_Change::Command_Entity_Name_Change(Signal_Source a_source,
                                                             Observer_Manager& a_observers,
                                                             Entity_Handle const& a_handle,
-                                                            std::string const& a_name) :
+                                                            String const& a_name) :
   Abstract_Entity_Signalling_Command(a_source, a_observers, a_handle),
   m_old_name{a_handle->cname_component()->get_name()},
   m_new_name{a_name}

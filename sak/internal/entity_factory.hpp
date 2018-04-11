@@ -21,6 +21,10 @@
 #include "entity_handle_fwd.hpp"
 #endif
 
+#ifndef SAK_STRING_HPP
+#include "../string.hpp"
+#endif
+
 // Standard Headers
 //============================================================
 #ifndef INCLUDE_STD_MAP
@@ -31,16 +35,6 @@
 #ifndef INCLUDE_STD_VECTOR
 #define INCLUDE_STD_VECTOR
 #include <vector>
-#endif
-
-#ifndef INCLUDE_STD_MEMORY
-#define INCLUDE_STD_MEMORY
-#include <memory>
-#endif
-
-#ifndef INCLUDE_STD_STRING
-#define INCLUDE_STD_STRING
-#include <string>
 #endif
 
 #ifndef INCLUDE_TYPE_TRAITS
@@ -62,7 +56,7 @@ namespace sak
     // Data Members
     //============================================================
     mutable Entity_ID_Value_Type m_next_id;
-    std::map<std::string, std::unique_ptr<Abstract_Entity_Maker> > m_makers;
+    std::map<String, std::unique_ptr<Abstract_Entity_Maker> > m_makers;
 
   public:
     // Special 6
@@ -81,17 +75,17 @@ namespace sak
     // Interface
     //============================================================
     // Is this a type of Entity we can make?
-    bool has_type(std::string const& a_type) const;
+    bool has_type(String const& a_type) const;
 
     // Get all of the available Entity types.
-    std::vector<std::string> all_types() const;
+    std::vector<String> all_types() const;
 
     // Make this kind of Entity. It will have its name set to the type and the
     // data is default initialised to empty. If the returned handle is destroyed
     // before being copied or moved, the Entity data is also destroyed. If the
     // type supplied is not one that can be made, then the handle is a null
     // handle.
-    Entity_Handle make_entity(std::string const& a_type) const;
+    Entity_Handle make_entity(String const& a_type) const;
 
     // Attempt to add this maker to the collection. If it's type is not already
     // present it will be added and true is returned. If a maker with the same
@@ -108,7 +102,7 @@ namespace sak
 
     // Attempt to remove the maker with this type. If one is found, it is removed
     // from the data and returned. If it is not found, a nullptr is returned.
-    std::unique_ptr<Abstract_Entity_Maker> remove_maker(std::string const& a_type);
+    std::unique_ptr<Abstract_Entity_Maker> remove_maker(String const& a_type);
   };
 }
 

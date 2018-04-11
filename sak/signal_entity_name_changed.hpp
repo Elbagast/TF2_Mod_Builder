@@ -7,6 +7,10 @@
 #include "signal_entity_name_changed_fwd.hpp"
 #endif
 
+#ifndef SAK_STRING_FWD_HPP
+#include "string_fwd.hpp"
+#endif
+
 // SAK Headers
 //============================================================
 #ifndef SAK_SIGNAL_ENTITY_HPP
@@ -33,13 +37,13 @@ namespace sak
   private:
     // Data Members
     //============================================================
-    std::string const& m_old_name;
-    std::string const& m_new_name;
+    String const& m_old_name;
+    String const& m_new_name;
 
   public:
     // Special 6
     //============================================================
-    Signal_Entity_Name_Changed(Signal_Source a_source, Entity_ID a_id, std::string const& a_old_name, std::string const& a_new_name);
+    Signal_Entity_Name_Changed(Signal_Source a_source, Entity_ID a_id, String const& a_old_name, String const& a_new_name);
     ~Signal_Entity_Name_Changed() override;
 
     // Interface
@@ -48,8 +52,8 @@ namespace sak
     using Signal_Entity::type;
     using Signal_Entity::id;
 
-    std::string const& old_name() const noexcept;
-    std::string const& new_name() const noexcept;
+    String const& old_name() const noexcept;
+    String const& new_name() const noexcept;
   };
 }
 

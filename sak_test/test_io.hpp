@@ -8,6 +8,8 @@
 #include <sak/signal_fwd.hpp>
 #include <sak/signal_source_fwd.hpp>
 
+#include <sak/string_fwd.hpp>
+
 // internal parts
 #include <sak/internal/entity_fwd.hpp>
 #include <sak/internal/entity_handle_fwd.hpp>
@@ -16,6 +18,8 @@
 
 namespace sak
 {
+  std::ostream& operator<<(std::ostream& a_ostream, String const& a_string);
+
   std::ostream& operator<<(std::ostream& a_ostream, Entity_ID a_id);
   std::ostream& operator<<(std::ostream& a_ostream, Entity_Definition const& a_def);
   std::ostream& operator<<(std::ostream& a_ostream, Entity_Manager const& a_manager);
@@ -28,4 +32,5 @@ namespace sak
   std::ostream& operator<<(std::ostream& a_ostream, Entity_Handle const& a_handle);
 
 }
+
 #endif // TEST_IO_HPP

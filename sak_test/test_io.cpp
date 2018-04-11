@@ -1,6 +1,8 @@
 ﻿#include "test_io.hpp"
 
 // public parts
+#include <sak/string.hpp>
+
 #include <sak/entity_id.hpp>
 #include <sak/entity_definition.hpp>
 #include <sak/entity_manager.hpp>
@@ -30,6 +32,12 @@ namespace
   }
 }
 
+
+std::ostream& sak::operator<<(std::ostream& a_ostream, String const& a_string)
+{
+  a_ostream << a_string.to_std_string();
+  return a_ostream;
+}
 
 std::ostream& sak::operator<<(std::ostream& a_ostream, Entity_ID a_id)
 {
@@ -98,7 +106,7 @@ std::ostream& sak::operator<<(std::ostream& a_ostream, Entity_Manager const& a_m
   indent(a_ostream, l_depth);
   a_ostream << "[" << std::endl;
   ++l_depth;
-  for (auto l_observer : a_manager.observers() )
+  for (auto l_observer : a_manager.all_observer() )
   {
     indent(a_ostream, l_depth);
     a_ostream << l_observer << std::endl;
@@ -123,7 +131,7 @@ std::ostream& sak::operator<<(std::ostream& a_ostream, Entity_Manager const& a_m
   a_ostream << "[" << std::endl;
   ++l_depth;
 
-  for (auto const& l_type : a_manager.get_all_types())
+  for (auto const& l_type : a_manager.all_can_make())
   {
     indent(a_ostream, l_depth);
     a_ostream << "\"" << l_type << "\"" << std::endl;
@@ -139,10 +147,9 @@ std::ostream& sak::operator<<(std::ostream& a_ostream, Entity_Manager const& a_m
   indent(a_ostream, l_depth);
   a_ostream << "[" << std::endl;
   ++l_depth;
-  for (std::size_t l_index = 0, l_end = a_manager.count(); l_index != l_end; ++l_index)
+  for (auto l_id : a_manager.all())
   {
     indent(a_ostream, l_depth);
-    auto l_id = a_manager.get_at(l_index);
     a_ostream << l_id
               << " type=\"" << a_manager.type(l_id) << "\" "
               << " name=\"" << a_manager.name(l_id) << "\" "
@@ -167,10 +174,10 @@ std::ostream& sak::operator<<(std::ostream& a_ostream, Entity const& a_entity)
 {
   a_ostream << "Entity[ "
             << "id=" << a_entity.id() << " "
-            << "type=\"" << (a_entity.ctype_component() ? a_entity.ctype_component()->type() : "")<< "\" "
-            << "name=\"" << (a_entity.cname_component() ? a_entity.cname_component()->get_name() : "")<< "\" "
-            << "tooltip=\"" << (a_entity.ctooltip_component() ? a_entity.ctooltip_component()->tooltip() : "")<< "\" "
-            << "icon=\"" << (a_entity.cicon_component() ? a_entity.cicon_component()->iconpath() : "")<< "\" "
+            << "type=\"" << (a_entity.ctype_component() ? a_entity.ctype_component()->type() : String{})<< "\" "
+            << "name=\"" << (a_entity.cname_component() ? a_entity.cname_component()->get_name() : String{})<< "\" "
+            << "tooltip=\"" << (a_entity.ctooltip_component() ? a_entity.ctooltip_component()->tooltip() : String{})<< "\" "
+            << "icon=\"" << (a_entity.cicon_component() ? a_entity.cicon_component()->iconpath() : String{})<< "\" "
             << "]";
   return a_ostream;
 }

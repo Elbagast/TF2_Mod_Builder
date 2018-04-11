@@ -7,12 +7,10 @@
 #include "abstract_entity_name_fwd.hpp"
 #endif
 
-// Standard Headers
-//============================================================
-#ifndef INCLUDE_STD_STRING
-#define INCLUDE_STD_STRING
-#include <string>
+#ifndef SAK_STRING_FWD_HPP
+#include "string_fwd.hpp"
 #endif
+
 
 namespace sak
 {
@@ -30,8 +28,8 @@ namespace sak
 
     // Interface
     //============================================================
-    virtual std::string const& get_name() const = 0;
-    virtual bool set_name(std::string const&) = 0;
+    virtual String const& get_name() const = 0;
+    virtual bool set_name(String const&) = 0;
   };
 }
 

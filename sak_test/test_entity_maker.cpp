@@ -4,6 +4,9 @@
 
 #include <sak/entity_id.hpp>
 #include <sak/internal/entity.hpp>
+#include <sak/string.hpp>
+
+#include <test_io.hpp>
 
 #include <iostream>
 #include <cassert>

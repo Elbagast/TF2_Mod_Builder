@@ -9,20 +9,13 @@
 QT       += core gui
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
-
 TARGET = tf2mb
 TEMPLATE = app
 
 CONFIG += static
 CONFIG += threads
 #CONFIG += object_parallel_to_source
-
-# Compiler Flags
-#==============================
-# Getting MinGW to use C++14 features like std::make_unique
-mingw {
-    QMAKE_CXXFLAGS += -std=gnu++14
-}
+CONFIG += c++17
 
 INCLUDE_DIR = $${PWD}/..
 INCLUDEPATH += $${INCLUDE_DIR}
